@@ -108,7 +108,9 @@ INSERT INTO `parameter` (`id`, `name`, `channel_name`, `file_type`, `file_path`,
 (11, 'read_pairs', 'read_pairs', 'fq', '"$baseDir/data/ggal/*_{1,2}.fq"', '1', 'set', '', '2017-04-23 22:13:42', '2017-04-23 22:13:42', 'docker'),
 (13, 'mapped_read_pairs', 'bam_files', 'bam', '', '1', 'set', '', '2017-04-23 22:31:59', '2017-04-23 22:31:59', 'docker'),
 (14, 'transcripts', 'transcripts', 'gtf', '', '1', 'set', '', '2017-04-23 22:34:26', '2017-04-23 22:34:26', 'root'),
-(15, 'RSeQC', 'RSeQC', 'tsv', '', '1.0.0', 'file', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root');
+(15, 'RSeQC', 'RSeQC', 'tsv', '', '1.0.0', 'file', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root'),
+(16, 'inputparam', '', 'NA', '', '', '', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root');
+(17, 'outputparam', '', 'NA', '', '', '', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root');
 
 -- --------------------------------------------------------
 
@@ -272,12 +274,13 @@ CREATE TABLE IF NOT EXISTS `process_group` (
 --
 
 INSERT INTO `process_group` (`id`, `group_name`) VALUES
-(1, 'Index'),
-(2, 'Alignment'),
-(3, 'Transcript'),
-(4, 'Samtools'),
-(5, 'Misc.'),
-(6, 'QC');
+(1, 'Add Parameter'),
+(2, 'Index'),
+(3, 'Alignment'),
+(4, 'Transcript'),
+(5, 'Samtools'),
+(6, 'Misc.'),
+(7, 'QC');
 
 -- --------------------------------------------------------
 
