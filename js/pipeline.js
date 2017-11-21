@@ -47,12 +47,13 @@ function drop(event) {
 	   }
  
 	  var processData = getValues( {p: "getProcessData"} )
+      console.log(processData)
 	  addOption2Select()
 
 	  var savedData = getValues( {p: "getSavedPipelines"} )
 	  addOption2LoadSelect()
 	  
-	  var parametersData =  getValues( {p: "getParametersData" } )
+	  var parametersData =  getValues({p: "getParametersData" })
 	  var sData = "";
 	  var svg = "";
 	  var mainG = "";
@@ -705,14 +706,11 @@ function drop(event) {
     }
 
     function conToInput() {
-                console.log("cand:"+cand)
-
-    d3.selectAll("circle").filter("." + cand).attr("status","candidate") //select all available inputs for inputparam circles
+        d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available inputs for inputparam circles
     }
-    function conToOutput() {
-                console.log("cand:"+cand)
 
-    d3.selectAll("circle").filter("." + cand).attr("status","candidate") //select all available outputs for outputparam circles
+    function conToOutput() {
+        d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available outputs for outputparam circles
     }
 
     function startBinding(clasNames, cand, selectedIO) {
@@ -1121,14 +1119,19 @@ function drop(event) {
 			d3.select("#rename").remove()
 
 		}
+        //nextflow variable must not contain "-", replaced by "_"
+        function gFormat(gText) {
+            gPatt = /(.*)-(.*)/
+            gText = gText.replace(gPatt, '$1_$2')
+            return gText
+        }
         
 		function createNextflowFile() {
-			nextText = "#!/usr/bin/env nextflow " + " \n\n"
+			nextText = "params.outdir = 'results' " + " \n\n"
             //initial input data added
             for (var key in processList) {
 				className = document.getElementById(key).getAttribute("class");
 				mainProcessId = className.split("-")[1]
-				//IOandScriptForNf(mainProcessId, key)
 				iniText = InputParameters(mainProcessId, key)
 				nextText = nextText + iniText
 			}
@@ -1136,9 +1139,8 @@ function drop(event) {
 			for (var key in processList) {
 			    className = document.getElementById(key).getAttribute("class");
 			    mainProcessId = className.split("-")[1]
-			    if (mainProcessId !== "inPro") { //if it is not input parameter print process data
-			        IOandScriptForNf(mainProcessId, key)
-			        proText = "process " + processList[key] + " {\n\n" + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
+			    if (mainProcessId !== "inPro" && mainProcessId !== "outPro" ) { //if it is not input parameter print process data
+			        proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
 			        nextText = nextText + proText
 			    }
 			}
@@ -1163,13 +1165,15 @@ function drop(event) {
                     for (var e = 0; e < edges.length; e++) {
                         if (edges[e].indexOf(Iid) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
                             nodes = edges[e].split("_")
-                            edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
+                            //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
                                 fNode = nodes[0]
                                 sNode = nodes[1]
                                 inputIdSplit = sNode.split("-")
                                 genParName = parametersData.filter(function (el) {return el.id == inputIdSplit[3]})[0].name
-                                channelName = document.getElementById(fNode).getAttribute("parentG") + "-" + genParName //g-0-genome
+                                channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 
+                       
+                            
                             if (qual === "file") {
                                 tempText = "params." + inputParamName + " =\"\" \n" + channelName + " = " + "file(params." + inputParamName + ") \n"
                                 iText = iText + tempText
@@ -1186,6 +1190,59 @@ function drop(event) {
                 }          
             }
             return iText
+        }        
+
+        function OutputParameters(id,currgid) {
+            oText=""
+            var closePar = false
+            //console.log("id:" + id + "currgid:" + currgid)
+            oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0] 
+            for (var i = 0; i < oList.length; i++) { //search through each output node
+                oId = oList[i].id
+                for (var e = 0; e < edges.length; e++) {
+                    if (edges[e].indexOf(oId) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
+                        nodes = edges[e].split("_")
+                        //edgeLocF = nodes[0].indexOf("i-inPro") //-1: inputparam not exist //0: first click is done on inputparam
+                        fNode = nodes[0] //outPro node : get userEntryId and userEntryText and parameterID
+                        sNode = nodes[1] //connected node
+
+                        if (fNode.split("-")[1] === "outPro" && closePar === false) {
+                            closePar = true
+                            oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
+
+					           outputName = document.getElementById(oId).getAttribute("name")
+
+                            //outPro node : get userEntryId and userEntryText
+                            parId = fNode.split("-")[4]
+                            userEntryId = "text-" + fNode.split("-")[4]
+                            outputParamName = document.getElementById(userEntryId).textContent //user entered output parameter name
+                            parFile = parametersData.filter(function (el) {
+                                return el.id == fNode.split("-")[3]
+                            })[0].file_type
+
+                            tempText = "\tif \(filename.indexOf\(" + outputName + "\)>0\) filename\n"
+                            oText = oText + tempText
+                            console.log(oText)
+                            //break
+                        } else if (fNode.split("-")[1] === "outPro" && closePar === true){
+					           outputName = document.getElementById(oId).getAttribute("name")
+                            
+                            parFile = parametersData.filter(function (el) {
+                                return el.id == fNode.split("-")[3]
+                            })[0].file_type
+
+                            tempText = "\telse if \(filename.indexOf\(" + outputName + "\)>0\) filename\n"
+                            oText = oText + tempText
+                            
+                        }
+                    }
+                }
+            }
+            if (closePar === true) {
+            oText = oText + "}\n\n"
+            closePar = false
+            }
+            return oText
         }
 
 		function IOandScriptForNf(id,currgid) {
@@ -1201,7 +1258,7 @@ function drop(event) {
 					if (bodyInput == "") {
 						bodyInput = "input:\n"
 					}
-					Iid = IList[i].id
+					Iid = IList[i].id //i-11-0-9-0
 					inputIdSplit = Iid.split("-")
 					qual = parametersData.filter(function (el) {return el.id == inputIdSplit[3]})[0].qualifier
 					inputName = document.getElementById(Iid).getAttribute("name")
@@ -1210,7 +1267,7 @@ function drop(event) {
 						if (edges[e].indexOf(Iid) > -1) { //if not exist -1, if at first position 0, if at second pos. 12
 						    find = true
 						    nodes = edges[e].split("_")
-						    edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
+						    //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
 						    fNode = nodes[0]
 						    sNode = nodes[1]
 
@@ -1219,14 +1276,18 @@ function drop(event) {
 
 						        inputIdSplit = sNode.split("-")
 						        genParName = parametersData.filter(function (el) {return el.id == inputIdSplit[3] })[0].name
-						        channelName = document.getElementById(sNode).getAttribute("parentG") + "-" + genParName //g-0-genome
+						        channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 						    } else {
 						        inputIdSplit = fNode.split("-")
 
 						        genParName = parametersData.filter(function (el) {return el.id == inputIdSplit[3] })[0].name
-						        channelName = document.getElementById(fNode).getAttribute("parentG") + "-" + genParName //g-0-genome
+						        channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 						    }
+                            if (qual === "file") {
 						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
+                            } else if (qual === "set") {
+						    bodyInput = bodyInput + " " + qual + " " + "pair_id," + " " + inputName + " from " + channelName + "\n"
+                            }
 						}
 					}
 					if (find == false) {
@@ -1244,9 +1305,14 @@ function drop(event) {
 					qual = parametersData.filter(function (el) {return el.id == outputIdSplit[3]})[0].qualifier
 					outputName = document.getElementById(Oid).getAttribute("name")
                     genParName = parametersData.filter(function (el) {return el.id == outputIdSplit[3]})[0].name
-					channelName = document.getElementById(Oid).getAttribute("parentG") + "-" +genParName
-
-					bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
+					channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" +genParName
+                            
+                    if (qual === "file") {
+						    bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
+                            } else if (qual === "set") {
+						    bodyOutput = bodyOutput + " " + qual + " " + "pair_id," + " " + outputName + " into " + channelName + "\n"
+                            }
+					
 				}
 				body = bodyInput +"\n"+ bodyOutput +"\n"+ "\"\"\"" + script + "\"\"\""
 				return body
@@ -1383,7 +1449,6 @@ function drop(event) {
                         break
                     } 
                 }
-                console.log("classtoparam: " + classtoparam)
                 drawParam(name,process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor )   
                 processList[("g-" + gNum)] = name
 			    gNum = gNum + 1
