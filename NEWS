@@ -2,3 +2,5 @@
 Output parameters module added. Database updated for NF_pipelines
 20.11.2017 Version 0.0.3 
 Output parameters module added to nextflow. Database updated process scripts
+28.11.2017 Version 0.0.4
+Single/Pair option added to nextflow. Database updated: Build_index and Map_Tophat2 processes updated. Obsolete tables are removed.

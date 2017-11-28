@@ -1128,13 +1128,16 @@ function drop(event) {
         
 		function createNextflowFile() {
 			nextText = "params.outdir = 'results' " + " \n\n"
+            iniTextSecond = ""
             //initial input data added
             for (var key in processList) {
 				className = document.getElementById(key).getAttribute("class");
 				mainProcessId = className.split("-")[1]
 				iniText = InputParameters(mainProcessId, key)
-				nextText = nextText + iniText
+				iniTextSecond = iniTextSecond + iniText.secPart
+                nextText = nextText + iniText.firstPart
 			}
+            nextText = nextText + "\n" + iniTextSecond + "\n"
 
 			for (var key in processList) {
 			    className = document.getElementById(key).getAttribute("class");
@@ -1150,7 +1153,10 @@ function drop(event) {
         //Input parameters and channels with file paths
         function InputParameters(id,currgid) {
             IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-            iText = "";
+             iText = {};
+             firstPart = "";
+             secPart = "";
+            
             for (var i = 0; i < IList.length; i++) {
                 Iid = IList[i].id
                 inputIdSplit = Iid.split("-")
@@ -1175,20 +1181,33 @@ function drop(event) {
                        
                             
                             if (qual === "file") {
-                                tempText = "params." + inputParamName + " =\"\" \n" + channelName + " = " + "file(params." + inputParamName + ") \n"
-                                iText = iText + tempText
+                                firstPartTemp = "params." + inputParamName + " =\"\" \n"
+                                secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
+                                firstPart = firstPart + firstPartTemp
+                                secPart = secPart + secPartTemp
                                 break
                             } else if (qual === "set") {
-                                //tempText = "Channel.fromFilePairs(" + filePath + ").set(" + inputParamName + ") \n"
-                                tempText = "params." + inputParamName + " =\"\" \n\nChannel\n\t.fromFilePairs( params." + inputParamName + " )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
-
-                                iText = iText + tempText
+                                firstPartTemp = "params." + inputParamName + " =\"\" \n"
+                                secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.end != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
+                                firstPart = firstPart + firstPartTemp
+                                secPart = secPart + secPartTemp
                                 break
+                            } else if (qual === "val") {
+                                firstPartTemp = "params." + genParName + " =\"" + inputParamName + "\" \n"
+                                secPartTemp = channelName + " = " + "params." + genParName + "\n"
+                                firstPart = firstPart + firstPartTemp
+                                secPart = secPart + secPartTemp
+                                break
+                                
                             }
+                            
                         }
                     }
                 }          
             }
+            iText.firstPart = firstPart 
+            iText.secPart = secPart
+            
             return iText
         }        
 
@@ -1220,7 +1239,7 @@ function drop(event) {
                                 return el.id == fNode.split("-")[3]
                             })[0].file_type
 
-                            tempText = "\tif \(filename.indexOf\(" + outputName + "\)>0\) filename\n"
+                            tempText = "\tif \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
                             oText = oText + tempText
                             console.log(oText)
                             //break
@@ -1231,7 +1250,7 @@ function drop(event) {
                                 return el.id == fNode.split("-")[3]
                             })[0].file_type
 
-                            tempText = "\telse if \(filename.indexOf\(" + outputName + "\)>0\) filename\n"
+                            tempText = "\telse if \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
                             oText = oText + tempText
                             
                         }
@@ -1286,8 +1305,11 @@ function drop(event) {
                             if (qual === "file") {
 						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
                             } else if (qual === "set") {
-						    bodyInput = bodyInput + " " + qual + " " + "pair_id," + " " + inputName + " from " + channelName + "\n"
-                            }
+						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
+                            } else if (qual === "val") {
+						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
+                            console.log(bodyInput)    
+                            } 
 						}
 					}
 					if (find == false) {
@@ -1310,11 +1332,11 @@ function drop(event) {
                     if (qual === "file") {
 						    bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
                             } else if (qual === "set") {
-						    bodyOutput = bodyOutput + " " + qual + " " + "pair_id," + " " + outputName + " into " + channelName + "\n"
+						    bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
                             }
 					
 				}
-				body = bodyInput +"\n"+ bodyOutput +"\n"+ "\"\"\"" + script + "\"\"\""
+				body = bodyInput +"\n"+ bodyOutput +"\n"+ script 
 				return body
 		}
 
