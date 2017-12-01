@@ -70,6 +70,9 @@ else if ($p=="getAllPipelines"){
 else if ($p=="getAllProcesses"){
     $data = $db -> getAllProcesses($start, $end);
 }
+else if ($p=="getAllProcessGroups"){
+    $data = $db -> getAllProcessGroups($start, $end);
+}
 else if ($p=="getAllProcessParameters"){
    $process_id = $_REQUEST["process_id"];
    $data = $db->getAllProcessParameters($process_id, $type, $start, $end);
