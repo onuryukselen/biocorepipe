@@ -47,8 +47,7 @@ function drop(event) {
 	   }
  
 	  var processData = getValues( {p: "getProcessData"} )
-      console.log(processData)
-	  addOption2Select()
+	  
 
 	  var savedData = getValues( {p: "getSavedPipelines"} )
 	  addOption2LoadSelect()
@@ -77,7 +76,6 @@ function drop(event) {
 		  e = document.getElementById("pipelines");
           id = e.options[e.selectedIndex].id;
           sData = getValues( {p: "loadPipeline", id: id} ) //all data from biocorepipe_save table
-
 		  if (Object.keys(sData).length > 0) {
 			  nodes = sData[0].nodes
 			  nodes = JSON.parse(nodes.replace(/'/gi, "\""))
@@ -143,15 +141,7 @@ function drop(event) {
 			  //d3.select("#startArea").attr("width", 2*(r+ior)* d3.event.scale).attr("height",2*(r+ior)* d3.event.scale)
 	  }
 	  
-      function addOption2Select() {
-        for (var i = 0; i < processData.length; i++) {
-          d3.select("#mainProcesses").append("option")
-            .attr("value",processData[i].name)
-            .attr("id",processData[i].id)
-            .text(processData[i].name)
-            .attr("index",i)
-        }
-      }
+
 
 	  function addOption2LoadSelect() {
         for (var i = 0; i < savedData.length; i++) {
@@ -269,10 +259,6 @@ function drop(event) {
 		z = t.scale[0]
 
 
-        //e = document.getElementById("mainProcesses");
-        //name = e.options[e.selectedIndex].value;
-        //id = e.options[e.selectedIndex].id;
-		//index = e.options[e.selectedIndex].index;
 		//var process_id = processData[index].id;
           
         //for input parameters:  
@@ -1214,7 +1200,6 @@ function drop(event) {
         function OutputParameters(id,currgid) {
             oText=""
             var closePar = false
-            //console.log("id:" + id + "currgid:" + currgid)
             oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0] 
             for (var i = 0; i < oList.length; i++) { //search through each output node
                 oId = oList[i].id
@@ -1229,8 +1214,9 @@ function drop(event) {
                             closePar = true
                             oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
 
-					           outputName = document.getElementById(oId).getAttribute("name")
-
+					        outputName = document.getElementById(oId).getAttribute("name")
+                            outputName = outputName.replace(/\*/g, '')
+                            outputName = outputName.replace(/\?/g, '')
                             //outPro node : get userEntryId and userEntryText
                             parId = fNode.split("-")[4]
                             userEntryId = "text-" + fNode.split("-")[4]
@@ -1238,18 +1224,19 @@ function drop(event) {
                             parFile = parametersData.filter(function (el) {
                                 return el.id == fNode.split("-")[3]
                             })[0].file_type
-
                             tempText = "\tif \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
                             oText = oText + tempText
-                            console.log(oText)
                             //break
                         } else if (fNode.split("-")[1] === "outPro" && closePar === true){
-					           outputName = document.getElementById(oId).getAttribute("name")
+					        outputName = document.getElementById(oId).getAttribute("name")
+                            outputName = outputName.replace(/\*/g, '')   
+                            outputName = outputName.replace(/\?/g, '')   
+                            
                             
                             parFile = parametersData.filter(function (el) {
                                 return el.id == fNode.split("-")[3]
                             })[0].file_type
-
+                            
                             tempText = "\telse if \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
                             oText = oText + tempText
                             
@@ -1308,7 +1295,6 @@ function drop(event) {
 						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
                             } else if (qual === "val") {
 						    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-                            console.log(bodyInput)    
                             } 
 						}
 					}
@@ -1403,7 +1389,6 @@ function drop(event) {
 			z = t.scale[0]
 
 			gNum = parseInt(gN)
-			e = document.getElementById("mainProcesses");
 			var name = sDataName
 			var id = sDatapId
             var process_id=id
@@ -1476,11 +1461,12 @@ function drop(event) {
 			    gNum = gNum + 1
 
             }else {
-			    index = e.options[e.selectedIndex].index;
+
 			    inputs = getValues({
 			        p: "getInputs",
 			        "process_id": id
 			    })
+                
 			    outputs = getValues({
 			        p: "getOutputs",
 			        "process_id": id

@@ -107,6 +107,15 @@ class dbfuncs {
         return self::queryTable($sql);
     }
 
+    public function getAllProcessGroups($start, $end) {
+        $time = "";
+        if (!empty($start)) {
+            $time = "WHERE date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
+        }
+        $sql = "SELECT id, group_name FROM process_group $time";
+        return self::queryTable($sql);
+    }
+    
     public function insertProcess($name, $version, $script) {
         $sql = "INSERT INTO process(name, version, script, date_created, date_modified, last_modified_user) VALUES 
 			('$name', '$version', '$script', now(), now(), '".$this->last_modified_user."')";
