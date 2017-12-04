@@ -1,4 +1,4 @@
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
 <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
@@ -17,10 +17,17 @@
 .nodisp {display:block}
 
 </style>
+
+
     <div class="container">
       <div class="row">
         <div class="col-md-1">
-          <button type="button" class="btn btn-default btn-success" data-toggle="modal"  name="button" data-target="#addProcessModal" data-backdrop="false" style="width: auto; margin-top:15px;"><a data-toggle="tooltip" data-placement="bottom" title="Add Process"><i class="glyphicon glyphicon-plus"></i></a></button>
+          <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal"  name="button" data-target="#addProcessModal" data-backdrop="false" style="width: auto; margin-top:15px;">
+              <a data-toggle="tooltip" data-placement="bottom" title="Add Process">
+                  <i class="glyphicon glyphicon-plus">
+                  </i>
+              </a>
+            </button>
         </div>
         <div class="col-md-2"></div>
 		<div class="col-md-2"></div>
@@ -66,7 +73,7 @@
                             <input type="text" class="form-control" id="mVersion" name="version">
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div id="proGroup" class="form-group">
                         <label for="mProcessGroup" class="col-sm-2 control-label">Group</label>
                         <div class="col-sm-5">
                             <select id="mProcessGroup" class="fbtn btn-default form-control"  name="process_group_id"></select>
@@ -124,7 +131,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveprocess" data-clickedrow="">Save changes</button>
+                <button type="button" class="btn btn-primary" id="saveprocess" >Save changes</button>
             </div>
         </div>
     </div>

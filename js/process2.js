@@ -7,7 +7,27 @@ $(document).ready(function () {
     //Add Process Modal
     $('#addProcessModal').on('show.bs.modal', function () {
         $(this).find('form').trigger('reset');
+        inBackup = $('#inputGroup').clone();
+        outBackup = $('#outputGroup').clone();
         //   $('#mioProcess').val(selProcessID);
+//        var button = $(event.relatedTarget);
+//        if (button.attr('id') === 'addprocess') {
+//            $('#processmodaltitle').html('Add New Process');
+//        } else {
+//            $('#processmodaltitle').html('Edit Process');
+//
+//            var clickedRow = button.closest('tr');
+//            var rowData = processTable.row(clickedRow).data();
+//
+//            $('#saveprocess').data('clickedrow', clickedRow);
+//
+//            var formValues = $('#processmodal').find('input, textarea');
+//
+//            var keys = Object.keys(rowData);
+//            for (var i = 0; i < keys.length; i++) {
+//                $(formValues[i]).val(rowData[keys[i]]);
+//            }
+//        }
         
         //ajax for Process Group
         $.ajax({
@@ -68,7 +88,133 @@ $(document).ready(function () {
                 alert("Error: " + errorThrown);
             }
         });
+        
     });
+    
+    
+//0:{name: "id", value: ""}
+//1:{name: "name", value: "Map_bowtie"}
+//2:{name: "version", value: "1.0.0"}
+//3:{name: "process_group_id", value: "2"}
+//3:{name: "mInputs-1", value: "10"}
+//4:{name: "mInputs-2", value: "11"}
+//5:{name: "mInputs-3", value: "-1"}
+//6:{name: "mInName-0", value: ""}
+//7:{name: "mInName-1", value: "genome"}
+//8:{name: "mInName-2", value: "222"}
+//9:{name: "mOutputs-1", value: "11"}
+//10:{name: "mOutputs-2", value: "-1"}
+//11:{name: "mOutName-0", value: ""}
+//12:{name: "mOutName-1", value: "333"}            
+            
+
+
+    // Add process modal to database
+        $('#addProcessModal').on('click', '#saveprocess', function (event) {
+            event.preventDefault();            
+            var formValues = $('#addProcessModal').find('input, select');
+            //type = $('#mioType').val();
+            var data = formValues.serializeArray(); // convert form to array
+            var dataToProcess=[]; //dataToProcess to save in process table
+            
+            //id[0], name[1], version[2], and process_group_id[3] taken from data object
+            for (var i = 0; i < 4; i++) {
+                dataToProcess[i] = data[i]; 
+            }
+            var proName = dataToProcess[1].value;
+            var proGroId = dataToProcess[3].value;
+            scripteditor = editor.getValue();
+            dataToProcess.push({name: "script", value: scripteditor});
+            dataToProcess.push({name: "p", value: "saveProcess"});
+            if ( proName === '' || proGroId == '-1'){  
+                dataToProcess =[];
+            }
+            if (dataToProcess.length >0 ) {
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: dataToProcess,
+                async: true,
+                success: function (s) {
+                    var process_id = s.id;
+                    $('#side-' + proGroId).append('<li> <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id +'"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+                    //-----Add input output parameters to process_parameters
+                    for (var i = 4; i < data.length; i++) {
+                var dataToProcessParam=[]; //dataToProcessPram to save in process_parameters table
+                var PattPar = /(.*)-(.*)/;
+                var matchFPart = '';
+                var matchSPart = '';
+                var matchVal = '';
+                var matchFPart = data[i].name.replace(PattPar, '$1')
+                var matchSPart = data[i].name.replace(PattPar, '$2')
+                var matchVal = data[i].value
+                if ( matchFPart === 'mInputs' && matchVal !== '-1' ){
+                    for (var k = 4; k < data.length; k++) {
+                        if ( data[k].name === 'mInName-' + matchSPart && data[k].value === ''){  
+                            dataToProcessParam =[];
+                            break;
+                        } else if (data[k].name === 'mInName-' + matchSPart && data[k].value !== '') {
+                            dataToProcessParam.push({name: "parameter_id", value: matchVal});
+                            dataToProcessParam.push({name: "type", value: 'input'}); 
+                            dataToProcessParam.push({name: "name", value: data[k].value});
+                            dataToProcessParam.push({name: "process_id", value: process_id});
+                            dataToProcessParam.push({name: "p", value: "saveProcessParameter"});
+                            }
+                    } 
+                } else if ( matchFPart === 'mOutputs' && matchVal !== '-1' ){
+                    for (var k = 4; k < data.length; k++) {
+                        if ( data[k].name === 'mOutName-' + matchSPart && data[k].value === ''){  
+                            dataToProcessParam =[];
+                            break;
+                        } else if (data[k].name === 'mOutName-' + matchSPart && data[k].value !== '') {
+                            dataToProcessParam.push({name: "parameter_id", value: matchVal});
+                            dataToProcessParam.push({name: "type", value: 'output'}); 
+                            dataToProcessParam.push({name: "name", value: data[k].value});
+                            dataToProcessParam.push({name: "process_id", value: process_id});
+                            dataToProcessParam.push({name: "p", value: "saveProcessParameter"});
+                            
+                            
+                            }
+                    } 
+                } 
+                if (dataToProcessParam.length >0 ) {
+                console.log(dataToProcessParam);
+                 $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: dataToProcessParam,
+                async: true,
+                success: function (s) {
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });    
+                    
+                    
+                    
+                }
+            }
+            $('#addProcessModal').modal('hide');
+            $('#inputGroup').remove();
+            $('#outputGroup').remove();
+            $('#proGroup').after(inBackup);
+            $('#inputGroup').after(outBackup);    
+                    
+                    
+                    
+                    
+
+    
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+
+            
+        });
 
     //insert dropdown, textbox and remove button for each parameters
     $(function () {
@@ -123,76 +269,7 @@ $(document).ready(function () {
     });
 
 
-
-
-    // Add process modal to database
-        $('#addProcessModal').on('click', '#saveprocess', function (event) {
-            event.preventDefault();
-            var formValues = $('#addProcessModal').find('input, select');
-            //type = $('#mioType').val();
-            data = formValues.serializeArray(); // convert form to array
-            
-            //dataToProcess to save in process table
-            var dataToProcess={};
-            //id name version process_group_id taken from data object
-            for (var i = 0; i < 4; i++) {
-            dataToProcess[i] = data[i]; 
-            console.log(dataToProcess);
-            }
-            
-            dataToProcess.push({name: "p", value: "saveProcess"});
-            
-            
-            
-            
-//0:{name: "id", value: ""}
-//1:{name: "name", value: "Map_bowtie"}
-//2:{name: "version", value: "1.0.0"}
-//3:{name: "process_group_id", value: "2"}
-//3:{name: "mInputs-1", value: "10"}
-//4:{name: "mInputs-2", value: "11"}
-//5:{name: "mInputs-3", value: "-1"}
-//6:{name: "mInName-0", value: ""}
-//7:{name: "mInName-1", value: "genome"}
-//8:{name: "mInName-2", value: "222"}
-//9:{name: "mOutputs-1", value: "11"}
-//10:{name: "mOutputs-2", value: "-1"}
-//11:{name: "mOutName-0", value: ""}
-//12:{name: "mOutName-1", value: "333"}            
-            
-            
-//            $.ajax({
-//                type: "POST",
-//                url: "ajax/ajaxquery.php",
-//                data: data,
-//                async: true,
-//                success: function (s) {
-//                    var addData = {};
-//                    var keys = inputTable.settings().init().columns;
-//                    for (var i = 0; i < keys.length; i++) {
-//    
-//                        var key = keys[i].data;
-//                        if (key === 'id') {
-//                            addData[key] = s.id;
-//                        } else if (key !== null) {
-//                            addData[key] = $(formValues[i]).val();
-//                        }
-//                    }
-//    
-//                    if (type === 'input') {
-//                        inputTable.row.add(addData).draw();
-//                    } else {
-//                        outputTable.row.add(addData).draw();
-//                    }
-//    
-//                    $('#pinoutmodal').modal('hide');
-//    
-//                },
-//                error: function (errorThrown) {
-//                    alert("Error: " + errorThrown);
-//                }
-//            });
-        });
+    
 
 
 
