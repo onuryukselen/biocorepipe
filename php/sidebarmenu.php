@@ -55,7 +55,7 @@ class dbfuncs {
    }
       public function getParentSideBar()
    {
-     $sql= "SELECT DISTINCT group_name name FROM process_group";
+     $sql= "SELECT DISTINCT group_name name, id FROM process_group";
      return self::queryTable($sql);
    }
    
@@ -95,7 +95,7 @@ foreach ($parentMenus as $parentitem):
     $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'name'}));
 
     $menuhtml.='<i class="fa fa-angle-left pull-right"></i></a>';
-    $menuhtml.='<ul class="treeview-menu">';
+    $menuhtml.='<ul id="side-'.$parentitem->{'id'}.'" class="treeview-menu">';
     $menuhtml.= getSideMenuItem($items);
     $menuhtml.='</ul>';
     $menuhtml.='</li>';

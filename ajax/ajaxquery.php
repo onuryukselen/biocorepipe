@@ -130,11 +130,12 @@ else if ($p=="savePipeline"){
 else if ($p=="saveProcess"){
     $name = $_REQUEST['name'];
     $version = $_REQUEST['version'];
+    $process_group_id = $_REQUEST['process_group_id'];
     $script = $_REQUEST['script']; 
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $version, $script);
+        $data = $db->updateProcess($id, $name, $version, $process_group_id, $script);
     } else {
-        $data = $db->insertProcess($name, $version, $script);
+        $data = $db->insertProcess($name, $version, $process_group_id , $script);
     }
 }
 else if ($p=="savePipelineProcess"){
