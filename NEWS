@@ -1,3 +1,7 @@
+05.12.2017 Version 0.0.7
+Searching in combobox (by using Selectize.js) is added in "Add process" modal.
+Parameter add/edit/delete modal added in "Add process" modal.
+
 04.12.2017 Version 0.0.6
 Database integration of "Add process" modal is completed. 
 

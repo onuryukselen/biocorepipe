@@ -106,16 +106,16 @@ else if ($p=="removeProcessParameter"){
 else if ($p=="saveParameter"){
     $name = $_REQUEST['name'];
     $qualifier = $_REQUEST['qualifier'];
-    $channel_name = $_REQUEST['channel_name'];
-    $input_text = $_REQUEST['input_text'];
-    $file_path = $_REQUEST['file_path'];
+//    $channel_name = $_REQUEST['channel_name'];
+//    $input_text = $_REQUEST['input_text'];
+//    $file_path = $_REQUEST['file_path'];
     $file_type = $_REQUEST['file_type'];
-    $version = $_REQUEST['version'];
+//    $version = $_REQUEST['version'];
     
     if (!empty($id)) {
-       $data = $db->updateParameter($id, $name, $qualifier, $channel_name, $input_text, $file_path, $file_type, $version);
+       $data = $db->updateParameter($id, $name, $qualifier, $file_type);
     } else {
-       $data = $db->insertParameter($name, $qualifier, $channel_name, $input_text, $file_path, $file_type, $version);
+       $data = $db->insertParameter($name, $qualifier, $file_type);
     }
 }
 else if ($p=="savePipeline"){
