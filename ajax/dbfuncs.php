@@ -71,23 +71,20 @@ class dbfuncs {
         if (!empty($start)) {
             $time = "WHERE date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
         }
-        $sql = "SELECT id, name, qualifier, channel_name, input_text, file_path, file_type, version
+        $sql = "SELECT id, name, qualifier, file_type
     			FROM parameter $time";
         return self::queryTable($sql);
     }
 
-    public function insertParameter($name, $qualifier, $channel_name, $input_text, $file_path, $file_type, $version) {
-        $sql = "INSERT INTO parameter(name, qualifier, channel_name, file_path, file_type, version,
-		    input_text, date_created, date_modified, last_modified_user) VALUES 
-			('$name', '$channel_name', '$file_type', '$file_path', '$version',
-			'$qualifier', '$input_text', now(), now(), '".$this->last_modified_user."')";
+    public function insertParameter($name, $qualifier, $file_type) {
+        $sql = "INSERT INTO parameter(name, qualifier, file_type, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$qualifier', '$file_type', now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
     }
 
-    public function updateParameter($id, $name, $qualifier, $channel_name, $input_text, $file_path, $file_type, $version) {
+    public function updateParameter($id, $name, $qualifier, $file_type) {
         $sql = "UPDATE parameter SET name='$name', 
-			qualifier='$qualifier', channel_name='$channel_name', last_modified_user ='".$this->last_modified_user."',
-			input_text='$input_text', file_path='$file_path', file_type='$file_type', version='$version'  WHERE id = $id";
+			qualifier='$qualifier', last_modified_user ='".$this->last_modified_user."', file_type='$file_type'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
