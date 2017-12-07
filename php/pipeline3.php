@@ -50,8 +50,8 @@
     <div class="modal-dialog" style="width:800px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="processmodaltitle">Add Process</h4>
+                <button type="button" class="close dismissprocess" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="processmodaltitle">Title</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
@@ -76,7 +76,7 @@
                     <div id="proGroup" class="form-group">
                         <label for="mProcessGroup" class="col-sm-2 control-label">Menu Group</label>
                         <div class="col-sm-5">
-                            <select id="mProcessGroup" class="fbtn btn-default form-control"  name="group_name"></select>
+                            <select id="mProcessGroup" class="fbtn btn-default form-control"  name="process_group_id"></select>
                         </div>                        
                         <div id="mProcessGroupAdd" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">   
                             <button type="button" class="btn btn-default form-control" id="groupAdd" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
@@ -110,7 +110,7 @@
                             <select id="mInputs-1" num = "1" class="fbtn btn-default form-control"  prev ="-1"  name="mInputs-1" ></select>
                         </div>
                         <div id="mInName" class="col-sm-5 " style=" width: auto; padding-left: 0; padding-right: 0;">    
-                            <input type="text" style="display:none; " placeholder="Enter name" class="form-control" id="mInName-0" name="mInName-0">
+                            <input type="text" style="display:none; " placeholder="Enter name" class="form-control" ppID="" id="mInName-0" name="mInName-0">
                         </div>
                         <div id="mInNamedel" class="col-sm-1" style="padding-left: 0;">   
                             <button type="submit" style="display:none;" class="btn btn-default form-control" id="mInNamedel-0" name="mInNamedel-0"><i class="glyphicon glyphicon-remove"></i></button>
@@ -140,7 +140,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" id="dismissprocess" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default dismissprocess"  data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveprocess" >Save changes</button>
             </div>
         </div>
@@ -214,7 +214,7 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="mProGroupName" class="col-sm-2 control-label">Menu Group Name</label>
+                                    <label for="mProGroupName" class="col-sm-2 control-label">Name</label>
                                     <div class="col-sm-10">
                                         <input type="text" class="form-control" id="mGroName" name="group_name">
                                     </div>
@@ -322,4 +322,5 @@
     var editor = ace.edit("editor");
     editor.setTheme("ace/theme/tomorrow");
     editor.getSession().setMode("ace/mode/groovy");
+    editor.$blockScrolling = Infinity;
 </script>

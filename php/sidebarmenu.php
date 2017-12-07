@@ -70,7 +70,7 @@ function getSideMenuItem($obj )
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }
@@ -85,7 +85,7 @@ $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
 //add initial input parameters
 $menuhtml.='<li id="inputs" >  <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
 $menuhtml.='<li id="outputs" class="treeview">  <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';    
-$menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner text-yellow"></i><span> Pipelines </span> </a></li>';    
+$menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span> </a></li>';    
 
 foreach ($parentMenus as $parentitem):
 

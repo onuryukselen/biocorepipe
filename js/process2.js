@@ -1,36 +1,32 @@
 $(document).ready(function () {
-
     //Make modal draggable    
     //    $('.modal-dialog').draggable();
     //    $('#editordiv').draggable("disable")
+    function getValues(data) {
+        var result = null;
+        $.ajax({
+            url: "ajax/ajaxquery.php",
+            data: data,
+            async: false,
+            cache: false,
+            success: function (data) {
+                result = data;
+            }
+        });
+        return result;
+    }
 
     //Add Process Modal
-    $('#addProcessModal').on('show.bs.modal', function () {
+    $('#addProcessModal').on('show.bs.modal', function (event) {
         $(this).find('form').trigger('reset');
-        
+        menuGrBackup = '';
+        inBackup = '';
+        outBackup = '';
+        allBackup = '';
         menuGrBackup = $('#proGroup').clone();
         inBackup = $('#inputGroup').clone();
         outBackup = $('#outputGroup').clone();
         allBackup = $('#mParameters').clone();
-        //   $('#mioProcess').val(selProcessID);
-        //        var button = $(event.relatedTarget);
-        //        if (button.attr('id') === 'addprocess') {
-        //            $('#processmodaltitle').html('Add New Process');
-        //        } else {
-        //            $('#processmodaltitle').html('Edit Process');
-        //
-        //            var clickedRow = button.closest('tr');
-        //            var rowData = processTable.row(clickedRow).data();
-        //
-        //            $('#saveprocess').data('clickedrow', clickedRow);
-        //
-        //            var formValues = $('#processmodal').find('input, textarea');
-        //
-        //            var keys = Object.keys(rowData);
-        //            for (var i = 0; i < keys.length; i++) {
-        //                $(formValues[i]).val(rowData[keys[i]]);
-        //            }
-        //        }
 
         //ajax for Process Group
         $.ajax({
@@ -44,15 +40,12 @@ $(document).ready(function () {
                 $("#mProcessGroup").empty();
                 var firstOptionGroup = new Option("--- Select Menu Process Group ---", '');
                 $("#mProcessGroup").append(firstOptionGroup);
-
                 for (var i = 0; i < s.length; i++) {
                     var param = s[i];
                     var optionGroup = new Option(param.group_name, param.id);
                     $("#mProcessGroup").append(optionGroup);
                 }
                 $('#mProcessGroup').selectize({});
-                
-
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);
@@ -86,11 +79,7 @@ $(document).ready(function () {
                     $("#mInputs-1").append(optionIn);
                     $("#mOutputs-1").append(optionOut);
                     $("#mParamAllIn").append(optionAll);
-
                 }
-                dropDownInputs = $("#mInputs-1").html()
-                dropDownOutputs = $("#mOutputs-1").html()
-                //dropDownAll = $("#mOutputs-1").html()
                 numInputs = 1;
                 numOutputs = 1;
                 $('#mInputs-1').selectize({});
@@ -102,23 +91,58 @@ $(document).ready(function () {
             }
         });
 
+        var button = $(event.relatedTarget);
+        if (button.attr('id') === 'addprocess') {
+            $('#processmodaltitle').html('Add New Process');
+
+        } else {
+            $('#processmodaltitle').html('Edit Process');
+            var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
+            var selProcessId = button.attr('id').replace(PattPro, '$2')
+            $('#mIdPro').val(selProcessId);
+            //Ajax for selected process
+            var showProcess = getValues({
+                p: "getProcessData",
+                "process_id": selProcessId
+            })[0];
+            sMenuProIdFirst = button.attr('id');
+            sMenuProGroupIdFirst = showProcess.process_group_id;
+            
+            //insert data into form
+            var formValues = $('#addProcessModal').find('input, select');
+            $(formValues[0]).val(showProcess.id);
+            $(formValues[1]).val(showProcess.name);
+            $(formValues[2]).val(showProcess.version);
+            editor.setValue(showProcess.script);
+            editor.clearSelection();
+            $('#mProcessGroup')[0].selectize.setValue(showProcess.process_group_id, false);
+            //Ajax for selected process input/outputs
+            var inputs = getValues({
+                p: "getInputs",
+                "process_id": selProcessId
+            });
+            var outputs = getValues({
+                p: "getOutputs",
+                "process_id": selProcessId
+            });
+            for (var i = 0; i < inputs.length; i++) {
+                var numForm = i + 1;
+                $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
+                $('#mInName-' + numForm).val(inputs[i].name);
+                $('#mInName-' + numForm).attr('ppID', inputs[i].id);
+            }
+            for (var i = 0; i < outputs.length; i++) {
+                var numForm = i + 1;
+                $('#mOutputs-' + numForm)[0].selectize.setValue(outputs[i].parameter_id, false);
+                $('#mOutName-' + numForm).val(outputs[i].name);
+                $('#mOutName-' + numForm).attr('ppID', outputs[i].id);
+
+            }
+        }
+
     });
 
 
-    //0:{name: "id", value: ""}
-    //1:{name: "name", value: "Map_bowtie"}
-    //2:{name: "version", value: "1.0.0"}
-    //3:{name: "process_group_id", value: "2"}
-    //3:{name: "mInputs-1", value: "10"}
-    //4:{name: "mInputs-2", value: "11"}
-    //5:{name: "mInputs-3", value: "-1"}
-    //6:{name: "mInName-0", value: ""}
-    //7:{name: "mInName-1", value: "genome"}
-    //8:{name: "mInName-2", value: "222"}
-    //9:{name: "mOutputs-1", value: "11"}
-    //10:{name: "mOutputs-2", value: "-1"}
-    //11:{name: "mOutName-0", value: ""}
-    //12:{name: "mOutName-1", value: "333"}            
     function cleanProcessModal() {
         $('#addProcessModal').modal('hide');
         $('#mParameters').remove();
@@ -126,7 +150,7 @@ $(document).ready(function () {
         $('#outputGroup').remove();
         $('#proGroup').remove();
         $('#hrDiv').remove();
-        
+
         $('#versionGroup').after(menuGrBackup);
         $('#proGroup').after(allBackup);
         $('#proGroup').after('<hr id = "hrDiv">');
@@ -135,26 +159,31 @@ $(document).ready(function () {
         editor.setValue("");
     }
 
-    // Add process modal to database
-    $('#addProcessModal').on('click', '#dismissprocess', function (event) {
-      cleanProcessModal();
+    // Dismiss process modal 
+    $('#addProcessModal').on('click', '.dismissprocess', function (event) {
+        cleanProcessModal();
     });
-    
+
     // Add process modal to database
     $('#addProcessModal').on('click', '#saveprocess', function (event) {
         event.preventDefault();
+        var savetype = $('#mIdPro').val();
         var formValues = $('#addProcessModal').find('input, select');
-        //type = $('#mioType').val();
         var data = formValues.serializeArray(); // convert form to array
         var dataToProcess = []; //dataToProcess to save in process table
-
         //id[0], name[1], version[2], and process_group_id[3] taken from data object
+        var sMenuProIdFinal = data[1].value + '@' + data[0].value;
+        var sMenuProGroupIdFinal = data[3].value;
+
+        
+        
         for (var i = 0; i < 4; i++) {
             dataToProcess[i] = data[i];
         }
+        var proID = dataToProcess[0].value;
         var proName = dataToProcess[1].value;
         var proGroId = dataToProcess[3].value;
-        scripteditor = editor.getValue();
+        var scripteditor = editor.getValue();
         dataToProcess.push({
             name: "script",
             value: scripteditor
@@ -163,7 +192,7 @@ $(document).ready(function () {
             name: "p",
             value: "saveProcess"
         });
-        if (proName === '' || proGroId == '-1') {
+        if (proName === '' || proGroId == '') {
             dataToProcess = [];
         }
         if (dataToProcess.length > 0) {
@@ -173,9 +202,37 @@ $(document).ready(function () {
                 data: dataToProcess,
                 async: true,
                 success: function (s) {
-                    var process_id = s.id;
-                    $('#side-' + proGroId).append('<li> <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+
+                    if (savetype.length) { //Edit Process
+                        var process_id = proID;
+                        document.getElementById(sMenuProIdFirst).setAttribute('id',sMenuProIdFinal);
+                        var PattMenu = /(.*)@(.*)/; //Map_Tophat2@11
+                        var nMenuProName = sMenuProIdFinal.replace(PattMenu, '$1');
+                        document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + nMenuProName;
+                        if (sMenuProGroupIdFirst !== sMenuProGroupIdFinal) {
+                            document.getElementById(sMenuProIdFinal).remove();  
+                            $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + nMenuProName + '</a></li>');
+                        }
+                        
+                        
+                        var inputs = getValues({
+                            p: "getInputs",
+                            "process_id": process_id
+                        });
+                        var outputs = getValues({
+                            p: "getOutputs",
+                            "process_id": process_id
+                        });
+
+                    } else { //Add Process
+                        var process_id = s.id;
+                        $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+                    }
+
+
                     //-----Add input output parameters to process_parameters
+                    var ppIDinputList = [];
+                    var ppIDoutputList = [];
                     for (var i = 4; i < data.length; i++) {
                         var dataToProcessParam = []; //dataToProcessPram to save in process_parameters table
                         var PattPar = /(.*)-(.*)/;
@@ -185,12 +242,14 @@ $(document).ready(function () {
                         var matchFPart = data[i].name.replace(PattPar, '$1')
                         var matchSPart = data[i].name.replace(PattPar, '$2')
                         var matchVal = data[i].value
-                        if (matchFPart === 'mInputs' && matchVal !== '-1') {
+                        if (matchFPart === 'mInputs' && matchVal !== '') {
                             for (var k = 4; k < data.length; k++) {
                                 if (data[k].name === 'mInName-' + matchSPart && data[k].value === '') {
                                     dataToProcessParam = [];
                                     break;
                                 } else if (data[k].name === 'mInName-' + matchSPart && data[k].value !== '') {
+                                    var ppID = $('#' + data[k].name).attr("ppID");
+                                    ppIDinputList.push(ppID);
                                     dataToProcessParam.push({
                                         name: "parameter_id",
                                         value: matchVal
@@ -208,17 +267,23 @@ $(document).ready(function () {
                                         value: process_id
                                     });
                                     dataToProcessParam.push({
+                                        name: "id",
+                                        value: ppID
+                                    });
+                                    dataToProcessParam.push({
                                         name: "p",
                                         value: "saveProcessParameter"
                                     });
                                 }
                             }
-                        } else if (matchFPart === 'mOutputs' && matchVal !== '-1') {
+                        } else if (matchFPart === 'mOutputs' && matchVal !== '') {
                             for (var k = 4; k < data.length; k++) {
                                 if (data[k].name === 'mOutName-' + matchSPart && data[k].value === '') {
                                     dataToProcessParam = [];
                                     break;
                                 } else if (data[k].name === 'mOutName-' + matchSPart && data[k].value !== '') {
+                                    var ppID = $('#' + data[k].name).attr("ppID");
+                                    ppIDoutputList.push(ppID);
                                     dataToProcessParam.push({
                                         name: "parameter_id",
                                         value: matchVal
@@ -236,11 +301,13 @@ $(document).ready(function () {
                                         value: process_id
                                     });
                                     dataToProcessParam.push({
+                                        name: "id",
+                                        value: ppID
+                                    });
+                                    dataToProcessParam.push({
                                         name: "p",
                                         value: "saveProcessParameter"
                                     });
-
-
                                 }
                             }
                         }
@@ -255,22 +322,54 @@ $(document).ready(function () {
                                     alert("Error: " + errorThrown);
                                 }
                             });
-
-
-
                         }
                     }
-                    
+                    //Find deleted input/outputs
+                    if (savetype.length) { //Edit Process
+                        for (var i = 0; i < inputs.length; i++) {
+                            if (ppIDinputList.indexOf(inputs[i].id) < 0) {
+                                //removeProcessParameter
+                                $.ajax({
+                                    type: "POST",
+                                    url: "ajax/ajaxquery.php",
+                                    data: {
+                                        id: inputs[i].id,
+                                        p: "removeProcessParameter"
+                                    },
+                                    async: true,
+                                    success: function () {},
+                                    error: function (errorThrown) {
+                                        alert("Error: " + errorThrown);
+                                    }
+                                });
+                            }
+                        }
+                        for (var i = 0; i < outputs.length; i++) {
+                            if (ppIDoutputList.indexOf(outputs[i].id) < 0) {
+                                //removeProcessParameter
+                                $.ajax({
+                                    type: "POST",
+                                    url: "ajax/ajaxquery.php",
+                                    data: {
+                                        id: outputs[i].id,
+                                        p: "removeProcessParameter"
+                                    },
+                                    async: true,
+                                    success: function () {},
+                                    error: function (errorThrown) {
+                                        alert("Error: " + errorThrown);
+                                    }
+                                });
+                            }
+                        }
+                    }
                     cleanProcessModal();
-
                 },
                 error: function (errorThrown) {
                     alert("Error: " + errorThrown);
                 }
             });
         }
-
-
     });
 
     //insert dropdown, textbox and 'remove button' for each parameters
@@ -296,33 +395,24 @@ $(document).ready(function () {
                     var idRows = numOutputs; // numInputs or numOutputs
                 }
                 $("#" + col1init).append('<select id="' + col1init + '-' + idRows + '" num="' + idRows + '" class="fbtn btn-default form-control" prev ="-1"  name="' + col1init + '-' + idRows + '"></select>');
-                $("#" + col2init).append('<input type="text" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
+                $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
                 $("#" + col3init).append('<button type="submit" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
-                
-//                var $select = $('#mParamAllIn').selectize(options);
+
+                //                var $select = $('#mParamAllIn').selectize(options);
                 var opt = $('#mParamAllIn')[0].selectize.options;
-                console.log(opt);
-                var parList = ''; 
-                parList = parList + '<option value="">--- Add ' + type +'put ---</option>';     
-                
-                $.each(opt, function(element){
-                    console.log(opt[element]);
+                var parList = '';
+                parList = parList + '<option value="">--- Add ' + type + 'put ---</option>';
+                $.each(opt, function (element) {
                     parList = parList + '<option value="' + opt[element].value + '">' + opt[element].text + '</option>';
                 });
-                
-                
-                
-                console.log(parList);
-                console.log(eval('dropDown' + type + 'puts'));
                 $("#" + col1init + "-" + idRows).append(parList);
                 $("#" + id).attr("prev", selParId)
-                $("#" + col1init+ '-' + idRows).selectize({});
-                
+                $("#" + col1init + '-' + idRows).selectize({});
+
             }
         })
 
     });
-
 
     //remove  dropdown list of parameters
     $(document).on("click", ".delRow", function (event) {
@@ -335,22 +425,111 @@ $(document).ready(function () {
         var col3init = "m" + type + "Namedel";
         var num = id.replace(Patt, '$2');
         $("#" + col1init + "-" + String(num)).next().remove()
-        
         $("#" + col1init + "-" + String(num)).remove()
-        
         $("#" + col2init + "-" + String(num)).remove()
         $("#" + col3init + "-" + String(num)).remove()
-    
-        
     });
-        //parameter remove button
-        $('#addProcessModal').on('click', '#mParamDel', function (e) {
+
+    //parameter modal 
+    $('#parametermodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'mParamAdd') {
+            $('#parametermodaltitle').html('Add New Parameter');
+        } else if (button.attr('id') === 'mParamEdit') {
+            $('#parametermodaltitle').html('Edit Parameter');
+            var formValues = $('#addProcessModal').find('input, select');
+            var selParamId = "";
+            var data = formValues.serializeArray(); // convert form to array
+            data.forEach(function (element) {
+                if (element.name === 'ParamAll') {
+                    selParamId = element.value;
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    p: "getAllParameters"
+                },
+                async: false,
+                success: function (s) {
+                    var showParam = {};
+                    s.forEach(function (element) {
+                        if (element.id === selParamId) {
+                            showParam = element;
+                        }
+                    });
+                    //insert data into form
+                    var formValues = $('#parametermodal').find('input, select');
+                    var keys = Object.keys(showParam);
+                    for (var i = 0; i < keys.length; i++) {
+                        $(formValues[i]).val(showParam[keys[i]]);
+                    }
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+    });
+
+    //parameter modal save button
+    $('#parametermodal').on('click', '#saveparameter', function (event) {
+        event.preventDefault();
+        var selParName = '';
+        var formValues = $('#parametermodal').find('input, select');
+        var savetype = $('#mIdPar').val();
+        var data = formValues.serializeArray(); // convert form to array
+        var selParID = data[0].value;
+        var selParName = data[1].value;
+        data.push({
+            name: "p",
+            value: "saveParameter"
+        });
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: data,
+            async: false,
+            success: function (s) {
+                if (savetype.length) { //Edit Parameter
+                    //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
+                    var allBox = $('#addProcessModal').find('select');
+                    for (var i = 1; i < allBox.length; i++) { //processGroup is skipped at i=0
+                        var parBoxId = allBox[i].getAttribute('id');
+                        $('#' + parBoxId)[0].selectize.updateOption(selParID, {
+                            value: selParID,
+                            text: selParName
+                        });
+                    }
+
+                } else { //Add Parameter
+                    //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
+                    var allBox = $('#addProcessModal').find('select');
+                    for (var i = 1; i < allBox.length; i++) { //processGroup is skipped at i=0
+                        var parBoxId = allBox[i].getAttribute('id');
+                        $('#' + parBoxId)[0].selectize.addOption({
+                            value: s.id,
+                            text: selParName
+                        });
+                    }
+                }
+                $('#parametermodal').modal('hide');
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
+
+    //parameter remove button
+    $('#addProcessModal').on('click', '#mParamDel', function (e) {
         e.preventDefault();
-            var selectParam = '';
-            var formValues = $('#addProcessModal').find('#mParamAllIn');
-            var data = formValues.serializeArray(); 
-            selectParam = data[0].value;
-            
+        var selectParam = '';
+        var formValues = $('#addProcessModal').find('#mParamAllIn');
+        var data = formValues.serializeArray();
+        selectParam = data[0].value;
         $.ajax({
             type: "POST",
             url: "ajax/ajaxquery.php",
@@ -361,178 +540,97 @@ $(document).ready(function () {
             async: false,
             success: function (s) {
                 var allBox = $('#addProcessModal').find('select');
-                for (var i = 1; i < allBox.length; i++) {//processGroup is skipped at i=0
+                for (var i = 1; i < allBox.length; i++) { //processGroup is skipped at i=0
                     var parBoxId = allBox[i].getAttribute('id');
-                    console.log(parBoxId);
-                    $('#' + parBoxId)[0].selectize.removeOption(selectParam); 
-                }               
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
-    });
-
-
-    
-    
-    
-    //parameter modal 
-    $('#parametermodal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        $(this).find('form').trigger('reset');
-        if (button.attr('id') === 'mParamAdd') {
-            $('#parametermodaltitle').html('Add New Parameter');
-
-        } else if (button.attr('id') === 'mParamEdit') {
-            $('#parametermodaltitle').html('Edit Parameter');
-                    var formValues = $('#addProcessModal').find('input, select');
-                    var selParamId = "";
-                    var data = formValues.serializeArray(); // convert form to array
-                    data.forEach(function (element) {
-                        if (element.name === 'ParamAll') {
-                            selParamId = element.value;
-                        }
-                    });
-                    console.log(selParamId); 
-            
-            $.ajax({
-            type: "GET",
-            url: "ajax/ajaxquery.php",
-            data: {
-                p: "getAllParameters"
-            },
-            async: false,
-            success: function (s) {
-                var showParam= {};
-                s.forEach(function (element) {
-                    if (element.id === selParamId) {
-                        showParam = element; 
-                    }
-                });
-                //insert data into form
-                var formValues = $('#parametermodal').find('input, select');
-                console.log(formValues);
-                
-                var keys = Object.keys(showParam);
-                console.log(keys);
-                for (var i = 0; i < keys.length; i++) {
-                    $(formValues[i]).val(showParam[keys[i]]);
+                    $('#' + parBoxId)[0].selectize.removeOption(selectParam);
                 }
- 
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);
             }
         });
-        }
     });
-            
-//        //add Process Group
-//    $(document).on("click", "#groupAdd", function (event) {
-//        event.preventDefault();
-//        var id = $(this).attr("id");
-//        $("#mProcessGroupAdd").remove()
-//        $("#proGroup").append('<div id="mProcessGroupAdd" class="col-sm-3" style=" padding-left: 0; padding-right: 0;"><input type="text" placeholder="Enter new group name" class="form-control" id="proGroupNew" name="process_group"></div>');
-//        $("#proGroup").append('<div id="mProcessGroupDel" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;"><button type="submit" class="btn btn-default form-control" id="GroupDel"  ><i class="glyphicon glyphicon-remove"></i></div>');
-//    });
-//            //remove Process Group
-//    $(document).on("click", "#groupDel", function (event) {
-//        event.preventDefault();
-//        var id = $(this).attr("id");
-//        $("#mProcessGroupAdd").remove()
-//        $("#mProcessGroupDel").remove()
-//        $("#proGroup").append('<div id="mProcessGroupAdd" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;"><button type="submit" class="btn btn-default form-control" id="groupAdd"><i class="glyphicon glyphicon-plus"></i></button></div>'); 
-//    });            
-            
+
+
     // process group modal 
     $('#processGroupModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
         if (button.attr('id') === 'groupAdd') {
             $('#processGroupmodaltitle').html('Add Menu Group');
-
         } else if (button.attr('id') === 'groupEdit') {
             $('#processGroupmodaltitle').html('Edit Menu Group');
-                    var formValues = $('#processGroupModal').find('input');
-                    var selParamId = "";
-                    var data = formValues.serializeArray(); // convert form to array
-                    console.log(data); 
-            
-                    data.forEach(function (element) {
-                        if (element.name === 'ParamAll') {
-                            selParamId = element.value;
+            var formValues = $('#proGroup').find('select');
+            var selGroupId = "";
+            var selGroupId = formValues.serializeArray()[0].value; // convert form to array
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    p: "getAllProcessGroups"
+                },
+                async: false,
+                success: function (s) {
+                    var showGroup = {};
+                    s.forEach(function (element) {
+                        if (element.id === selGroupId) {
+                            showGroup = element;
                         }
                     });
-                    console.log(selParamId); 
-            
-            $.ajax({
-            type: "GET",
-            url: "ajax/ajaxquery.php",
-            data: {
-                p: "getAllParameters"
-            },
-            async: false,
-            success: function (s) {
-                var showParam= {};
-                s.forEach(function (element) {
-                    if (element.id === selParamId) {
-                        showParam = element; 
+                    //insert data into form
+                    var formValues = $('#processGroupModal').find('input');
+                    var keys = Object.keys(showGroup);
+                    for (var i = 0; i < keys.length; i++) {
+                        $(formValues[i]).val(showGroup[keys[i]]);
                     }
-                });
-                //insert data into form
-                var formValues = $('#parametermodal').find('input, select');
-                console.log(formValues);
-                
-                var keys = Object.keys(showParam);
-                console.log(keys);
-                for (var i = 0; i < keys.length; i++) {
-                    $(formValues[i]).val(showParam[keys[i]]);
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
                 }
- 
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
-            
-        
+            });
         }
     });
-    
-    //parameter modal save button
-    $('#parametermodal').on('click', '#saveparameter', function (event) {
+
+    //process group modal save button
+    $('#processGroupModal').on('click', '#saveProcessGroup', function (event) {
         event.preventDefault();
-        var selParName ='';
-        var formValues = $('#parametermodal').find('input, select');
-        var savetype = $('#mIdPar').val();
+        var selProGroupName = '';
+        var selProGroupID = '';
+        var formValues = $('#processGroupModal').find('input');
+        var savetype = $('#mIdProGroup').val();
         var data = formValues.serializeArray(); // convert form to array
-        var selParID = data[0].value;
-        var selParName = data[1].value;
-        data.push({name: "p", value: "saveParameter"});
+        var selProGroupID = data[0].value;
+        var selProGroupName = data[1].value;
+        data.push({
+            name: "p",
+            value: "saveProcessGroup"
+        });
         $.ajax({
             type: "POST",
             url: "ajax/ajaxquery.php",
             data: data,
             async: false,
             success: function (s) {
-                if (savetype.length) { //Edit Parameter
-                    //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 1; i < allBox.length; i++) {//processGroup is skipped at i=0
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );  
-                    } 
-                    
-                } else { //Add Parameter
-                    //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 1; i < allBox.length; i++) {//processGroup is skipped at i=0
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.addOption({value: s.id, text: selParName });
-                    }                    
+                if (savetype.length) { //Edit Process Group
+                    var allProBox = $('#proGroup').find('select');
+                    var proGroBoxId = allProBox[0].getAttribute('id');
+                    $('#' + proGroBoxId)[0].selectize.updateOption(selProGroupID, {
+                        value: selProGroupID,
+                        text: selProGroupName
+                    });
+                    $('#side-' + selProGroupID).parent().find('span').html(selProGroupName);
+                } else { //Add process group
+                    var allProBox = $('#proGroup').find('select');
+                    var proGroBoxId = allProBox[0].getAttribute('id');
+                    selProGroupID = s.id;
+                    $('#' + proGroBoxId)[0].selectize.addOption({
+                        value: selProGroupID,
+                        text: selProGroupName
+                    });
+                    $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + selProGroupName + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + selProGroupID + '" class="treeview-menu"></ul></li>');
                 }
-                $('#parametermodal').modal('hide');
+                $('#mProcessGroup')[0].selectize.setValue(selProGroupID, false);
+                $('#processGroupModal').modal('hide');
 
             },
             error: function (errorThrown) {
@@ -540,13 +638,37 @@ $(document).ready(function () {
             }
         });
     });
-    
-    
+
+    //process group remove button
+    $('#addProcessModal').on('click', '#groupDel', function (e) {
+        e.preventDefault();
+        var selectProGro = '';
+        var formValues = $('#addProcessModal').find('#mProcessGroup');
+        var data = formValues.serializeArray();
+        selectProGro = data[0].value;
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: {
+                id: selectProGro,
+                p: "removeProcessGroup"
+            },
+            async: false,
+            success: function (s) {
+                var allProBox = $('#proGroup').find('select');
+                var proGroBoxId = allProBox[0].getAttribute('id');
+                $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
+
+                $('#side-' + selectProGro).parent().remove()
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
 
 
-    
-    
-    
+
 
 
 

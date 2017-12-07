@@ -83,13 +83,27 @@ class dbfuncs {
     }
 
     public function updateParameter($id, $name, $qualifier, $file_type) {
-        $sql = "UPDATE parameter SET name='$name', 
-			qualifier='$qualifier', last_modified_user ='".$this->last_modified_user."', file_type='$file_type'  WHERE id = $id";
+        $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='".$this->last_modified_user."', file_type='$file_type'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
+    public function insertProcessGroup($group_name) {
+        $sql = "INSERT INTO process_group (group_name, date_created, date_modified, last_modified_user) VALUES ('$group_name', now(), now(), '".$this->last_modified_user."')";
+        return self::insTable($sql);
+    }
+
+    public function updateProcessGroup($id, $group_name) {
+        $sql = "UPDATE process_group SET group_name='$group_name', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
     public function removeParameter($id) {
         $sql = "DELETE FROM parameter WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    
+    public function removeProcessGroup($id) {
+        $sql = "DELETE FROM process_group WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -127,6 +141,11 @@ class dbfuncs {
         $sql = "DELETE FROM process WHERE id = $id";
         return self::runSQL($sql);
     }
+    
+    public function removeProcessByProcessGroupID($process_group_id) {
+        $sql = "DELETE FROM process WHERE process_group_id = $process_group_id";
+        return self::runSQL($sql);
+    }
 
     // ------- Process Parameters ------
 
@@ -159,7 +178,7 @@ class dbfuncs {
        
         $sql = "select para.*, propara.type from parameter para
                 join process_parameter propara on para.id = propara.parameter_id                  
-                where propara.process_id = '$process_id' $typeExp"; //(2) parameter ve process_parameters tablolari birlestirlir ve cekilir.
+                where propara.process_id = '$process_id' $typeExp"; 
         
         return self::queryTable($sql);
     }
@@ -167,8 +186,13 @@ class dbfuncs {
     public function insertProcessParameter($name, $process_id, $parameter_id, $type) {
         $sql = "INSERT INTO process_parameter(name, process_id, parameter_id,
 		    type, date_created, date_modified, last_modified_user) VALUES 
-			('$name', $process_id, $parameter_id, '$type', now(), now(), '".$this->last_modified_user."')";
+			('$name', '$process_id', '$parameter_id', '$type', now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
+    }
+    
+    public function updateProcessParameter($id, $name, $process_id, $parameter_id, $type) {
+        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
+        return self::runSQL($sql);
     }
 
     public function removeProcessParameter($id) {
@@ -181,6 +205,13 @@ class dbfuncs {
         return self::runSQL($sql);
     }
 
+    public function removeProcessParameterByProcessGroupID($process_group_id) {
+        $sql = "DELETE process_parameter
+                FROM process_parameter 
+                JOIN process ON process.id = process_parameter.process_id 
+                WHERE process.process_group_id = $process_group_id";        
+        return self::runSQL($sql);
+    }
     public function removeProcessParameterByProcessID($process_id) {
         $sql = "DELETE FROM process_parameter WHERE process_id = $process_id";
         return self::runSQL($sql);
@@ -393,16 +424,16 @@ class dbfuncs {
 		if ($id != ""){
 			$where = " where id = $id";
 		}
-		$sql = "SELECT id, name, version, summary, script FROM process $where";
+		$sql = "SELECT id, process_group_id, name, version, summary, script FROM process $where";
 		return self::queryTable($sql);
 	}
 	
 	public function getInputs($id) {
-		$sql = "SELECT parameter_id, name FROM process_parameter where process_id = $id and type = 'input'";
+		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'input'";
 		return self::queryTable($sql);
 	}
 	public function getOutputs($id) {
-		$sql = "SELECT parameter_id, name FROM process_parameter where process_id = $id and type = 'output'";
+		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'output'";
 		return self::queryTable($sql);
 	}
 	

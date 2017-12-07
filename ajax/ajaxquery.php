@@ -84,7 +84,12 @@ else if ($p=="getAllProcessParametersDetail"){  //(2)processdeki parametrelerin 
 else if ($p=="removeParameter"){
     $db->removeProcessParameterByParameterID($id);
     $data = $db->removeParameter($id);
-}	
+}
+else if ($p=="removeProcessGroup"){
+    $db->removeProcessParameterByProcessGroupID($id);
+    $db->removeProcessByProcessGroupID($id);
+    $data = $db->removeProcessGroup($id);
+}
 else if ($p=="removePipeline"){   
     $db->removePipelineProcessByPipelineID($id);
 	$data = $db -> removePipeline($id);
@@ -106,16 +111,20 @@ else if ($p=="removeProcessParameter"){
 else if ($p=="saveParameter"){
     $name = $_REQUEST['name'];
     $qualifier = $_REQUEST['qualifier'];
-//    $channel_name = $_REQUEST['channel_name'];
-//    $input_text = $_REQUEST['input_text'];
-//    $file_path = $_REQUEST['file_path'];
     $file_type = $_REQUEST['file_type'];
-//    $version = $_REQUEST['version'];
     
     if (!empty($id)) {
        $data = $db->updateParameter($id, $name, $qualifier, $file_type);
     } else {
        $data = $db->insertParameter($name, $qualifier, $file_type);
+    }
+}
+else if ($p=="saveProcessGroup"){
+    $group_name = $_REQUEST['group_name'];
+    if (!empty($id)) {
+       $data = $db->updateProcessGroup($id, $group_name);
+    } else {
+       $data = $db->insertProcessGroup($group_name);
     }
 }
 else if ($p=="savePipeline"){
@@ -149,8 +158,11 @@ else if ($p=="saveProcessParameter"){
     $process_id = $_REQUEST['process_id'];
     $parameter_id = $_REQUEST['parameter_id'];
     $type = $_REQUEST['type'];
-    
-    $data = $db->insertProcessParameter($name, $process_id, $parameter_id, $type);
+    if (!empty($id)) {
+        $data = $db->updateProcessParameter($id, $name, $process_id, $parameter_id, $type);
+    } else {
+        $data = $db->insertProcessParameter($name, $process_id, $parameter_id, $type);
+    }
 }
 
 else if ($p=="savePipelineProcessParameterDefault") //(2)  savePipelineProcessParameter yerine savePipelineProcessParameterDefault yazildi.
