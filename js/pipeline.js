@@ -1011,8 +1011,7 @@ function drop(event) {
 			document.getElementById('id01').style.display='block'
 			inputTable = getInputTable(infoID)
             outputTable = getOutputTable(infoID)
-			var processInfo= getValues(  {p: "getProcessData",
-			    "process_id": infoID} )
+			var processInfo= getValues(  {p: "getProcessData", "process_id": infoID} )
 			document.getElementById("process_name").innerHTML = processInfo[0].name
 			document.getElementById("process_summary").innerHTML = processInfo[0].summary
 			document.getElementById("process_script").innerHTML = "<pre><code>" + processInfo[0].script + "</code></pre>"
