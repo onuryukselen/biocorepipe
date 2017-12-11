@@ -1,7 +1,45 @@
+//Adjustable textwidth
+    var $inputText = $('input.width-dynamic');
+    // Resize based on text if text.length > 0
+    // Otherwise resize based on the placeholder
+function resizeForText(text) {
+        var $this = $(this);
+        if (!text.trim()) {
+            text = $this.attr('placeholder').trim();
+        }
+        var $span = $this.parent().find('span');
+        $span.text(text);
+        var $inputSize = $span.width() + 10;
+        if ($inputSize < 50) {
+            $inputSize = 50;
+        }
+        $this.css("width", $inputSize);
+    }
+    $inputText.keypress(function (e) {
+        if (e.which && e.charCode) {
+            var c = String.fromCharCode(e.keyCode | e.charCode);
+            var $this = $(this);
+            resizeForText.call($this, $this.val() + c);
+        }
+    });
+    // Backspace event only fires for keyup
+    $inputText.keyup(function (e) {
+        if (e.keyCode === 8 || e.keyCode === 46) {
+            resizeForText.call($(this), $(this).val());
+        }
+    });
+    $inputText.each(function () {
+        var $this = $(this);
+        resizeForText.call($this, $this.val())
+    });
+
+
 $(document).ready(function () {
     //Make modal draggable    
     //    $('.modal-dialog').draggable();
     //    $('#editordiv').draggable("disable")
+    
+
     function getValues(data) {
         var result = null;
         $.ajax({
@@ -15,6 +53,53 @@ $(document).ready(function () {
         });
         return result;
     }
+
+    //Click on sideMenu items to Open Pipeline 
+    //$('.pipelineItems').on('click', function (event) {
+      $("#Pipelines").on('click', '.pipelineItems', function(event) {  
+        event.preventDefault();
+        
+        var button = $(event.currentTarget);
+        var selPipelineId = event.currentTarget.id.replace(/(.*)-(.*)/, '$2');
+        $('#pipeline-title').val(event.currentTarget.text);
+        $('#pipeline-title').attr('num', selPipelineId);
+        resizeForText.call($inputText, event.currentTarget.text);
+        openPipeline(selPipelineId);
+        
+    });
+    
+    
+    
+    //Update Pipeline Name 
+    $("#pipeline-title").bind('blur keyup', function (e) { //Click outside of the field or enter
+        if (e.type == 'blur') {
+            if ($("#pipeline-title").attr('num')  !== '') {
+            var el = $(this);
+            var pipeName = el.val();
+            var pipeID = el.attr('num');
+            if (pipeName !== '') {
+                var ret = getValues({
+                    p: "savePipelineName",
+                    'name': pipeName,
+                    'id': pipeID
+                });
+                
+                document.getElementById('pipeline-' + pipeID).innerHTML = '<i class="fa fa-angle-double-right"></i>' + pipeName; }
+//                else if ($("#pipeline-title").attr('num')  === '') {
+//                    $("#pipeline-title").attr('num',ret.id)
+//                    $('#allPipelines').append('<li><a href="" class="pipelineItems" onclick="openPipeline(' + ret.id + ')" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + pipeName + '</a></li>'); 
+//                }
+            }
+        } else if (e.keyCode == '13') {
+            $(this).blur();
+        }    
+        //}
+        
+    });
+    
+
+    
+
 
     //Add Process Modal
     $('#addProcessModal').on('show.bs.modal', function (event) {
@@ -107,7 +192,7 @@ $(document).ready(function () {
             })[0];
             sMenuProIdFirst = button.attr('id');
             sMenuProGroupIdFirst = showProcess.process_group_id;
-            
+
             //insert data into form
             var formValues = $('#addProcessModal').find('input, select');
             $(formValues[0]).val(showProcess.id);
@@ -175,8 +260,8 @@ $(document).ready(function () {
         var sMenuProIdFinal = data[1].value + '@' + data[0].value;
         var sMenuProGroupIdFinal = data[3].value;
 
-        
-        
+
+
         for (var i = 0; i < 4; i++) {
             dataToProcess[i] = data[i];
         }
@@ -205,16 +290,16 @@ $(document).ready(function () {
 
                     if (savetype.length) { //Edit Process
                         var process_id = proID;
-                        document.getElementById(sMenuProIdFirst).setAttribute('id',sMenuProIdFinal);
+                        document.getElementById(sMenuProIdFirst).setAttribute('id', sMenuProIdFinal);
                         var PattMenu = /(.*)@(.*)/; //Map_Tophat2@11
                         var nMenuProName = sMenuProIdFinal.replace(PattMenu, '$1');
                         document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + nMenuProName;
                         if (sMenuProGroupIdFirst !== sMenuProGroupIdFinal) {
-                            document.getElementById(sMenuProIdFinal).remove();  
+                            document.getElementById(sMenuProIdFinal).remove();
                             $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + nMenuProName + '</a></li>');
                         }
-                        
-                        
+
+
                         var inputs = getValues({
                             p: "getInputs",
                             "process_id": process_id

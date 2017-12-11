@@ -44,6 +44,38 @@
 <link href="//editor.datatables.net/examples/resources/bootstrap/editor.bootstrap.css" rel="stylesheet" type="text/css" />
 <!-- jQuery 3 -->
 <script src="bower_components/jquery/dist/jquery.min.js"></script>
+<style>
+/* Ace Editor scroll problem fix */
+.ace_text-input {position:absolute!important}
+/*glyphicon-stack    */
+.glyphicon-stack {
+position: relative;
+}
+
+.glyphicon-stack-2x {
+position: absolute;
+left: 14px;
+top: -5px;
+font-size: 10px;
+text-align: center;
+}
+ 
+.width-dynamic {
+    padding:5px;
+    font-size:20px;
+    font-family:Sans-serif; 
+    white-space:pre;
+}    
+.box-dynamic:hover {
+    border: 1px solid lightgrey;
+}  
+.box-dynamic {
+    border: 1px solid transparent;
+    
+}     
+    
+</style>    
+    
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -82,9 +114,31 @@
 		</div>
 	</form>
 	<!-- /.search form -->
+<!--        Control Sidebar-->
+<div class=" dropdown messages-menu ">
+
+    <button type="button" id="newPipeline" class="btn btn-default btn-warning" name="button" onclick="newPipeline()" data-backdrop="false" style=" margin-left:15px;">
+              <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
+                  <span class="glyphicon-stack">
+                    <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
+                      <i class="fa fa-spinner glyphicon-stack-1x" style="color:white;"></i>
+                  </span>
+              </a>
+            </button>
+    <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal" name="button" data-target="#addProcessModal" data-backdrop="false" style=" margin-left:0px;">
+              <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Process">
+                  <span class="glyphicon-stack">
+                    <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
+                      <i class="fa fa-circle-o glyphicon-stack-1x" style="color:white;"></i>
+                  </span>
+              </a>
+            </button>
+</div>
+        
+      
+        
+        
 	<!-- sidebar menu: : style can be found in sidebar.less -->
-
-
 <?php
 include("php/funcs.php");
 include("php/sidebarmenu.php");
@@ -113,18 +167,43 @@ $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
 	</section>
 
             <!-- Main content -->
-         <section class="content">
-             <div class="row">
-                              <div class="box">
-                                <div class="box-header">
-                                   <h3 class="box-title"><?php print getTitle($np); ?></h3>
-                               </div><!-- /.box-header -->
-                               <div class="box-body table-responsive" style="overflow-y:scroll;">
-                               <?php print getPage($np); ?>
-                               </div><!-- /.box-body -->
-                            </div><!-- /.box -->
-               </div><!-- /.row -->
-        </section><!-- /.content -->
+<section class="content">
+    <div class="row">
+        <div class="box">
+            <div class="box-header" style=" font-size: large; "><i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
+                Pipeline:
+                <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span>
+                <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
+                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
+                <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
+                        <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
+                <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
+                        <i class="glyphicon glyphicon-save"></i></a></button>
+                <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
+                        <i class="glyphicon glyphicon-trash"></i></a></button>
+
+                        </i>
+                    </i>
+                </i>
+                </input>
+            </div>
+            
+            
+            <!--/.box-header -->
+            <div class="box-body table-responsive" style="overflow-y:scroll;">
+                <?php print getPage($np); ?>
+            </div>
+            <!-- /.box-body -->
+        </div>
+        <!-- /.box -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->
   </aside>
   <!-- /.control-sidebar -->
   <!-- Add the sidebar's background. This div must be placed

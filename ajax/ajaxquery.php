@@ -94,6 +94,9 @@ else if ($p=="removePipeline"){
     $db->removePipelineProcessByPipelineID($id);
 	$data = $db -> removePipeline($id);
 }
+else if ($p=="removePipelineById"){   
+	$data = $db -> removePipelineById($id);
+}
 else if ($p=="removePipelineProcess"){   //(1)name eklendi
 	$process_id = $_REQUEST['process_id'];
     $pipeline_id = $_REQUEST['pipeline_id'];
@@ -196,6 +199,14 @@ else if ($p=="saveAllPipeline")
 {
 	$dat = $_REQUEST['dat'];
     $data = $db->saveAllPipeline($dat);
+}
+else if ($p=="savePipelineName"){
+    $name = $_REQUEST['name'];
+    if (!empty($id)) {
+        $data = $db->updatePipelineName($id, $name);
+    } else {
+        $data = $db->insertPipelineName($name);
+    }
 }
 else if ($p=="getSavedPipelines")
 {

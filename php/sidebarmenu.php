@@ -58,6 +58,12 @@ class dbfuncs {
      $sql= "SELECT DISTINCT group_name name, id FROM process_group";
      return self::queryTable($sql);
    }
+    
+     public function getPipelineSideBar()
+   {
+     $sql= "SELECT name, id FROM biocorepipe_save";
+     return self::queryTable($sql);
+   }
    
    function getSubMenuFromSideBar($parent)
    {
@@ -75,17 +81,33 @@ endforeach;
 return $html;
 }
 
+function getSideMenuPipelineItem($obj )
+{
+$html="";
+foreach ($obj as $item):
+        $html.='<li><a href="" class="pipelineItems" onclick="return false;" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+endforeach;
+return $html;
+}
+
 
 $query = new dbfuncs();
 
 $parentMenus = json_decode($query->getParentSideBar());
+$pipelinesMenu = json_decode($query->getPipelineSideBar());
 
 
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
 //add initial input parameters
-$menuhtml.='<li id="inputs" >  <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
-$menuhtml.='<li id="outputs" class="treeview">  <a href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';    
-$menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span> </a></li>';    
+$menuhtml.='<li id="inputs" >  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
+$menuhtml.='<li id="outputs" class="treeview">  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';    
+
+$menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span><i class="fa fa-angle-left pull-right"></i></a><ul id="allPipelines" class="treeview-menu">';    
+    $items = json_decode($query->getPipelineSideBar($pipelinesMenu->{'name'}));
+    $menuhtml.= getSideMenuPipelineItem($items);
+    $menuhtml.='</ul>';
+    $menuhtml.='</li>';
+
 
 foreach ($parentMenus as $parentitem):
 

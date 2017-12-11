@@ -57,7 +57,30 @@ function drop(event) {
 	  var svg = "";
 	  var mainG = "";
 	  function createSVG() {
-		  edges = []
+	      edges = []
+          w = 2300
+          h = 650
+          r = 70
+	      cx = 0
+	      cy = 0
+          ior = r/6
+	      var dat = [{x: 0, y: 0}]
+          gNum = 0
+          selectedgID = ""
+	      selectedg = ""
+          diffx = 0
+          diffy = 0
+    
+          processList = {}
+          edges = []
+          candidates = []
+    	  saveNodes = []
+          
+          dupliPipe = false
+          binding = false
+	      renameTextID  = ""
+	      deleteID = ""
+          
        	  d3.select("svg").remove(); 
 		  svg = d3.select("#container").append("svg")
           .attr("id","svg")
@@ -69,14 +92,47 @@ function drop(event) {
 		  mainG = d3.select("#container").select("svg").append("g")
 		  .attr("id","mainG")
 		  .attr("transform", "translate("+ 0 +","+ 0 +")")
+          
+          
       }
+      
+    function newPipeline() {
+        createSVG()
+        $('#pipeline-title').val('');
+        $('#pipeline-title').attr('num', '');
+        resizeForText.call($inputText, $inputText.attr('placeholder'));
+    }
+
+    function duplicatePipeline() {
+        console.log(dupliPipe)
+        
+        dupliPipe = true
+        console.log(dupliPipe)
+        save()
+        console.log(dupliPipe)
+        
+    }
+
+    function delPipeline() {
+            var pipeID = $('#pipeline-title').attr('num');
+            var s = getValues({
+                p: "removePipelineById",
+                'id': pipeID
+            });
+            $('#' + 'pipeline-' + pipeID).remove();
+            $('#pipeline-title').val('');
+            $('#pipeline-title').attr('num', '');
+            createSVG();
+        }
 	  
-      function openPipeline() {
+
+
+      function openPipeline(id) {
 		  createSVG()
-		  e = document.getElementById("pipelines");
-          id = e.options[e.selectedIndex].id;
           sData = getValues( {p: "loadPipeline", id: id} ) //all data from biocorepipe_save table
-		  if (Object.keys(sData).length > 0) {
+		  
+          if (Object.keys(sData).length > 0) {
+              
 			  nodes = sData[0].nodes
 			  nodes = JSON.parse(nodes.replace(/'/gi, "\""))
 			  mG = sData[0].mainG
@@ -103,30 +159,9 @@ function drop(event) {
 		  }
       }
 
-      w = 1400
-      h = 650
-      r = 70
-	  cx = 0
-	  cy = 0
-      ior = r/6
-	  var dat = [{x: 0, y: 0}]
-      gNum = 0
-      selectedgID = ""
-	  selectedg = ""
-      diffx = 0
-      diffy = 0
-
-      processList = {}
-      edges = []
-      candidates = []
-	  saveNodes = []
 
 
-      binding = false
-	  renameTextID  = ""
-	  deleteID = ""
-
-	  d3.select("#container").style("background-image","url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown",cancel).on("mousedown", cancel)
+	  d3.select("#container").style("background-image","url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").style("min-width","2300px").on("keydown",cancel).on("mousedown", cancel)
 
 	  var zoom = d3.behavior.zoom()
 			  .translate([0, 0])
@@ -1341,6 +1376,8 @@ function drop(event) {
 		function resetPos() {
 			d3.select("#mainG").attr("transform","translate(0,0)scale(1)")
 		}
+    
+        
 
 		function save(){
 			saveNodes = {}
@@ -1358,26 +1395,38 @@ function drop(event) {
 			Mainx = Maint.translate[0]
 			Mainy = Maint.translate[1]
 			Mainz = Maint.scale[0]
-			sName = document.getElementById("saveNameInput").value
+			sName = document.getElementById("pipeline-title").value
 			id = 0
-			if (document.getElementById("saveNameInput").value == "") {
-              e = document.getElementById("pipelines");
-			   id = e.options[e.selectedIndex].id;
+			if (sName !== "" && dupliPipe === false  ) {
+                id = $("#pipeline-title").attr('num')                
+            } else if (sName !== "" && dupliPipe === true  ) {
+                id ='';
+                sName = sName + '-copy'
             }
-			
-			
 			
 			saveMainG["mainG"] = [Mainx,Mainy,Mainz]
 			savedList = [{"name":sName}, {"id":id}, {"nodes":saveNodes}, saveMainG, {"edges": edges}]
 			sl = JSON.stringify(savedList)
 			var ret = getValues({p: "saveAllPipeline", dat: sl})
-			if (ret.id > 0) {                
-			  d3.select("#pipelines").append("option")
-				.attr("value",sName)
-				.attr("id", ret.id)
-				.text(sName)
-			}
-		}
+            //Add new pipeline
+            if ($("#pipeline-title").attr('num') === ''){ 
+                $("#pipeline-title").attr('num',ret.id)
+                $('#allPipelines').append('<li><a href="" class="pipelineItems" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');    
+            } else if (dupliPipe === true) {
+                $("#pipeline-title").attr('num',ret.id)
+                $("#pipeline-title").val(sName)
+                resizeForText.call($inputText, sName);
+                
+                $('#allPipelines').append('<li><a href="" class="pipelineItems" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+                dupliPipe = false
+                
+            }
+            
+		
+        
+        
+        
+        }
         
 
 
@@ -1618,7 +1667,7 @@ function drop(event) {
 		}
 	
 		function saveReady() {
-			document.getElementById("saveButton").disabled = false;
+			document.getElementById("savePipeline").disabled = false;
 		}
 		document.getElementsByClassName("tablink")[0].click();
 
