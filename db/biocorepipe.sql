@@ -26,7 +26,7 @@ SET time_zone = "+00:00";
 -- Table structure for table `biocorepipe_save`
 --
 
-CREATE DATABASE biocorepipe;
+
 USE biocorepipe;
 
 CREATE TABLE IF NOT EXISTS `biocorepipe_save` (
@@ -109,7 +109,7 @@ INSERT INTO `parameter` (`id`, `name`, `channel_name`, `file_type`, `file_path`,
 (13, 'mapped_read_pairs', 'bam_files', 'bam', '', '1', 'set', '', '2017-04-23 22:31:59', '2017-04-23 22:31:59', 'docker'),
 (14, 'transcripts', 'transcripts', 'gtf', '', '1', 'set', '', '2017-04-23 22:34:26', '2017-04-23 22:34:26', 'root'),
 (15, 'RSeQC', 'RSeQC', 'tsv', '', '1.0.0', 'file', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root'),
-(16, 'inputparam', '', 'NA', '', '', '', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root');
+(16, 'inputparam', '', 'NA', '', '', '', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root'),
 (17, 'outputparam', '', 'NA', '', '', '', '', '2017-07-12 03:36:42', '2017-07-12 03:36:42', 'root');
 
 -- --------------------------------------------------------

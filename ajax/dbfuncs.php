@@ -469,4 +469,19 @@ class dbfuncs {
 		$sql = "select * from biocorepipe_save where id = $id";
 	   return self::queryTable($sql);
 	}
+    public function removePipelineById($id) {
+		$sql = "DELETE FROM biocorepipe_save WHERE id = $id";
+	   return self::runSQL($sql);
+	}
+    public function updatePipelineName($id, $name) {
+        $sql = "UPDATE biocorepipe_save SET name='$name'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
+    public function insertPipelineName($name) {
+        $user = "docker";
+        $sql = "INSERT INTO biocorepipe_save(user, name) VALUES 
+			('$user','$name')";
+        return self::insTable($sql);
+    }
 }

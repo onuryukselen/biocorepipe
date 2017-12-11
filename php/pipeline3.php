@@ -19,8 +19,9 @@
 </style>
 
 
-    <div class="container">
+    <div class="container" style="width=2300px; height=650px;">
       <div class="row">
+<!--
         <div class="col-md-1">
           <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal"  name="button" data-target="#addProcessModal" data-backdrop="false" style="width: auto; margin-top:15px;">
               <a data-toggle="tooltip" data-placement="bottom" title="Add Process">
@@ -42,6 +43,7 @@
             <button id = "saveButton" type="submit" class="btn btn-default btn-danger" name="button" onclick="save()" style="width: auto; margin-top:15px;"><i class="glyphicon glyphicon-ok"></i></button>
             <button type="button" class="btn btn-default btn-info" name="button" onclick="download('nextflow.nf',createNextflowFile())" style="width: auto; margin-top:15px;"><i class="glyphicon glyphicon-save"></i></button>
 	    </div>
+-->
 		</div>
     </div>
 
