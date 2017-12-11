@@ -104,13 +104,8 @@ function drop(event) {
     }
 
     function duplicatePipeline() {
-        console.log(dupliPipe)
-        
         dupliPipe = true
-        console.log(dupliPipe)
         save()
-        console.log(dupliPipe)
-        
     }
 
     function delPipeline() {
@@ -1407,6 +1402,8 @@ function drop(event) {
 			saveMainG["mainG"] = [Mainx,Mainy,Mainz]
 			savedList = [{"name":sName}, {"id":id}, {"nodes":saveNodes}, saveMainG, {"edges": edges}]
 			sl = JSON.stringify(savedList)
+            if (sName !== "" ) {
+                
 			var ret = getValues({p: "saveAllPipeline", dat: sl})
             //Add new pipeline
             if ($("#pipeline-title").attr('num') === ''){ 
@@ -1421,7 +1418,7 @@ function drop(event) {
                 dupliPipe = false
                 
             }
-            
+            }
 		
         
         

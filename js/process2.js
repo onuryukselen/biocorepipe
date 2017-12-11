@@ -1,3 +1,20 @@
+// cleanProcessModal when modla is closed     
+function cleanProcessModal() {
+        $('#addProcessModal').modal('hide');
+        $('#mParameters').remove();
+        $('#inputGroup').remove();
+        $('#outputGroup').remove();
+        $('#proGroup').remove();
+        $('#hrDiv').remove();
+
+        $('#versionGroup').after(menuGrBackup);
+        $('#proGroup').after(allBackup);
+        $('#proGroup').after('<hr id = "hrDiv">');
+        $('#mParameters').after(inBackup);
+        $('#inputGroup').after(outBackup);
+        editor.setValue("");
+    }
+
 //Adjustable textwidth
     var $inputText = $('input.width-dynamic');
     // Resize based on text if text.length > 0
@@ -228,21 +245,7 @@ $(document).ready(function () {
     });
 
 
-    function cleanProcessModal() {
-        $('#addProcessModal').modal('hide');
-        $('#mParameters').remove();
-        $('#inputGroup').remove();
-        $('#outputGroup').remove();
-        $('#proGroup').remove();
-        $('#hrDiv').remove();
 
-        $('#versionGroup').after(menuGrBackup);
-        $('#proGroup').after(allBackup);
-        $('#proGroup').after('<hr id = "hrDiv">');
-        $('#mParameters').after(inBackup);
-        $('#inputGroup').after(outBackup);
-        editor.setValue("");
-    }
 
     // Dismiss process modal 
     $('#addProcessModal').on('click', '.dismissprocess', function (event) {
