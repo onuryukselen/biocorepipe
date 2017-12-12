@@ -45,14 +45,16 @@ function drop(event) {
 			   });
 			  return result;
 	   }
- 
-	  var processData = getValues( {p: "getProcessData"} )
-	  
 
-	  var savedData = getValues( {p: "getSavedPipelines"} )
-	  addOption2LoadSelect()
-	  
-	  var parametersData =  getValues({p: "getParametersData" })
+    refreshDataset()
+
+    function refreshDataset () {
+    processData = getValues( {p: "getProcessData"} )  
+    savedData = getValues( {p: "getSavedPipelines"} )
+    addOption2LoadSelect()
+    parametersData =  getValues({p: "getParametersData" })
+        
+    }
 	  var sData = "";
 	  var svg = "";
 	  var mainG = "";
@@ -118,6 +120,8 @@ function drop(event) {
             $('#pipeline-title').val('');
             $('#pipeline-title').attr('num', '');
             createSVG();
+            resizeForText.call($inputText, $inputText.attr('placeholder'));
+        
         }
 	  
 
@@ -422,6 +426,7 @@ function drop(event) {
 
             g.append("text")
                 .attr("id", "info-" + gNum)
+                .attr("class", "info-" + id)
                 .attr('font-family', 'FontAwesome')
                 .attr('font-size', '1em')
                 .attr("x", 0)
@@ -1038,13 +1043,14 @@ function drop(event) {
         function getInfo() {
 		    className = document.getElementById(this.id).className.baseVal.split("-")
 			infoID = className[1]
-			document.getElementById('id01').style.display='block'
-			inputTable = getInputTable(infoID)
-            outputTable = getOutputTable(infoID)
-			var processInfo= getValues(  {p: "getProcessData", "process_id": infoID} )
-			document.getElementById("process_name").innerHTML = processInfo[0].name
-			document.getElementById("process_summary").innerHTML = processInfo[0].summary
-			document.getElementById("process_script").innerHTML = "<pre><code>" + processInfo[0].script + "</code></pre>"
+            $('#addProcessModal').modal("show");
+			//document.getElementById('id01').style.display='block'
+//			inputTable = getInputTable(infoID)
+//          outputTable = getOutputTable(infoID)
+//			var processInfo= getValues(  {p: "getProcessData", "process_id": infoID} )
+//			document.getElementById("process_name").innerHTML = processInfo[0].name
+//			document.getElementById("process_summary").innerHTML = processInfo[0].summary
+//			document.getElementById("process_script").innerHTML = "<pre><code>" + processInfo[0].script + "</code></pre>"
 		}
 			
 		function removeElement() {
@@ -1408,13 +1414,13 @@ function drop(event) {
             //Add new pipeline
             if ($("#pipeline-title").attr('num') === ''){ 
                 $("#pipeline-title").attr('num',ret.id)
-                $('#allPipelines').append('<li><a href="" class="pipelineItems" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');    
+                $('#allPipelines').append('<li><a href="" class="pipelineItems" draggable="false" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');    
             } else if (dupliPipe === true) {
                 $("#pipeline-title").attr('num',ret.id)
                 $("#pipeline-title").val(sName)
                 resizeForText.call($inputText, sName);
                 
-                $('#allPipelines').append('<li><a href="" class="pipelineItems" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+                $('#allPipelines').append('<li><a href="" class="pipelineItems" draggable="false" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
                 dupliPipe = false
                 
             }
@@ -1434,6 +1440,7 @@ function drop(event) {
 			z = t.scale[0]
 
 			gNum = parseInt(gN)
+			var name = sDataName
 			var name = sDataName
 			var id = sDatapId
             var process_id=id

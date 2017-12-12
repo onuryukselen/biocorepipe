@@ -85,7 +85,7 @@ function getSideMenuPipelineItem($obj )
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="" class="pipelineItems" onclick="return false;" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li><a href="" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }
@@ -99,14 +99,18 @@ $pipelinesMenu = json_decode($query->getPipelineSideBar());
 
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
 //add initial input parameters
-$menuhtml.='<li id="inputs" >  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
-$menuhtml.='<li id="outputs" class="treeview">  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';    
+  
 
 $menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span><i class="fa fa-angle-left pull-right"></i></a><ul id="allPipelines" class="treeview-menu">';    
     $items = json_decode($query->getPipelineSideBar($pipelinesMenu->{'name'}));
     $menuhtml.= getSideMenuPipelineItem($items);
     $menuhtml.='</ul>';
     $menuhtml.='</li>';
+$menuhtml.='<li class="header">INPUT/OUTPUT PARAMETERS</li>';
+
+$menuhtml.='<li id="inputs" >  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
+$menuhtml.='<li id="outputs" class="treeview">  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';  
+$menuhtml.='<li class="header">PROCESSES</li>';
 
 
 foreach ($parentMenus as $parentitem):
