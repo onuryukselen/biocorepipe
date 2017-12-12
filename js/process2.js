@@ -275,7 +275,7 @@ $(document).ready(function () {
         }
 
         else {
-            $('#processmodaltitle').html('Edit Process');
+            $('#processmodaltitle').html('Edit/Delete Process');
             var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
             var selProcessId = button.attr('id').replace(PattPro, '$2');
             $('#mIdPro').val(selProcessId);
