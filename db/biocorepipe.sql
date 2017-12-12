@@ -25,8 +25,9 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `biocorepipe_save`
 --
-
-
+ 
+DROP DATABASE IF EXISTS biocorepipe;
+CREATE DATABASE biocorepipe;
 USE biocorepipe;
 
 CREATE TABLE IF NOT EXISTS `biocorepipe_save` (

@@ -1,3 +1,9 @@
+12.12.2017 Version 0.0.11
+svg parameters are updated when new parameter/process added.
+SideBar Menu separators are added.
+Search Bar is updated to show nodes without children.
+Process Description option added to add/edit process modal.
+
 11.12.2017 Version 0.0.10
 "process modal error" is fixed.
 

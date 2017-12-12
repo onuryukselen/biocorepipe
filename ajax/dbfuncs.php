@@ -127,13 +127,13 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     
-    public function insertProcess($name, $version, $process_group_id , $script) {
-        $sql = "INSERT INTO process(name, version, process_group_id, script, date_created, date_modified, last_modified_user) VALUES ('$name', '$version', '$process_group_id', '$script', now(), now(), '".$this->last_modified_user."')";
+    public function insertProcess($name, $version, $summary, $process_group_id , $script) {
+        $sql = "INSERT INTO process(name, version, summary, process_group_id, script, date_created, date_modified, last_modified_user) VALUES ('$name', '$version', '$summary', '$process_group_id', '$script', now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
     }
 
-    public function updateProcess($id, $name, $version, $process_group_id, $script) {
-        $sql = "UPDATE process SET name= '$name', version='$version', process_group_id='$process_group_id', script='$script', last_modified_user = '".$this->last_modified_user."'  WHERE id = $id";
+    public function updateProcess($id, $name, $version, $summary, $process_group_id, $script) {
+        $sql = "UPDATE process SET name= '$name', version='$version', summary='$summary', process_group_id='$process_group_id', script='$script', last_modified_user = '".$this->last_modified_user."'  WHERE id = $id";
         return self::runSQL($sql);
     }
 

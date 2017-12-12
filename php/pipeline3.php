@@ -75,6 +75,12 @@
                             <input type="text" class="form-control" id="mVersion" name="version">
                         </div>
                     </div>
+                    <div id="describeGroup" class="form-group">
+                        <label for="mDescription" class="col-sm-2 control-label">Description</label>
+                        <div class="col-sm-10">
+                            <textarea rows="2" class="form-control" id="mDescription" name="summary"></textarea>
+                        </div>
+                    </div>
                     <div id="proGroup" class="form-group">
                         <label for="mProcessGroup" class="col-sm-2 control-label">Menu Group</label>
                         <div class="col-sm-5">
