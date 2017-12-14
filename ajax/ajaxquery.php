@@ -47,19 +47,19 @@ if ($p=="updatePipelineProcessParameter") //(2)  Matching saglandiktan sonra $na
 	
 
 }
-if ($p=="insertmatchid") //(2)  yeni match eklemek icin kullanilir.
-{
-    $id1 = $_REQUEST['id1'];
-    $id2 = $_REQUEST['id2'];
-    $data = $db->insertmatchid($id1, $id2);
-}
-
-if ($p=="updatebymatchid") //(2)  match datasini kullanarak pipeline_process_parameter tablosunu update eder.
-{
-    $name = $_REQUEST['name'];
-    $ppp_id = $_REQUEST['ppp_id'];
-    $data = $db->updatebymatchid($name, $ppp_id);
-}
+//if ($p=="insertmatchid") //(2)  yeni match eklemek icin kullanilir.
+//{
+//    $id1 = $_REQUEST['id1'];
+//    $id2 = $_REQUEST['id2'];
+//    $data = $db->insertmatchid($id1, $id2);
+//}
+//
+//if ($p=="updatebymatchid") //(2)  match datasini kullanarak pipeline_process_parameter tablosunu update eder.
+//{
+//    $name = $_REQUEST['name'];
+//    $ppp_id = $_REQUEST['ppp_id'];
+//    $data = $db->updatebymatchid($name, $ppp_id);
+//}
 
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($start, $end);
@@ -105,7 +105,7 @@ else if ($p=="removePipelineProcess"){   //(1)name eklendi
 }
 else if ($p=="removeProcess"){   
     $db->removeProcessParameterByProcessID($id);
-    $db->removePipelineProcessByProcessID($id);
+//    $db->removePipelineProcessByProcessID($id);
 	$data = $db -> removeProcess($id);
 }
 else if ($p=="removeProcessParameter"){   

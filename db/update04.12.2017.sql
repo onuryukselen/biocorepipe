@@ -1,3 +1,4 @@
+USE biocorepipe;
 DELETE FROM `process_group` WHERE `id`=1;
 UPDATE `process_group` SET `id`=1 WHERE `id`=2;
 UPDATE `process_group` SET `id`=2 WHERE `id`=3;

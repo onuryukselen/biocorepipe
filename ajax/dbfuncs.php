@@ -269,13 +269,13 @@ class dbfuncs {
         return self::runSQL($sql);
 		
     }
-    public function removePipelineProcessByProcessID($process_id) { //(2)pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
-		$sql = "DELETE FROM pipeline_process_parameter WHERE process_id = $process_id";
-        self::runSQL($sql);
-		
-        $sql = "DELETE FROM pipeline_process WHERE process_id = $process_id";
-        return self::runSQL($sql);
-    }
+//    public function removePipelineProcessByProcessID($process_id) { //(2)pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
+//		$sql = "DELETE FROM pipeline_process_parameter WHERE process_id = $process_id";
+//        self::runSQL($sql);
+//		
+//        $sql = "DELETE FROM pipeline_process WHERE process_id = $process_id";
+//        return self::runSQL($sql);
+//    }
 
     public function removePipelineProcessByPipelineID($pipeline_id) { //(2)matchid, pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
 		$sql = "DELETE mi

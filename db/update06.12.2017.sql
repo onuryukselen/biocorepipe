@@ -1,3 +1,4 @@
+USE biocorepipe;
 ALTER TABLE `process_group`
   ADD  `owner_id` int(11) DEFAULT NULL,
   ADD `group_id` int(11) DEFAULT NULL,
