@@ -1,3 +1,9 @@
+13.12.2017 Version 0.0.12
+Delete Process Option added.
+Available parameters combobox in process modal moved into parameters modal.
+Inputs and outputs are shown with its filetype and qualifier in combobox (in process modal)
+
+
 12.12.2017 Version 0.0.11
 svg parameters are updated when new parameter/process added.
 SideBar Menu separators are added.

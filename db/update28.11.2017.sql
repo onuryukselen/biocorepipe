@@ -1,3 +1,4 @@
+USE biocorepipe;
 -- Build_index and Map_Tophat2 processes updated. Obsolete tables are removed.
 
 INSERT INTO `parameter`(`id`, `name`, `channel_name`, `file_type`, `file_path`, `version`, `qualifier`, `input_text`, `date_created`, `date_modified`, `last_modified_user`) VALUES 

@@ -71,9 +71,23 @@ text-align: center;
 }  
 .box-dynamic {
     border: 1px solid transparent;
-    
 }     
-    
+ 		.selectize-control .option .title {
+			display: block;
+		}
+		.selectize-control .option .url {
+			font-size: 12px;
+			display: block;
+			color: #a0a0a0;
+		}
+/*
+		.selectize-control .item a {
+			color: #006ef5;
+		}
+		.selectize-control .item.active a {
+			color: #303030;
+		}   
+*/
 </style>    
     
 </head>
