@@ -1,3 +1,10 @@
+15.12.2017 Version 0.0.13
+Sql injections prevented in scripts section 
+SVG width is allowed to fit into screen.
+SVG tooltip is updated to show identifier, qualifier, file type and name
+One outputparam is able to connect with only one process 
+
+
 13.12.2017 Version 0.0.12
 Delete Process Option added.
 Available parameters combobox in process modal moved into parameters modal.

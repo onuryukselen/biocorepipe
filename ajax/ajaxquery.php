@@ -145,7 +145,7 @@ else if ($p=="saveProcess"){
     $summary = $_REQUEST['summary'];
     $process_group_id = $_REQUEST['process_group_id'];
     $script = $_REQUEST['script']; 
-//    $script = htmlspecialchars($script);
+    $script = htmlspecialchars($script, ENT_QUOTES);
     if (!empty($id)) {
         $data = $db->updateProcess($id, $name, $version, $summary, $process_group_id, $script);
     } else {

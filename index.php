@@ -59,7 +59,7 @@ top: -5px;
 font-size: 10px;
 text-align: center;
 }
- 
+/*Pipeline Name Dynamic Input Box */
 .width-dynamic {
     padding:5px;
     font-size:20px;
@@ -71,23 +71,29 @@ text-align: center;
 }  
 .box-dynamic {
     border: 1px solid transparent;
-}     
- 		.selectize-control .option .title {
-			display: block;
-		}
-		.selectize-control .option .url {
-			font-size: 12px;
-			display: block;
-			color: #a0a0a0;
-		}
-/*
-		.selectize-control .item a {
-			color: #006ef5;
-		}
-		.selectize-control .item.active a {
-			color: #303030;
-		}   
-*/
+}  
+/*Combobox Menu*/
+.selectize-control .option .title {
+	display: block;
+}
+.selectize-control .option .url {
+	font-size: 12px;
+	display: block;
+	color: #a0a0a0;
+}
+div.tooltip-svg {	
+    position: absolute;			
+    text-align: left;								
+    padding: 2px;				
+    font: 14px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;
+    font-color:black;
+}    
+    
+
 </style>    
     
 </head>

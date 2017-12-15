@@ -162,7 +162,7 @@ $(document).ready(function () {
             async: false,
             success: function (s) {
                 $("#mProcessGroup").empty();
-                var firstOptionGroup = new Option("--- Select Menu Process Group ---", '');
+                var firstOptionGroup = new Option("Select Menu Process Group...", '');
                 $("#mProcessGroup").append(firstOptionGroup);
                 for (var i = 0; i < s.length; i++) {
                     var param = s[i];
@@ -655,7 +655,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (s) {
                 $("#mParamListIn").empty();
-                var firstOptionSelect = new Option("--- Available Parameters ---", '');
+                var firstOptionSelect = new Option("Available Parameters...", '');
                 $("#mParamListIn").append(firstOptionSelect);
                 for (var i = 0; i < s.length; i++) {
                     var param = s[i];
@@ -723,7 +723,7 @@ $(document).ready(function () {
                 async: false,
                 success: function (s) {
                 $("#mParamListDel").empty();
-                var firstOptionSelect = new Option("--- Select Parameter to Delete ---", '');
+                var firstOptionSelect = new Option("Select Parameter to Delete...", '');
                 $("#mParamListDel").append(firstOptionSelect);
                 for (var i = 0; i < s.length; i++) {
                     var param = s[i];

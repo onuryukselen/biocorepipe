@@ -48,7 +48,13 @@ class dbfuncs {
      $data = array();
      if ($res = $this->runSQL($sql))
      {
-        while(($row=$res->fetch_assoc())){$data[]=$row;}
+        while(($row=$res->fetch_assoc()))
+        {
+            $row['script'] = htmlspecialchars_decode($row['script'], ENT_QUOTES);
+            
+            $data[]=$row;
+        }
+         
         $res->close();
      }
      return json_encode($data);

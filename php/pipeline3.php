@@ -20,7 +20,7 @@
 </style>
 
 
-<div class="container" style="width=2300px; height=650px;">
+<div class="container" style="width=100%; height=100%;">
     <div class="row">
         <!--
         <div class="col-md-1">
