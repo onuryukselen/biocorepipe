@@ -1,3 +1,28 @@
+//ace editor
+var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/tomorrow");
+    editor.getSession().setMode("ace/mode/groovy");
+    editor.$blockScrolling = Infinity;
+//template text for editor
+templategroovy = '//groovy example: \n\n bowtie2-build ${genome} genome.index';
+templateperl = '#perl example: \n\n#!/usr/bin/perl \n print \'Hi there!\' . \'\\n\';'; 
+templatepython = '#python example: \n\n#!/usr/bin/python \nx = \'Hello\'  \ny = \'world!\' \nprint "%s - %s" % (x,y)';
+// If template text is not changed or it is blank : set the template text on change
+$(function () {
+    $(document).on('change', '#modeAce', function () {
+        var newMode = $("#modeAce").val();
+        editor.session.setMode("ace/mode/" + newMode);
+        var editorText = editor.getValue();
+        if (editorText === templategroovy || editorText === templateperl || editorText === templatepython || editorText === '') {
+            var newTempText = 'template' + newMode;
+            editor.setValue(window[newTempText]);
+        }
+    })
+});
+
+
+
+
 infoID = '';
 // cleanProcessModal when modal is closed     
 function cleanProcessModal() {
@@ -65,7 +90,8 @@ function resizeForText(text) {
 
 $(document).ready(function () {
     //Make modal draggable    
-    //    $('.modal-dialog').draggable();
+       // $('.modal-dialog').draggable();
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv' });
     //    $('#editordiv').draggable("disable")
     
 
@@ -114,10 +140,6 @@ $(document).ready(function () {
                 });
                 
                 document.getElementById('pipeline-' + pipeID).innerHTML = '<i class="fa fa-angle-double-right"></i>' + pipeName; }
-//                else if ($("#pipeline-title").attr('num')  === '') {
-//                    $("#pipeline-title").attr('num',ret.id)
-//                    $('#allPipelines').append('<li><a href="" class="pipelineItems" onclick="openPipeline(' + ret.id + ')" id="pipeline-'+ ret.id +'"><i class="fa fa-angle-double-right"></i>' + pipeName + '</a></li>'); 
-//                }
             }
         } else if (e.keyCode == '13') {
             $(this).blur();
@@ -151,6 +173,7 @@ $(document).ready(function () {
         inBackup = $('#inputGroup').clone();
         outBackup = $('#outputGroup').clone();
         allBackup = $('#mParameters').clone();
+        editor.setValue(templategroovy);
 
         //ajax for Process Group
         $.ajax({
@@ -204,7 +227,6 @@ $(document).ready(function () {
                     options: s,
                     render: renderParam
                 });
-                console.log(s);
                 $('#mParamAllIn').parent().hide();
             },
             error: function (errorThrown) {
@@ -235,7 +257,7 @@ $(document).ready(function () {
             $(formValues[2]).attr('disabled', "disabled");
             $(formValues[3]).val(showProcess.summary);
             $(formValues[3]).attr('disabled', "disabled");
-            //var scriptfromDatabase = JSON.parse(showProcess.script);
+//            var scriptfromDatabase = JSON.parse(showProcess.script);
             var scriptfromDatabase = showProcess.script;
             editor.setValue(scriptfromDatabase);
             editor.setReadOnly(true);
@@ -304,8 +326,14 @@ $(document).ready(function () {
             $(formValues[1]).val(showProcess.name);
             $(formValues[2]).val(showProcess.version);
             $(formValues[3]).val(showProcess.summary);
-            //var a = JSON.parse(showProcess.script);
-            editor.setValue(showProcess.script);
+             editorScript = showProcess.script;
+            var lastLetter = editorScript.length - 1;
+            if (editorScript[0] === '"' && editorScript[lastLetter] === '"'){
+            var editorScript = editorScript.substring(1, editorScript.length - 1); //remove first and last duble quote
+            }
+//            var parsedScript = JSON.parse(showProcess.script);
+//            editor.setValue(parsedScript);
+            editor.setValue(editorScript);
             editor.clearSelection();
             $('#mProcessGroup')[0].selectize.setValue(showProcess.process_group_id, false);
             //Ajax for selected process input/outputs
@@ -319,7 +347,6 @@ $(document).ready(function () {
             });
             for (var i = 0; i < inputs.length; i++) {
                 var numForm = i + 1;
-                console.log('#mInputs-' + numForm);
                 $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
                 $('#mInName-' + numForm).val(inputs[i].name);
                 $('#mInName-' + numForm).attr('ppID', inputs[i].id);
@@ -393,8 +420,9 @@ $(document).ready(function () {
         var proID = dataToProcess[0].value;
         var proName = dataToProcess[1].value;
         var proGroId = dataToProcess[4].value;
-        //var scripteditor = JSON.stringify(editor.getValue());
-        var scripteditor = editor.getValue();
+        var scripteditor = JSON.stringify(editor.getValue());
+        //var scripteditor = editor.getValue();
+
         dataToProcess.push({
             name: "script",
             value: scripteditor
@@ -752,7 +780,7 @@ $(document).ready(function () {
             async: false,
             success: function (s) {
                 var allBox = $('#addProcessModal').find('select');
-                for (var i = 2; i < allBox.length; i++) { //processGroup and paramAllin are skipped at i=0 and i=1
+                for (var i = 2; i < allBox.length-1; i++) { //processGroup and paramAllin are skipped at i=0 and i=1   allBox.length-1 skipped for language mode
                     var parBoxId = allBox[i].getAttribute('id');
                     $('#' + parBoxId)[0].selectize.removeOption(selectParam);
                 }
@@ -817,7 +845,6 @@ $(document).ready(function () {
         var savetype = $('#mIdPar').val();
         var data = formValues.serializeArray(); // convert form to array
         data.splice(1, 1); //Remove "ParamAllIn"
-        console.log(data);
         var selParID = data[0].value;
         var selParName = data[1].value;
         var selParQual = data[2].value;
@@ -835,7 +862,7 @@ $(document).ready(function () {
                 if (savetype.length) { //Edit Parameter
                     //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
                     var allBox = $('#addProcessModal').find('select');
-                    for (var i = 2; i < allBox.length; i++) { //processGroup and paramAllin are skipped at i=0 and i=1
+                    for (var i = 2; i < allBox.length-1; i++) { //processGroup and paramAllin are skipped at i=0 and i=1   allBox.length-1 skipped for language mode
                         var parBoxId = allBox[i].getAttribute('id');
                         $('#' + parBoxId)[0].selectize.updateOption(selParID, {
                             id: selParID,
@@ -848,7 +875,7 @@ $(document).ready(function () {
                 } else { //Add Parameter
                     //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
                     var allBox = $('#addProcessModal').find('select');
-                    for (var i = 2; i < allBox.length; i++) { //processGroup, and paramAllin are skipped at i=0 and i=1
+                    for (var i = 2; i < allBox.length-1; i++) { //processGroup, and paramAllin are skipped at i=0 and i=1 allBox.length-1 skipped for language mode
                         var parBoxId = allBox[i].getAttribute('id');
                         $('#' + parBoxId)[0].selectize.addOption({
                             id: s.id,

@@ -20,32 +20,111 @@
 </style>
 
 
-<div class="container" style="width=100%; height=100%;">
-    <div class="row">
-        <!--
-        <div class="col-md-1">
-          <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal"  name="button" data-target="#addProcessModal" data-backdrop="false" style="width: auto; margin-top:15px;">
-              <a data-toggle="tooltip" data-placement="bottom" title="Add Process">
-                  <i class="glyphicon glyphicon-plus">
-                  </i>
-              </a>
-            </button>
+
+<div style="padding-left:16px; padding-right:16px; padding-bottom:20px;" id="desPipeline">
+    <div class="row" id="creatorInfo" style="font-size:12px;"> Created by admin on Jan. 26, 2016 04:12 • Last edited by admin on Feb. 8, 2017 12:15</div>
+    </br>
+    <div class="row" id="desTitle"><b>Description</b></div>
+    </br>
+    <div class="row"><textarea placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; border-color:lightgrey;"></textarea></div>
+
+</div>
+
+
+
+
+<div class="panel panel-default">
+    <div id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+</div>
+</br>
+
+<div id="workDetails">
+    <h4>Process Details</h4>
+    <ul id="inOutNav" class="nav nav-tabs   nav-justified">
+        <li class="active "><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
+        <li><a class="nav-item" data-toggle="tab" href="#outputsTab">Outputs</a></li>
+    </ul>
+    <div class="panel panel-default">
+
+        <div class="tab-content">
+            <div id="inputsTab" class="tab-pane fade in active">
+                </br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Identifier</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">Qualifier</th>
+                            <th scope="col">Upload File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td> <button class="browse btn btn-default " type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>Jacob</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                            <td> <button class="browse btn btn-default " type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>Larry</td>
+                            <td>the Bird</td>
+                            <td>@twitter</td>
+                            <td> <button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="outputsTab" class="tab-pane fade">
+                </br>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Identifier</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">Qualifier</th>
+                            <th scope="col">Upload File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>Mark</td>
+                            <td>Otto</td>
+                            <td>@mdo</td>
+                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>'genome.index*'</td>
+                            <td>Thornton</td>
+                            <td>@fat</td>
+                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>Larry</td>
+                            <td>the Bird</td>
+                            <td>@twitter</td>
+                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="col-md-2"></div>
-		<div class="col-md-2"></div>
-		<div class="col-md-2">
-			  <input id = "saveNameInput" class="form-control" type="text" name="saveNameInput" onkeyup="saveReady()" style="width: 100%; margin-top:15px;" placeholder="Enter Name For Save">
-		</div>
-		<div class="col-md-2">
-			<select id = "pipelines" class ="btn btn-default form-control" name = "pipelines" style="width: 100%; margin-top:15px;"></select>
-		 </div>
-		<div class="col-md-2">
-		    <button type="submit" class="btn btn-default btn-success" name="openButton" onclick="openPipeline()" style="width: auto; margin-top:15px;"><i class="glyphicon glyphicon-refresh"></i></button>
-            <button id = "saveButton" type="submit" class="btn btn-default btn-danger" name="button" onclick="save()" style="width: auto; margin-top:15px;"><i class="glyphicon glyphicon-ok"></i></button>
-            <button type="button" class="btn btn-default btn-info" name="button" onclick="download('nextflow.nf',createNextflowFile())" style="width: auto; margin-top:15px;"><i class="glyphicon glyphicon-save"></i></button>
-	    </div>
--->
     </div>
+
 </div>
 
 <!-- Add Process Modal -->
@@ -113,9 +192,9 @@
                             <button type="button" class="btn btn-default form-control" id="mParDel" data-toggle="modal" data-target="#delparametermodal" data-backdrop="false"><i class="fa fa-trash-o"></i></button>
                         </div>
                     </div>
-                    <div id="inputGroup" class="form-group" >
+                    <div id="inputGroup" class="form-group">
                         <label for="mInputs-1" class="col-sm-2 control-label">Inputs</label>
-                        <div id="mInputs" class="col-sm-5" >
+                        <div id="mInputs" class="col-sm-5">
                             <select id="mInputs-1" num="1" class="fbtn btn-default form-control" prev="-1" name="mInputs-1"></select>
                         </div>
                         <div id="mInName" class="col-sm-4 " style="padding-left:0; padding-right:0;">
@@ -143,6 +222,16 @@
                         <label for="mScript" class="col-sm-2 control-label">Script</label>
                         <div id="editordiv" class="col-sm-10">
                             <div id="editor"></div>
+                            <div class="row">
+                            <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                                <div class="col-sm-3" style="padding-left:0;">
+                                    <select id="modeAce" class="form-control">
+                                    <option>groovy</option>
+                                    <option>perl</option>
+                                    <option>python</option>
+                                    </select>
+                            </div>
+                            </div>
                         </div>
                     </div>
 
@@ -177,7 +266,7 @@
                     <div class="form-group">
                         <label for="mParamList" class="col-sm-2 control-label">Parameters</label>
                         <div id="mParamsDynamic" class="col-sm-1" style=" display:none; width: auto;  ">
-                            <button type="button" class="btn btn-default form-control" id="mParamOpen" ><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Show Parameters"><i class="fa fa-eye" ></i></a></button>
+                            <button type="button" class="btn btn-default form-control" id="mParamOpen"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Show Parameters"><i class="fa fa-eye" ></i></a></button>
                         </div>
                         <div id="mParamList" class="col-sm-10" style=" ">
                             <select id="mParamListIn" class="fbtn btn-default form-control" name="ParamAllIn"></select>
@@ -223,7 +312,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close dismissparameterdel" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" >Delete Parameter</h4>
+                <h4 class="modal-title">Delete Parameter</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
@@ -237,7 +326,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default dismissparameterdel" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="delparameter" >Delete Parameter</button>
+                <button type="button" class="btn btn-danger" id="delparameter">Delete Parameter</button>
             </div>
         </div>
     </div>
@@ -392,12 +481,10 @@
         </div>
     </div>
 </div>
-<div id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+
+
+
+
+
 <script src="js/pipeline.js"></script>
 <script src="js/process2.js"></script>
-<script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/tomorrow");
-    editor.getSession().setMode("ace/mode/groovy");
-    editor.$blockScrolling = Infinity;
-</script>
