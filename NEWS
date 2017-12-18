@@ -1,3 +1,11 @@
+17.12.2017 Version 0.0.14
+owner_id,group_id,perms,date_created,date_modified,last_modified_user is added to all database tables.
+languade modes and template scripts are added to script editor for python, groovy and perl.
+error (using \n) in scripts section is fixed 
+pipeline description section added.
+pipeline details section added.
+Draggable modal feature is added.
+
 15.12.2017 Version 0.0.13
 Sql injections prevented in scripts section 
 SVG width is allowed to fit into screen.

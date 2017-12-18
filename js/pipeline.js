@@ -79,7 +79,7 @@
 	  function createSVG() {
 	      edges = []
 	      w = '100%'
-	      h = 1500
+	      h = 500
 	      r = 70
 	      cx = 0
 	      cy = 0
@@ -213,7 +213,6 @@
 	  //kind=input/output
 	  //
 	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
-
 	      //gnum uniqe, id same id (Written in class) in same type process
 	      g = d3.select("#mainG").append("g")
 	          .attr("id", "g-" + gNum)
@@ -277,17 +276,13 @@
 	          .datum([{
 	              cx: 0,
 	              cy: 20,
-                  "name": name
+	              "name": name
                 }])
-	          .attr('font-family', 'FontAwesome')
+	          .attr('font-family', "FontAwesome, sans-serif")
 	          .attr('font-size', '1em')
-              .text(name)
-//          .text(function (d) {
-//     if(d[0].name.length > 5)
-//         return d[0].name.substring(0,5)+'...';
-//     else
-//         return d[0].name;                       
-// })
+	          .attr('name', name)
+	          .attr('class', 'inOut')
+	          .text(truncateName(name,'inOut'))
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
@@ -300,7 +295,7 @@
 	              cx: 0,
 	              cy: 0
                 }])
-	          .attr('font-family', 'FontAwesome')
+	          .attr('font-family', "FontAwesome, sans-serif")
 	          .attr('font-size', '0.9em')
 	          .attr("x", -40)
 	          .attr("y", 5)
@@ -310,7 +305,7 @@
 	      //gnum(written in id): uniqe,
 	      g.append("text")
 	          .attr("id", "del-" + gNum)
-	          .attr('font-family', 'FontAwesome')
+	          .attr('font-family', "FontAwesome, sans-serif")
 	          .attr('font-size', '1em')
 	          .attr("x", +30)
 	          .attr("y", 5)
@@ -426,9 +421,11 @@
 	                  cx: 0,
 	                  cy: 0
                 }])
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
-	              .text(name)
+                  .attr('name', name)
+	              .attr('class', 'process')
+                  .text(truncateName(name,'process'))
 	              .style("text-anchor", "middle")
 	              .on("mouseover", scMouseOver)
 	              .on("mouseout", scMouseOut)
@@ -439,7 +436,7 @@
 	                  cx: 0,
 	                  cy: 0
                 }])
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '0.9em')
 	              .attr("x", -6)
 	              .attr("y", 15)
@@ -449,7 +446,7 @@
 	          //gnum(written in id): uniqe,
 	          g.append("text")
 	              .attr("id", "del-" + gNum)
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
 	              .attr("x", -6)
 	              .attr("y", r + ior / 2)
@@ -460,7 +457,7 @@
 	          g.append("text")
 	              .attr("id", "info-" + gNum)
 	              .attr("class", "info-" + id)
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
 	              .attr("x", 0)
 	              .attr("y", -1 * (r + ior / 2 - 10))
@@ -1005,7 +1002,7 @@
 	      d3.select("#c--" + fClick + "_" + sClick)
 	          .append("text")
 	          .attr("id", "del--" + fClick + "_" + sClick)
-	          .attr('font-family', 'FontAwesome')
+	          .attr('font-family', "FontAwesome, sans-serif")
 	          .attr('font-size', '1em')
 	          .attr("x", -5)
 	          .attr("y", 5)
@@ -1053,7 +1050,7 @@
 
 	  function rename() {
 	      renameTextID = this.id
-	      text = d3.select("#" + this.id).text()
+	      text = d3.select("#" + this.id).attr('name')
 	      body = document.body
 	      bodyW = body.offsetWidth
 	      bodyH = body.scrollHeight
@@ -1118,12 +1115,26 @@
 	          .style("margin-top", "40px")
 	          .text("Submit")
 	  }
-
+      function truncateName(name,type) {
+          if (type === 'inOut') {
+              var letterLimit = 8;
+          } else if (type === 'process') {
+              var letterLimit = 12
+          }
+	              if (name.length > letterLimit)
+	                  return name.substring(0, letterLimit) + '..';
+	              else
+	                  return name;
+	          }
+        
 	  function changeName() {
 	      newName = document.getElementById("renameInput").value
-	      d3.select("#" + renameTextID).text(newName)
+	      d3.select("#" + renameTextID).attr('name',newName)
+          newNameShow = truncateName (newName,d3.select("#" + renameTextID).attr('class'));
+	      d3.select("#" + renameTextID).text(newNameShow)
+        
+          processList[document.getElementById(renameTextID).parentElement.id] = newName
 	      document.getElementById(renameTextID).parentElement.id
-	      processList[document.getElementById(renameTextID).parentElement.id] = newName
 	      cancelRename()
 	  }
 
@@ -1148,6 +1159,7 @@
 	      bodyH = body.offsetHeight
 
 	      if (!binding) {
+              
 	          d3.select("#container").append('div')
 	              .attr('id', 'removeElement')
 	              .style('position', 'absolute')
@@ -1276,7 +1288,7 @@
 	                  return el.id == inputIdSplit[3]
 	              })[0].qualifier
 	              //filePath = parametersData.filter(function (el) {return el.id == inputIdSplit[3]})[0].file_path
-	              inputParamName = document.getElementById(userEntryId).textContent //input parameter name
+	              inputParamName = document.getElementById(userEntryId).getAttribute('name') //input parameter name
 
 	              for (var e = 0; e < edges.length; e++) {
 	                  if (edges[e].indexOf(Iid) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
@@ -1346,7 +1358,7 @@
 	                      //outPro node : get userEntryId and userEntryText
 	                      parId = fNode.split("-")[4]
 	                      userEntryId = "text-" + fNode.split("-")[4]
-	                      outputParamName = document.getElementById(userEntryId).textContent //user entered output parameter name
+	                      outputParamName = document.getElementById(userEntryId).getAttribute('name') //user entered output parameter name
 	                      parFile = parametersData.filter(function (el) {
 	                          return el.id == fNode.split("-")[3]
 	                      })[0].file_type
@@ -1683,9 +1695,11 @@
 	                  cx: 0,
 	                  cy: 0
 			        }])
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
-	              .text(name)
+	              .attr('name', name)
+	              .attr('class', 'process')
+	              .text(truncateName(name,'process'))
 	              .style("text-anchor", "middle")
 	              .on("mouseover", scMouseOver)
 	              .on("mouseout", scMouseOut)
@@ -1696,7 +1710,7 @@
 	                  cx: 0,
 	                  cy: 0
 			        }])
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '0.9em')
 	              .attr("x", -6)
 	              .attr("y", 15)
@@ -1705,7 +1719,7 @@
 	          //gnum(written in id): uniqe,
 	          g.append("text")
 	              .attr("id", "del-" + gNum)
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
 	              .attr("x", -6)
 	              .attr("y", r + ior / 2)
@@ -1716,7 +1730,7 @@
 	          g.append("text")
 	              .attr("id", "info-" + gNum)
 	              .attr("class", "info-" + id)
-	              .attr('font-family', 'FontAwesome')
+	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
 	              .attr("x", 0)
 	              .attr("y", -1 * (r + ior / 2 - 10))

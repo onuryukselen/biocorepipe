@@ -81,6 +81,7 @@ text-align: center;
 	display: block;
 	color: #a0a0a0;
 }
+/*    D3 tooltip*/
 div.tooltip-svg {	
     position: absolute;			
     text-align: left;								
@@ -92,6 +93,27 @@ div.tooltip-svg {
     pointer-events: none;
     font-color:black;
 }    
+/*    NavBar process details*/
+.nav-tabs{
+  background-color:#F9F9F9 !important;
+  color:#428bca;
+font-weight:600;
+    
+}
+
+.nav-tabs > li > a{
+  border: medium none;
+}
+.nav-tabs> li > a:hover{
+    border: medium none;
+    border-radius: 0;
+    color:#0570c1;
+}
+.active a {
+  color: #428bca !important;
+}
+    
+
     
 
 </style>    
@@ -188,9 +210,11 @@ $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
 
             <!-- Main content -->
 <section class="content">
-    <div class="row">
+    <div class="row" >
         <div class="box">
-            <div class="box-header" style=" font-size: large; "><i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
+            <div class="box-header" style=" font-size:large; ">
+                <div style=" border-bottom:1px solid lightgrey;">   
+                <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
                 Pipeline:
                 <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span>
                 <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
@@ -205,16 +229,15 @@ $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
                 <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
                         <i class="glyphicon glyphicon-trash"></i></a></button>
-
                         </i>
                     </i>
                 </i>
                 </input>
+    </div>
             </div>
-            
-            
             <!--/.box-header -->
-            <div class="box-body table-responsive" style="overflow-y:scroll;">
+            <div class="box-body table-responsive" style=" overflow-y:scroll;">
+                
                 <?php print getPage($np); ?>
             </div>
             <!-- /.box-body -->
