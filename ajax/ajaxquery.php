@@ -47,19 +47,7 @@ if ($p=="updatePipelineProcessParameter") //(2)  Matching saglandiktan sonra $na
 	
 
 }
-//if ($p=="insertmatchid") //(2)  yeni match eklemek icin kullanilir.
-//{
-//    $id1 = $_REQUEST['id1'];
-//    $id2 = $_REQUEST['id2'];
-//    $data = $db->insertmatchid($id1, $id2);
-//}
-//
-//if ($p=="updatebymatchid") //(2)  match datasini kullanarak pipeline_process_parameter tablosunu update eder.
-//{
-//    $name = $_REQUEST['name'];
-//    $ppp_id = $_REQUEST['ppp_id'];
-//    $data = $db->updatebymatchid($name, $ppp_id);
-//}
+
 
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($start, $end);
@@ -120,6 +108,21 @@ else if ($p=="saveParameter"){
        $data = $db->updateParameter($id, $name, $qualifier, $file_type);
     } else {
        $data = $db->insertParameter($name, $qualifier, $file_type);
+    }
+}
+else if ($p=="saveUser"){
+    $google_id = $_REQUEST['google_id'];
+    $name = $_REQUEST['name'];
+    $email = $_REQUEST['email'];
+    $google_image = $_REQUEST['google_image'];
+    //check if Google ID already exits
+    $checkUser = $db->getUser($google_id);
+    $checkarray = json_decode($checkUser,true); 
+    $id = $checkarray[0]["id"];
+    if (!empty($id)) {
+        $data = $db->updateUser($id, $google_id, $name, $email, $google_image);    
+    } else {
+        $data = $db->insertUser($google_id, $name, $email, $google_image);  
     }
 }
 else if ($p=="saveProcessGroup"){
