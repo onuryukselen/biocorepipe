@@ -71,6 +71,28 @@ class dbfuncs {
      }
      return json_encode($data);
    }
+    
+    
+//    ---------------  Users ---------------
+    public function getUser($google_id) {
+        $sql = "SELECT * FROM users WHERE google_id = $google_id";
+        return self::queryTable($sql);
+    }
+    public function insertUser($google_id, $name, $email, $google_image) {
+        $sql = "INSERT INTO users(google_id, name, email, google_image, date_created, date_modified, last_modified_user) VALUES 
+			('$google_id', '$name', '$email', '$google_image', now(), now(), '".$this->last_modified_user."')";
+        return self::insTable($sql);
+    }
+    
+    public function updateUser($id, $google_id, $name, $email, $google_image) {
+        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+
+
+    
+//    ------------- Parameters ------------
+    
     public function getAllParameters($start, $end) {
         $data = array();
         $time = "";

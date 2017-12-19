@@ -26,7 +26,7 @@
     </br>
     <div class="row" id="desTitle"><b>Description</b></div>
     </br>
-    <div class="row"><textarea placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; border-color:lightgrey;"></textarea></div>
+    <div class="row"><textarea placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
 
@@ -39,7 +39,7 @@
 </br>
 
 <div id="workDetails">
-    <h4>Process Details</h4>
+    <h4>Pipeline Details</h4>
     <ul id="inOutNav" class="nav nav-tabs   nav-justified">
         <li class="active "><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
         <li><a class="nav-item" data-toggle="tab" href="#outputsTab">Outputs</a></li>
@@ -132,7 +132,7 @@
     <div class="modal-dialog" style="width:800px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close dismissprocess" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="processmodaltitle">Title</h4>
             </div>
             <div class="modal-body">
@@ -239,7 +239,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>
-                <button type="button" class="btn btn-default dismissprocess" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveprocess">Save changes</button>
             </div>
         </div>
