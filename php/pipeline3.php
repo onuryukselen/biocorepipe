@@ -34,92 +34,65 @@
 
 
 <div class="panel panel-default">
-    <div id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    <div style="height:500px;" id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
 </div>
 </br>
 
 <div id="workDetails">
-    <h4>Pipeline Details</h4>
-    <ul id="inOutNav" class="nav nav-tabs   nav-justified">
-        <li class="active "><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
+    <div><h4>Pipeline Details</h4></br></div>
+    <ul id="inOutNav" class="nav nav-tabs nav-justified">
+        <li class="active"><a class="nav-item" data-toggle="tab" href="#processTab">Processes</a></li>
+        <li><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
         <li><a class="nav-item" data-toggle="tab" href="#outputsTab">Outputs</a></li>
     </ul>
     <div class="panel panel-default">
 
-        <div class="tab-content">
-            <div id="inputsTab" class="tab-pane fade in active">
+        <div id= "pipeContent" class="tab-content">
+            <div id="processTab" class="tab-pane fade in active">
                 </br>
-                <table class="table">
+                <table id="processTable" class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Identifier</th>
-                            <th scope="col">File Type</th>
-                            <th scope="col">Qualifier</th>
-                            <th scope="col">Upload File</th>
+                            <th scope="col">Process Name</th>
+                            <th scope="col">Revision</th>
+                            <th scope="col">Description</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td> <button class="browse btn btn-default " type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>Jacob</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td> <button class="browse btn btn-default " type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
-                            <td>@twitter</td>
-                            <td> <button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
-                        </tr>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
 
-            <div id="outputsTab" class="tab-pane fade">
+            <div id="inputsTab" class="tab-pane fade ">
                 </br>
-                <table class="table">
+                <table id="inputsTable" class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Name</th>
+                            <th scope="col">Given Name</th>
                             <th scope="col">Identifier</th>
                             <th scope="col">File Type</th>
                             <th scope="col">Qualifier</th>
-                            <th scope="col">Upload File</th>
+                            <th scope="col">Process Name</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+
+
+            <div id="outputsTab" class="tab-pane fade">
+                </br>
+                <table id="outputsTable" class="table">
+                    <thead>
                         <tr>
-                            <th scope="row">1</th>
-                            <td>Mark</td>
-                            <td>Otto</td>
-                            <td>@mdo</td>
-                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
+                            <th scope="col">Given Name</th>
+                            <th scope="col">Identifier</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">Qualifier</th>
+                            <th scope="col">Process Name</th>
                         </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>'genome.index*'</td>
-                            <td>Thornton</td>
-                            <td>@fat</td>
-                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>Larry</td>
-                            <td>the Bird</td>
-                            <td>@twitter</td>
-                            <td><button class="browse btn btn-default" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button></td>
-                        </tr>
-                    </tbody>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -223,14 +196,14 @@
                         <div id="editordiv" class="col-sm-10">
                             <div id="editor"></div>
                             <div class="row">
-                            <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                                <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
                                 <div class="col-sm-3" style="padding-left:0;">
                                     <select id="modeAce" class="form-control">
                                     <option>groovy</option>
                                     <option>perl</option>
                                     <option>python</option>
                                     </select>
-                            </div>
+                                </div>
                             </div>
                         </div>
                     </div>

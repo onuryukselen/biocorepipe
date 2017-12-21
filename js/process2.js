@@ -1,50 +1,54 @@
+// google sign-in
 function Google_signIn(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
-     var auth2 = gapi.auth2.getAuthInstance();
-     auth2.disconnect();
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.disconnect();
 
     var userProfile = [];
     var profile = googleUser.getBasicProfile();
-    userProfile.push({name: "google_id", value: profile.getId()});
-    userProfile.push({name: "name", value: profile.getName()});
-    userProfile.push({name: "email", value: profile.getEmail()});
-    userProfile.push({name: "google_image", value: profile.getImageUrl()});
-    userProfile.push({name: "p", value: 'saveUser'});
+    var emailUser = profile.getEmail();
+    var pattEmail = /(.*)@(.*)/; //Map_Tophat2@11
+    var username = emailUser.replace(pattEmail, '$1');
+    userProfile.push({ name: "google_id", value: profile.getId() });
+    userProfile.push({ name: "name", value: profile.getName() });
+    userProfile.push({ name: "email", value: profile.getEmail() });
+    userProfile.push({ name: "google_image", value: profile.getImageUrl() });
+    userProfile.push({ name: "username", value: username });
+    userProfile.push({ name: "p", value: 'saveUser' });
     update_user_data(userProfile);
 }
-function update_user_data(response) 
-{
-      $.ajax({
-            type: "POST",
-            data: response,
-            url: "ajax/ajaxquery.php",
-            async: false,
-            success: function(msg) {
-               if(msg.error== 1)
-               {
+
+function update_user_data(response) {
+    $.ajax({
+        type: "POST",
+        data: response,
+        url: "ajax/ajaxquery.php",
+        async: false,
+        success: function (msg) {
+            if (msg.error == 1) {
                 alert('Something Went Wrong!');
-               }else {
-                   var imgUrl = response[3].value;
-                   var userName = response[1].value;
-                   $('#googleSignIn').css('display', "none");
-                   $('#userAvatar').css('display', "inline");
-                   $('#userInfo').css('display', "inline");
-                   $('#userAvatarImg').attr('src', imgUrl);
-                   $('#userName').text(userName);
-               }
-                
+            } else {
+                var imgUrl = response[3].value;
+                var userName = response[1].value;
+                $('#googleSignIn').css('display', "none");
+                $('#userAvatar').css('display', "inline");
+                $('#userInfo').css('display', "inline");
+                $('#userAvatarImg').attr('src', imgUrl);
+                $('#userName').text(userName);
             }
-      });
+
+        }
+    });
 }
-  function signOut() {
+
+function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
-      console.log('User signed out.');
-                    $('#googleSignIn').css('display', "inline");
-                   $('#userAvatar').css('display', "none");
-                   $('#userInfo').css('display', "none");
+        $('#googleSignIn').css('display', "inline");
+        $('#userAvatar').css('display', "none");
+        $('#userInfo').css('display', "none");
     });
-  }
+}
 
 //ace editor
 var editor = ace.edit("editor");
@@ -141,9 +145,7 @@ $inputText.each(function () {
 $(document).ready(function () {
     //Make modal draggable    
     // $('.modal-dialog').draggable();
-    $('.modal-dialog').draggable({
-        cancel: 'input, textarea, select, #editordiv'
-    });
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button' });
     //    $('#editordiv').draggable("disable")
 
 
@@ -227,7 +229,7 @@ $(document).ready(function () {
         inBackup = $('#inputGroup').clone();
         outBackup = $('#outputGroup').clone();
         allBackup = $('#mParameters').clone();
-        
+
         editor.setValue(templategroovy);
 
         //ajax for Process Group
@@ -413,11 +415,11 @@ $(document).ready(function () {
         }
 
     });
-    
+
     // Dismiss process modal 
-$('#addProcessModal').on('hide.bs.modal', function (event) {
-    cleanProcessModal();
-});
+    $('#addProcessModal').on('hide.bs.modal', function (event) {
+        cleanProcessModal();
+    });
 
     // Delete process modal 
     $('#confirmModal').on('show.bs.modal', function (event) {
@@ -479,7 +481,6 @@ $('#addProcessModal').on('hide.bs.modal', function (event) {
         if (proName === '' || proGroId == '') {
             dataToProcess = [];
         }
-        console.log(dataToProcess);
         if (dataToProcess.length > 0) {
             $.ajax({
                 type: "POST",
@@ -787,7 +788,7 @@ $('#addProcessModal').on('hide.bs.modal', function (event) {
             });
         }
     });
-        // Dismiss parameters modal 
+    // Dismiss parameters modal 
     $('#parametermodal').on('hide.bs.modal', function (event) {
         $('#mParamListIn')[0].selectize.destroy();
         $('#mParamsDynamic').css('display', "inline");
@@ -846,8 +847,8 @@ $('#addProcessModal').on('hide.bs.modal', function (event) {
         $('#delparametermodal').modal('hide');
         refreshDataset()
     });
-    
-        // Dismiss parameters delete modal 
+
+    // Dismiss parameters delete modal 
     $('#delparametermodal').on('hide.bs.modal', function (event) {
         $('#mParamListDel')[0].selectize.destroy();
     });
