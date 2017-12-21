@@ -115,14 +115,15 @@ else if ($p=="saveUser"){
     $name = $_REQUEST['name'];
     $email = $_REQUEST['email'];
     $google_image = $_REQUEST['google_image'];
+    $username = $_REQUEST['username'];
     //check if Google ID already exits
     $checkUser = $db->getUser($google_id);
     $checkarray = json_decode($checkUser,true); 
     $id = $checkarray[0]["id"];
     if (!empty($id)) {
-        $data = $db->updateUser($id, $google_id, $name, $email, $google_image);    
+        $data = $db->updateUser($id, $google_id, $name, $email, $google_image, $username);    
     } else {
-        $data = $db->insertUser($google_id, $name, $email, $google_image);  
+        $data = $db->insertUser($google_id, $name, $email, $google_image, $username);  
     }
 }
 else if ($p=="saveProcessGroup"){

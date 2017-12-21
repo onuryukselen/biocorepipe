@@ -137,15 +137,15 @@ font-weight:600;
     <!-- sidebar: style can be found in sidebar.less -->
     <section class="sidebar">
       <!-- Sidebar user panel -->
-      <div class="user-panel">
+      <div class="user-panel" style="padding-bottom:5px;">
         <div id= "googleSignIn" class="g-signin2" data-longtitle="true" data-onsuccess="Google_signIn" data-theme="dark" data-width="200"></div>
         <div id= "userAvatar" style="display:none" class="pull-left image">
           <img id= "userAvatarImg" src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
         </div>
         <div id= "userInfo" style="display:none" class="pull-left info">
           <p id= "userName">Alper Kucukural</p>
-          <a href="index.php"><i class="fa fa-circle text-success"></i> Online</a>
-            <a href="#" onclick="signOut();">Sign out</a>
+          <span style="font-size:11px;"><i class="fa fa-circle text-success"></i> Online</span>
+            <a style="float:right;" href="" onclick="signOut();">Sign out</a>
         </div>
       </div>
 

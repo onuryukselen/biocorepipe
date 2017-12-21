@@ -5,12 +5,12 @@
 	   */
 	  Array.prototype.searchFor = function (candid) {
 	      for (var i = 0; i < this.length; i++)
-	          if (this[i].indexOf(candid) == 0)
-	              return i;
-	      return -1;
+	          if (this[i].indexOf(candid) > -1)
+	              return true;
+	      return false;
 	  };
 
-      function dragStart(event) {
+	  function dragStart(event) {
 	      event.dataTransfer.setData("Text", event.target.id);
 	  }
 
@@ -104,7 +104,12 @@
 	      renameTextID = ""
 	      deleteID = ""
 
-	      d3.select("svg").remove();
+	      d3.select("#svg").remove();
+	      //--Pipeline details table clean --
+	      $('#inputsTable').find("tr:gt(0)").remove();
+	      $('#outputsTable').find("tr:gt(0)").remove();
+	      $('#processTable').find("tr:gt(0)").remove();
+
 	      svg = d3.select("#container").append("svg")
 	          .attr("id", "svg")
 	          .attr("width", w)
@@ -282,7 +287,7 @@
 	          .attr('font-size', '1em')
 	          .attr('name', name)
 	          .attr('class', 'inOut')
-	          .text(truncateName(name,'inOut'))
+	          .text(truncateName(name, 'inOut'))
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
@@ -312,6 +317,37 @@
 	          .text('\uf014')
 	          .style("opacity", 0.2)
 	          .on("mousedown", removeElement)
+	  }
+
+	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName) {
+	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+	  }
+
+	  function insertProRowTable(process_id, procName, procDesc, procRev) {
+	      return '<tr id=procTa-' + process_id + '><td scope="row">' + procName + '</td><td>' + procRev + '</td><td>' + procDesc + '</td></tr>'
+	  }
+
+	  //--Pipeline details table --
+	  function addProPipeTab(id) {
+	      var procData = processData.filter(function (el) { return el.id == id });
+	      var procName = procData[0].name;
+	      var procDesc = truncateName(procData[0].summary, 'processTable');
+	      var procRev = procData[0].version;
+	      var proRow = insertProRowTable(id, procName, procDesc, procRev);
+	      var rowExistPro = '';
+	      var rowExistPro = document.getElementById('procTa-' + id);
+	      if (!rowExistPro) {
+	          $('#processTable > tbody:last-child').append(proRow);
+	      }
+	  }
+
+	  function removeProPipeTab(id) {
+	      var proExist = '';
+	      var proExist = $(".g-" + id)[1];
+	      //there should be at least 2 process before delete, otherwise delete
+	      if (!proExist) {
+	          $('#procTa-' + id).remove();
+	      }
 	  }
 
 	  function addProcess(processDat, xpos, ypos) {
@@ -370,6 +406,9 @@
 	          var process_id = processDat.split('@')[1]
 	          var id = process_id
 
+	          //--Pipeline details table add process--
+	          addProPipeTab(id)
+
 	          var inputs = getValues({
 	              p: "getInputs",
 	              "process_id": process_id
@@ -423,9 +462,9 @@
                 }])
 	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
-                  .attr('name', name)
+	              .attr('name', name)
 	              .attr('class', 'process')
-                  .text(truncateName(name,'process'))
+	              .text(truncateName(name, 'process'))
 	              .style("text-anchor", "middle")
 	              .on("mouseover", scMouseOver)
 	              .on("mouseout", scMouseOut)
@@ -494,7 +533,7 @@
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", outputs[k].name)
 	                  .attr("status", "standard")
-                      .attr("connect", "single")
+	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")
 	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
 	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
@@ -656,7 +695,21 @@
 
 	  function remove() {
 	      if (!binding) {
-	          g = document.getElementById(deleteID).parentElement.id
+	          g = document.getElementById(deleteID).parentElement.id //g-5
+
+	          //--delete pipeline details
+	          var gNum = g.split('-')[1];
+	          var proClass = $('#' + g).attr('class') //
+	          var proID = $('#' + g).attr('class').split('-')[1] //
+	          if (proClass === 'g-inPro') { // input param is deleted
+	              $('#inputTa-' + gNum).remove();
+	          } else if (proClass === 'g-outPro') { // output param is deleted
+	              $('#outputTa-' + gNum).remove();
+	          } else { //process is deleted
+	              removeProPipeTab(proID)
+	          }
+	          //--delete pipeline details ends
+
 	          d3.select("#" + g).remove()
 	          delete processList[g]
 	          removeLines(g)
@@ -665,6 +718,7 @@
 	  }
 
 	  function removeLines(g) {
+
 	      allLines = d3.selectAll("line")[0]
 	      for (var line = 0; line < allLines.length; line++) {
 	          from = allLines[line].getAttribute("g_from")
@@ -672,9 +726,10 @@
 
 	          if (from == g || to == g) {
 	              lineid = allLines[line].id
-	              d3.select("#" + lineid).remove()
-	              edges.splice(edges.indexOf("lineid"), 1);
-	              removeDelCircle(lineid)
+	              removeEdge('c--' + lineid)
+	              //	              d3.select("#" + lineid).remove()
+	              //	              edges.splice(edges.indexOf("lineid"), 1);
+	              //	              removeDelCircle(lineid)
 	          }
 	      }
 	  }
@@ -784,13 +839,13 @@
 	      cand = searchedType(className[1])
 	      var givenNamePP = document.getElementById(this.id).getAttribute("name")
 	      if (givenNamePP === 'outputparam' && className[0] !== 'connect_to_output') {
-              //If output parameter already connected , do nothing
+	          //If output parameter already connected , do nothing
 	      } else {
-	           if (binding) {
-                   stopBinding(className, cand, selectedIO)
-               } else {
-                   startBinding(className, cand, selectedIO)
-               }
+	          if (binding) {
+	              stopBinding(className, cand, selectedIO)
+	          } else {
+	              startBinding(className, cand, selectedIO)
+	          }
 
 	      }
 
@@ -924,8 +979,8 @@
 	  }
 
 	  function createEdges(first, second) {
-          d3.selectAll("#" + first).attr("connect", 'mate')
-          d3.selectAll("#" + second).attr("connect", 'mate')
+	      d3.selectAll("#" + first).attr("connect", 'mate')
+	      d3.selectAll("#" + second).attr("connect", 'mate')
 	      inputParamLocF = first.indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on the inputparam
 	      inputParamLocS = second.indexOf("o-inPro")
 	      outputParamLocF = first.indexOf("i-outPro") //-1: outputparam not exist //0: first click is done on the inputparam
@@ -947,7 +1002,10 @@
 	          secClassName = updateSecClassName(second, inputParamLocF)
 	          d3.selectAll("#" + first).attr("class", secClassName)
 	          //update the parameter of the inputparam based on selected second circle
+	          var firGnum = document.getElementById(first).id.split("-")[4] //first g-number
+	          var secGnum = document.getElementById(second).id.split("-")[4] //first g-number
 	          secPI = document.getElementById(second).id.split("-")[3] //second parameter id
+	          var secProI = document.getElementById(second).id.split("-")[1] //second process id
 	          patt = /(.*)-(.*)-(.*)-(.*)-(.*)/
 	          secID = first.replace(patt, '$1-$2-$3-' + secPI + '-$5')
 
@@ -955,13 +1013,46 @@
 	          fClickOrigin = first
 	          fClick = secID
 	          sClick = second
+	          var rowType = '';
+	          //Pipeline details table 
+	          if (inputParamLocF === 0) {
+	              rowType = 'input';
+	          } else if (outputParamLocF === 0) {
+	              rowType = 'output';
+	          }
+	          var paramGivenName = document.getElementById('text-' + firGnum).getAttribute("name");
+	          var paraData = parametersData.filter(function (el) { return el.id == secPI });
+	          var procData = processData.filter(function (el) { return el.id == secProI });
+	          var paraFileType = paraData[0].file_type;
+	          var paraQualifier = paraData[0].qualifier;
+	          var paraIdentifier = paraData[0].name;
+	          //var processName = procData[0].name;
+	          var processName = $('#text-' + secGnum).attr('name');
+
+	          //var givenNamePP = document.getElementById(second).getAttribute("name")
+	          var rowExist = ''
+	          rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
+	          if (rowExist) {
+	              var preProcess = '';
+	              $('#' + rowType + 'Ta-' + firGnum + '> :last-child').append('<span id=proGcomma-' + secGnum + '>, </span>');
+	              $('#' + rowType + 'Ta-' + firGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
+	          } else {
+	              var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName);
+	              $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+	          }
 
 
-	      } else {
+
+
+
+	      } else { //process to process connection
 	          fClickOrigin = first
 	          fClick = first
 	          sClick = second
 	      }
+
+
+
 
 
 	      d3.select("#mainG").append("line")
@@ -1010,22 +1101,56 @@
 	          .style("opacity", 0.4)
 
 	      edges.push(fClick + "_" + sClick)
-	      //}
+
 	  }
 
-	  function removeEdge() {
+	  function removeEdge(delID) {
+	      if (delID !== undefined) {
+	          deleteID = delID;
+	      }
 
-          
-          d3.selectAll("#" + deleteID.split("--")[1].split("_")[1]).attr("connect", 'single')
-	      d3.select("#" + deleteID).remove()
+	      d3.select("#" + deleteID).remove() //eg. c--o-inPro-1-9-0_i-10-0-9-1
 	      d3.select("#" + deleteID.split("--")[1]).remove()
 	      edges.splice(edges.indexOf(deleteID.split("--")[1]), 1);
-          
-          if (edges.searchFor(deleteID.split("--")[1].split("_")[0]) < 0) {
-              d3.selectAll("#" + deleteID.split("--")[1].split("_")[0]).attr("connect", 'single')
-          } else if (edges.searchFor(deleteID.split("--")[1].split("_")[0]) < 0) {
-              d3.selectAll("#" + deleteID.split("--")[1].split("_")[1]).attr("connect", 'single')
-          }
+	      var firstParamId = deleteID.split("--")[1].split("_")[0];
+	      var secondParamId = deleteID.split("--")[1].split("_")[1];
+	      var paramType = firstParamId.split("-")[1] //inPro or outPro
+	      var delsecGnum = secondParamId.split("-")[4] //gNum
+	      var delGnum = firstParamId.split("-")[4] //gNum
+
+
+
+
+	      //input/output param has still edge/edges
+	      //remove process name from pipeline details table
+	      if (edges.searchFor(firstParamId)) {
+	          if (paramType === 'inPro') {
+	              //$('#inputTa-' + delGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
+	              $('#proGName-' + delsecGnum).remove();
+	              if ($('#proGcomma-' + delsecGnum)[0]) {
+	                  $('#proGcomma-' + delsecGnum).remove();
+	              } else {
+	                  //delete extra comma
+	                  $('#inputTa-' + delGnum + '> :last-child > :first-child').remove();
+	              }
+
+	          }
+	      }
+
+	      //input/output param has no edge any more
+	      if (!edges.searchFor(firstParamId)) {
+	          d3.selectAll("#" + firstParamId).attr("connect", 'single')
+	          //remove row from pipeline details table
+	          if (paramType === 'inPro') {
+	              $('#inputTa-' + delGnum).remove() //gNum
+	          } else if (paramType === 'outPro') {
+	              $('#outputTa-' + delGnum).remove() //gNum
+	          }
+	      }
+	      //process has no edge any more
+	      if (!edges.searchFor(secondParamId)) {
+	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
+	      }
 
 	      cancelRemove()
 	  }
@@ -1115,25 +1240,38 @@
 	          .style("margin-top", "40px")
 	          .text("Submit")
 	  }
-      function truncateName(name,type) {
-          if (type === 'inOut') {
-              var letterLimit = 8;
-          } else if (type === 'process') {
-              var letterLimit = 12
-          }
-	              if (name.length > letterLimit)
-	                  return name.substring(0, letterLimit) + '..';
-	              else
-	                  return name;
-	          }
-        
+
+	  function truncateName(name, type) {
+	      if (type === 'inOut') {
+	          var letterLimit = 8;
+	      } else if (type === 'process') {
+	          var letterLimit = 12;
+	      } else if (type === 'processTable') {
+	          var letterLimit = 300;
+	      }
+	      if (name.length > letterLimit)
+	          return name.substring(0, letterLimit) + '..';
+	      else
+	          return name;
+	  }
+
 	  function changeName() {
 	      newName = document.getElementById("renameInput").value
-	      d3.select("#" + renameTextID).attr('name',newName)
-          newNameShow = truncateName (newName,d3.select("#" + renameTextID).attr('class'));
+	      d3.select("#" + renameTextID).attr('name', newName)
+	      newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
 	      d3.select("#" + renameTextID).text(newNameShow)
-        
-          processList[document.getElementById(renameTextID).parentElement.id] = newName
+
+	      //update pipeline details table
+	      proType = $('#' + renameTextID).parent().attr('class').split('-')[1]
+	      $('#proGName-' + renameTextID.split('-')[1]).text(newName);
+	      if (proType === 'inPro') {
+	          $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+	      } else if (proType === 'outPro') {
+	          $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+	      }
+
+
+	      processList[document.getElementById(renameTextID).parentElement.id] = newName
 	      document.getElementById(renameTextID).parentElement.id
 	      cancelRename()
 	  }
@@ -1159,7 +1297,7 @@
 	      bodyH = body.offsetHeight
 
 	      if (!binding) {
-              
+
 	          d3.select("#container").append('div')
 	              .attr('id', 'removeElement')
 	              .style('position', 'absolute')
@@ -1205,7 +1343,6 @@
 	              .attr("onclick", "cancelRemove()")
 	              .style("margin-top", "40px")
 	              .text("No")
-
 	          if (deleteID.split("_").length == 2) {
 	              d3.select("#removeButtonContainer")
 	                  .append("div")
@@ -1643,6 +1780,10 @@
 	          gNum = gNum + 1
 
 	      } else {
+	          addProPipeTab(id)
+
+
+	          //--Pipeline details table ends---
 
 	          inputs = getValues({
 	              p: "getInputs",
@@ -1699,7 +1840,7 @@
 	              .attr('font-size', '1em')
 	              .attr('name', name)
 	              .attr('class', 'process')
-	              .text(truncateName(name,'process'))
+	              .text(truncateName(name, 'process'))
 	              .style("text-anchor", "middle")
 	              .on("mouseover", scMouseOver)
 	              .on("mouseout", scMouseOut)
@@ -1745,7 +1886,7 @@
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", inputs[k].name)
-                      .attr("connect", "single")
+	                  .attr("connect", "single")
 	                  .attr("status", "standard")
 	                  .attr("class", findType(inputs[k].parameter_id) + " input")
 	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
@@ -1767,7 +1908,7 @@
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", outputs[k].name)
 	                  .attr("status", "standard")
-                      .attr("connect", "single")
+	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")
 	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
 	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))

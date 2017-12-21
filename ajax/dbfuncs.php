@@ -78,14 +78,14 @@ class dbfuncs {
         $sql = "SELECT * FROM users WHERE google_id = $google_id";
         return self::queryTable($sql);
     }
-    public function insertUser($google_id, $name, $email, $google_image) {
-        $sql = "INSERT INTO users(google_id, name, email, google_image, date_created, date_modified, last_modified_user) VALUES 
-			('$google_id', '$name', '$email', '$google_image', now(), now(), '".$this->last_modified_user."')";
+    public function insertUser($google_id, $name, $email, $google_image, $username) {
+        $sql = "INSERT INTO users(google_id, name, email, google_image, username, memberdate, date_created, date_modified, last_modified_user) VALUES 
+			('$google_id', '$name', '$email', '$google_image', '$username', now() , now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
     }
     
-    public function updateUser($id, $google_id, $name, $email, $google_image) {
-        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
+    public function updateUser($id, $google_id, $name, $email, $google_image, $username) {
+        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = $id";
         return self::runSQL($sql);
     }
 
