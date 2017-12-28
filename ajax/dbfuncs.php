@@ -50,7 +50,9 @@ class dbfuncs {
      {
         while(($row=$res->fetch_assoc()))
         {
+            if ($row['script']){
             $row['script'] = htmlspecialchars_decode($row['script'], ENT_QUOTES);
+            }
             
             $data[]=$row;
         }
@@ -155,13 +157,13 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     
-    public function insertProcess($name, $version, $summary, $process_group_id , $script) {
-        $sql = "INSERT INTO process(name, version, summary, process_group_id, script, date_created, date_modified, last_modified_user) VALUES ('$name', '$version', '$summary', '$process_group_id', '$script', now(), now(), '".$this->last_modified_user."')";
+    public function insertProcess($name, $process_gid, $summary, $process_group_id , $script) {
+        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, date_created, date_modified, last_modified_user) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
     }
 
-    public function updateProcess($id, $name, $version, $summary, $process_group_id, $script) {
-        $sql = "UPDATE process SET name= '$name', version='$version', summary='$summary', process_group_id='$process_group_id', script='$script', last_modified_user = '".$this->last_modified_user."'  WHERE id = $id";
+    public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script) {
+        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', last_modified_user = '".$this->last_modified_user."'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
@@ -321,60 +323,60 @@ class dbfuncs {
     // ------------- Pipeline Process Parameters ---------- (input parameter ile musait outputlar match edildikten sonra name kolonunda saklanir
     
     
-    public function insertPipelineProcessParameterDefault($name, $pipeline_id, $process_id) {  //(2)hem pipeline_process'e hem de pipeline_process_parameter tablosuna veri ekler.
-        
-        $sql = "INSERT INTO pipeline_process(pipeline_id, process_id, name, date_created, date_modified, last_modified_user)
-		   VALUES ($pipeline_id, $process_id, '$name', now(), now(), '".$this->last_modified_user."')";
-        
-        self::insTable($sql);
-                
-		$sql = "INSERT INTO pipeline_process_parameter(pipeline_id, process_id, parameter_id, name, process_name, type, date_created, date_modified, last_modified_user)
-                    SELECT DISTINCT $pipeline_id, $process_id, pp.parameter_id, '$name', '$name', pp.type, now(), now(), '".$this->last_modified_user."'
-                    from biocorepipe.process_parameter pp
-                    where pp.process_id = $process_id ";
-       return self::insTable($sql);
-    }
+//    public function insertPipelineProcessParameterDefault($name, $pipeline_id, $process_id) {  //(2)hem pipeline_process'e hem de pipeline_process_parameter tablosuna veri ekler.
+//        
+//        $sql = "INSERT INTO pipeline_process(pipeline_id, process_id, name, date_created, date_modified, last_modified_user)
+//		   VALUES ($pipeline_id, $process_id, '$name', now(), now(), '".$this->last_modified_user."')";
+//        
+//        self::insTable($sql);
+//                
+//		$sql = "INSERT INTO pipeline_process_parameter(pipeline_id, process_id, parameter_id, name, process_name, type, date_created, date_modified, last_modified_user)
+//                    SELECT DISTINCT $pipeline_id, $process_id, pp.parameter_id, '$name', '$name', pp.type, now(), now(), '".$this->last_modified_user."'
+//                    from biocorepipe.process_parameter pp
+//                    where pp.process_id = $process_id ";
+//       return self::insTable($sql);
+//    }
 
-	//input parameter(updatePipelineProcessParameterin) ile file-type uygun nodelar(updatePipelineProcessParameterout) match edildikten sonra esleme ismi name kolonunda saklanir
-    public function updatePipelineProcessParameterin($name, $pipeline_id, $parameter_id, $process_name, $type) {   
-		$sql = "UPDATE  pipeline_process_parameter SET name='$name'
-				WHERE pipeline_id=$pipeline_id AND parameter_id=$parameter_id AND process_name='$process_name' AND type='$type'"; 
-		self::runSQL($sql);
-	   
-		$sql = "SELECT id as id
-				FROM pipeline_process_parameter 
-				WHERE pipeline_id=$pipeline_id AND parameter_id=$parameter_id AND process_name='$process_name' AND type='$type'";
-		return self::queryTable($sql);
-	   
-	}
-	    
-	public function updatePipelineProcessParameterout($id, $name) {   
-		$sql = "UPDATE  pipeline_process_parameter  SET name='$name'
-				WHERE id=$id "; 
-		self::runSQL($sql);
-	   
-		$sql = "SELECT id 
-				FROM pipeline_process_parameter 
-				WHERE id=$id ";
-		return self::queryTable($sql);
-	   
-	   }
+//	//input parameter(updatePipelineProcessParameterin) ile file-type uygun nodelar(updatePipelineProcessParameterout) match edildikten sonra esleme ismi name kolonunda saklanir
+//    public function updatePipelineProcessParameterin($name, $pipeline_id, $parameter_id, $process_name, $type) {   
+//		$sql = "UPDATE  pipeline_process_parameter SET name='$name'
+//				WHERE pipeline_id=$pipeline_id AND parameter_id=$parameter_id AND process_name='$process_name' AND type='$type'"; 
+//		self::runSQL($sql);
+//	   
+//		$sql = "SELECT id as id
+//				FROM pipeline_process_parameter 
+//				WHERE pipeline_id=$pipeline_id AND parameter_id=$parameter_id AND process_name='$process_name' AND type='$type'";
+//		return self::queryTable($sql);
+//	   
+//	}
+//	    
+//	public function updatePipelineProcessParameterout($id, $name) {   
+//		$sql = "UPDATE  pipeline_process_parameter  SET name='$name'
+//				WHERE id=$id "; 
+//		self::runSQL($sql);
+//	   
+//		$sql = "SELECT id 
+//				FROM pipeline_process_parameter 
+//				WHERE id=$id ";
+//		return self::queryTable($sql);
+//	   
+//	   }
 
-	   public function updatebymatchid($name, $ppp_id) {   //(2) matchid ciftlerine gore pipeline_process_parameter update edilir.
-	   	$sql = "UPDATE  pipeline_process_parameter ppp 
-		JOIN  matchid mi ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
-		SET ppp.name='$name'
-		WHERE id1=$ppp_id OR id2=$ppp_id";
-		return self::runSQL($sql);
-	   }
-	   
-	   
-	   
-    public function insertmatchid($id1, $id2) {   //(2) yeni matchid ciftleri eklenir.
-        $sql = "INSERT INTO matchid(id1, id2)
-		   VALUES ($id1, $id2)";
-       return self::insTable($sql);
-    }
+//	   public function updatebymatchid($name, $ppp_id) {   //(2) matchid ciftlerine gore pipeline_process_parameter update edilir.
+//	   	$sql = "UPDATE  pipeline_process_parameter ppp 
+//		JOIN  matchid mi ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
+//		SET ppp.name='$name'
+//		WHERE id1=$ppp_id OR id2=$ppp_id";
+//		return self::runSQL($sql);
+//	   }
+//	   
+//	   
+//	   
+//    public function insertmatchid($id1, $id2) {   //(2) yeni matchid ciftleri eklenir.
+//        $sql = "INSERT INTO matchid(id1, id2)
+//		   VALUES ($id1, $id2)";
+//       return self::insTable($sql);
+//    }
     
     
     // ------------- Pipeline Diagram -------------
@@ -455,11 +457,32 @@ class dbfuncs {
 		$sql = "SELECT id, process_group_id, name, version, summary, script FROM process $where";
 		return self::queryTable($sql);
 	}
-	
+    
+    public function getRevisionData($process_gid) {
+		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM process WHERE process_gid = $process_gid";
+		return self::queryTable($sql);
+	}
+    public function getProcessGID($id) {
+		$sql = "SELECT  process_gid FROM process WHERE id = $id";
+		return self::queryTable($sql);
+	}
 	public function getInputs($id) {
 		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'input'";
 		return self::queryTable($sql);
 	}
+	public function checkPipeline($process_id,$process_name) {
+		$sql = "SELECT id, name FROM biocorepipe_save WHERE nodes LIKE '%\"$process_id\",\"$process_name\"%'";
+		return self::queryTable($sql);
+	}
+    public function getMaxProcess_gid() {
+		$sql = "SELECT MAX(process_gid) process_gid FROM process";
+		return self::queryTable($sql);
+	}
+    public function getProcess_gid($process_id) {
+		$sql = "SELECT process_gid FROM process WHERE id = $process_id";
+		return self::queryTable($sql);
+	}
+    
 	public function getOutputs($id) {
 		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'output'";
 		return self::queryTable($sql);

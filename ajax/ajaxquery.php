@@ -145,15 +145,15 @@ else if ($p=="savePipeline"){
 }
 else if ($p=="saveProcess"){
     $name = $_REQUEST['name'];
-    $version = $_REQUEST['version'];
+    $process_gid = $_REQUEST['process_gid'];
     $summary = $_REQUEST['summary'];
     $process_group_id = $_REQUEST['process_group_id'];
     $script = $_REQUEST['script']; 
     $script = htmlspecialchars($script, ENT_QUOTES);
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $version, $summary, $process_group_id, $script);
+        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script);
     } else {
-        $data = $db->insertProcess($name, $version, $summary, $process_group_id , $script);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id , $script);
     }
 }
 else if ($p=="savePipelineProcess"){
@@ -186,6 +186,30 @@ else if ($p=="getProcessData")
 {
 	$id = $_REQUEST['process_id'];
     $data = $db->getProcessData($id);
+}
+else if ($p=="getRevisionData")
+{
+	$id = $_REQUEST['process_id'];
+    $process_gidAr =$db->getProcessGID($id);
+    $checkarray = json_decode($process_gidAr,true); 
+    $process_gid = $checkarray[0]["process_gid"];
+    $data = $db->getRevisionData($process_gid);
+}
+else if ($p=="checkPipeline")
+{
+	$process_id = $_REQUEST['process_id'];
+	$process_name = $_REQUEST['process_name'];
+    $data = $db->checkPipeline($process_id,$process_name);
+}
+
+else if ($p=="getMaxProcess_gid")
+{
+    $data = $db->getMaxProcess_gid();
+}
+else if ($p=="getProcess_gid")
+{
+    $process_id = $_REQUEST['process_id'];
+    $data = $db->getProcess_gid($process_id);
 }
 else if ($p=="getInputs")
 {

@@ -67,7 +67,17 @@ class dbfuncs {
    
    function getSubMenuFromSideBar($parent)
    {
-      $sql="SELECT DISTINCT p.id, p.name from process p, process_group pg where p.process_group_id = pg.id and pg.group_name='$parent'";
+//      $sql="SELECT DISTINCT p.id, p.name from process p, process_group pg where p.process_group_id = pg.id and pg.group_name='$parent'";
+//      return self::queryTable($sql); 
+       $sql="SELECT p.id, p.name
+             FROM process p
+             INNER JOIN process_group pg 
+             ON p.process_group_id = pg.id and pg.group_name='$parent' 
+             INNER JOIN (
+                SELECT name, process_gid, MAX(rev_id) rev_id
+                FROM process 
+                GROUP BY process_gid
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid";
       return self::queryTable($sql);
    }
 }
