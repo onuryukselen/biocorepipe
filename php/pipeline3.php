@@ -39,7 +39,10 @@
 </br>
 
 <div id="workDetails">
-    <div><h4>Pipeline Details</h4></br></div>
+    <div>
+        <h4>Pipeline Details</h4>
+        </br>
+    </div>
     <ul id="inOutNav" class="nav nav-tabs nav-justified">
         <li class="active"><a class="nav-item" data-toggle="tab" href="#processTab">Processes</a></li>
         <li><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
@@ -47,7 +50,7 @@
     </ul>
     <div class="panel panel-default">
 
-        <div id= "pipeContent" class="tab-content">
+        <div id="pipeContent" class="tab-content">
             <div id="processTab" class="tab-pane fade in active">
                 </br>
                 <table id="processTable" class="table">
@@ -104,8 +107,19 @@
 <div id="addProcessModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
     <div class="modal-dialog" style="width:800px;" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span id="addHeader"></span>
+            <div id="revModalHeader" class="modal-header">
+                <button style="padding-top:6px;" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div id="mProActionsDiv" style="float:right; margin-right:15px; display:none;" class="dropdown">
+                    <button class="btn btn-default" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a style="pointer-events:none;" href="">Delete Process</a></li>
+                        <li><a style="pointer-events:none;" href="">Copy Process</a></li>
+                    </ul>
+                </div >
+                <span id="mProRevSpan" style="margin-right:5px; width:130px; float:right; display:none;">
+                <select id="mProRev" class="fbtn btn-default form-control mRevChange" prev="-1" name="process_rev_id"></select>
+                    </span>
                 <h4 class="modal-title" id="processmodaltitle">Title</h4>
             </div>
             <div class="modal-body">
@@ -122,7 +136,7 @@
                             <input type="text" class="form-control" id="mName" name="name">
                         </div>
                     </div>
-                    <div id="versionGroup" class="form-group">
+                    <div id="versionGroup" class="form-group" style="display:none">
                         <label for="mVersion" class="col-sm-2 control-label">Version</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mVersion" name="version">
@@ -153,7 +167,7 @@
                     <div id="mParameters" class="form-group">
                         <label for="mParamAll" class="col-sm-2 control-label">Parameters</label>
                         <div id="mParamAll" class="col-sm-5">
-                            <select id="mParamAllIn" class="fbtn btn-default form-control" name="ParamAll" style="display:none;"></select>
+                            <select id="mParamAllIn" class="fbtn btn-default form-control mParChange" name="ParamAll" style="display:none;"></select>
                         </div>
                         <div id="mParamsAdd" class="col-sm-1" style=" width: auto; padding-right: 0;">
                             <button type="button" class="btn btn-default form-control" id="mParamAdd" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
@@ -168,7 +182,7 @@
                     <div id="inputGroup" class="form-group">
                         <label for="mInputs-1" class="col-sm-2 control-label">Inputs</label>
                         <div id="mInputs" class="col-sm-5">
-                            <select id="mInputs-1" num="1" class="fbtn btn-default form-control" prev="-1" name="mInputs-1"></select>
+                            <select id="mInputs-1" num="1" class="fbtn btn-default form-control mParChange" prev="-1" name="mInputs-1"></select>
                         </div>
                         <div id="mInName" class="col-sm-4 " style="padding-left:0; padding-right:0;">
                             <input type="text" style="display:none; " placeholder="Enter name" class="form-control" ppID="" id="mInName-0" name="mInName-0">
@@ -181,7 +195,7 @@
                     <div id="outputGroup" class="form-group">
                         <label for="mOutput-1" class="col-sm-2 control-label">Outputs</label>
                         <div id="mOutputs" class="col-sm-5">
-                            <select id="mOutputs-1" num="1" class="fbtn btn-default form-control" prev="-1" name="mOutputs-1"></select>
+                            <select id="mOutputs-1" num="1" class="fbtn btn-default form-control mParChange" prev="-1" name="mOutputs-1"></select>
                         </div>
                         <div id="mOutName" class="col-sm-4" style="padding-left:0; padding-right:0;">
                             <input type="text" style="display:none;" placeholder="Enter name" class="form-control" id="mOutName-0" name="mOutName-0">
@@ -213,7 +227,9 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveprocess">Save changes</button>
+                <button type="button" class="btn btn-primary"  id="saveprocess"   >Save changes</button>
+<!--               data-backdrop="false" data-toggle="modal" data-target="#mConfirmYesNo"-->
+                
             </div>
         </div>
     </div>
@@ -339,17 +355,6 @@
 </div>
 <!-- Process Group Modal Ends-->
 <!--Confirm Modal-->
-<!--
-<div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-body">
-        Are you sure?
-    </div>
-    <div class="modal-footer">
-        <button type="button" data-dismiss="modal" class="btn btn-primary" id="delete">Delete</button>
-        <button type="button" data-dismiss="modal" class="btn">Cancel</button>
-    </div>
-</div>
--->
 
 <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -361,15 +366,40 @@
             <div class="modal-body" id="confirmModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="deleteBtn">Delete</button>
-                <button type="button" class="btn" data-dismiss="modal" id="cancelButton">Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->
+<!--confirmRevision Modal Ends-->
+
+<div id="confirmRevision" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmYesNoTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmYesNoText">Text
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="mRevComment" class="col-sm-2 control-label">Revision Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mRevComment" name="rev_comment">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >No</button>
+                <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="yesBtn">Yes</button>
             </div>
         </div>
     </div>
 </div>
 
 
-
-<!--Confirm Modal Ends-->
 
 
 <div id="id01" class="w3-modal">

@@ -1126,11 +1126,10 @@
 	      if (edges.searchFor(firstParamId)) {
 	          if (paramType === 'inPro') {
 	              //$('#inputTa-' + delGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
-	              $('#proGName-' + delsecGnum).remove();
-	              if ($('#proGcomma-' + delsecGnum)[0]) {
-	                  $('#proGcomma-' + delsecGnum).remove();
+	              $('#inputTa-' + delGnum + '> :last-child > ' + '#proGName-' + delsecGnum).remove();
+	              if ($('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum)[0]) {
+	                  $('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum).remove();
 	              } else {
-	                  //delete extra comma
 	                  $('#inputTa-' + delGnum + '> :last-child > :first-child').remove();
 	              }
 
@@ -1262,12 +1261,14 @@
 	      d3.select("#" + renameTextID).text(newNameShow)
 
 	      //update pipeline details table
-	      proType = $('#' + renameTextID).parent().attr('class').split('-')[1]
-	      $('#proGName-' + renameTextID.split('-')[1]).text(newName);
+	      proType = $('#' + renameTextID).parent().attr('class').split('-')[1];
+          var gNumP =renameTextID.split('-')[1]; 
+	       $('span[id="proGName-' + gNumP + '\"]').text(newName);
+          
 	      if (proType === 'inPro') {
-	          $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+              $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
 	      } else if (proType === 'outPro') {
-	          $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+	          $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
 	      }
 
 
@@ -1500,6 +1501,7 @@
 	                          return el.id == fNode.split("-")[3]
 	                      })[0].file_type
 	                      tempText = "\tif \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
+                          // if (filename =~ /^path.8.fastq$/) filename 
 	                      oText = oText + tempText
 	                      //break
 	                  } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
@@ -1532,7 +1534,13 @@
 	          "process_id": id
 	      })
 	      script = processData[0].script
-
+          var lastLetter = script.length - 1;
+            if (script[0] === '"' && script[lastLetter] === '"') {
+             script = script.substring(1, script.length - 1); //remove first and last duble quote
+          }
+          
+          
+          
 	      bodyInput = ""
 	      bodyOutput = ""
 	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]

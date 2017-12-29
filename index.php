@@ -82,6 +82,9 @@ text-align: center;
 	display: block;
 	color: #a0a0a0;
 }
+.selectize-dropdown {
+    width: 350px !important;
+}
 /*    D3 tooltip*/
 div.tooltip-svg {	
     position: absolute;			
