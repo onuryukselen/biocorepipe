@@ -150,10 +150,12 @@ else if ($p=="saveProcess"){
     $process_group_id = $_REQUEST['process_group_id'];
     $script = $_REQUEST['script']; 
     $script = htmlspecialchars($script, ENT_QUOTES);
+    $rev_id = $_REQUEST['rev_id']; 
+    $rev_comment = $_REQUEST['rev_comment']; 
     if (!empty($id)) {
         $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script);
     } else {
-        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id , $script);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment);
     }
 }
 else if ($p=="savePipelineProcess"){
@@ -210,6 +212,11 @@ else if ($p=="getProcess_gid")
 {
     $process_id = $_REQUEST['process_id'];
     $data = $db->getProcess_gid($process_id);
+}
+else if ($p=="getMaxRev_id")
+{
+    $process_gid = $_REQUEST['process_gid'];
+    $data = $db->getMaxRev_id($process_gid);
 }
 else if ($p=="getInputs")
 {

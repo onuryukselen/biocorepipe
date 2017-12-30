@@ -157,8 +157,8 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     
-    public function insertProcess($name, $process_gid, $summary, $process_group_id , $script) {
-        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, date_created, date_modified, last_modified_user) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', now(), now(), '".$this->last_modified_user."')";
+    public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment) {
+        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, rev_id, rev_comment, date_created, date_modified, last_modified_user) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$rev_id','$rev_comment', now(), now(), '".$this->last_modified_user."')";
         return self::insTable($sql);
     }
 
@@ -482,7 +482,10 @@ class dbfuncs {
 		$sql = "SELECT process_gid FROM process WHERE id = $process_id";
 		return self::queryTable($sql);
 	}
-    
+    public function getMaxRev_id($process_gid) {
+		$sql = "SELECT MAX(rev_id) rev_id FROM process WHERE process_gid = $process_gid";
+		return self::queryTable($sql);
+	}
 	public function getOutputs($id) {
 		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'output'";
 		return self::queryTable($sql);
