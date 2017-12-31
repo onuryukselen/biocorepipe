@@ -195,23 +195,20 @@ class dbfuncs {
         return self::queryTable($sql);
     }
  
-    public function getAllProcessParametersDetail($process_id, $start, $end) { //(2) processdeki parametrelerin detaylarini parameter tablosundan almak için fonksiyon
-        $time = "";
-        if (!empty($start)) {
-            $time = "date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
-        }
-		
-        $typeExp = "";
-        if (!empty($type)) {
-            $typeExp = "AND type = '$type'";
-        }
-       
-        $sql = "select para.*, propara.type from parameter para
-                join process_parameter propara on para.id = propara.parameter_id                  
-                where propara.process_id = '$process_id' $typeExp"; 
-        
-        return self::queryTable($sql);
-    }
+//    public function getAllProcessParametersDetail($process_id, $start, $end) { //(2) processdeki parametrelerin detaylarini parameter tablosundan almak için fonksiyon
+//        $time = "";
+//        if (!empty($start)) {
+//            $time = "date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
+//        }
+//        $typeExp = "";
+//        if (!empty($type)) {
+//            $typeExp = "AND type = '$type'";
+//        }
+//        $sql = "select para.*, propara.type from parameter para
+//                join process_parameter propara on para.id = propara.parameter_id                  
+//                where propara.process_id = '$process_id' $typeExp"; 
+//        return self::queryTable($sql);
+//    }
 
     public function insertProcessParameter($name, $process_id, $parameter_id, $type) {
         $sql = "INSERT INTO process_parameter(name, process_id, parameter_id,
@@ -285,20 +282,20 @@ class dbfuncs {
        return self::insTable($sql);
     }
 
-    public function removePipelineProcess($process_id, $pipeline_id, $name) {  //(2)matchid, pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
-		$sql = "DELETE mi
-				FROM matchid mi
-				JOIN pipeline_process_parameter ppp ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
-				WHERE ppp.process_id = $process_id AND ppp.pipeline_id = $pipeline_id AND ppp.process_name = '$name'";
-        self::runSQL($sql);
-		
-		$sql = "DELETE FROM pipeline_process_parameter WHERE process_id = $process_id AND pipeline_id = $pipeline_id AND process_name = '$name'";
-        self::runSQL($sql);
-		
-		$sql = "DELETE FROM pipeline_process WHERE process_id = $process_id AND pipeline_id = $pipeline_id AND name = '$name'";
-        return self::runSQL($sql);
-		
-    }
+//    public function removePipelineProcess($process_id, $pipeline_id, $name) {  //(2)matchid, pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
+//		$sql = "DELETE mi
+//				FROM matchid mi
+//				JOIN pipeline_process_parameter ppp ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
+//				WHERE ppp.process_id = $process_id AND ppp.pipeline_id = $pipeline_id AND ppp.process_name = '$name'";
+//        self::runSQL($sql);
+//		
+//		$sql = "DELETE FROM pipeline_process_parameter WHERE process_id = $process_id AND pipeline_id = $pipeline_id AND process_name = '$name'";
+//        self::runSQL($sql);
+//		
+//		$sql = "DELETE FROM pipeline_process WHERE process_id = $process_id AND pipeline_id = $pipeline_id AND name = '$name'";
+//        return self::runSQL($sql);
+//		
+//    }
 //    public function removePipelineProcessByProcessID($process_id) { //(2)pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
 //		$sql = "DELETE FROM pipeline_process_parameter WHERE process_id = $process_id";
 //        self::runSQL($sql);
@@ -307,18 +304,18 @@ class dbfuncs {
 //        return self::runSQL($sql);
 //    }
 
-    public function removePipelineProcessByPipelineID($pipeline_id) { //(2)matchid, pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
-		$sql = "DELETE mi
-				FROM matchid mi
-				JOIN pipeline_process_parameter ppp ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
-				WHERE ppp.pipeline_id = $pipeline_id ";
-        self::runSQL($sql);
-		
-		$sql = "DELETE FROM pipeline_process_parameter WHERE pipeline_id = $pipeline_id";
-		self::runSQL($sql);
-        $sql = "DELETE FROM pipeline_process WHERE pipeline_id = $pipeline_id";
-        return self::runSQL($sql);
-    }
+//    public function removePipelineProcessByPipelineID($pipeline_id) { //(2)matchid, pipeline_process_parameter ve pipeline_process tablolarindan beraber veri siler.
+//		$sql = "DELETE mi
+//				FROM matchid mi
+//				JOIN pipeline_process_parameter ppp ON (ppp.id = mi.id1 or ppp.id = mi.id2 )
+//				WHERE ppp.pipeline_id = $pipeline_id ";
+//        self::runSQL($sql);
+//		
+//		$sql = "DELETE FROM pipeline_process_parameter WHERE pipeline_id = $pipeline_id";
+//		self::runSQL($sql);
+//        $sql = "DELETE FROM pipeline_process WHERE pipeline_id = $pipeline_id";
+//        return self::runSQL($sql);
+//    }
     
     // ------------- Pipeline Process Parameters ---------- (input parameter ile musait outputlar match edildikten sonra name kolonunda saklanir
     

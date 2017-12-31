@@ -7,8 +7,9 @@ require_once("../ajax/dbfuncs.php");
 
 $db = new dbfuncs();
 
-//$id = $_REQUEST["id"];
-//$p = $_REQUEST["p"];  
+session_start();
+$user = isset($_SESSION['user']) ? $_SESSION['user'] : "";
+
 $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
 $p = isset($_REQUEST["p"]) ? $_REQUEST["p"] : "";
 $start = NULL;
@@ -30,23 +31,20 @@ if ($p=="getNetwork"){
 if ($p=="createNextflow"){
 	$data = $db -> getNextflow($id);
 }
-if ($p=="updatePipelineProcessParameter") //(2)  Matching saglandiktan sonra $name PipelineProcessParameter tablosunda yenilenir.
-{
-    
-	if (!empty($id)) {
-			$name = $_REQUEST['name'];
-       $data = $db->updatePipelineProcessParameterout($id, $name);
-    } else {
-			$pipeline_id = $_REQUEST['pipeline_id'];
-			$parameter_id = $_REQUEST['parameter_id'];
-			$name = $_REQUEST['name'];
-			$process_name = $_REQUEST['process_name'];
-			$type = $_REQUEST['type'];
-		$data = $db->updatePipelineProcessParameterin($name, $pipeline_id, $parameter_id, $process_name, $type);
-    }
-	
-
-}
+//if ($p=="updatePipelineProcessParameter") //(2)  Matching saglandiktan sonra $name PipelineProcessParameter tablosunda yenilenir.
+//{
+//	if (!empty($id)) {
+//			$name = $_REQUEST['name'];
+//       $data = $db->updatePipelineProcessParameterout($id, $name);
+//    } else {
+//			$pipeline_id = $_REQUEST['pipeline_id'];
+//			$parameter_id = $_REQUEST['parameter_id'];
+//			$name = $_REQUEST['name'];
+//			$process_name = $_REQUEST['process_name'];
+//			$type = $_REQUEST['type'];
+//		$data = $db->updatePipelineProcessParameterin($name, $pipeline_id, $parameter_id, $process_name, $type);
+//    }
+//}
 
 
 else if ($p=="getAllParameters"){
@@ -65,10 +63,10 @@ else if ($p=="getAllProcessParameters"){
    $process_id = $_REQUEST["process_id"];
    $data = $db->getAllProcessParameters($process_id, $type, $start, $end);
 }
-else if ($p=="getAllProcessParametersDetail"){  //(2)processdeki parametrelerin detaylarini almak için fonksiyon
-   $process_id = $_REQUEST["process_id"];
-   $data = $db->getAllProcessParametersDetail($process_id, $start, $end);
-}
+//else if ($p=="getAllProcessParametersDetail"){  //(2)processdeki parametrelerin detaylarini almak için fonksiyon
+//   $process_id = $_REQUEST["process_id"];
+//   $data = $db->getAllProcessParametersDetail($process_id, $start, $end);
+//}
 else if ($p=="removeParameter"){
     $db->removeProcessParameterByParameterID($id);
     $data = $db->removeParameter($id);

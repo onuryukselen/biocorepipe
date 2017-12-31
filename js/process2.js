@@ -22,7 +22,7 @@ function update_user_data(response) {
     $.ajax({
         type: "POST",
         data: response,
-        url: "ajax/ajaxquery.php",
+        url: "ajax/login.php",
         async: false,
         success: function (msg) {
             if (msg.error == 1) {
@@ -43,6 +43,8 @@ function update_user_data(response) {
 
 function signOut() {
     var auth2 = gapi.auth2.getAuthInstance();
+    console.log(auth2);
+    console.log(auth2.signOut());
     auth2.signOut().then(function () {
         $('#googleSignIn').css('display', "inline");
         $('#userAvatar').css('display', "none");
@@ -100,7 +102,7 @@ function cleanProcessModal() {
     $('#mParameters').after(inBackup);
     $('#inputGroup').after(outBackup);
     editor.setValue("");
-//    $('#deleteProcess').css('display', "none");
+    //    $('#deleteProcess').css('display', "none");
     $('#mProActionsDiv').css('display', "none");
     $('#mProRevSpan').css('display', "none");
     $('#mName').removeAttr('disabled');
@@ -126,7 +128,7 @@ function refreshProcessModal(selProId) {
     loadModalParam();
 
     $('#processmodaltitle').html('Edit/Delete Process');
-//    $('#deleteProcess').css('display', "inline");
+    //    $('#deleteProcess').css('display', "inline");
     $('#mProActionsDiv').css('display', "inline");
     $('#mProRevSpan').css('display', "inline");
 
@@ -514,6 +516,29 @@ function updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputLis
     }
 };
 
+function checkDeletion(proID, proName) {
+    var warnUser = false;
+    var infoText = '';
+    var startPoint = 6;
+    //has selected process ever used in other pipelines?
+    var checkPipe = checkPipeline(proID, proName);
+    console.log(checkPipe);
+    if (checkPipe.length > 0) {
+        warnUser = true;
+        infoText = infoText + 'It is not allowed to remove this revision, since this revision of process exists in the following pipelines: '
+        $.each(checkPipe, function (element) {
+            if (element !== 0) {
+                infoText = infoText + ', ';
+            }
+            infoText = infoText + '"' + checkPipe[element].name + '"';
+        });
+        infoText = infoText + '</br></br>In order to delete this revision, you may remove the process from above pipeline/pipelines.'
+
+    }
+
+    return [warnUser, infoText];
+}
+
 
 function checkRevision(data, proID, proName) {
     var warnUser = false;
@@ -535,7 +560,7 @@ function checkRevision(data, proID, proName) {
                 if (element !== 0) {
                     infoText = infoText + ', ';
                 }
-                infoText = infoText + checkPipe[element].name;
+                infoText = infoText + '"' + checkPipe[element].name + '"';
             });
             infoText = infoText + '</br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.</br>'
         }
@@ -597,9 +622,7 @@ function updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, s
 
 $(document).ready(function () {
     //Make modal draggable    
-    // $('.modal-dialog').draggable();
-    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button' });
-    //    $('#editordiv').draggable("disable")
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button, span, a' });
 
 
     function getValues(data) {
@@ -808,7 +831,7 @@ $(document).ready(function () {
 
         } else { //Edit/Delete Process
             $('#processmodaltitle').html('Edit/Delete Process');
-//            $('#deleteProcess').css('display', "inline");
+            //            $('#deleteProcess').css('display', "inline");
             $('#mProActionsDiv').css('display', "inline");
             $('#mProRevSpan').css('display', "inline");
             delProMenuID = button.attr('id');
@@ -837,71 +860,159 @@ $(document).ready(function () {
         }
     });
     $('#confirmModal').on('click', '.delprocess', function (event) {
-        var processIdDel = $('#mIdPro').val();
-        var revisions = getValues({ p: "getRevisionData", "process_id": processIdDel });
-        var removedRev = [];
-        if (revisions.length === 1) {
-            var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
-            delSideMenuNode.parentNode.removeChild(delSideMenuNode);
-            delProMenuID = '';
-        } else if (revisions.length > 1) {
-        //remove the selected revision from list
-        for (var k = 0; k < revisions.length; k++) {
-            if (revisions[k].id !== processIdDel) {
-                removedRev.push(revisions[k]);
+            var processIdDel = $('#mIdPro').val();
+            var disableCheck = $('#mName').attr('disabled');
+            if (disableCheck === 'disabled') {
+                $('#mName').removeAttr('disabled'); //temporary remove disabled attribute for serializeArray().
+                var formValues = $('#addProcessModal').find('input, select, textarea');
+                var data = formValues.serializeArray();
+                $('#mName').attr('disabled', "disabled");
+            } else {
+                var formValues = $('#addProcessModal').find('input, select, textarea');
+                var data = formValues.serializeArray();
             }
-        }
-        //find  the maximum rev_id in the list
-        let max = removedRev[0].rev_id;
-        for (let i = 1, len = removedRev.length; i < len; i++) {
-            let v = removedRev[i].rev_id;
-            max = (v > max) ? v : max;
-        }
-        //find the id of the process which has the maximum rev_id
-        for (var k = 0; k < removedRev.length; k++) {
-            if (removedRev[k].rev_id === max) {
-                var revMaxId = removedRev[k].id
+
+            var proID = data[1].value;
+            var proName = data[2].value;
+            var warnUser = false;
+            var infoText = '';
+        [warnUser, infoText] = checkDeletion(proID, proName);
+            console.log(warnUser)
+            console.log(infoText)
+            if (warnUser === true) {
+                $('#warnDelete').off();
+                $('#warnDelete').on('show.bs.modal', function (event) {
+                    $('#warnDelText').html(infoText);
+                });
+                $('#warnDelete').modal('show');
+            
+
+
+
+
+        } else if (warnUser === false) {
+            var revisions = getValues({ p: "getRevisionData", "process_id": processIdDel });
+            var removedRev = [];
+            if (revisions.length === 1) {
+                var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
+                delSideMenuNode.parentNode.removeChild(delSideMenuNode);
+                delProMenuID = '';
+            } else if (revisions.length > 1) {
+                //remove the selected revision from list
+                for (var k = 0; k < revisions.length; k++) {
+                    if (revisions[k].id !== processIdDel) {
+                        removedRev.push(revisions[k]);
+                    }
+                }
+                //find  the maximum rev_id in the list
+                let max = removedRev[0].rev_id;
+                for (let i = 1, len = removedRev.length; i < len; i++) {
+                    let v = removedRev[i].rev_id;
+                    max = (v > max) ? v : max;
+                }
+                //find the id of the process which has the maximum rev_id
+                for (var k = 0; k < removedRev.length; k++) {
+                    if (removedRev[k].rev_id === max) {
+                        var revMaxId = removedRev[k].id
+                    }
+                }
+                var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
+                var delProName = delProMenuID.replace(PattPro, '$1');
+                var newMenuID = delProName + '@' + revMaxId;
+                var delProce = getValues({ p: "removeProcess", "id": processIdDel });
+                document.getElementById(delProMenuID).id = newMenuID;
             }
-        }
-        var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
-        var delProName = delProMenuID.replace(PattPro, '$1');
-        var newMenuID = delProName + '@' + revMaxId;
-        var delProce = getValues({ p: "removeProcess", "id": processIdDel });
-        document.getElementById(delProMenuID).id = newMenuID;
+            $('#addProcessModal').modal('hide');
         }
 
-        $('#addProcessModal').modal('hide');
+
+
     });
 
 
 
-    //Add new parameter modal
-    $('#parametermodal').on('click', '#mParamOpen', function (event) {
-        $('#mParamsDynamic').css('display', "none");
-        $('#mParamList').css('display', "inline");
-    });
+//Add new parameter modal
+$('#parametermodal').on('click', '#mParamOpen', function (event) {
+    $('#mParamsDynamic').css('display', "none");
+    $('#mParamList').css('display', "inline");
+});
 
 
 
-    // Add process modal to database
-    $('#addProcessModal').on('click', '#saveprocess', function (event) {
-        event.preventDefault();
-        var savetype = $('#mIdPro').val();
-        // A) Add New Process Starts
-        if (!savetype.length) {
-            var formValues = $('#addProcessModal').find('input, select, textarea');
-            var data = formValues.serializeArray();
+// Add process modal to database
+$('#addProcessModal').on('click', '#saveprocess', function (event) {
+    event.preventDefault();
+    var savetype = $('#mIdPro').val();
+    // A) Add New Process Starts
+    if (!savetype.length) {
+        var formValues = $('#addProcessModal').find('input, select, textarea');
+        var data = formValues.serializeArray();
+        var dataToProcess = []; //dataToProcess to save in process table
+        var proID = data[0].value;
+        var proName = data[1].value;
+        var proGroId = data[4].value;
+        for (var i = 0; i < 5; i++) {
+            dataToProcess.push(data[i]);
+        }
+        var scripteditor = JSON.stringify(editor.getValue());
+        var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
+        var newProcess_gid = parseInt(maxProcess_gid) + 1;
+        dataToProcess.push({ name: "process_gid", value: newProcess_gid });
+        dataToProcess.push({ name: "script", value: scripteditor });
+        dataToProcess.push({ name: "p", value: "saveProcess" });
+        if (proName === '' || proGroId === '') {
+            dataToProcess = [];
+        }
+        if (dataToProcess.length > 0) {
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: dataToProcess,
+                async: true,
+                success: function (s) {
+                    var process_id = s.id;
+                    //add process link into sidebar menu
+                    $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+                    var startPoint = 5; //first object in data array where inputparameters starts.
+                    addProParatoDB(data, startPoint, process_id);
+                    refreshDataset();
+                    $('#addProcessModal').modal('hide');
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+    }
+    // A) Add New Process Ends----
+
+    // B) Edit Process Starts
+    if (savetype.length) {
+        $('#mName').removeAttr('disabled'); //temporary remove disabled attribute for serializeArray().
+        var formValues = $('#addProcessModal').find('input, select, textarea');
+        var data = formValues.serializeArray();
+        $('#mName').attr('disabled', "disabled");
+
+        var proID = data[1].value;
+        var proName = data[2].value;
+        var warnUser = false;
+        var infoText = '';
+            [warnUser, infoText] = checkRevision(data, proID, proName);
+        console.log(warnUser)
+        console.log(infoText)
+        console.log(data)
+        //B.1)Save on current process
+        if (warnUser === false) {
+            var proGroId = data[5].value;
+            var sMenuProIdFinal = proName + '@' + proID;
+            var sMenuProGroupIdFinal = proGroId;
             var dataToProcess = []; //dataToProcess to save in process table
-            var proID = data[0].value;
-            var proName = data[1].value;
-            var proGroId = data[4].value;
-            for (var i = 0; i < 5; i++) {
+            for (var i = 1; i < 6; i++) {
                 dataToProcess.push(data[i]);
             }
             var scripteditor = JSON.stringify(editor.getValue());
-            var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
-            var newProcess_gid = parseInt(maxProcess_gid) + 1;
-            dataToProcess.push({ name: "process_gid", value: newProcess_gid });
+            var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
+            dataToProcess.push({ name: "process_gid", value: process_gid });
             dataToProcess.push({ name: "script", value: scripteditor });
             dataToProcess.push({ name: "p", value: "saveProcess" });
             if (proName === '' || proGroId === '') {
@@ -914,11 +1025,15 @@ $(document).ready(function () {
                     data: dataToProcess,
                     async: true,
                     success: function (s) {
-                        var process_id = s.id;
-                        //add process link into sidebar menu
-                        $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
-                        var startPoint = 5; //first object in data array where inputparameters starts.
-                        addProParatoDB(data, startPoint, process_id);
+                        //update process link into sidebar menu
+                        updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
+                        var startPoint = 6; //first object in data array where inputparameters starts.
+                        var ppIDinputList;
+                        var ppIDoutputList;
+                        var inputsBefore = getValues({ p: "getInputs", "process_id": proID });
+                        var outputsBefore = getValues({ p: "getOutputs", "process_id": proID });
+                            [ppIDinputList, ppIDoutputList] = addProParatoDB(data, startPoint, proID);
+                        updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
                         refreshDataset();
                         $('#addProcessModal').modal('hide');
                     },
@@ -927,275 +1042,180 @@ $(document).ready(function () {
                     }
                 });
             }
-        }
-        // A) Add New Process Ends----
+            //B.2) Save on new revision
+        } else if (warnUser === true) {
+            // ConfirmYesNo process modal 
+            $('#confirmRevision').off();
+            $('#confirmRevision').on('show.bs.modal', function (event) {
+                $(this).find('form').trigger('reset');
+                $('#confirmYesNoText').html(infoText);
+            });
+            $('#confirmRevision').on('click', '#saveRev', function (event) {
+                var confirmformValues = $('#confirmRevision').find('input');
+                var revCommentData = confirmformValues.serializeArray();
+                var revComment = revCommentData[0].value;
+                if (revComment === '') { //warn user to enter comment
 
-        // B) Edit Process Starts
-        if (savetype.length) {
-            $('#mName').removeAttr('disabled'); //temporary remove disabled attribute for serializeArray().
-            var formValues = $('#addProcessModal').find('input, select, textarea');
-            var data = formValues.serializeArray();
-            $('#mName').attr('disabled', "disabled");
-
-            var proID = data[1].value;
-            var proName = data[2].value;
-            var warnUser = false;
-            var infoText = '';
-            [warnUser, infoText] = checkRevision(data, proID, proName);
-            console.log(warnUser)
-            console.log(infoText)
-            console.log(data)
-            //B.1)Save on current process
-            if (warnUser === false) {
-                var proGroId = data[5].value;
-                var sMenuProIdFinal = proName + '@' + proID;
-                var sMenuProGroupIdFinal = proGroId;
-                var dataToProcess = []; //dataToProcess to save in process table
-                for (var i = 1; i < 6; i++) {
-                    dataToProcess.push(data[i]);
-                }
-                var scripteditor = JSON.stringify(editor.getValue());
-                var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
-                dataToProcess.push({ name: "process_gid", value: process_gid });
-                dataToProcess.push({ name: "script", value: scripteditor });
-                dataToProcess.push({ name: "p", value: "saveProcess" });
-                if (proName === '' || proGroId === '') {
-                    dataToProcess = [];
-                }
-                if (dataToProcess.length > 0) {
-                    $.ajax({
-                        type: "POST",
-                        url: "ajax/ajaxquery.php",
-                        data: dataToProcess,
-                        async: true,
-                        success: function (s) {
-                            //update process link into sidebar menu
-                            updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
-                            var startPoint = 6; //first object in data array where inputparameters starts.
-                            var ppIDinputList;
-                            var ppIDoutputList;
-                            var inputsBefore = getValues({ p: "getInputs", "process_id": proID });
-                            var outputsBefore = getValues({ p: "getOutputs", "process_id": proID });
-                            [ppIDinputList, ppIDoutputList] = addProParatoDB(data, startPoint, proID);
-                            updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
-                            refreshDataset();
-                            $('#addProcessModal').modal('hide');
-                        },
-                        error: function (errorThrown) {
-                            alert("Error: " + errorThrown);
-                        }
-                    });
-                }
-                //B.2) Save on new revision
-            } else if (warnUser === true) {
-                // ConfirmYesNo process modal 
-                $('#confirmRevision').off();
-                $('#confirmRevision').on('show.bs.modal', function (event) {
-                    $(this).find('form').trigger('reset');
-                    $('#confirmYesNoText').html(infoText);
-                });
-                $('#confirmRevision').on('click', '#saveRev', function (event) {
-                    var confirmformValues = $('#confirmRevision').find('input');
-                    var revCommentData = confirmformValues.serializeArray();
-                    var revComment = revCommentData[0].value;
-                    if (revComment === '') { //warn user to enter comment
-
-                    } else if (revComment !== '') {
-                        var proGroId = data[5].value;
-                        var sMenuProIdFinal = proName + '@' + proID;
-                        var sMenuProGroupIdFinal = proGroId;
-                        var dataToProcess = []; //dataToProcess to save in process table
-                        for (var i = 2; i < 6; i++) { //not included by process id i=1
-                            dataToProcess.push(data[i]);
-                        }
-                        var scripteditor = JSON.stringify(editor.getValue());
-                        var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
-                        var maxRev_id = getValues({ p: "getMaxRev_id", "process_gid": process_gid })[0].rev_id;
-                        var newRev_id = parseInt(maxRev_id) + 1;
-
-                        dataToProcess.push({ name: "rev_comment", value: revComment });
-                        dataToProcess.push({ name: "rev_id", value: newRev_id });
-                        dataToProcess.push({ name: "process_gid", value: process_gid });
-                        dataToProcess.push({ name: "script", value: scripteditor });
-                        dataToProcess.push({ name: "p", value: "saveProcess" });
-
-                        if (proName === '' || proGroId === '') {
-                            dataToProcess = [];
-                        }
-                        if (dataToProcess.length > 0) {
-                            $.ajax({
-                                type: "POST",
-                                url: "ajax/ajaxquery.php",
-                                data: dataToProcess,
-                                async: true,
-                                success: function (s) {
-                                    var newProcess_id = s.id;
-                                    //update process link into sidebar menu
-                                    sMenuProIdFinal = proName + '@' + newProcess_id;
-                                    updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
-                                    var startPoint = 6; //first object in data array where inputparameters starts.
-                                    addProParatoDBbyRev(data, startPoint, newProcess_id);
-                                    refreshDataset();
-                                    $('#addProcessModal').modal('hide');
-                                },
-                                error: function (errorThrown) {
-                                    alert("Error: " + errorThrown);
-                                }
-                            });
-                        }
-                        $('#confirmRevision').modal('hide');
+                } else if (revComment !== '') {
+                    var proGroId = data[5].value;
+                    var sMenuProIdFinal = proName + '@' + proID;
+                    var sMenuProGroupIdFinal = proGroId;
+                    var dataToProcess = []; //dataToProcess to save in process table
+                    for (var i = 2; i < 6; i++) { //not included by process id i=1
+                        dataToProcess.push(data[i]);
                     }
-                });
-                $('#confirmRevision').modal('show');
-            }
-        }
-        // B) Edit Process Ends----
+                    var scripteditor = JSON.stringify(editor.getValue());
+                    var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
+                    var maxRev_id = getValues({ p: "getMaxRev_id", "process_gid": process_gid })[0].rev_id;
+                    var newRev_id = parseInt(maxRev_id) + 1;
 
-    });
+                    dataToProcess.push({ name: "rev_comment", value: revComment });
+                    dataToProcess.push({ name: "rev_id", value: newRev_id });
+                    dataToProcess.push({ name: "process_gid", value: process_gid });
+                    dataToProcess.push({ name: "script", value: scripteditor });
+                    dataToProcess.push({ name: "p", value: "saveProcess" });
 
-    //insert dropdown, textbox and 'remove button' for each parameters
-    $(function () {
-        $(document).on('change', '.mParChange', function () {
-
-            var id = $(this).attr("id");
-            var Patt = /m(.*)puts-(.*)/;
-            var type = id.replace(Patt, '$1'); //In or Out
-            var col1init = "m" + type + "puts"; //column1 initials
-            var col2init = "m" + type + "Name";
-            var col3init = "m" + type + "Namedel";
-
-            var num = id.replace(Patt, '$2');
-            var prevParId = $("#" + id).attr("prev");
-            var selParId = $("#" + id + " option:selected").val();
-
-            if (prevParId === '-1' && selParId !== '-1') {
-
-                if (type === 'In') {
-                    numInputs++
-                    var idRows = numInputs; // numInputs or numOutputs
-                } else if (type === 'Out') {
-                    numOutputs++
-                    var idRows = numOutputs; // numInputs or numOutputs
+                    if (proName === '' || proGroId === '') {
+                        dataToProcess = [];
+                    }
+                    if (dataToProcess.length > 0) {
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: dataToProcess,
+                            async: true,
+                            success: function (s) {
+                                var newProcess_id = s.id;
+                                //update process link into sidebar menu
+                                sMenuProIdFinal = proName + '@' + newProcess_id;
+                                updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
+                                var startPoint = 6; //first object in data array where inputparameters starts.
+                                addProParatoDBbyRev(data, startPoint, newProcess_id);
+                                refreshDataset();
+                                $('#addProcessModal').modal('hide');
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+                    $('#confirmRevision').modal('hide');
                 }
-                $("#" + col1init).append('<select id="' + col1init + '-' + idRows + '" num="' + idRows + '" class="fbtn btn-default form-control mParChange" style ="margin-bottom: 5px;" prev ="-1"  name="' + col1init + '-' + idRows + '"></select>');
-                $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
-                $("#" + col3init).append('<button type="submit" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
+            });
+            $('#confirmRevision').modal('show');
+        }
+    }
+    // B) Edit Process Ends----
 
-                var opt = $('#mInputs-1')[0].selectize.options;
-                var newOpt = [];
-                $.each(opt, function (element) {
-                    delete opt[element].$order;
-                    newOpt.push(opt[element]);
-                });
-                $("#" + id).attr("prev", selParId)
-                $("#" + col1init + "-" + idRows).selectize({
-                    valueField: 'id',
-                    searchField: 'name',
-                    placeholder: "Add input...",
-                    options: newOpt,
-                    render: renderParam
-                });
-            }
-        })
+});
 
-    });
+//insert dropdown, textbox and 'remove button' for each parameters
+$(function () {
+    $(document).on('change', '.mParChange', function () {
 
-    //remove  dropdown list of parameters
-    $(document).on("click", ".delRow", function (event) {
-        event.preventDefault();
         var id = $(this).attr("id");
-        var Patt = /m(.*)Namedel-(.*)/;
+        var Patt = /m(.*)puts-(.*)/;
         var type = id.replace(Patt, '$1'); //In or Out
         var col1init = "m" + type + "puts"; //column1 initials
         var col2init = "m" + type + "Name";
         var col3init = "m" + type + "Namedel";
+
         var num = id.replace(Patt, '$2');
-        $("#" + col1init + "-" + String(num)).next().remove()
-        $("#" + col1init + "-" + String(num)).remove()
-        $("#" + col2init + "-" + String(num)).remove()
-        $("#" + col3init + "-" + String(num)).remove()
-    });
+        var prevParId = $("#" + id).attr("prev");
+        var selParId = $("#" + id + " option:selected").val();
 
-    //parameter modal 
-    $('#parametermodal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        $(this).find('form').trigger('reset');
-        //ajax for parameters
-        $.ajax({
-            type: "GET",
-            url: "ajax/ajaxquery.php",
-            data: {
-                p: "getAllParameters"
-            },
-            async: false,
-            success: function (s) {
-                $("#mParamListIn").empty();
-                var firstOptionSelect = new Option("Available Parameters...", '');
-                $("#mParamListIn").append(firstOptionSelect);
-                for (var i = 0; i < s.length; i++) {
-                    var param = s[i];
-                    var optionAll = new Option(param.name, param.id);
-                    $("#mParamListIn").append(optionAll);
-                }
-                $('#mParamListIn').selectize({});
+        if (prevParId === '-1' && selParId !== '-1') {
+
+            if (type === 'In') {
+                numInputs++
+                var idRows = numInputs; // numInputs or numOutputs
+            } else if (type === 'Out') {
+                numOutputs++
+                var idRows = numOutputs; // numInputs or numOutputs
             }
-        });
+            $("#" + col1init).append('<select id="' + col1init + '-' + idRows + '" num="' + idRows + '" class="fbtn btn-default form-control mParChange" style ="margin-bottom: 5px;" prev ="-1"  name="' + col1init + '-' + idRows + '"></select>');
+            $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
+            $("#" + col3init).append('<button type="submit" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
 
-        if (button.attr('id') === 'mParamAdd') {
-            $('#parametermodaltitle').html('Add New Parameter');
-            $('#mParamsDynamic').css('display', "inline");
-            $('#mParamList').css('display', "none");
-
-        } else if (button.attr('id') === 'mParamEdit') {
-            $('#parametermodaltitle').html('Edit Parameter');
-            $('#mParamsDynamic').css('display', "none");
-            $('#mParamList').css('display', "inline");
-
-
-            var formValues = $('#addProcessModal').find('input, select, textarea');
-            var selParamId = "";
-            var data = formValues.serializeArray(); // convert form to array
-            data.forEach(function (element) {
-                if (element.name === 'ParamAll') {
-                    selParamId = element.value;
-                }
+            var opt = $('#mInputs > :first-child')[0].selectize.options;
+            var newOpt = [];
+            $.each(opt, function (element) {
+                delete opt[element].$order;
+                newOpt.push(opt[element]);
             });
-            $.ajax({
-                type: "GET",
-                url: "ajax/ajaxquery.php",
-                data: {
-                    p: "getAllParameters"
-                },
-                async: false,
-                success: function (s) {
-                    var showParam = {};
-                    s.forEach(function (element) {
-                        if (element.id === selParamId) {
-                            showParam = element;
-                        }
-                    });
-                    //insert data into form
-                    var formValues = $('#parametermodal').find('input, select');
-                    var keys = Object.keys(showParam);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValues[i]).val(showParam[keys[i]]);
-                    }
-                },
-                error: function (errorThrown) {
-                    alert("Error: " + errorThrown);
-                }
+            $("#" + id).attr("prev", selParId)
+            $("#" + col1init + "-" + idRows).selectize({
+                valueField: 'id',
+                searchField: 'name',
+                placeholder: "Add input...",
+                options: newOpt,
+                render: renderParam
             });
         }
-    });
-    // Dismiss parameters modal 
-    $('#parametermodal').on('hide.bs.modal', function (event) {
-        $('#mParamListIn')[0].selectize.destroy();
-        $('#mParamsDynamic').css('display', "inline");
-        $('#mParamList').css('display', "none");
+    })
+
+});
+
+//remove  dropdown list of parameters
+$(document).on("click", ".delRow", function (event) {
+    event.preventDefault();
+    var id = $(this).attr("id");
+    var Patt = /m(.*)Namedel-(.*)/;
+    var type = id.replace(Patt, '$1'); //In or Out
+    var col1init = "m" + type + "puts"; //column1 initials
+    var col2init = "m" + type + "Name";
+    var col3init = "m" + type + "Namedel";
+    var num = id.replace(Patt, '$2');
+    $("#" + col1init + "-" + String(num)).next().remove()
+    $("#" + col1init + "-" + String(num)).remove()
+    $("#" + col2init + "-" + String(num)).remove()
+    $("#" + col3init + "-" + String(num)).remove()
+});
+
+//parameter modal 
+$('#parametermodal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    $(this).find('form').trigger('reset');
+    //ajax for parameters
+    $.ajax({
+        type: "GET",
+        url: "ajax/ajaxquery.php",
+        data: {
+            p: "getAllParameters"
+        },
+        async: false,
+        success: function (s) {
+            $("#mParamListIn").empty();
+            var firstOptionSelect = new Option("Available Parameters...", '');
+            $("#mParamListIn").append(firstOptionSelect);
+            for (var i = 0; i < s.length; i++) {
+                var param = s[i];
+                var optionAll = new Option(param.name, param.id);
+                $("#mParamListIn").append(optionAll);
+            }
+            $('#mParamListIn').selectize({});
+        }
     });
 
-    //Delparametermodal to delete parameters
-    $('#delparametermodal').on('show.bs.modal', function (event) {
+    if (button.attr('id') === 'mParamAdd') {
+        $('#parametermodaltitle').html('Add New Parameter');
+        $('#mParamsDynamic').css('display', "inline");
+        $('#mParamList').css('display', "none");
+
+    } else if (button.attr('id') === 'mParamEdit') {
+        $('#parametermodaltitle').html('Edit Parameter');
+        $('#mParamsDynamic').css('display', "none");
+        $('#mParamList').css('display', "inline");
+
+
+        var formValues = $('#addProcessModal').find('input, select, textarea');
+        var selParamId = "";
+        var data = formValues.serializeArray(); // convert form to array
+        data.forEach(function (element) {
+            if (element.name === 'ParamAll') {
+                selParamId = element.value;
+            }
+        });
         $.ajax({
             type: "GET",
             url: "ajax/ajaxquery.php",
@@ -1204,272 +1224,308 @@ $(document).ready(function () {
             },
             async: false,
             success: function (s) {
-                $("#mParamListDel").empty();
-                var firstOptionSelect = new Option("Select Parameter to Delete...", '');
-                $("#mParamListDel").append(firstOptionSelect);
-                for (var i = 0; i < s.length; i++) {
-                    var param = s[i];
-                    var optionAll = new Option(param.name, param.id);
-                    $("#mParamListDel").append(optionAll);
+                var showParam = {};
+                s.forEach(function (element) {
+                    if (element.id === selParamId) {
+                        showParam = element;
+                    }
+                });
+                //insert data into form
+                var formValues = $('#parametermodal').find('input, select');
+                var keys = Object.keys(showParam);
+                for (var i = 0; i < keys.length; i++) {
+                    $(formValues[i]).val(showParam[keys[i]]);
                 }
-                $('#mParamListDel').selectize({});
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
             }
         });
+    }
+});
+// Dismiss parameters modal 
+$('#parametermodal').on('hide.bs.modal', function (event) {
+    $('#mParamListIn')[0].selectize.destroy();
+    $('#mParamsDynamic').css('display', "inline");
+    $('#mParamList').css('display', "none");
+});
 
+//Delparametermodal to delete parameters
+$('#delparametermodal').on('show.bs.modal', function (event) {
+    $.ajax({
+        type: "GET",
+        url: "ajax/ajaxquery.php",
+        data: {
+            p: "getAllParameters"
+        },
+        async: false,
+        success: function (s) {
+            $("#mParamListDel").empty();
+            var firstOptionSelect = new Option("Select Parameter to Delete...", '');
+            $("#mParamListDel").append(firstOptionSelect);
+            for (var i = 0; i < s.length; i++) {
+                var param = s[i];
+                var optionAll = new Option(param.name, param.id);
+                $("#mParamListDel").append(optionAll);
+            }
+            $('#mParamListDel').selectize({});
+        }
     });
 
-    //parameter delete button in Delparametermodal
-    $('#delparametermodal').on('click', '#delparameter', function (e) {
-        var selectParam = '';
-        var formValues = $('#delparametermodal').find('#mParamListDel');
-        var data = formValues.serializeArray();
-        var selectParam = data[0].value;
+});
+
+//parameter delete button in Delparametermodal
+$('#delparametermodal').on('click', '#delparameter', function (e) {
+    var selectParam = '';
+    var formValues = $('#delparametermodal').find('#mParamListDel');
+    var data = formValues.serializeArray();
+    var selectParam = data[0].value;
+    $.ajax({
+        type: "POST",
+        url: "ajax/ajaxquery.php",
+        data: {
+            id: selectParam,
+            p: "removeParameter"
+        },
+        async: false,
+        success: function (s) {
+            var allBox = $('#addProcessModal').find('select');
+            for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                var parBoxId = allBox[i].getAttribute('id');
+                $('#' + parBoxId)[0].selectize.removeOption(selectParam);
+            }
+        },
+        error: function (errorThrown) {
+            alert("Error: " + errorThrown);
+        }
+    });
+    $('#delparametermodal').modal('hide');
+    refreshDataset()
+});
+
+// Dismiss parameters delete modal 
+$('#delparametermodal').on('hide.bs.modal', function (event) {
+    $('#mParamListDel')[0].selectize.destroy();
+});
+
+//edit parameter modal dropdown change for each parameters
+$(function () {
+    $(document).on('change', '#mParamListIn', function () {
+        var id = $(this).attr("id");
+        var formValues = $('#parametermodal').find('select');
+        var data = formValues.serializeArray(); // convert form to array
+        var selectParamId = data[0].value
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: "ajax/ajaxquery.php",
             data: {
-                id: selectParam,
-                p: "removeParameter"
+                p: "getAllParameters"
             },
             async: false,
             success: function (s) {
+                var showParam = {};
+                s.forEach(function (element) {
+                    if (element.id === selectParamId) {
+                        showParam = element;
+                    }
+                });
+                //insert data into form
+                var formValuesModal = $('#parametermodal').find('input, select');
+                formValuesModal.splice(1, 2); //Remove select and input "ParamAllIn"
+                var keys = Object.keys(showParam);
+                for (var i = 0; i < keys.length; i++) {
+                    $(formValuesModal[i]).val(showParam[keys[i]]);
+                }
+            }
+        });
+        var modaltit = $('#parametermodaltitle').html();
+        if (modaltit === 'Add New Parameter') {
+            $('#mIdPar').val('');
+            var savetype = $('#mIdPar').val();
+        }
+
+    })
+});
+
+
+
+
+
+//parameter modal save button
+$('#parametermodal').on('click', '#saveparameter', function (event) {
+    event.preventDefault();
+    var selParName = '';
+    var formValues = $('#parametermodal').find('input, select');
+    var savetype = $('#mIdPar').val();
+    var data = formValues.serializeArray(); // convert form to array
+    data.splice(1, 1); //Remove "ParamAllIn"
+    var selParID = data[0].value;
+    var selParName = data[1].value;
+    var selParQual = data[2].value;
+    var selParType = data[3].value;
+    data.push({
+        name: "p",
+        value: "saveParameter"
+    });
+    $.ajax({
+        type: "POST",
+        url: "ajax/ajaxquery.php",
+        data: data,
+        async: false,
+        success: function (s) {
+            if (savetype.length) { //Edit Parameter
+                //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
                 var allBox = $('#addProcessModal').find('select');
                 for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
                     var parBoxId = allBox[i].getAttribute('id');
-                    $('#' + parBoxId)[0].selectize.removeOption(selectParam);
-                }
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
-        $('#delparametermodal').modal('hide');
-        refreshDataset()
-    });
-
-    // Dismiss parameters delete modal 
-    $('#delparametermodal').on('hide.bs.modal', function (event) {
-        $('#mParamListDel')[0].selectize.destroy();
-    });
-
-    //edit parameter modal dropdown change for each parameters
-    $(function () {
-        $(document).on('change', '#mParamListIn', function () {
-            var id = $(this).attr("id");
-            var formValues = $('#parametermodal').find('select');
-            var data = formValues.serializeArray(); // convert form to array
-            var selectParamId = data[0].value
-            $.ajax({
-                type: "GET",
-                url: "ajax/ajaxquery.php",
-                data: {
-                    p: "getAllParameters"
-                },
-                async: false,
-                success: function (s) {
-                    var showParam = {};
-                    s.forEach(function (element) {
-                        if (element.id === selectParamId) {
-                            showParam = element;
-                        }
+                    $('#' + parBoxId)[0].selectize.updateOption(selParID, {
+                        id: selParID,
+                        name: selParName,
+                        qualifier: selParQual,
+                        file_type: selParType
                     });
-                    //insert data into form
-                    var formValuesModal = $('#parametermodal').find('input, select');
-                    formValuesModal.splice(1, 2); //Remove select and input "ParamAllIn"
-                    var keys = Object.keys(showParam);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValuesModal[i]).val(showParam[keys[i]]);
-                    }
                 }
-            });
-            var modaltit = $('#parametermodaltitle').html();
-            if (modaltit === 'Add New Parameter') {
-                $('#mIdPar').val('');
-                var savetype = $('#mIdPar').val();
-            }
 
-        })
-    });
-
-
-
-
-
-    //parameter modal save button
-    $('#parametermodal').on('click', '#saveparameter', function (event) {
-        event.preventDefault();
-        var selParName = '';
-        var formValues = $('#parametermodal').find('input, select');
-        var savetype = $('#mIdPar').val();
-        var data = formValues.serializeArray(); // convert form to array
-        data.splice(1, 1); //Remove "ParamAllIn"
-        var selParID = data[0].value;
-        var selParName = data[1].value;
-        var selParQual = data[2].value;
-        var selParType = data[3].value;
-        data.push({
-            name: "p",
-            value: "saveParameter"
-        });
-        $.ajax({
-            type: "POST",
-            url: "ajax/ajaxquery.php",
-            data: data,
-            async: false,
-            success: function (s) {
-                if (savetype.length) { //Edit Parameter
-                    //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.updateOption(selParID, {
-                            id: selParID,
-                            name: selParName,
-                            qualifier: selParQual,
-                            file_type: selParType
-                        });
-                    }
-
-                } else { //Add Parameter
-                    //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.addOption({
-                            id: s.id,
-                            name: selParName,
-                            qualifier: selParQual,
-                            file_type: selParType
-                        });
-                    }
-                }
-                //                $('#mParamListIn')[0].selectize.destroy();
-                $('#parametermodal').modal('hide');
-                refreshDataset()
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
-    });
-
-
-
-
-    // process group modal 
-    $('#processGroupModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        $(this).find('form').trigger('reset');
-        if (button.attr('id') === 'groupAdd') {
-            $('#processGroupmodaltitle').html('Add Menu Group');
-        } else if (button.attr('id') === 'groupEdit') {
-            $('#processGroupmodaltitle').html('Edit Menu Group');
-            var formValues = $('#proGroup').find('select');
-            var selGroupId = "";
-            var selGroupId = formValues.serializeArray()[0].value; // convert form to array
-            $.ajax({
-                type: "GET",
-                url: "ajax/ajaxquery.php",
-                data: {
-                    p: "getAllProcessGroups"
-                },
-                async: false,
-                success: function (s) {
-                    var showGroup = {};
-                    s.forEach(function (element) {
-                        if (element.id === selGroupId) {
-                            showGroup = element;
-                        }
+            } else { //Add Parameter
+                //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
+                var allBox = $('#addProcessModal').find('select');
+                for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                    var parBoxId = allBox[i].getAttribute('id');
+                    $('#' + parBoxId)[0].selectize.addOption({
+                        id: s.id,
+                        name: selParName,
+                        qualifier: selParQual,
+                        file_type: selParType
                     });
-                    //insert data into form
-                    var formValues = $('#processGroupModal').find('input');
-                    var keys = Object.keys(showGroup);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValues[i]).val(showGroup[keys[i]]);
-                    }
-                },
-                error: function (errorThrown) {
-                    alert("Error: " + errorThrown);
                 }
-            });
+            }
+            //                $('#mParamListIn')[0].selectize.destroy();
+            $('#parametermodal').modal('hide');
+            refreshDataset()
+        },
+        error: function (errorThrown) {
+            alert("Error: " + errorThrown);
         }
     });
+});
 
-    //process group modal save button
-    $('#processGroupModal').on('click', '#saveProcessGroup', function (event) {
-        event.preventDefault();
-        var selProGroupName = '';
-        var selProGroupID = '';
-        var formValues = $('#processGroupModal').find('input');
-        var savetype = $('#mIdProGroup').val();
-        var data = formValues.serializeArray(); // convert form to array
-        var selProGroupID = data[0].value;
-        var selProGroupName = data[1].value;
-        data.push({
-            name: "p",
-            value: "saveProcessGroup"
-        });
+
+
+
+// process group modal 
+$('#processGroupModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    $(this).find('form').trigger('reset');
+    if (button.attr('id') === 'groupAdd') {
+        $('#processGroupmodaltitle').html('Add Menu Group');
+    } else if (button.attr('id') === 'groupEdit') {
+        $('#processGroupmodaltitle').html('Edit Menu Group');
+        var formValues = $('#proGroup').find('select');
+        var selGroupId = "";
+        var selGroupId = formValues.serializeArray()[0].value; // convert form to array
         $.ajax({
-            type: "POST",
-            url: "ajax/ajaxquery.php",
-            data: data,
-            async: false,
-            success: function (s) {
-                if (savetype.length) { //Edit Process Group
-                    var allProBox = $('#proGroup').find('select');
-                    var proGroBoxId = allProBox[0].getAttribute('id');
-                    $('#' + proGroBoxId)[0].selectize.updateOption(selProGroupID, {
-                        value: selProGroupID,
-                        text: selProGroupName
-                    });
-                    $('#side-' + selProGroupID).parent().find('span').html(selProGroupName);
-                } else { //Add process group
-                    var allProBox = $('#proGroup').find('select');
-                    var proGroBoxId = allProBox[0].getAttribute('id');
-                    selProGroupID = s.id;
-                    $('#' + proGroBoxId)[0].selectize.addOption({
-                        value: selProGroupID,
-                        text: selProGroupName
-                    });
-                    $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + selProGroupName + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + selProGroupID + '" class="treeview-menu"></ul></li>');
-                }
-                $('#mProcessGroup')[0].selectize.setValue(selProGroupID, false);
-                $('#processGroupModal').modal('hide');
-
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
-    });
-
-    //process group remove button
-    $('#addProcessModal').on('click', '#groupDel', function (e) {
-        e.preventDefault();
-        var selectProGro = '';
-        var formValues = $('#addProcessModal').find('#mProcessGroup');
-        var data = formValues.serializeArray();
-        selectProGro = data[0].value;
-        $.ajax({
-            type: "POST",
+            type: "GET",
             url: "ajax/ajaxquery.php",
             data: {
-                id: selectProGro,
-                p: "removeProcessGroup"
+                p: "getAllProcessGroups"
             },
             async: false,
             success: function (s) {
-                var allProBox = $('#proGroup').find('select');
-                var proGroBoxId = allProBox[0].getAttribute('id');
-                $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
-
-                $('#side-' + selectProGro).parent().remove()
+                var showGroup = {};
+                s.forEach(function (element) {
+                    if (element.id === selGroupId) {
+                        showGroup = element;
+                    }
+                });
+                //insert data into form
+                var formValues = $('#processGroupModal').find('input');
+                var keys = Object.keys(showGroup);
+                for (var i = 0; i < keys.length; i++) {
+                    $(formValues[i]).val(showGroup[keys[i]]);
+                }
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);
             }
         });
+    }
+});
+
+//process group modal save button
+$('#processGroupModal').on('click', '#saveProcessGroup', function (event) {
+    event.preventDefault();
+    var selProGroupName = '';
+    var selProGroupID = '';
+    var formValues = $('#processGroupModal').find('input');
+    var savetype = $('#mIdProGroup').val();
+    var data = formValues.serializeArray(); // convert form to array
+    var selProGroupID = data[0].value;
+    var selProGroupName = data[1].value;
+    data.push({
+        name: "p",
+        value: "saveProcessGroup"
     });
+    $.ajax({
+        type: "POST",
+        url: "ajax/ajaxquery.php",
+        data: data,
+        async: false,
+        success: function (s) {
+            if (savetype.length) { //Edit Process Group
+                var allProBox = $('#proGroup').find('select');
+                var proGroBoxId = allProBox[0].getAttribute('id');
+                $('#' + proGroBoxId)[0].selectize.updateOption(selProGroupID, {
+                    value: selProGroupID,
+                    text: selProGroupName
+                });
+                $('#side-' + selProGroupID).parent().find('span').html(selProGroupName);
+            } else { //Add process group
+                var allProBox = $('#proGroup').find('select');
+                var proGroBoxId = allProBox[0].getAttribute('id');
+                selProGroupID = s.id;
+                $('#' + proGroBoxId)[0].selectize.addOption({
+                    value: selProGroupID,
+                    text: selProGroupName
+                });
+                $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + selProGroupName + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + selProGroupID + '" class="treeview-menu"></ul></li>');
+            }
+            $('#mProcessGroup')[0].selectize.setValue(selProGroupID, false);
+            $('#processGroupModal').modal('hide');
+
+        },
+        error: function (errorThrown) {
+            alert("Error: " + errorThrown);
+        }
+    });
+});
+
+//process group remove button
+$('#addProcessModal').on('click', '#groupDel', function (e) {
+    e.preventDefault();
+    var selectProGro = '';
+    var formValues = $('#addProcessModal').find('#mProcessGroup');
+    var data = formValues.serializeArray();
+    selectProGro = data[0].value;
+    $.ajax({
+        type: "POST",
+        url: "ajax/ajaxquery.php",
+        data: {
+            id: selectProGro,
+            p: "removeProcessGroup"
+        },
+        async: false,
+        success: function (s) {
+            var allProBox = $('#proGroup').find('select');
+            var proGroBoxId = allProBox[0].getAttribute('id');
+            $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
+
+            $('#side-' + selectProGro).parent().remove()
+        },
+        error: function (errorThrown) {
+            alert("Error: " + errorThrown);
+        }
+    });
+});
 
 
 
