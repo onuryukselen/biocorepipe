@@ -111,11 +111,10 @@
             <div id="revModalHeader" class="modal-header">
                 <button style="padding-top:6px;" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <div id="mProActionsDiv" style="float:right; margin-right:15px; display:none;" class="dropdown">
-                    <button class="btn btn-default" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li><a style="pointer-events:none;" href="">Delete Process</a></li>
-                        <li><a style="pointer-events:none;" href="">Copy Process</a></li>
-                    </ul>
+                    <button class="btn btn-default dropdown-toggle" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li><a id="deleteRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
+                    </ul> 
                 </div >
                 <span id="mProRevSpan" style="margin-right:5px; width:130px; float:right; display:none;">
                 <select id="mProRev" class="fbtn btn-default form-control mRevChange" prev="-1" name="process_rev_id"></select>
@@ -225,7 +224,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>
+<!--                <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>-->
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary"  id="saveprocess"   >Save changes</button>
 <!--               data-backdrop="false" data-toggle="modal" data-target="#mConfirmYesNo"-->
@@ -379,21 +378,23 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="confirmYesNoTitle">Confirm</h4>
+                <h4 class="modal-title" id="confirmYesNoTitle">Confirm revision</h4>
             </div>
-            <div class="modal-body" id="confirmYesNoText">Text
+            <div class="modal-body" >
+               <span id="confirmYesNoText">Text</span>
+               </br>
                 <form class="form-horizontal">
                     <div class="form-group">
-                        <label for="mRevComment" class="col-sm-2 control-label">Revision Comment</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="mRevComment" name="rev_comment">
+                        <label for="mRevComment" class="col-sm-2 control-label">Comment</label>
+                        <div class="col-sm-4">
+                            <input type="text" maxlength="20" class="form-control" id="mRevComment" name="rev_comment">
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" >No</button>
-                <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="yesBtn">Yes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-primary"  id="saveRev">Save</button>
             </div>
         </div>
     </div>
