@@ -1493,6 +1493,8 @@
 	                      outputName = document.getElementById(oId).getAttribute("name")
 	                      outputName = outputName.replace(/\*/g, '')
 	                      outputName = outputName.replace(/\?/g, '')
+	                      outputName = outputName.replace(/\'/g, '')
+	                      outputName = outputName.replace(/\"/g, '')
 	                      //outPro node : get userEntryId and userEntryText
 	                      parId = fNode.split("-")[4]
 	                      userEntryId = "text-" + fNode.split("-")[4]
@@ -1500,7 +1502,7 @@
 	                      parFile = parametersData.filter(function (el) {
 	                          return el.id == fNode.split("-")[3]
 	                      })[0].file_type
-	                      tempText = "\tif \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
+	                      tempText = "\tif \(filename =~ /^" + outputName + "$/\) filename\n"
                           // if (filename =~ /^path.8.fastq$/) filename 
 	                      oText = oText + tempText
 	                      //break
@@ -1508,13 +1510,14 @@
 	                      outputName = document.getElementById(oId).getAttribute("name")
 	                      outputName = outputName.replace(/\*/g, '')
 	                      outputName = outputName.replace(/\?/g, '')
-
+	                      outputName = outputName.replace(/\'/g, '')
+	                      outputName = outputName.replace(/\"/g, '')
 
 	                      parFile = parametersData.filter(function (el) {
 	                          return el.id == fNode.split("-")[3]
 	                      })[0].file_type
 
-	                      tempText = "\telse if \(filename.indexOf\(" + outputName + "\)>=0\) filename\n"
+	                      tempText = "\telse if \(filename =~ /^" + outputName + "$/\) filename\n"
 	                      oText = oText + tempText
 
 	                  }

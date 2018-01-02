@@ -83,29 +83,47 @@ class dbfuncs {
    }
       public function getParentSideBar($ownerID)
    {
-     $sql= "SELECT DISTINCT group_name name, id FROM process_group where owner_id='$ownerID'";
+      if ($ownerID != ''){
+        $sql= "SELECT DISTINCT group_name name, id FROM process_group where owner_id='$ownerID' OR perms = 63";
+      } else {
+        $sql= "SELECT DISTINCT group_name name, id FROM process_group where perms = 63";
+      }
      return self::queryTable($sql);
    }
     
      public function getPipelineSideBar($ownerID)
    {
-     $sql= "SELECT name, id FROM biocorepipe_save where owner_id='$ownerID' ";
+      if ($ownerID != ''){
+        $sql= "SELECT name, id FROM biocorepipe_save where owner_id='$ownerID' OR perms = 63 ";
+      } else {
+        $sql= "SELECT name, id FROM biocorepipe_save where perms = 63 ";   
+      }
      return self::queryTable($sql);
    }
    
    function getSubMenuFromSideBar($parent, $ownerID)
    {
-//      $sql="SELECT DISTINCT p.id, p.name from process p, process_group pg where p.process_group_id = pg.id and pg.group_name='$parent'";
-//      return self::queryTable($sql); 
-       $sql="SELECT p.id, p.name, p.owner_id
+       if ($ownerID != ''){
+       $sql="SELECT p.id, p.name, p.owner_id, p.perms
              FROM process p
              INNER JOIN process_group pg 
-             ON p.process_group_id = pg.id and pg.group_name='$parent' and pg.owner_id='$ownerID' 
+             ON p.process_group_id = pg.id and pg.group_name='$parent' and ( pg.owner_id='$ownerID' OR pg.perms = 63)
              INNER JOIN (
-                SELECT name, process_gid, owner_id, MAX(rev_id) rev_id
+                SELECT name, process_gid, owner_id, perms, MAX(rev_id) rev_id
                 FROM process 
                 GROUP BY process_gid
-                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and b.owner_id='$ownerID' ";
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and ( b.owner_id='$ownerID' OR b.perms = 63) ";
+       } else {
+                  $sql="SELECT p.id, p.name, p.owner_id, p.perms
+             FROM process p
+             INNER JOIN process_group pg 
+             ON p.process_group_id = pg.id and pg.group_name='$parent' and pg.perms = 63
+             INNER JOIN (
+                SELECT name, process_gid, owner_id, perms, MAX(rev_id) rev_id
+                FROM process 
+                GROUP BY process_gid
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and b.perms = 63 ";
+       }
       return self::queryTable($sql);
    }
 }
@@ -169,5 +187,5 @@ $menuhtml.='                    <ul>';
 
 echo $menuhtml;
 
-?> 
-<!-- /.sidebar -->
+?>
+    <!-- /.sidebar -->

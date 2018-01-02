@@ -185,13 +185,16 @@
                 <?php
                     session_start(); 
                     $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
-                    echo '$user: '.$ownerID;
                 if ($ownerID != ''){
                     $np = 1;
-                    include("php/sidebarmenu.php");
-                    
-                }
                     include("php/funcs.php");
+                    include("php/sidebarmenu.php");
+                } else {
+                    include("php/funcs.php");
+                    include("php/sidebarmenu.php");
+                }
+
+                
 
                 ?>
 

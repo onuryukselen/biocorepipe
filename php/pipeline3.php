@@ -19,7 +19,7 @@
     }
 </style>
 
-<div class="box-header" style=" font-size:large; ">
+<div class="box-header" style=" padding-top:0px; font-size:large; ">
                 <div style=" border-bottom:1px solid lightgrey;">   
                 <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
                 Pipeline:
