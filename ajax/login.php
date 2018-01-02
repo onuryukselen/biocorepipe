@@ -17,7 +17,11 @@ if ($p=="saveUser"){
     $checkUser = $db->getUser($google_id);
     $checkarray = json_decode($checkUser,true); 
     $id = $checkarray[0]["id"];
-    $_SESSION['user'] = $username;
+    $_SESSION['username'] = $username;
+//    $_SESSION['name'] = $name;
+    $_SESSION['google_id'] = $google_id;
+//    $_SESSION['email'] = $email;
+//    $_SESSION['google_image'] = $google_image;
     if (!empty($id)) {
 	    $_SESSION['ownerID'] = $id;
         $data = $db->updateUser($id, $google_id, $name, $email, $google_image, $username);  
@@ -28,11 +32,16 @@ if ($p=="saveUser"){
         $id = $ownerIDarr['id'];
 	    $_SESSION['ownerID'] = $id;
     }
+} else if ($p=="logOutUser"){
+    session_destroy();
+    $logOutAr = array('logOut' => 1);
+	$data = json_encode($logOutAr);
+    
 } else {
 	$errAr = array('error' => 1);
 	$data = json_encode($errAr);
 }
- 
+//header("Location: ./index.php"); 
 header('Cache-Control: no-cache, must-revalidate');
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
 header('Content-type: application/json');

@@ -5,7 +5,7 @@
 <script src="./dist/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 
 <script src="js/jsfuncs.js"></script>
-<script src="js/process.js"></script>
+
 
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style type="text/css" media="screen">
@@ -528,6 +528,5 @@
 
 
 
-
-<script src="js/pipeline.js"></script>
 <script src="js/process2.js"></script>
+<script src="js/pipeline.js"></script>
