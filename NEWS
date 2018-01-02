@@ -1,4 +1,9 @@
-28.12.2017 Version 0.0.18
+31.12.2017 Version 0.0.19
+Minor bug in process modal is fixed.
+Prevention to delete revision if it is used in pipelines is added.
+
+
+30.12.2017 Version 0.0.18
 Revisions section in edit process modal is finalized.
 Delete revision is added in edit process modal.
 

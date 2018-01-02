@@ -19,7 +19,29 @@
     }
 </style>
 
-
+<div class="box-header" style=" font-size:large; ">
+                <div style=" border-bottom:1px solid lightgrey;">   
+                <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
+                Pipeline:
+                <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span>
+                <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
+                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
+                <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
+                        <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
+                <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
+                        <i class="glyphicon glyphicon-save"></i></a></button>
+                <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
+                        <i class="glyphicon glyphicon-trash"></i></a></button>
+                        </i>
+                    </i>
+                </i>
+                </input>
+    </div>
+            </div>
 
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px;" id="desPipeline">
     <div class="row" id="creatorInfo" style="font-size:12px;"> Created by admin on Jan. 26, 2016 04:12 • Last edited by admin on Feb. 8, 2017 12:15</div>
@@ -371,7 +393,6 @@
     </div>
 </div>
 <!--Confirm Modal Ends-->
-<!--confirmRevision Modal Ends-->
 
 <div id="confirmRevision" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -400,6 +421,24 @@
     </div>
 </div>
 
+
+<div id="warnDelete" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >Information</h4>
+            </div>
+            <div class="modal-body" >
+               <span id="warnDelText">Text</span>
+               </br>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

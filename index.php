@@ -145,10 +145,10 @@ font-weight:600;
         <div id= "userAvatar" style="display:none" class="pull-left image">
           <img id= "userAvatarImg" src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
         </div>
-        <div id= "userInfo" style="display:none" class="pull-left info">
+        <div id= "userInfo" style="display:none" class="info">
           <p id= "userName">Alper Kucukural</p>
           <span style="font-size:11px;"><i class="fa fa-circle text-success"></i> Online</span>
-            <a style="float:right;" href="" onclick="signOut();">Sign out</a>
+          <a style="padding-left:5px; font-size:11px; float:right;" href="#" onclick="signOut();">Sign out</a>
         </div>
       </div>
 
@@ -218,29 +218,7 @@ $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
 <section class="content">
     <div class="row" >
         <div class="box">
-            <div class="box-header" style=" font-size:large; ">
-                <div style=" border-bottom:1px solid lightgrey;">   
-                <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
-                Pipeline:
-                <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span>
-                <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
-                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
-                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
-                <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
-                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
-                        <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
-                <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
-                    <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
-                        <i class="glyphicon glyphicon-save"></i></a></button>
-                <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
-                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
-                        <i class="glyphicon glyphicon-trash"></i></a></button>
-                        </i>
-                    </i>
-                </i>
-                </input>
-    </div>
-            </div>
+            
             <!--/.box-header -->
             <div class="box-body table-responsive" style=" overflow-y:scroll;">
                 
