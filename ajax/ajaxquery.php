@@ -8,7 +8,13 @@ require_once("../ajax/dbfuncs.php");
 $db = new dbfuncs();
 
 session_start();
-$user = isset($_SESSION['user']) ? $_SESSION['user'] : "";
+$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+$username = isset($_SESSION['username']) ? $_SESSION['username'] : "";
+//$session_name = isset($_SESSION['name']) ? $_SESSION['name'] : "";
+$google_id = isset($_SESSION['google_id']) ? $_SESSION['google_id'] : "";
+//$email = isset($_SESSION['email']) ? $_SESSION['email'] : "";
+//$google_image = isset($_SESSION['google_image']) ? $_SESSION['google_image'] : "";
+
 
 $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
 $p = isset($_REQUEST["p"]) ? $_REQUEST["p"] : "";
@@ -25,48 +31,26 @@ if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
 
-if ($p=="getNetwork"){
-    $data = $db -> getNetwork($id);
-}
+
 if ($p=="createNextflow"){
 	$data = $db -> getNextflow($id);
 }
-//if ($p=="updatePipelineProcessParameter") //(2)  Matching saglandiktan sonra $name PipelineProcessParameter tablosunda yenilenir.
-//{
-//	if (!empty($id)) {
-//			$name = $_REQUEST['name'];
-//       $data = $db->updatePipelineProcessParameterout($id, $name);
-//    } else {
-//			$pipeline_id = $_REQUEST['pipeline_id'];
-//			$parameter_id = $_REQUEST['parameter_id'];
-//			$name = $_REQUEST['name'];
-//			$process_name = $_REQUEST['process_name'];
-//			$type = $_REQUEST['type'];
-//		$data = $db->updatePipelineProcessParameterin($name, $pipeline_id, $parameter_id, $process_name, $type);
-//    }
-//}
-
 
 else if ($p=="getAllParameters"){
-    $data = $db -> getAllParameters($start, $end);
+    $data = $db -> getAllParameters($ownerID);
 }
-else if ($p=="getAllPipelines"){
-    $data = $db -> getAllPipelines($start, $end);
-}
+
 else if ($p=="getAllProcesses"){
-    $data = $db -> getAllProcesses($start, $end);
+    $data = $db -> getAllProcesses();
 }
 else if ($p=="getAllProcessGroups"){
-    $data = $db -> getAllProcessGroups($start, $end);
+    $data = $db -> getAllProcessGroups($ownerID);
 }
-else if ($p=="getAllProcessParameters"){
-   $process_id = $_REQUEST["process_id"];
-   $data = $db->getAllProcessParameters($process_id, $type, $start, $end);
-}
-//else if ($p=="getAllProcessParametersDetail"){  //(2)processdeki parametrelerin detaylarini almak için fonksiyon
+//else if ($p=="getAllProcessParameters"){
 //   $process_id = $_REQUEST["process_id"];
-//   $data = $db->getAllProcessParametersDetail($process_id, $start, $end);
+//   $data = $db->getAllProcessParameters($process_id, $type, $start, $end);
 //}
+
 else if ($p=="removeParameter"){
     $db->removeProcessParameterByParameterID($id);
     $data = $db->removeParameter($id);
@@ -76,19 +60,10 @@ else if ($p=="removeProcessGroup"){
     $db->removeProcessByProcessGroupID($id);
     $data = $db->removeProcessGroup($id);
 }
-else if ($p=="removePipeline"){   
-    $db->removePipelineProcessByPipelineID($id);
-	$data = $db -> removePipeline($id);
-}
 else if ($p=="removePipelineById"){   
 	$data = $db -> removePipelineById($id);
 }
-else if ($p=="removePipelineProcess"){   //(1)name eklendi
-	$process_id = $_REQUEST['process_id'];
-    $pipeline_id = $_REQUEST['pipeline_id'];
-	$name = $_REQUEST['name'];
-	$data = $db -> removePipelineProcess($process_id, $pipeline_id, $name);
-}
+
 else if ($p=="removeProcess"){   
     $db->removeProcessParameterByProcessID($id);
 //    $db->removePipelineProcessByProcessID($id);
@@ -103,9 +78,9 @@ else if ($p=="saveParameter"){
     $file_type = $_REQUEST['file_type'];
     
     if (!empty($id)) {
-       $data = $db->updateParameter($id, $name, $qualifier, $file_type);
+       $data = $db->updateParameter($id, $name, $qualifier, $file_type, $ownerID);
     } else {
-       $data = $db->insertParameter($name, $qualifier, $file_type);
+       $data = $db->insertParameter($name, $qualifier, $file_type, $ownerID);
     }
 }
 else if ($p=="saveUser"){
@@ -124,21 +99,21 @@ else if ($p=="saveUser"){
         $data = $db->insertUser($google_id, $name, $email, $google_image, $username);  
     }
 }
+else if ($p=="checkLogin"){
+    if (!empty($google_id)) {
+       $checkUser = $db->getUserLess($google_id);
+       $data = $checkUser;
+    }else {
+	   $errAr = array('error' => 1);
+	   $data = json_encode($errAr);
+    }
+}
 else if ($p=="saveProcessGroup"){
     $group_name = $_REQUEST['group_name'];
     if (!empty($id)) {
-       $data = $db->updateProcessGroup($id, $group_name);
+       $data = $db->updateProcessGroup($id, $group_name, $ownerID);
     } else {
-       $data = $db->insertProcessGroup($group_name);
-    }
-}
-else if ($p=="savePipeline"){
-    $name = $_REQUEST['name'];
-    $version = $_REQUEST['version'];
-    if (!empty($id)) {
-        $data = $db->updatePipeline($id, $name, $version);
-    } else {
-        $data = $db->insertPipeline($name, $version);
+       $data = $db->insertProcessGroup($group_name, $ownerID);
     }
 }
 else if ($p=="saveProcess"){
@@ -151,41 +126,41 @@ else if ($p=="saveProcess"){
     $rev_id = $_REQUEST['rev_id']; 
     $rev_comment = $_REQUEST['rev_comment']; 
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script);
+        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID);
     } else {
-        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID);
     }
 }
-else if ($p=="savePipelineProcess"){
-    $name = $_REQUEST['name'];
-    $pipeline_id = $_REQUEST['pipeline_id'];
-    $process_id = $_REQUEST['process_id'];
-    $data = $db->insertPipelineProcess($name, $pipeline_id, $process_id);
-}
+//else if ($p=="savePipelineProcess"){
+//    $name = $_REQUEST['name'];
+//    $pipeline_id = $_REQUEST['pipeline_id'];
+//    $process_id = $_REQUEST['process_id'];
+//    $data = $db->insertPipelineProcess($name, $pipeline_id, $process_id);
+//}
 else if ($p=="saveProcessParameter"){
     $name = $_REQUEST['name'];
     $process_id = $_REQUEST['process_id'];
     $parameter_id = $_REQUEST['parameter_id'];
     $type = $_REQUEST['type'];
     if (!empty($id)) {
-        $data = $db->updateProcessParameter($id, $name, $process_id, $parameter_id, $type);
+        $data = $db->updateProcessParameter($id, $name, $process_id, $parameter_id, $type, $ownerID);
     } else {
-        $data = $db->insertProcessParameter($name, $process_id, $parameter_id, $type);
+        $data = $db->insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID);
     }
 }
 
-else if ($p=="savePipelineProcessParameterDefault") //(2)  savePipelineProcessParameter yerine savePipelineProcessParameterDefault yazildi.
-{
-    $pipeline_id = $_REQUEST['pipeline_id'];
-    $process_id = $_REQUEST['process_id'];
-    $name = $_REQUEST['name'];
-    
-    $data = $db->insertPipelineProcessParameterDefault($name, $pipeline_id, $process_id);
-}
+//else if ($p=="savePipelineProcessParameterDefault") //(2)  savePipelineProcessParameter yerine savePipelineProcessParameterDefault yazildi.
+//{
+//    $pipeline_id = $_REQUEST['pipeline_id'];
+//    $process_id = $_REQUEST['process_id'];
+//    $name = $_REQUEST['name'];
+//    
+//    $data = $db->insertPipelineProcessParameterDefault($name, $pipeline_id, $process_id);
+//}
 else if ($p=="getProcessData")
 {
 	$id = $_REQUEST['process_id'];
-    $data = $db->getProcessData($id);
+    $data = $db->getProcessData($id, $ownerID);
 }
 else if ($p=="getRevisionData")
 {
@@ -199,7 +174,7 @@ else if ($p=="checkPipeline")
 {
 	$process_id = $_REQUEST['process_id'];
 	$process_name = $_REQUEST['process_name'];
-    $data = $db->checkPipeline($process_id,$process_name);
+    $data = $db->checkPipeline($process_id,$process_name, $ownerID);
 }
 
 else if ($p=="getMaxProcess_gid")
@@ -228,24 +203,24 @@ else if ($p=="getOutputs")
 }
 else if ($p=="getParametersData")
 {
-    $data = $db->getParametersData();
+    $data = $db->getParametersData($ownerID);
 }
 else if ($p=="saveAllPipeline")
 {
 	$dat = $_REQUEST['dat'];
-    $data = $db->saveAllPipeline($dat);
+    $data = $db->saveAllPipeline($dat,$ownerID);
 }
 else if ($p=="savePipelineName"){
     $name = $_REQUEST['name'];
     if (!empty($id)) {
         $data = $db->updatePipelineName($id, $name);
     } else {
-        $data = $db->insertPipelineName($name);
+        $data = $db->insertPipelineName($name,$ownerID);
     }
 }
 else if ($p=="getSavedPipelines")
 {
-    $data = $db->getSavedPipelines();
+    $data = $db->getSavedPipelines($ownerID);
 }
 
 else if ($p=="loadPipeline")

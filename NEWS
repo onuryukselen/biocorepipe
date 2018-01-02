@@ -1,3 +1,7 @@
+02.01.2018 Version 0.0.20
+User login logout feature is added.
+
+
 31.12.2017 Version 0.0.19
 Minor bug in process modal is fixed.
 Prevention to delete revision if it is used in pipelines is added.

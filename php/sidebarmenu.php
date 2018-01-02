@@ -1,7 +1,35 @@
 <!-- sidebar menu: : style can be found in sidebar.less -->
+<!--        Control Sidebar-->
+<div class=" dropdown messages-menu ">
+
+    <button type="button" id="newPipeline" class="btn btn-default btn-warning" name="button" onclick="newPipeline()" data-backdrop="false" style=" margin-left:15px;">
+              <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
+                  <span class="glyphicon-stack">
+                    <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
+                      <i class="fa fa-spinner glyphicon-stack-1x" style="color:white;"></i>
+                  </span>
+              </a>
+            </button>
+    <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal" name="button" data-target="#addProcessModal" data-backdrop="false" style=" margin-left:0px;">
+              <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Process">
+                  <span class="glyphicon-stack">
+                    <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
+                      <i class="fa fa-circle-o glyphicon-stack-1x" style="color:white;"></i>
+                  </span>
+              </a>
+            </button>
+</div>
+
+
 <?php
 require_once("config/config.php");
+
+    session_start();
+$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+
 class dbfuncs {
+    
+
 
     private $dbhost = DBHOST;
     private $db = DB;
@@ -53,36 +81,36 @@ class dbfuncs {
      }
      return json_encode($data);
    }
-      public function getParentSideBar()
+      public function getParentSideBar($ownerID)
    {
-     $sql= "SELECT DISTINCT group_name name, id FROM process_group";
+     $sql= "SELECT DISTINCT group_name name, id FROM process_group where owner_id='$ownerID'";
      return self::queryTable($sql);
    }
     
-     public function getPipelineSideBar()
+     public function getPipelineSideBar($ownerID)
    {
-     $sql= "SELECT name, id FROM biocorepipe_save";
+     $sql= "SELECT name, id FROM biocorepipe_save where owner_id='$ownerID' ";
      return self::queryTable($sql);
    }
    
-   function getSubMenuFromSideBar($parent)
+   function getSubMenuFromSideBar($parent, $ownerID)
    {
 //      $sql="SELECT DISTINCT p.id, p.name from process p, process_group pg where p.process_group_id = pg.id and pg.group_name='$parent'";
 //      return self::queryTable($sql); 
-       $sql="SELECT p.id, p.name
+       $sql="SELECT p.id, p.name, p.owner_id
              FROM process p
              INNER JOIN process_group pg 
-             ON p.process_group_id = pg.id and pg.group_name='$parent' 
+             ON p.process_group_id = pg.id and pg.group_name='$parent' and pg.owner_id='$ownerID' 
              INNER JOIN (
-                SELECT name, process_gid, MAX(rev_id) rev_id
+                SELECT name, process_gid, owner_id, MAX(rev_id) rev_id
                 FROM process 
                 GROUP BY process_gid
-                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid";
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and b.owner_id='$ownerID' ";
       return self::queryTable($sql);
    }
 }
 
-function getSideMenuItem($obj )
+function getSideMenuItem($obj)
 {
 $html="";
 foreach ($obj as $item):
@@ -91,7 +119,7 @@ endforeach;
 return $html;
 }
 
-function getSideMenuPipelineItem($obj )
+function getSideMenuPipelineItem($obj)
 {
 $html="";
 foreach ($obj as $item):
@@ -103,8 +131,8 @@ return $html;
 
 $query = new dbfuncs();
 
-$parentMenus = json_decode($query->getParentSideBar());
-$pipelinesMenu = json_decode($query->getPipelineSideBar());
+$parentMenus = json_decode($query->getParentSideBar($ownerID));
+$pipelinesMenu = json_decode($query->getPipelineSideBar($ownerID));
 
 
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
@@ -112,7 +140,7 @@ $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
   
 
 $menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span><i class="fa fa-angle-left pull-right"></i></a><ul id="allPipelines" class="treeview-menu">';    
-    $items = json_decode($query->getPipelineSideBar($pipelinesMenu->{'name'}));
+    $items = json_decode($query->getPipelineSideBar($ownerID));
     $menuhtml.= getSideMenuPipelineItem($items);
     $menuhtml.='</ul>';
     $menuhtml.='</li>';
@@ -129,7 +157,7 @@ foreach ($parentMenus as $parentitem):
 
     $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>'.$parentitem->{'name'}.'</span>';
     
-    $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'name'}));
+    $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'name'}, $ownerID));
 
     $menuhtml.='<i class="fa fa-angle-left pull-right"></i></a>';
     $menuhtml.='<ul id="side-'.$parentitem->{'id'}.'" class="treeview-menu">';
@@ -138,6 +166,7 @@ foreach ($parentMenus as $parentitem):
     $menuhtml.='</li>';
 endforeach;
 $menuhtml.='                    <ul>';
+
 echo $menuhtml;
 
 ?> 
