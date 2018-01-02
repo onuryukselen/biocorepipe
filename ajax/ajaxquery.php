@@ -10,10 +10,7 @@ $db = new dbfuncs();
 session_start();
 $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : "";
-//$session_name = isset($_SESSION['name']) ? $_SESSION['name'] : "";
 $google_id = isset($_SESSION['google_id']) ? $_SESSION['google_id'] : "";
-//$email = isset($_SESSION['email']) ? $_SESSION['email'] : "";
-//$google_image = isset($_SESSION['google_image']) ? $_SESSION['google_image'] : "";
 
 
 $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";

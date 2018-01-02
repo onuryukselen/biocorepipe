@@ -94,39 +94,32 @@ class dbfuncs {
         $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = $id";
         return self::runSQL($sql);
     }
-
-
     
 //    ------------- Parameters ------------
     
     public function getAllParameters($ownerID) {
-//        $data = array();
-//        $time = "";
-//        if (!empty($start)) {
-//            $time = "WHERE date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
-//        }
-        $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = $ownerID";
+        $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = $ownerID OR perms = 63";
         return self::queryTable($sql);
     }
 
     public function insertParameter($name, $qualifier, $file_type, $ownerID) {
-        $sql = "INSERT INTO parameter(name, qualifier, file_type, owner_id, date_created, date_modified, last_modified_user) VALUES 
-			('$name', '$qualifier', '$file_type', '$ownerID', now(), now(), '".$this->last_modified_user."')";
+        $sql = "INSERT INTO parameter(name, qualifier, file_type, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$qualifier', '$file_type', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
 
     public function updateParameter($id, $name, $qualifier, $file_type, $ownerID) {
-        $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='".$this->last_modified_user."', file_type='$file_type', owner_id='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='$ownerID', file_type='$file_type'  WHERE id = $id";
         return self::runSQL($sql);
     }
     
     public function insertProcessGroup($group_name, $ownerID) {
-        $sql = "INSERT INTO process_group (owner_id, group_name, date_created, date_modified, last_modified_user) VALUES ('$ownerID', '$group_name', now(), now(), '".$this->last_modified_user."')";
+        $sql = "INSERT INTO process_group (owner_id, group_name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$group_name', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
 
     public function updateProcessGroup($id, $group_name, $ownerID) {
-        $sql = "UPDATE process_group SET group_name='$group_name', owner_id='$ownerID', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
+        $sql = "UPDATE process_group SET group_name='$group_name', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
@@ -143,26 +136,22 @@ class dbfuncs {
     // --------- Process -----------
 
     public function getAllProcesses() {
-//        $time = "";
-//        if (!empty($start)) {
-//            $time = "WHERE date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
-//        }
         $sql = "SELECT id, name, version, script FROM process";
         return self::queryTable($sql);
     }
 
     public function getAllProcessGroups($ownerID) {
-        $sql = "SELECT id, group_name FROM process_group WHERE owner_id = $ownerID";
+        $sql = "SELECT id, group_name FROM process_group WHERE owner_id = $ownerID OR perms = 63";
         return self::queryTable($sql);
     }
     
     public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID) {
-        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$rev_id','$rev_comment', '$ownerID', now(), now(), '".$this->last_modified_user."')";
+        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$rev_id','$rev_comment', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
 
     public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID) {
-        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user = '".$this->last_modified_user."'  WHERE id = $id";
+        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user = '$ownerID'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
@@ -196,13 +185,13 @@ class dbfuncs {
  
 
     public function insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "INSERT INTO process_parameter(name, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user) 
-                VALUES ('$name', '$process_id', '$parameter_id', '$type', '$ownerID', now(), now(), '".$this->last_modified_user."')";
+        $sql = "INSERT INTO process_parameter(name, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$name', '$process_id', '$parameter_id', '$type', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
     
     public function updateProcessParameter($id, $name, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='".$this->last_modified_user."'  WHERE id = $id";
+        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = $id";
         return self::runSQL($sql);
     }
 
@@ -268,9 +257,9 @@ class dbfuncs {
 // --------- New Pipeline -----------
 
 	public function getProcessData($id, $ownerID) {
-		$where = " where owner_id = $ownerID"; 
+		$where = " where owner_id = $ownerID OR perms = 63"; 
 		if ($id != ""){
-			$where = " where id = $id AND owner_id = $ownerID";
+			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
 		}
 		$sql = "SELECT id, process_group_id, name, version, summary, script FROM process $where";
 		return self::queryTable($sql);
@@ -289,7 +278,7 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
 	public function checkPipeline($process_id,$process_name, $ownerID) {
-		$sql = "SELECT id, name FROM biocorepipe_save WHERE owner_id = $ownerID AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
+		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = $ownerID OR perms = 63) AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
 		return self::queryTable($sql);
 	}
     public function getMaxProcess_gid() {
@@ -310,7 +299,7 @@ class dbfuncs {
 	}
 	
 	public function getParametersData($ownerID) {
-		$sql = "SELECT * FROM parameter WHERE owner_id = $ownerID";
+		$sql = "SELECT * FROM parameter WHERE owner_id = $ownerID OR perms = 63";
 		return self::queryTable($sql);
 	}
 	
@@ -327,13 +316,13 @@ class dbfuncs {
 			$sql = "UPDATE biocorepipe_save set edges = '".$edges."',
 			    mainG = '".$mainG."', nodes ='".$nodes."' where id = $id";
 		}else{
-		$sql = "INSERT INTO biocorepipe_save(owner_id, edges, mainG, nodes, name)
-				VALUES ('".$ownerID."', '".$edges."', '".$mainG."', '".$nodes."', '".$name."')";
+		$sql = "INSERT INTO biocorepipe_save(owner_id, edges, mainG, nodes, name, perms)
+				VALUES ('$ownerID', '$edges', '$mainG', '$nodes', '$name', 3)";
 		}
   		return self::insTable($sql);
 	}
 	public function getSavedPipelines($ownerID) {
-		$sql = "select id, name from biocorepipe_save WHERE owner_id = $ownerID";
+		$sql = "select id, name from biocorepipe_save WHERE owner_id = $ownerID OR perms = 63";
 		return self::queryTable($sql);
 	}
 	

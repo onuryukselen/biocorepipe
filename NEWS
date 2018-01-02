@@ -1,3 +1,8 @@
+02.01.2018 Version 0.0.21
+Nextflow publishdir definition is updated.
+Permissions are defined for users and everyone.
+Database is updated to change permissions.
+
 02.01.2018 Version 0.0.20
 User login logout feature is added.
 
