@@ -693,7 +693,7 @@
 	  }
 
 	  function remove(delID) {
-          if (delID !== undefined) {
+	      if (delID !== undefined) {
 	          deleteID = delID;
 	      }
 	      if (!binding) {
@@ -715,7 +715,7 @@
 	          d3.select("#" + g).remove()
 	          delete processList[g]
 	          removeLines(g)
-	          cancelRemove()
+//	          cancelRemove()
 	      }
 	  }
 
@@ -1152,8 +1152,7 @@
 	      if (!edges.searchFor(secondParamId)) {
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
-
-	      cancelRemove()
+//	      cancelRemove()
 	  }
 
 	  function delMouseOver() {
@@ -1175,71 +1174,12 @@
 	  }
 
 	  function rename() {
-	      renameTextID = this.id
-	      text = d3.select("#" + this.id).attr('name')
-	      body = document.body
-	      bodyW = body.offsetWidth
-	      bodyH = body.scrollHeight
-
-	      d3.select("#container").append('div')
-	          .attr('id', 'rename')
-	          .style('position', 'absolute')
-	          .style('top', 0)
-	          .style('left', 0)
-	          .style("width", bodyW + "px")
-	          .style("height", bodyH + "px")
-	          .style("background-color", "gray")
-	          .style("opacity", 0.8)
-	          .on("mousedown", cancelRename)
-
-	      d3.select("#container").append('div')
-	          .attr('id', 'renameContainer')
-	          .style('position', 'absolute')
-	          .style('top', 100 + "px")
-	          .style('left', 300 + "px")
-	          .style("width", "500px")
-	          .style("height", "200px")
-	          .style("background-color", "white")
-	          .style("opacity", 1)
-
-	      d3.select("#renameContainer").append("div")
-	          .attr("id", "renameInputContainer")
-	          .attr("class", "col-md-12")
-	          .append("div")
-	          .attr("class", "col-md-3")
-
-	      d3.select("#renameInputContainer").append("div")
-	          .attr("class", "col-md-6")
-	          .append("input")
-	          .attr("id", "renameInput")
-	          .attr("class", "form-control")
-	          .attr("value", text)
-	          .style("margin-top", "40px")
-	          .on('keyup', function (e) {
-	              if (event.keyCode == 13) {
-	                  changeName()
-	              }
-	          });
-
-	      d3.select("#renameInputContainer").append("div")
-	          .attr("id", "renameButtonContainer")
-	          .attr("class", "col-md-12")
-	          .append("div")
-	          .attr("class", "col-md-6")
-	          .append("button")
-	          .attr("class", "form-control btn-info")
-	          .attr("onclick", "cancelRename()")
-	          .style("margin-top", "40px")
-	          .text("Cancel")
-
-	      d3.select("#renameButtonContainer")
-	          .append("div")
-	          .attr("class", "col-md-6")
-	          .append("button")
-	          .attr("class", "form-control btn-success")
-	          .attr("onclick", "changeName()")
-	          .style("margin-top", "40px")
-	          .text("Submit")
+	      renameTextID = this.id;
+	      renameText = d3.select("#" + this.id).attr('name');
+	      body = document.body;
+	      bodyW = body.offsetWidth;
+	      bodyH = body.scrollHeight;
+	      $('#renameModal').modal("show");
 	  }
 
 	  function truncateName(name, type) {
@@ -1257,26 +1197,22 @@
 	  }
 
 	  function changeName() {
-	      newName = document.getElementById("renameInput").value
+	      newName = document.getElementById("mRenName").value
 	      d3.select("#" + renameTextID).attr('name', newName)
 	      newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
 	      d3.select("#" + renameTextID).text(newNameShow)
 
 	      //update pipeline details table
 	      proType = $('#' + renameTextID).parent().attr('class').split('-')[1];
-          var gNumP =renameTextID.split('-')[1]; 
-	       $('span[id="proGName-' + gNumP + '\"]').text(newName);
-          
+	      var gNumP = renameTextID.split('-')[1];
+	      $('span[id="proGName-' + gNumP + '\"]').text(newName);
 	      if (proType === 'inPro') {
-              $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+	          $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
 	      } else if (proType === 'outPro') {
 	          $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
 	      }
-
-
 	      processList[document.getElementById(renameTextID).parentElement.id] = newName
 	      document.getElementById(renameTextID).parentElement.id
-	      cancelRename()
 	  }
 
 
@@ -1291,92 +1227,93 @@
 	      if (delID !== undefined) {
 	          deleteID = delID;
 	      } else {
-          deleteID = this.id; 
-          }
+	          deleteID = this.id;
+	      }
 	      body = document.body
 	      bodyW = body.offsetWidth
 	      bodyH = body.offsetHeight
 
 	      if (!binding) {
+	      $('#confirmD3Modal').modal("show");
 
-	          d3.select("#container").append('div')
-	              .attr('id', 'removeElement')
-	              .style('position', 'absolute')
-	              .style('top', 0)
-	              .style('left', 0)
-	              .style("width", bodyW + "px")
-	              .style("height", bodyH + "px")
-	              .style("background-color", "gray")
-	              .style("opacity", 0.8)
-	              .on("mousedown", cancelRemove)
-
-	          d3.select("#container").append('div')
-	              .attr('id', 'removeElementCont')
-	              .style('position', 'absolute')
-	              .style('top', 100 + "px")
-	              .style('left', 300 + "px")
-	              .style("width", "500px")
-	              .style("height", "200px")
-	              .style("background-color", "white")
-	              .style("opacity", 1)
-
-	          d3.select("#removeElementCont").append("div")
-	              .attr("id", "removeTextCont")
-	              .attr("class", "col-md-12")
-	              .append("div")
-	              .attr("class", "col-md-3")
-
-	          d3.select("#removeTextCont").append("div")
-	              .attr("class", "col-md-6")
-	              .style("margin-top", "40px")
-	              .style("text-align", "center")
-	              .append("text")
-	              .attr("id", "warning")
-	              .text("Are you sure you want to delete?")
-
-	          d3.select("#removeTextCont").append("div")
-	              .attr("id", "removeButtonContainer")
-	              .attr("class", "col-md-12")
-	              .append("div")
-	              .attr("class", "col-md-6")
-	              .append("button")
-	              .attr("class", "form-control btn-info")
-	              .attr("onclick", "cancelRemove()")
-	              .style("margin-top", "40px")
-	              .text("No")
-	          if (deleteID.split("_").length == 2) {
-	              d3.select("#removeButtonContainer")
-	                  .append("div")
-	                  .attr("class", "col-md-6")
-	                  .append("button")
-	                  .attr("class", "form-control btn-success")
-	                  .attr("onclick", "removeEdge()")
-	                  .style("margin-top", "40px")
-	                  .text("Yes")
-	          } else if (deleteID.split("_").length == 1) {
-	              d3.select("#removeButtonContainer")
-	                  .append("div")
-	                  .attr("class", "col-md-6")
-	                  .append("button")
-	                  .attr("class", "form-control btn-success")
-	                  .attr("onclick", "remove()")
-	                  .style("margin-top", "40px")
-	                  .text("Yes")
-	          }
+//	          d3.select("#container").append('div')
+//	              .attr('id', 'removeElement')
+//	              .style('position', 'absolute')
+//	              .style('top', 0)
+//	              .style('left', 0)
+//	              .style("width", bodyW + "px")
+//	              .style("height", bodyH + "px")
+//	              .style("background-color", "gray")
+//	              .style("opacity", 0.8)
+//	              .on("mousedown", cancelRemove)
+//
+//	          d3.select("#container").append('div')
+//	              .attr('id', 'removeElementCont')
+//	              .style('position', 'absolute')
+//	              .style('top', 100 + "px")
+//	              .style('left', 300 + "px")
+//	              .style("width", "500px")
+//	              .style("height", "200px")
+//	              .style("background-color", "white")
+//	              .style("opacity", 1)
+//
+//	          d3.select("#removeElementCont").append("div")
+//	              .attr("id", "removeTextCont")
+//	              .attr("class", "col-md-12")
+//	              .append("div")
+//	              .attr("class", "col-md-3")
+//
+//	          d3.select("#removeTextCont").append("div")
+//	              .attr("class", "col-md-6")
+//	              .style("margin-top", "40px")
+//	              .style("text-align", "center")
+//	              .append("text")
+//	              .attr("id", "warning")
+//	              .text("Are you sure you want to delete?")
+//
+//	          d3.select("#removeTextCont").append("div")
+//	              .attr("id", "removeButtonContainer")
+//	              .attr("class", "col-md-12")
+//	              .append("div")
+//	              .attr("class", "col-md-6")
+//	              .append("button")
+//	              .attr("class", "form-control btn-info")
+//	              .attr("onclick", "cancelRemove()")
+//	              .style("margin-top", "40px")
+//	              .text("No")
+//	          if (deleteID.split("_").length == 2) {
+//	              d3.select("#removeButtonContainer")
+//	                  .append("div")
+//	                  .attr("class", "col-md-6")
+//	                  .append("button")
+//	                  .attr("class", "form-control btn-success")
+//	                  .attr("onclick", "removeEdge()")
+//	                  .style("margin-top", "40px")
+//	                  .text("Yes")
+//	          } else if (deleteID.split("_").length == 1) {
+//	              d3.select("#removeButtonContainer")
+//	                  .append("div")
+//	                  .attr("class", "col-md-6")
+//	                  .append("button")
+//	                  .attr("class", "form-control btn-success")
+//	                  .attr("onclick", "remove()")
+//	                  .style("margin-top", "40px")
+//	                  .text("Yes")
+//	          }
 	      }
 	  }
 
-	  function cancelRemove() {
-	      d3.select("#removeElement").remove()
-	      d3.select("#removeElementCont").remove()
+//	  function cancelRemove() {
+//	      d3.select("#removeElement").remove()
+//	      d3.select("#removeElementCont").remove()
+//
+//	  }
 
-	  }
-
-	  function cancelRename() {
-	      d3.select("#renameContainer").remove()
-	      d3.select("#rename").remove()
-
-	  }
+	  //	  function cancelRename() {
+	  //	      d3.select("#renameContainer").remove()
+	  //	      d3.select("#rename").remove()
+	  //
+	  //	  }
 	  //nextflow variable must not contain "-", replaced by "_"
 	  function gFormat(gText) {
 	      gPatt = /(.*)-(.*)/
@@ -1503,7 +1440,7 @@
 	                          return el.id == fNode.split("-")[3]
 	                      })[0].file_type
 	                      tempText = "\tif \(filename =~ /^" + outputName + "$/\) filename\n"
-                          // if (filename =~ /^path.8.fastq$/) filename 
+	                      // if (filename =~ /^path.8.fastq$/) filename 
 	                      oText = oText + tempText
 	                      //break
 	                  } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
@@ -1537,13 +1474,13 @@
 	          "process_id": id
 	      })
 	      script = processData[0].script
-          var lastLetter = script.length - 1;
-            if (script[0] === '"' && script[lastLetter] === '"') {
-             script = script.substring(1, script.length - 1); //remove first and last duble quote
-          }
-          
-          
-          
+	      var lastLetter = script.length - 1;
+	      if (script[0] === '"' && script[lastLetter] === '"') {
+	          script = script.substring(1, script.length - 1); //remove first and last duble quote
+	      }
+
+
+
 	      bodyInput = ""
 	      bodyOutput = ""
 	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]

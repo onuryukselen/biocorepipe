@@ -1373,8 +1373,30 @@ $(document).ready(function () {
             }
         });
     });
-
-
+//xxx
+    // process group modal 
+    $('#renameModal').on('show.bs.modal', function (event) {
+        $('#renameModaltitle').html('Change Name');
+        $('#mRenName').val(renameText);
+    });
+    $('#renameModal').on('click', '#renameProPara', function (event) {
+        changeName();
+	    $('#renameModal').modal("hide");
+    });
+    
+    // Delete process d3 modal 
+    $('#confirmD3Modal').on('show.bs.modal', function (event) {
+        $('#confirmD3ModalText').html('Are you sure you want to delete?');
+        
+    });
+    $('#confirmD3Modal').on('click', '#deleteD3Btn', function (event) {
+        if (deleteID.split("_").length == 2) {
+            removeEdge();
+        } else if (deleteID.split("_").length == 1){
+            remove();
+        } 
+	    $('#confirmD3Modal').modal("hide");
+    });
 
 
     // process group modal 
@@ -1413,7 +1435,7 @@ $(document).ready(function () {
                     alert("Error: " + errorThrown);
                 }
             });
-        }
+        } 
     });
 
     //process group modal save button

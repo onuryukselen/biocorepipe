@@ -391,6 +391,42 @@
     </div>
 </div>
 <!-- Process Group Modal Ends-->
+
+<!-- Rename Modal Starts-->
+<div id="renameModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="renameModaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mRenameID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mRenameID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="md3Name" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mRenName" name="d3_name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="renameProPara" data-clickedrow="">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Process Group Modal Ends-->
+
+
+
 <!--Confirm Modal-->
 
 <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
@@ -404,6 +440,24 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="deleteBtn">Delete</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButton">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->
+
+<!--Confirm d3 Modal-->
+<div id="confirmD3Modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmD3ModalTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmD3ModalText">Text</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="deleteD3Btn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
             </div>
         </div>
     </div>
