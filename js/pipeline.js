@@ -37,7 +37,6 @@
 	      var svgGlobal = pt.matrixTransform(svgA.getScreenCTM().inverse())
 	      posX = svgGlobal.x - 50
 	      posY = svgGlobal.y - 70
-
 	      addProcess(processDat, posX, posY)
 	      event.stopPropagation();
 	      return false;
@@ -498,9 +497,9 @@
 	              .attr("class", "info-" + id)
 	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
-	              .attr("x", 0)
+	              .attr("x", -6)
 	              .attr("y", -1 * (r + ior / 2 - 10))
-	              .text('\uf129')
+	              .text('\uf013')
 	              .style("opacity", 0.2)
 	              .on("mousedown", getInfo)
 
@@ -693,7 +692,10 @@
 	      showEdges()
 	  }
 
-	  function remove() {
+	  function remove(delID) {
+          if (delID !== undefined) {
+	          deleteID = delID;
+	      }
 	      if (!binding) {
 	          g = document.getElementById(deleteID).parentElement.id //g-5
 
@@ -1242,7 +1244,7 @@
 
 	  function truncateName(name, type) {
 	      if (type === 'inOut') {
-	          var letterLimit = 8;
+	          var letterLimit = 7;
 	      } else if (type === 'process') {
 	          var letterLimit = 12;
 	      } else if (type === 'processTable') {
@@ -1279,20 +1281,18 @@
 
 
 	  function getInfo() {
-	      className = document.getElementById(this.id).className.baseVal.split("-")
-	      infoID = className[1]
+	      className = document.getElementById(this.id).className.baseVal.split("-");
+	      gNumInfo = this.id.split("-")[1];
+	      infoID = className[1];
 	      $('#addProcessModal').modal("show");
-	      //document.getElementById('id01').style.display='block'
-	      //			inputTable = getInputTable(infoID)
-	      //          outputTable = getOutputTable(infoID)
-	      //			var processInfo= getValues(  {p: "getProcessData", "process_id": infoID} )
-	      //			document.getElementById("process_name").innerHTML = processInfo[0].name
-	      //			document.getElementById("process_summary").innerHTML = processInfo[0].summary
-	      //			document.getElementById("process_script").innerHTML = "<pre><code>" + processInfo[0].script + "</code></pre>"
 	  }
 
-	  function removeElement() {
-	      deleteID = this.id
+	  function removeElement(delID) {
+	      if (delID !== undefined) {
+	          deleteID = delID;
+	      } else {
+          deleteID = this.id; 
+          }
 	      body = document.body
 	      bodyW = body.offsetWidth
 	      bodyH = body.offsetHeight
@@ -1884,9 +1884,9 @@
 	              .attr("class", "info-" + id)
 	              .attr('font-family', "FontAwesome, sans-serif")
 	              .attr('font-size', '1em')
-	              .attr("x", 0)
+	              .attr("x", -6)
 	              .attr("y", -1 * (r + ior / 2 - 10))
-	              .text('\uf129')
+	              .text('\uf013')
 	              .style("opacity", 0.2)
 	              .on("mousedown", getInfo)
 	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number

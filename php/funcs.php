@@ -26,6 +26,9 @@ function getPage($np)
 function getJS($np)
 {
   $js = "<script src=\"js/jsfuncs.js\"></script>";
+//  $js .= "<script src=\"js/process2.js\"></script>";
+
+    
 //  if ($np==1){$js .= "<script src=\"js/parameters.js\"></script>";}
 //  else if ($np==2){$js .= "<script src=\"js/process.js\"></script>"; }
 //  else if ($np==3){
