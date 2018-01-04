@@ -193,7 +193,6 @@
                     include("php/funcs.php");
                     include("php/sidebarmenu.php");
                 }
-
                 
 
                 ?>
@@ -217,12 +216,12 @@
             </section>
 
             <!-- Main content -->
-            <section class="content">
+            <section  class="content">
                 <div class="row">
                     <div class="box">
 
                         <!--/.box-header -->
-                        <div class="box-body table-responsive" style=" overflow-y:scroll;">
+                        <div class="box-body table-responsive" style="overflow-y:scroll;">
                             
                             <?php print getPage($np); 
                             

@@ -20,28 +20,42 @@
 </style>
 
 <div class="box-header" style=" padding-top:0px; font-size:large; ">
-                <div style=" border-bottom:1px solid lightgrey;">   
-                <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i>
-                Pipeline:
-                <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span>
-                <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
+    <div style=" border-bottom:1px solid lightgrey;">
+        <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i> Pipeline:
+        <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span></input>
+        <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
                         <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
-                <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
+        <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
                         <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
-                <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
+        <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
                         <i class="glyphicon glyphicon-save"></i></a></button>
-                <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
+        <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
                         <i class="glyphicon glyphicon-trash"></i></a></button>
-                        </i>
-                    </i>
-                </i>
-                </input>
+        </i>
+        </i>
+        </i>
+        <div id="pipeActionsDiv" style="float:right; margin-right:5px;" class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
+            <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
+                <li><a id="deletePipeRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
+            </ul>
+        </div>
+        <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" id="pipeRun" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;">Run</button>
+
+        </div>
+
+        <div id="mPipeRevSpan" style="margin-right:5px; width:130px; float:right;">
+            <select id="mPipeRev" class="fbtn btn-default form-control mPipeChange" prev="-1" name="pipeline_rev_id"></select>
+        </div>
+
+
     </div>
-            </div>
+</div>
 
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px;" id="desPipeline">
     <div class="row" id="creatorInfo" style="font-size:12px;"> Created by admin on Jan. 26, 2016 04:12 • Last edited by admin on Feb. 8, 2017 12:15</div>
@@ -93,6 +107,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Given Name</th>
+                            <th scope="col">Given Name</th>
                             <th scope="col">Identifier</th>
                             <th scope="col">File Type</th>
                             <th scope="col">Qualifier</th>
@@ -136,8 +151,8 @@
                     <button class="btn btn-default dropdown-toggle" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li><a id="deleteRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
-                    </ul> 
-                </div >
+                    </ul>
+                </div>
                 <span id="mProRevSpan" style="margin-right:5px; width:130px; float:right; display:none;">
                 <select id="mProRev" class="fbtn btn-default form-control mRevChange" prev="-1" name="process_rev_id"></select>
                     </span>
@@ -246,11 +261,12 @@
                 </form>
             </div>
             <div class="modal-footer">
-<!--                <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>-->
+                <!--                <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>-->
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary"  id="saveprocess"   >Save changes</button>
-<!--               data-backdrop="false" data-toggle="modal" data-target="#mConfirmYesNo"-->
-                
+                <button type="button" class="btn btn-primary" id="saveprocess">Save changes</button>
+                <button type="button" class="btn btn-primary" style="display:none" id="selectProcess">Select Revision</button>
+                <!--               data-backdrop="false" data-toggle="modal" data-target="#mConfirmYesNo"-->
+
             </div>
         </div>
     </div>
@@ -375,6 +391,42 @@
     </div>
 </div>
 <!-- Process Group Modal Ends-->
+
+<!-- Rename Modal Starts-->
+<div id="renameModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="renameModaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mRenameID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mRenameID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="md3Name" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mRenName" name="d3_name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="renameProPara" data-clickedrow="">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Process Group Modal Ends-->
+
+
+
 <!--Confirm Modal-->
 
 <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
@@ -394,6 +446,24 @@
 </div>
 <!--Confirm Modal Ends-->
 
+<!--Confirm d3 Modal-->
+<div id="confirmD3Modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmD3ModalTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmD3ModalText">Text</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="deleteD3Btn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->
+
 <div id="confirmRevision" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -401,9 +471,9 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="confirmYesNoTitle">Confirm revision</h4>
             </div>
-            <div class="modal-body" >
-               <span id="confirmYesNoText">Text</span>
-               </br>
+            <div class="modal-body">
+                <span id="confirmYesNoText">Text</span>
+                </br>
                 <form class="form-horizontal">
                     <div class="form-group">
                         <label for="mRevComment" class="col-sm-2 control-label">Comment</label>
@@ -414,8 +484,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
-                <button type="button" class="btn btn-primary"  id="saveRev">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveRev">Save</button>
             </div>
         </div>
     </div>
@@ -427,14 +497,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" >Information</h4>
+                <h4 class="modal-title">Information</h4>
             </div>
-            <div class="modal-body" >
-               <span id="warnDelText">Text</span>
-               </br>
+            <div class="modal-body">
+                <span id="warnDelText">Text</span>
+                </br>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" >OK</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
             </div>
         </div>
     </div>

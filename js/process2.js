@@ -1,12 +1,10 @@
-
-
 //ace editor
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/tomorrow");
 editor.getSession().setMode("ace/mode/groovy");
 editor.$blockScrolling = Infinity;
 //template text for editor
-templategroovy = '//groovy example: \n\n bowtie2-build ${genome} genome.index';
+templategroovy = '//groovy example: \n\n println "Hello, World!"';
 templateperl = '#perl example: \n\n#!/usr/bin/perl \n print \'Hi there!\' . \'\\n\';';
 templatepython = '#python example: \n\n#!/usr/bin/python \nx = \'Hello\'  \ny = \'world!\' \nprint "%s - %s" % (x,y)';
 // If template text is not changed or it is blank : set the template text on change
@@ -28,7 +26,6 @@ $(function () {
 
 
 
-infoID = '';
 // cleanProcessModal when modal is closed     
 function cleanProcessModal() {
     $('#mParameters').remove();
@@ -56,16 +53,20 @@ function cleanProcessModal() {
     $('#mName').removeAttr('disabled');
 
 
-    if (infoID > 0) {
-        $('#mIdPro').removeAttr('disabled');
-        $('#mName').removeAttr('disabled');
-        $('#mVersion').removeAttr('disabled');
-        $('#mDescription').removeAttr('disabled');
-        editor.setReadOnly(false);
-        $('#saveprocess').css('display', "inline");
-        infoID = '';
-    }
 }
+
+function cleanInfoModal() {
+    $('#mProRev').removeAttr('info');
+    $('#mName').removeAttr('disabled');
+    $('#mVersion').removeAttr('disabled');
+    $('#mDescription').removeAttr('disabled');
+    $('#selectProcess').removeAttr("gNum");
+    editor.setReadOnly(false);
+    $('#saveprocess').css('display', "inline");
+    $('#selectProcess').css('display', "none");
+
+}
+
 
 function refreshProcessModal(selProId) {
     $(this).find('form').trigger('reset');
@@ -560,13 +561,62 @@ function updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, s
     }
 }
 
+function disableProModal(selProcessId) {
+    var formValues = $('#addProcessModal').find('input, select, textarea');
+    $(formValues[3]).attr('disabled', "disabled");
+    $(formValues[4]).attr('disabled', "disabled");
+    $(formValues[5]).attr('disabled', "disabled");
+    $('#mProcessGroup')[0].selectize.disable();
+    editor.setReadOnly(true);
+    //Ajax for selected process input/outputs
+    var inputs = getValues({
+        p: "getInputs",
+        "process_id": selProcessId
+    });
+    var outputs = getValues({
+        p: "getOutputs",
+        "process_id": selProcessId
+    });
+    for (var i = 0; i < inputs.length; i++) {
+        var numFormIn = i + 1;
+        $('#mInputs-' + numFormIn)[0].selectize.disable();
+        $('#mInName-' + numFormIn).attr('disabled', "disabled");
+        $('#mInNamedel-' + numFormIn).remove()
+    }
+    //
+    var delNumIn = numFormIn + 1;
+    $('#mInputs-' + delNumIn + '-selectized').parent().parent().remove();
+    for (var i = 0; i < outputs.length; i++) {
+        var numFormOut = i + 1;
+        $('#mOutputs-' + numFormOut)[0].selectize.disable();
+        $('#mOutName-' + numFormOut).attr('disabled', "disabled");
+        $('#mOutNamedel-' + numFormOut).remove()
+        //
+    }
+    //
+    var delNumOut = numFormOut + 1;
+    $('#mOutputs-' + delNumOut + '-selectized').parent().parent().remove();
+    $('#mParameters').remove();
+    $('#mProcessGroupAdd').remove();
+    $('#mProcessGroupEdit').remove();
+    $('#mProcessGroupDel').remove();
+    $('#saveprocess').css('display', "none");
+    $('#selectProcess').css('display', "inline");
 
+};
+
+function prepareInfoModal() {
+    $('#processmodaltitle').html('Select Process Revision');
+    $('#mProActionsDiv').css('display', "none");
+    $('#mProRevSpan').css('display', "inline");
+    $('#mProRev').attr('info', "info");
+}
 
 $(document).ready(function () {
 
-    
-    
-    
+
+
+
     //Make modal draggable    
     $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button, span, a' });
 
@@ -616,6 +666,23 @@ $(document).ready(function () {
         resizeForText.call($inputText, event.currentTarget.text);
         openPipeline(selPipelineId);
 
+    });
+
+
+    $("#addProcessModal").on('click', '#selectProcess', function (event) {
+        var gNumInfo = $('#selectProcess').attr("gNum");
+
+        var firstProID = $('#selectProcess').attr("fProID");
+        var lastProID = $('#selectProcess').attr("lastProID");
+        var pName = $('#selectProcess').attr("pName");
+        $('#addProcessModal').modal('hide');
+        if (lastProID && lastProID !== firstProID) {
+            var processDat = pName + '@' + lastProID;
+            remove('del-' + gNumInfo);
+            var xCor = $('#selectProcess').attr("xCoor") -50;
+            var yCor = $('#selectProcess').attr("yCoor") -70;
+            addProcess(processDat, xCor, yCor);
+        }
     });
 
 
@@ -672,18 +739,24 @@ $(document).ready(function () {
 
     $(function () {
         $(document).on('change', '.mRevChange', function (event) {
+            var infoAttr = $(this).attr("info");
             var id = $(this).attr("id");
             var prevParId = $("#" + id).attr("prev");
             var selProId = $("#" + id + " option:selected").val();
-            if (prevParId !== '-1') {
+            if (prevParId !== '-1' && infoAttr === 'info') {
+                refreshProcessModal(selProId);
+                prepareInfoModal();
+                disableProModal(selProId);
+                $('#selectProcess').attr("lastProID", selProId);
+                $('#mProRev').attr('info', "info");
+            } else if (prevParId !== '-1') {
                 refreshProcessModal(selProId);
             }
             $("#" + id).attr("prev", selProId);
-
         })
     });
 
-
+    infoID = '';
     //Add Process Modal
     $('#addProcessModal').on('show.bs.modal', function (event) {
         $(this).find('form').trigger('reset');
@@ -708,76 +781,8 @@ $(document).ready(function () {
         if (button.attr('id') === 'addprocess') {
             $('#processmodaltitle').html('Add New Process');
 
-        } else if (infoID > 0) {
-            $('#processmodaltitle').html('Process Details');
-            $('#mProActionsDiv').css('display', "inline");
-            $('#mProRevSpan').css('display', "inline");
-            var selProcessId = infoID;
-            $('#mIdPro').val(selProcessId);
-            //Ajax for selected process
-            var showProcess = getValues({
-                p: "getProcessData",
-                "process_id": selProcessId
-            })[0];
-            //insert data into form
-            var formValues = $('#addProcessModal').find('input, select, textarea');
-            $(formValues[1]).val(showProcess.id);
-            $(formValues[1]).attr('disabled', "disabled");
-            $(formValues[2]).val(showProcess.name);
-            $(formValues[2]).attr('disabled', "disabled");
-            //$(formValues[2]).val(showProcess.version);
-            //$(formValues[2]).attr('disabled', "disabled");
-            $(formValues[4]).val(showProcess.summary);
-            $(formValues[4]).attr('disabled', "disabled");
-            //            var scriptfromDatabase = JSON.parse(showProcess.script);
-            var scriptfromDatabase = removeDoubleQuote(showProcess.script);
-            editor.setValue(scriptfromDatabase);
-            editor.setReadOnly(true);
-            $('#mProcessGroup')[0].selectize.setValue(showProcess.process_group_id, false);
-            $('#mProcessGroup')[0].selectize.disable();
-            //Ajax for selected process input/outputs
-            var inputs = getValues({
-                p: "getInputs",
-                "process_id": selProcessId
-            });
-            var outputs = getValues({
-                p: "getOutputs",
-                "process_id": selProcessId
-            });
-            for (var i = 0; i < inputs.length; i++) {
-                var numFormIn = i + 1;
-                $('#mInputs-' + numFormIn)[0].selectize.setValue(inputs[i].parameter_id, false);
-                $('#mInputs-' + numFormIn)[0].selectize.disable();
-                $('#mInName-' + numFormIn).val(inputs[i].name);
-                $('#mInName-' + numFormIn).attr('disabled', "disabled");
-                $('#mInNamedel-' + numFormIn).remove()
-
-            }
-
-            var delNumIn = numFormIn + 1;
-            $('#mInputs-' + delNumIn + '-selectized').parent().parent().remove();
-            for (var i = 0; i < outputs.length; i++) {
-                var numFormOut = i + 1;
-                $('#mOutputs-' + numFormOut)[0].selectize.setValue(outputs[i].parameter_id, false);
-                $('#mOutputs-' + numFormOut)[0].selectize.disable();
-
-                $('#mOutName-' + numFormOut).val(outputs[i].name);
-                $('#mOutName-' + numFormOut).attr('disabled', "disabled");
-                $('#mOutNamedel-' + numFormOut).remove()
-
-            }
-
-            var delNumOut = numFormOut + 1;
-            $('#mOutputs-' + delNumOut + '-selectized').parent().parent().remove();
-            $('#mParameters').remove();
-            $('#mProcessGroupAdd').remove();
-            $('#mProcessGroupEdit').remove();
-            $('#mProcessGroupDel').remove();
-            $('#saveprocess').css('display', "none");
-
-        } else { //Edit/Delete Process
+        } else if (button.is('a') === true) { //Edit/Delete Process
             $('#processmodaltitle').html('Edit/Delete Process');
-            //            $('#deleteProcess').css('display', "inline");
             $('#mProActionsDiv').css('display', "inline");
             $('#mProRevSpan').css('display', "inline");
             delProMenuID = button.attr('id');
@@ -786,6 +791,23 @@ $(document).ready(function () {
             var selProcessId = button.attr('id').replace(PattPro, '$2');
             loadModalRevision(selProcessId);
             loadSelectedProcess(selProcessId);
+        } else { //Info Modal 
+            prepareInfoModal();
+            var selProcessId = infoID;
+            $('#selectProcess').attr("fProID", selProcessId);
+            $('#selectProcess').attr("gNum", gNumInfo);
+            var coorProRaw = d3.select("#g-"+gNumInfo)[0][0].attributes.transform.value;
+            var PattCoor = /translate\((.*),(.*)\)/;//417.6,299.6
+            var xProCoor = coorProRaw.replace(PattCoor, '$1');
+            var yProCoor = coorProRaw.replace(PattCoor, '$2');
+            $('#selectProcess').attr("xCoor", xProCoor);
+            $('#selectProcess').attr("yCoor", yProCoor);
+            
+            loadModalRevision(selProcessId);
+            loadSelectedProcess(selProcessId);
+            var pName = $('#mName').val();
+            $('#selectProcess').attr("pName", pName);
+            disableProModal(selProcessId);
 
         }
 
@@ -796,6 +818,8 @@ $(document).ready(function () {
     // Dismiss process modal 
     $('#addProcessModal').on('hide.bs.modal', function (event) {
         cleanProcessModal();
+        cleanInfoModal();
+
     });
 
     // Delete process modal 
@@ -1349,8 +1373,30 @@ $(document).ready(function () {
             }
         });
     });
-
-
+//xxx
+    // process group modal 
+    $('#renameModal').on('show.bs.modal', function (event) {
+        $('#renameModaltitle').html('Change Name');
+        $('#mRenName').val(renameText);
+    });
+    $('#renameModal').on('click', '#renameProPara', function (event) {
+        changeName();
+	    $('#renameModal').modal("hide");
+    });
+    
+    // Delete process d3 modal 
+    $('#confirmD3Modal').on('show.bs.modal', function (event) {
+        $('#confirmD3ModalText').html('Are you sure you want to delete?');
+        
+    });
+    $('#confirmD3Modal').on('click', '#deleteD3Btn', function (event) {
+        if (deleteID.split("_").length == 2) {
+            removeEdge();
+        } else if (deleteID.split("_").length == 1){
+            remove();
+        } 
+	    $('#confirmD3Modal').modal("hide");
+    });
 
 
     // process group modal 
@@ -1389,7 +1435,7 @@ $(document).ready(function () {
                     alert("Error: " + errorThrown);
                 }
             });
-        }
+        } 
     });
 
     //process group modal save button
