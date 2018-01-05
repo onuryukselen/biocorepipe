@@ -141,6 +141,14 @@
         .active a {
             color: #428bca !important;
         }
+/*        table links should appear blue*/
+        #projecttable a  {
+            color: #0570c1;
+        }
+        #projecttable a:hover {
+            color: #428bca !important;
+            text-decoration: underline;
+        }
     </style>
 
 </head>
@@ -167,6 +175,7 @@
                         <?php
                         include("php/funcs.php");
                         $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
+                        $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
                         ?>
                     </ul>
                 </div>
@@ -242,7 +251,7 @@
                         <!--/.box-header -->
                         <div class="box-body table-responsive" style="overflow-y:scroll;">
 
-                            <?php print getPage($np, $login); 
+                            <?php print getPage($np, $login, $id); 
                             
                             ?>
                         </div>
@@ -305,7 +314,7 @@
         <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
-        <?php print getJS($np, $login); ?>
+        <?php print getJS($np, $login, $id); ?>
 </body>
 
 </html>

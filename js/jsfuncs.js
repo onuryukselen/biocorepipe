@@ -154,3 +154,38 @@ function signOut() {
         });
     });
 }
+
+//Adjustable textwidth
+var $inputText = $('input.width-dynamic');
+// Resize based on text if text.length > 0
+// Otherwise resize based on the placeholder
+function resizeForText(text) {
+    var $this = $(this);
+    if (!text.trim()) {
+        text = $this.attr('placeholder').trim();
+    }
+    var $span = $this.parent().find('span');
+    $span.text(text);
+    var $inputSize = $span.width() + 10;
+    if ($inputSize < 50) {
+        $inputSize = 50;
+    }
+    $this.css("width", $inputSize);
+}
+$inputText.keypress(function (e) {
+    if (e.which && e.charCode) {
+        var c = String.fromCharCode(e.keyCode | e.charCode);
+        var $this = $(this);
+        resizeForText.call($this, $this.val() + c);
+    }
+});
+// Backspace event only fires for keyup
+$inputText.keyup(function (e) {
+    if (e.keyCode === 8 || e.keyCode === 46) {
+        resizeForText.call($(this), $(this).val());
+    }
+});
+$inputText.each(function () {
+    var $this = $(this);
+    resizeForText.call($this, $this.val())
+});

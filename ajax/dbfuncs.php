@@ -144,7 +144,7 @@ class dbfuncs {
 		if ($id != ""){
 			$where = " where p.id = $id AND (p.owner_id = $ownerID OR p.perms = 63)";
 		}
-		$sql = "SELECT p.id, p.name, p.date_created, u.username FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
+		$sql = "SELECT p.id, p.name, p.date_created, u.username, p.date_modified FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
 		return self::queryTable($sql);
 
     }
