@@ -139,10 +139,28 @@ class dbfuncs {
         $sql = "SELECT id, name, version, script FROM process";
         return self::queryTable($sql);
     }
+    public function getProjects($id,$ownerID) {
+        $where = " where p.owner_id = $ownerID OR p.perms = 63"; 
+		if ($id != ""){
+			$where = " where p.id = $id AND (p.owner_id = $ownerID OR p.perms = 63)";
+		}
+		$sql = "SELECT p.id, p.name, p.date_created, u.username FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
+		return self::queryTable($sql);
+
+    }
 
     public function getAllProcessGroups($ownerID) {
         $sql = "SELECT id, group_name FROM process_group WHERE owner_id = $ownerID OR perms = 63";
         return self::queryTable($sql);
+    }
+    public function insertProject($name, $ownerID) {
+        $sql = "INSERT INTO project(name, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$ownerID', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
+
+    public function updateProject($id, $name, $ownerID) {
+        $sql = "UPDATE project SET name= '$name', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = $id";
+        return self::runSQL($sql);
     }
     
     public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID) {
@@ -157,6 +175,10 @@ class dbfuncs {
 
     public function removeProcess($id) {
         $sql = "DELETE FROM process WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    public function removeProject($id) {
+        $sql = "DELETE FROM project WHERE id = $id";
         return self::runSQL($sql);
     }
     

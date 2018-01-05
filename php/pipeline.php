@@ -1,13 +1,4 @@
-<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>-->
-<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
-<script src="./dist/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 
-<script src="js/jsfuncs.js"></script>
-
-
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style type="text/css" media="screen">
     #editor {
         height: 300px;
@@ -594,9 +585,3 @@
         </div>
     </div>
 </div>
-
-
-
-
-<script src="js/process2.js"></script>
-<script src="js/pipeline.js"></script>

@@ -6,31 +6,34 @@ function getTitle($np)
 {
   $ret="";
   if ($np==1){$ret = "Pipelines";}
-//  else if ($np==2){$ret = "Processes";}
+  else if ($np==2){$ret = "Projects";}
 //  else if ($np==3){$ret = "Pipelines";}
 //  else if ($np==4){$ret = "New params";}
 //  else if ($np==5){$ret = "New pipelines";}
   return $ret; 
 }
 
-function getPage($np)
+function getPage($np, $login)
 {
-  if ($np==1){include("php/pipeline3.php"); }
-//  else if ($np==2){include("php/processes.php");}
+  if ($np==1 && $login==1){include("php/pipeline.php"); }
+  else if ($np==2 && $login==1){include("php/projects.php");}
 //  else if ($np==3){include("php/pipelines.php");}
 //  else if ($np==4){include("php/newparams.php");}
 //  else if ($np==5){include("php/pipeline3.php");}
   else {include("php/public.php");}
 }
 
-function getJS($np)
+function getJS($np, $login)
 {
   $js = "<script src=\"js/jsfuncs.js\"></script>";
 //  $js .= "<script src=\"js/process2.js\"></script>";
 
     
-//  if ($np==1){$js .= "<script src=\"js/parameters.js\"></script>";}
-//  else if ($np==2){$js .= "<script src=\"js/process.js\"></script>"; }
+  if ($np==1 && $login==1){$js .= "<script src=\"//d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script> 
+  <script src=\"./dist/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+  <script src=\"js/pipelineModal.js\"></script>
+  <script src=\"js/pipelineD3.js\"></script>";}
+  else if ($np==2 && $login==1){$js .= "<script src=\"js/projects.js\"></script>"; }
 //  else if ($np==3){
 //      $js .= "   <script src=\"js/cytoscape.min.js\"></script>
 //            <script src=\"js/cytoscape-cxtmenu.js\"></script>
