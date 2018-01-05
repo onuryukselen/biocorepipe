@@ -9,7 +9,7 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!--   app’s client ID prodcued in the Google Developers Console-->
     <meta name="google-signin-client_id" content="1051324819082-6mjdouf9dhmhv9ov5vvdkdknqrb8tont.apps.googleusercontent.com">
-<!--    google icon-->
+    <!--    google icon-->
     <link rel="icon" type="image/png" href="http://www.w3.org/2000/svg">
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
@@ -34,6 +34,9 @@
     <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     <!-- selectize style -->
     <link rel="stylesheet" href="css/selectize.bootstrap3.css">
+<!--    bigger fonts-->
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -153,7 +156,30 @@
                 <!-- logo for regular state and mobile devices -->
                 <span class="logo-lg"><b>UMassMed</b>Biocore</span>
             </a>
+
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <div class="collapse navbar-collapse pull-left">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.php?np=2">Projects </a></li>
+                        <li><a href="index.php?np=1">Pipelines </a></li>
+                        <!-- <li><a href="#"><i class="fa fa-bell-o"></i></a></li>-->
+                        <?php
+                        include("php/funcs.php");
+                        $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
+                        ?>
+                    </ul>
+                </div>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li><a href="#"><i class="fa fa-gears"></i></a></li>
+                    </ul>
+                </div>
+            </nav>
         </header>
+
+
+
         <!-- Left side column. contains the logo and sidebar -->
         <aside class="main-sidebar">
             <!-- sidebar: style can be found in sidebar.less -->
@@ -185,16 +211,9 @@
                 <?php
                     session_start(); 
                     $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
-                if ($ownerID != ''){
-                    $np = 1;
-                    include("php/funcs.php");
+                    if ($ownerID != ''){$login = 1;} 
+                    else { $login = 0;}
                     include("php/sidebarmenu.php");
-                } else {
-                    include("php/funcs.php");
-                    include("php/sidebarmenu.php");
-                }
-                
-
                 ?>
 
         </aside>
@@ -203,12 +222,12 @@
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    Biocore Pipeline Generation
-                    <small><?php print getTitle($np); ?></small>
+                    Biocore <?php print getTitle($np); ?> Generation
+    
                 </h1>
                 <ol class="breadcrumb">
                     <li><a href=""><i class="fa fa-dashboard"></i> Home</a></li>
-                    <li><a href=""></a>NGS Pipeline</li>
+                    <li><a href=""></a>Biocore</li>
                     <li class="active">
                         <?php print getTitle($np); ?>
                     </li>
@@ -216,14 +235,14 @@
             </section>
 
             <!-- Main content -->
-            <section  class="content">
+            <section class="content">
                 <div class="row">
                     <div class="box">
 
                         <!--/.box-header -->
                         <div class="box-body table-responsive" style="overflow-y:scroll;">
-                            
-                            <?php print getPage($np); 
+
+                            <?php print getPage($np, $login); 
                             
                             ?>
                         </div>
@@ -286,7 +305,7 @@
         <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
-        <?php print getJS($np); ?>
+        <?php print getJS($np, $login); ?>
 </body>
 
 </html>

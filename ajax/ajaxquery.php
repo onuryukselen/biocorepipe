@@ -40,6 +40,9 @@ else if ($p=="getAllParameters"){
 else if ($p=="getAllProcesses"){
     $data = $db -> getAllProcesses();
 }
+else if ($p=="getProjects"){
+    $data = $db -> getProjects($id,$ownerID);
+}
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
 }
@@ -65,6 +68,10 @@ else if ($p=="removeProcess"){
     $db->removeProcessParameterByProcessID($id);
 //    $db->removePipelineProcessByProcessID($id);
 	$data = $db -> removeProcess($id);
+}
+else if ($p=="removeProject"){   
+//xxx remove added pipelines in the project
+    $data = $db -> removeProject($id);
 }
 else if ($p=="removeProcessParameter"){   
 	$data = $db -> removeProcessParameter($id);
@@ -126,6 +133,14 @@ else if ($p=="saveProcess"){
         $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID);
     } else {
         $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID);
+    }
+}
+else if ($p=="saveProject"){
+    $name = $_REQUEST['name'];
+    if (!empty($id)) {
+        $data = $db->updateProject($id, $name, $ownerID);
+    } else {
+        $data = $db->insertProject($name, $ownerID);
     }
 }
 //else if ($p=="savePipelineProcess"){
