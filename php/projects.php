@@ -4,7 +4,7 @@
             <button type="button" class="btn btn-primary btn-sm" title="Add Project" id="addproject" data-toggle="modal" data-target="#projectmodal">Add Project</button>
         </div>
         <div class="pull-left">
-            <h1 class="panel-title">Projects Table</h1>
+            <h5><i class="fa fa-calendar-o " style="margin-left:0px; margin-right:0px;"></i> Projects</h5>
         </div>
     </div>
 
@@ -15,21 +15,12 @@
                     <th>Project Name</th>
                     <th>Owner</th>
                     <th>Created on</th>
-                    <th>Edit/Delete</th>
+                    <th>Edit/Remove</th>
                 </tr>
             </thead>
-            <tfoot>
-                <tr>
-                    <th>Project Name</th>
-                    <th>Owner</th>
-                    <th>Created on</th>
-                    <th>Edit/Delete</th>
-                </tr>
-            </tfoot>
         </table>
     </div>
 </div>
-
 
 <div id="projectmodal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">

@@ -1,7 +1,7 @@
 $(document).ready(function () {
     var selProcessID = null;
     var projectTable = $('#projecttable').DataTable({
-        "scrollY": "400px",
+        "scrollY": "500px",
         "scrollCollapse": true,
         "scrollX": true,
         "ajax": {
@@ -10,7 +10,10 @@ $(document).ready(function () {
             "dataSrc": ""
         },
         "columns": [{
-            "data": "name"
+            "data": "name",
+            "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                $(nTd).html("<a href='index.php?np=2&id=" + oData.id + "'>" + oData.name + "</a>");
+            }
             }, {
             "data": "username"
             }, {
@@ -18,34 +21,10 @@ $(document).ready(function () {
             }, {
             data: null,
             className: "center",
-            defaultContent: getTableButtons("project", SELECT | EDIT | REMOVE)
+            defaultContent: getTableButtons("project", EDIT | REMOVE)
             }]
     });
 
-
-    $('#processtable').on('click', '#projectselect', function () {
-        var clickedRow = $(this).closest('tr');
-
-        //        if (clickedRow.hasClass('selected')) {
-        //            clickedRow.removeClass('selected');
-        //            $("#pdetailpanel").css("display", "none");
-        //        } else {
-        //            processTable.$('tr.selected').removeClass('selected');
-        //            clickedRow.addClass('selected');
-        //
-        //            var rowData = processTable.row(clickedRow).data();
-        //            console.log(rowData)
-        //            $('#pdetailpanelHead').html(rowData['name']);
-        //            $('#pScriptWell').html(rowData['script']);
-        //            selProcessID = rowData['id'];
-        //
-        //            inputTable = getInputTable(selProcessID)
-        //            outputTable = getOutputTable(selProcessID)
-        //
-        //
-        //            $("#pdetailpanel").removeAttr("style");
-        //        }
-    });
 
 
 
@@ -76,7 +55,6 @@ $(document).ready(function () {
         var savetype = $('#mProjectID').val();
         var data = formValues.serializeArray(); // convert form to array
         data.push({ name: "p", value: "saveProject" });
-        console.log(data);
         $.ajax({
             type: "POST",
             url: "ajax/ajaxquery.php",
@@ -101,7 +79,10 @@ $(document).ready(function () {
                                 var key = keys[i].data;
                                 rowData[key] = projectDat[0][key];
                             }
-                            projectTable.row(clickedRow).data(rowData).draw();
+                            rowData.id = projectDat[0].id;
+                            projectTable.row(clickedRow).remove().draw();
+                            projectTable.row.add(rowData).draw();
+
                         },
                         error: function (errorThrown) {
                             alert("Error: " + errorThrown);
@@ -125,6 +106,7 @@ $(document).ready(function () {
                                 var key = keys[i].data;
                                 addData[key] = projectDat[0][key];
                             }
+                            addData.id = projectDat[0].id;
                             projectTable.row.add(addData).draw();
 
                         },
@@ -165,6 +147,6 @@ $(document).ready(function () {
             }
         });
     });
-    
-    
+
+
 });
