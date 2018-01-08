@@ -1,15 +1,13 @@
 <!-- sidebar menu: : style can be found in sidebar.less -->
 <!--        Control Sidebar-->
 <div class=" dropdown messages-menu ">
-
-    <button type="button" id="newPipeline" class="btn btn-default btn-warning" name="button" onclick="newPipeline()" data-backdrop="false" style=" margin-left:15px;">
-              <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
+    <a id="newPipeline" class="btn btn-warning" style=" margin-left:15px;"
+               href="index.php?np=1" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
                   <span class="glyphicon-stack">
                     <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
                       <i class="fa fa-spinner glyphicon-stack-1x" style="color:white;"></i>
                   </span>
               </a>
-            </button>
     <button type="button" id="addprocess" class="btn btn-default btn-success" data-toggle="modal" name="button" data-target="#addProcessModal" data-backdrop="false" style=" margin-left:0px;">
               <a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Process">
                   <span class="glyphicon-stack">
@@ -141,7 +139,7 @@ function getSideMenuPipelineItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }

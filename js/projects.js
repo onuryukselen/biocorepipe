@@ -1,5 +1,4 @@
 $(document).ready(function () {
-    var selProcessID = null;
     var projectTable = $('#projecttable').DataTable({
         "scrollY": "500px",
         "scrollCollapse": true,

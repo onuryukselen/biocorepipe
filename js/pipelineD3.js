@@ -126,7 +126,7 @@
 	  function newPipeline() {
 	      createSVG()
 	      $('#pipeline-title').val('');
-	      $('#pipeline-title').attr('num', '');
+	      $('#pipeline-title').attr('pipelineid', '');
 	      resizeForText.call($inputText, $inputText.attr('placeholder'));
 	  }
 
@@ -136,17 +136,21 @@
 	  }
 
 	  function delPipeline() {
-	      var pipeID = $('#pipeline-title').attr('num');
+	      var pipeID = $('#pipeline-title').attr('pipelineid');
 	      var s = getValues({
 	          p: "removePipelineById",
 	          'id': pipeID
 	      });
-	      $('#' + 'pipeline-' + pipeID).remove();
-	      $('#pipeline-title').val('');
-	      $('#pipeline-title').attr('num', '');
-	      createSVG();
-	      resizeForText.call($inputText, $inputText.attr('placeholder'));
-
+       window.location.replace("index.php?np=1");
+          
+//	      $('#' + 'pipeline-' + pipeID).remove();
+//	      $('#pipeline-title').val('');
+//	      $('#pipeline-title').attr('pipelineid', '');
+//	      createSVG();
+//	      resizeForText.call($inputText, $inputText.attr('placeholder'));
+//          $('#creatorInfoPip').css('display', "none");
+//          $('#pipelineSum').val('');
+          
 	  }
 
 
@@ -331,7 +335,7 @@
 	      var procData = processData.filter(function (el) { return el.id == id });
 	      var procName = procData[0].name;
 	      var procDesc = truncateName(procData[0].summary, 'processTable');
-	      var procRev = procData[0].version;
+	      var procRev = procData[0].rev_id;
 	      var proRow = insertProRowTable(id, procName, procDesc, procRev);
 	      var rowExistPro = '';
 	      var rowExistPro = document.getElementById('procTa-' + id);
@@ -715,7 +719,7 @@
 	          d3.select("#" + g).remove()
 	          delete processList[g]
 	          removeLines(g)
-//	          cancelRemove()
+	          //	          cancelRemove()
 	      }
 	  }
 
@@ -1152,7 +1156,7 @@
 	      if (!edges.searchFor(secondParamId)) {
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
-//	      cancelRemove()
+	      //	      cancelRemove()
 	  }
 
 	  function delMouseOver() {
@@ -1234,80 +1238,80 @@
 	      bodyH = body.offsetHeight
 
 	      if (!binding) {
-	      $('#confirmD3Modal').modal("show");
+	          $('#confirmD3Modal').modal("show");
 
-//	          d3.select("#container").append('div')
-//	              .attr('id', 'removeElement')
-//	              .style('position', 'absolute')
-//	              .style('top', 0)
-//	              .style('left', 0)
-//	              .style("width", bodyW + "px")
-//	              .style("height", bodyH + "px")
-//	              .style("background-color", "gray")
-//	              .style("opacity", 0.8)
-//	              .on("mousedown", cancelRemove)
-//
-//	          d3.select("#container").append('div')
-//	              .attr('id', 'removeElementCont')
-//	              .style('position', 'absolute')
-//	              .style('top', 100 + "px")
-//	              .style('left', 300 + "px")
-//	              .style("width", "500px")
-//	              .style("height", "200px")
-//	              .style("background-color", "white")
-//	              .style("opacity", 1)
-//
-//	          d3.select("#removeElementCont").append("div")
-//	              .attr("id", "removeTextCont")
-//	              .attr("class", "col-md-12")
-//	              .append("div")
-//	              .attr("class", "col-md-3")
-//
-//	          d3.select("#removeTextCont").append("div")
-//	              .attr("class", "col-md-6")
-//	              .style("margin-top", "40px")
-//	              .style("text-align", "center")
-//	              .append("text")
-//	              .attr("id", "warning")
-//	              .text("Are you sure you want to delete?")
-//
-//	          d3.select("#removeTextCont").append("div")
-//	              .attr("id", "removeButtonContainer")
-//	              .attr("class", "col-md-12")
-//	              .append("div")
-//	              .attr("class", "col-md-6")
-//	              .append("button")
-//	              .attr("class", "form-control btn-info")
-//	              .attr("onclick", "cancelRemove()")
-//	              .style("margin-top", "40px")
-//	              .text("No")
-//	          if (deleteID.split("_").length == 2) {
-//	              d3.select("#removeButtonContainer")
-//	                  .append("div")
-//	                  .attr("class", "col-md-6")
-//	                  .append("button")
-//	                  .attr("class", "form-control btn-success")
-//	                  .attr("onclick", "removeEdge()")
-//	                  .style("margin-top", "40px")
-//	                  .text("Yes")
-//	          } else if (deleteID.split("_").length == 1) {
-//	              d3.select("#removeButtonContainer")
-//	                  .append("div")
-//	                  .attr("class", "col-md-6")
-//	                  .append("button")
-//	                  .attr("class", "form-control btn-success")
-//	                  .attr("onclick", "remove()")
-//	                  .style("margin-top", "40px")
-//	                  .text("Yes")
-//	          }
+	          //	          d3.select("#container").append('div')
+	          //	              .attr('id', 'removeElement')
+	          //	              .style('position', 'absolute')
+	          //	              .style('top', 0)
+	          //	              .style('left', 0)
+	          //	              .style("width", bodyW + "px")
+	          //	              .style("height", bodyH + "px")
+	          //	              .style("background-color", "gray")
+	          //	              .style("opacity", 0.8)
+	          //	              .on("mousedown", cancelRemove)
+	          //
+	          //	          d3.select("#container").append('div')
+	          //	              .attr('id', 'removeElementCont')
+	          //	              .style('position', 'absolute')
+	          //	              .style('top', 100 + "px")
+	          //	              .style('left', 300 + "px")
+	          //	              .style("width", "500px")
+	          //	              .style("height", "200px")
+	          //	              .style("background-color", "white")
+	          //	              .style("opacity", 1)
+	          //
+	          //	          d3.select("#removeElementCont").append("div")
+	          //	              .attr("id", "removeTextCont")
+	          //	              .attr("class", "col-md-12")
+	          //	              .append("div")
+	          //	              .attr("class", "col-md-3")
+	          //
+	          //	          d3.select("#removeTextCont").append("div")
+	          //	              .attr("class", "col-md-6")
+	          //	              .style("margin-top", "40px")
+	          //	              .style("text-align", "center")
+	          //	              .append("text")
+	          //	              .attr("id", "warning")
+	          //	              .text("Are you sure you want to delete?")
+	          //
+	          //	          d3.select("#removeTextCont").append("div")
+	          //	              .attr("id", "removeButtonContainer")
+	          //	              .attr("class", "col-md-12")
+	          //	              .append("div")
+	          //	              .attr("class", "col-md-6")
+	          //	              .append("button")
+	          //	              .attr("class", "form-control btn-info")
+	          //	              .attr("onclick", "cancelRemove()")
+	          //	              .style("margin-top", "40px")
+	          //	              .text("No")
+	          //	          if (deleteID.split("_").length == 2) {
+	          //	              d3.select("#removeButtonContainer")
+	          //	                  .append("div")
+	          //	                  .attr("class", "col-md-6")
+	          //	                  .append("button")
+	          //	                  .attr("class", "form-control btn-success")
+	          //	                  .attr("onclick", "removeEdge()")
+	          //	                  .style("margin-top", "40px")
+	          //	                  .text("Yes")
+	          //	          } else if (deleteID.split("_").length == 1) {
+	          //	              d3.select("#removeButtonContainer")
+	          //	                  .append("div")
+	          //	                  .attr("class", "col-md-6")
+	          //	                  .append("button")
+	          //	                  .attr("class", "form-control btn-success")
+	          //	                  .attr("onclick", "remove()")
+	          //	                  .style("margin-top", "40px")
+	          //	                  .text("Yes")
+	          //	          }
 	      }
 	  }
 
-//	  function cancelRemove() {
-//	      d3.select("#removeElement").remove()
-//	      d3.select("#removeElementCont").remove()
-//
-//	  }
+	  //	  function cancelRemove() {
+	  //	      d3.select("#removeElement").remove()
+	  //	      d3.select("#removeElementCont").remove()
+	  //
+	  //	  }
 
 	  //	  function cancelRename() {
 	  //	      d3.select("#renameContainer").remove()
@@ -1578,6 +1582,30 @@
 	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
 	  }
 
+	  function refreshCreatorData(pipeline_id) {
+	      var getPipelineD = [];
+	      getPipelineD.push({ name: "id", value: pipeline_id });
+	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
+          console.log(getPipelineD);
+	      $.ajax({
+	          type: "POST",
+	          url: "ajax/ajaxquery.php",
+	          data: getPipelineD,
+	          async: true,
+	          success: function (s) {
+                  console.log(s);
+	              $('#creatorInfoPip').css('display', "block");
+	              $('#ownUserNamePip').text(s[0].username);
+	              $('#datecreatedPip').text(s[0].date_created);
+	              $('#lasteditedPip').text(s[0].date_modified);
+
+	          },
+	          error: function (errorThrown) {
+	              alert("Error: " + errorThrown);
+	          }
+	      });
+
+	  }
 
 
 	  function save() {
@@ -1596,10 +1624,11 @@
 	          Mainx = Maint.translate[0]
 	      Mainy = Maint.translate[1]
 	      Mainz = Maint.scale[0]
-	      sName = document.getElementById("pipeline-title").value
+	      sName = document.getElementById("pipeline-title").value;
+	      var pipelineSummary = $('#pipelineSum').val();
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
-	          id = $("#pipeline-title").attr('num')
+	          id = $("#pipeline-title").attr('pipelineid')
 	      } else if (sName !== "" && dupliPipe === true) {
 	          id = '';
 	          sName = sName + '-copy'
@@ -1614,20 +1643,24 @@
 	          "nodes": saveNodes
 	      }, saveMainG, {
 	          "edges": edges
+	      }, {
+	          "summary": pipelineSummary
 	      }]
-	      sl = JSON.stringify(savedList)
+	      sl = JSON.stringify(savedList);
 	      if (sName !== "") {
 
 	          var ret = getValues({
 	              p: "saveAllPipeline",
 	              dat: sl
 	          })
+              
 	          //Add new pipeline
-	          if ($("#pipeline-title").attr('num') === '') {
-	              $("#pipeline-title").attr('num', ret.id)
+	          if ($("#pipeline-title").attr('pipelineid') === '') {
+	              $("#pipeline-title").attr('pipelineid', ret.id)
+                  
 	              $('#allPipelines').append('<li><a href="" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
 	          } else if (dupliPipe === true) {
-	              $("#pipeline-title").attr('num', ret.id)
+	              $("#pipeline-title").attr('pipelineid', ret.id)
 	              $("#pipeline-title").val(sName)
 	              resizeForText.call($inputText, sName);
 
@@ -1635,14 +1668,10 @@
 	              dupliPipe = false
 
 	          }
+	          var pipId= $("#pipeline-title").attr('pipelineid');
+	          refreshCreatorData(pipId);
 	      }
-
-
-
-
 	  }
-
-
 
 	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),

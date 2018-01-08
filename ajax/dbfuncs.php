@@ -144,7 +144,20 @@ class dbfuncs {
 		if ($id != ""){
 			$where = " where p.id = $id AND (p.owner_id = $ownerID OR p.perms = 63)";
 		}
-		$sql = "SELECT p.id, p.name, p.date_created, u.username, p.date_modified FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
+		$sql = "SELECT p.id, p.name, p.summary, p.date_created, u.username, p.date_modified FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
+		return self::queryTable($sql);
+
+    }
+    public function getProjectPipelines($id,$project_id,$ownerID) {
+        $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
+		if ($id != ""){
+			$where = " where pp.project_id = $project_id AND pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
+		}
+		$sql = "SELECT pp.id, pip.id as pip_id, pip.name, u.username, pip.summary, pip.date_modified 
+                FROM project_pipeline pp 
+                INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
+                INNER JOIN users u ON pip.owner_id = u.id 
+                $where";
 		return self::queryTable($sql);
 
     }
@@ -153,13 +166,13 @@ class dbfuncs {
         $sql = "SELECT id, group_name FROM process_group WHERE owner_id = $ownerID OR perms = 63";
         return self::queryTable($sql);
     }
-    public function insertProject($name, $ownerID) {
-        $sql = "INSERT INTO project(name, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProject($name, $summary, $ownerID) {
+        $sql = "INSERT INTO project(name, summary, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$summary', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
 
-    public function updateProject($id, $name, $ownerID) {
-        $sql = "UPDATE project SET name= '$name', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = $id";
+    public function updateProject($id, $name, $summary, $ownerID) {
+        $sql = "UPDATE project SET name= '$name', summary= '$summary', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = $id";
         return self::runSQL($sql);
     }
     
@@ -179,6 +192,14 @@ class dbfuncs {
     }
     public function removeProject($id) {
         $sql = "DELETE FROM project WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    public function removeProjectPipeline($id) {
+        $sql = "DELETE FROM project_pipeline WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    public function removeProjectPipelinebyProjectID($id) {
+        $sql = "DELETE FROM project_pipeline WHERE project_id = $id";
         return self::runSQL($sql);
     }
     
@@ -205,6 +226,11 @@ class dbfuncs {
 //        return self::queryTable($sql);
 //    }
  
+    public function insertProjectPipeline($project_id, $pipeline_id, $ownerID) {
+        $sql = "INSERT INTO project_pipeline( project_id, pipeline_id, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$project_id', '$pipeline_id', '$ownerID', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
 
     public function insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID) {
         $sql = "INSERT INTO process_parameter(name, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 
@@ -283,7 +309,7 @@ class dbfuncs {
 		if ($id != ""){
 			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
 		}
-		$sql = "SELECT id, process_group_id, name, version, summary, script FROM process $where";
+		$sql = "SELECT id, process_group_id, name, version, summary, script, rev_id FROM process $where";
 		return self::queryTable($sql);
 	}
     
@@ -327,29 +353,36 @@ class dbfuncs {
 	
 	public function saveAllPipeline($dat,$ownerID) {
 		$obj = json_decode($dat);
-		//$user = "docker";
-		$id = $obj[1]->{"id"};
-		$edges = "{\'edges\':".json_encode($obj[4]->{"edges"})."}";
-		$mainG = "{\'mainG\':".json_encode($obj[3]->{"mainG"})."}";
-		$nodes = json_encode($obj[2]->{"nodes"});
 		$name =  $obj[0]->{"name"};
+        $id = $obj[1]->{"id"};
+		$nodes = json_encode($obj[2]->{"nodes"});
+		$mainG = "{\'mainG\':".json_encode($obj[3]->{"mainG"})."}";
+		$edges = "{\'edges\':".json_encode($obj[4]->{"edges"})."}";
+        $summary = $obj[5]->{"summary"};
+        
 	
 	    if ($id > 0){
-			$sql = "UPDATE biocorepipe_save set edges = '".$edges."',
-			    mainG = '".$mainG."', nodes ='".$nodes."' where id = $id";
+            $sql = "UPDATE biocorepipe_save set edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = $id";
 		}else{
-		$sql = "INSERT INTO biocorepipe_save(owner_id, edges, mainG, nodes, name, perms)
-				VALUES ('$ownerID', '$edges', '$mainG', '$nodes', '$name', 3)";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', now(), now(), '$ownerID', 3)";
 		}
   		return self::insTable($sql);
 	}
+    
+    
 	public function getSavedPipelines($ownerID) {
-		$sql = "select id, name from biocorepipe_save WHERE owner_id = $ownerID OR perms = 63";
+		$sql = "select pip.id, pip.name, pip.summary, pip.date_modified, u.username 
+        FROM biocorepipe_save pip
+        INNER JOIN users u ON pip.owner_id = u.id
+        WHERE pip.owner_id = $ownerID OR pip.perms = 63";
 		return self::queryTable($sql);
 	}
-	
+    
 	public function loadPipeline($id) {
-		$sql = "select * from biocorepipe_save where id = $id";
+		$sql = "select pip.*, u.username
+        FROM biocorepipe_save pip 
+        INNER JOIN users u ON pip.owner_id = u.id
+        where pip.id = $id";
 	   return self::queryTable($sql);
 	}
     public function removePipelineById($id) {

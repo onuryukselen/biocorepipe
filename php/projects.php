@@ -1,7 +1,7 @@
 <div class="panel panel-default" id="projecttablepanel">
     <div class="panel-heading clearfix">
         <div class="pull-right">
-            <button type="button" class="btn btn-primary btn-sm" title="Add Project" id="addproject" data-toggle="modal" data-target="#projectmodal">Add Project</button>
+            <button type="button" class="btn btn-primary btn-sm" title="Add Project" id="addproject" data-toggle="modal" data-target="#projectmodal">Create a Project</button>
         </div>
         <div class="pull-left">
             <h5><i class="fa fa-calendar-o " style="margin-left:0px; margin-right:0px;"></i> Projects</h5>
