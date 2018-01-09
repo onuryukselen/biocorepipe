@@ -13,7 +13,7 @@
 <div class="box-header" style=" padding-top:0px; font-size:large; ">
     <div style=" border-bottom:1px solid lightgrey;">
         <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i> Pipeline:
-        <input class="box-dynamic width-dynamic" type="text" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span></input>
+        <input class="box-dynamic width-dynamic" type="text" pipelineid="<?php echo $id;?>" name="pipelineTitle" autocomplete="off" placeholder="Enter Pipeline Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="pipeline-title"><span class="width-dynamic" style="display:none"></span></input>
         <button type="submit" id="savePipeline" class="btn" name="button" data-backdrop="false" onclick="save()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
                         <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
@@ -48,15 +48,15 @@
     </div>
 </div>
 
-<div style="padding-left:16px; padding-right:16px; padding-bottom:20px;" id="desPipeline">
-    <div class="row" id="creatorInfo" style="font-size:12px;"> Created by admin on Jan. 26, 2016 04:12 • Last edited by admin on Feb. 8, 2017 12:15</div>
+<div style="padding-left:16px; padding-right:16px; padding-bottom:20px; " id="desPipeline">
+    <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by     <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span id="lasteditedPip">Feb. 8, 2017 12:15</span>
+    </div>
     </br>
-    <div class="row" id="desTitle"><b>Description</b></div>
+    <div class="row" id="desTitlePip"><b>Description</b></div>
     </br>
-    <div class="row"><textarea placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
+    <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
-
 
 
 

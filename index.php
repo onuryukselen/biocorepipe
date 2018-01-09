@@ -47,10 +47,14 @@
     <!-- Google Font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
     <link href="//cdn.datatables.net/tabletools/2.2.3/css/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
+    <link href="//cdn.datatables.net/select/1.2.4/css/select.dataTables.min.css" rel="stylesheet" type="text/css" />
     <link href="//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="//editor.datatables.net/examples/resources/bootstrap/editor.bootstrap.css" rel="stylesheet" type="text/css" />
+<!--    dataTables.checkboxes-->
+    <link type="text/css" href="css/dataTables.checkboxes.css" rel="stylesheet" />
     <!-- jQuery 3 -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    
     <style>
         /* Ace Editor scroll problem fix */
 
@@ -142,10 +146,10 @@
             color: #428bca !important;
         }
 /*        table links should appear blue*/
-        #projecttable a  {
+        #projecttable a, #runtable a, #allpipelinestable a{
             color: #0570c1;
         }
-        #projecttable a:hover {
+        #projecttable a:hover, #runtable a:hover, #allpipelinestable a:hover {
             color: #428bca !important;
             text-decoration: underline;
         }

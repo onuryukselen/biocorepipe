@@ -35,7 +35,8 @@ function getJS($np, $login, $id)
   <script src=\"js/pipelineModal.js\"></script>
   <script src=\"js/pipelineD3.js\"></script>";}
   else if ($np==2 && $login==1 && empty($id)){$js .= "<script src=\"js/projects.js\"></script>"; }
-  else if ($np==2 && $login==1 && !empty($id)){$js .= "<script src=\"js/projectsDetail.js\"></script>"; }
+  else if ($np==2 && $login==1 && !empty($id)){$js .= "<script src=\"js/projectsDetail.js\"></script><script src=\"//cdn.datatables.net/select/1.2.4/js/dataTables.select.min.js\" charset=\"utf-8\"></script>
+  <script type=\"text/javascript\" src=\"./dist/js/dataTables.checkboxes.js\"></script>"; }
 //  else if ($np==3){
 //      $js .= "   <script src=\"js/cytoscape.min.js\"></script>
 //            <script src=\"js/cytoscape-cxtmenu.js\"></script>

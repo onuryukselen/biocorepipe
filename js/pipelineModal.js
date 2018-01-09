@@ -579,11 +579,73 @@ function prepareInfoModal() {
     $('#mProRev').attr('info', "info");
 }
 
+
+function loadPipelineDetails(pipeline_id) {
+    var getPipelineD = [];
+    getPipelineD.push({ name: "id", value: pipeline_id });
+    getPipelineD.push({ name: "p", value: 'loadPipeline' });
+    $.ajax({
+        type: "POST",
+        url: "ajax/ajaxquery.php",
+        data: getPipelineD,
+        async: true,
+        success: function (s) {
+            $('#creatorInfoPip').css('display', "block");
+            $('#pipeline-title').val(s[0].name);
+            $('#ownUserNamePip').text(s[0].username);
+            $('#pipelineSum').val(s[0].summary);
+            $('#datecreatedPip').text(s[0].date_created);
+            $('#lasteditedPip').text(s[0].date_modified);
+            resizeForText.call($inputText, s[0].name);
+            openPipeline(pipeline_id);
+
+        },
+        error: function (errorThrown) {
+            alert("Error: " + errorThrown);
+        }
+    });
+};
+
 $(document).ready(function () {
+    var pipeline_id = $('#pipeline-title').attr('pipelineid');
+    if (pipeline_id !== '') {
+        loadPipelineDetails(pipeline_id);
+    }
 
+    //Click on sideMenu items to Open Pipeline 
+    //$('.pipelineItems').on('click', function (event) {
+//    $("#Pipelines").on('click', '.pipelineItems', function (event) {
+//        event.preventDefault();
+//        var button = $(event.currentTarget);
+//        var selPipelineId = event.currentTarget.id.replace(/(.*)-(.*)/, '$2');
+//        $('#pipeline-title').attr('pipelineid', selPipelineId);
+//        
+//        loadPipelineDetails(selPipelineId);
+//    });
 
+    //Update Pipeline Name 
+    $("#pipeline-title").bind('blur keyup', function (e) { //Click outside of the field or enter
+        if (e.type == 'blur') {
+            if ($("#pipeline-title").attr('pipelineid') !== '') {
+                var el = $(this);
+                var pipeName = el.val();
+                var pipeID = el.attr('pipelineid');
+                if (pipeName !== '') {
+                    var ret = getValues({
+                        p: "savePipelineName",
+                        'name': pipeName,
+                        'id': pipeID
+                    });
 
+                    document.getElementById('pipeline-' + pipeID).innerHTML = '<i class="fa fa-angle-double-right"></i>' + pipeName;
+                }
+            }
+        } else if (e.keyCode == '13') {
+            $(this).blur();
+        }
+        //}
 
+    });
     //Make modal draggable    
     $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button, span, a' });
 
@@ -621,19 +683,7 @@ $(document).ready(function () {
 
 
 
-    //Click on sideMenu items to Open Pipeline 
-    //$('.pipelineItems').on('click', function (event) {
-    $("#Pipelines").on('click', '.pipelineItems', function (event) {
-        event.preventDefault();
 
-        var button = $(event.currentTarget);
-        var selPipelineId = event.currentTarget.id.replace(/(.*)-(.*)/, '$2');
-        $('#pipeline-title').val(event.currentTarget.text);
-        $('#pipeline-title').attr('num', selPipelineId);
-        resizeForText.call($inputText, event.currentTarget.text);
-        openPipeline(selPipelineId);
-
-    });
 
 
     $("#addProcessModal").on('click', '#selectProcess', function (event) {
@@ -646,37 +696,15 @@ $(document).ready(function () {
         if (lastProID && lastProID !== firstProID) {
             var processDat = pName + '@' + lastProID;
             remove('del-' + gNumInfo);
-            var xCor = $('#selectProcess').attr("xCoor") -50;
-            var yCor = $('#selectProcess').attr("yCoor") -70;
+            var xCor = $('#selectProcess').attr("xCoor") - 50;
+            var yCor = $('#selectProcess').attr("yCoor") - 70;
             addProcess(processDat, xCor, yCor);
         }
     });
 
 
 
-    //Update Pipeline Name 
-    $("#pipeline-title").bind('blur keyup', function (e) { //Click outside of the field or enter
-        if (e.type == 'blur') {
-            if ($("#pipeline-title").attr('num') !== '') {
-                var el = $(this);
-                var pipeName = el.val();
-                var pipeID = el.attr('num');
-                if (pipeName !== '') {
-                    var ret = getValues({
-                        p: "savePipelineName",
-                        'name': pipeName,
-                        'id': pipeID
-                    });
 
-                    document.getElementById('pipeline-' + pipeID).innerHTML = '<i class="fa fa-angle-double-right"></i>' + pipeName;
-                }
-            }
-        } else if (e.keyCode == '13') {
-            $(this).blur();
-        }
-        //}
-
-    });
 
 
     renderParam = {
@@ -763,13 +791,13 @@ $(document).ready(function () {
             var selProcessId = infoID;
             $('#selectProcess').attr("fProID", selProcessId);
             $('#selectProcess').attr("gNum", gNumInfo);
-            var coorProRaw = d3.select("#g-"+gNumInfo)[0][0].attributes.transform.value;
-            var PattCoor = /translate\((.*),(.*)\)/;//417.6,299.6
+            var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+            var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
             var xProCoor = coorProRaw.replace(PattCoor, '$1');
             var yProCoor = coorProRaw.replace(PattCoor, '$2');
             $('#selectProcess').attr("xCoor", xProCoor);
             $('#selectProcess').attr("yCoor", yProCoor);
-            
+
             loadModalRevision(selProcessId);
             loadSelectedProcess(selProcessId);
             var pName = $('#mName').val();
@@ -788,12 +816,18 @@ $(document).ready(function () {
         cleanInfoModal();
 
     });
-
+    ///xxx
     // Delete process modal 
     $('#confirmModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         if (button.attr('id') === 'deleteRevision') {
             $('#confirmModalText').html('Are you sure you want to delete this process?');
+            //assign class to delprocess
+        }
+        else if (button.attr('id') === 'deletePipeRevision') {
+            $('#confirmModalText').html('Are you sure you want to delete this pipeline?');
+            //assign class to delpipeline
+            
         }
     });
     $('#confirmModal').on('click', '.delprocess', function (event) {
@@ -1340,7 +1374,7 @@ $(document).ready(function () {
             }
         });
     });
-//xxx
+    //xxx
     // process group modal 
     $('#renameModal').on('show.bs.modal', function (event) {
         $('#renameModaltitle').html('Change Name');
@@ -1348,21 +1382,21 @@ $(document).ready(function () {
     });
     $('#renameModal').on('click', '#renameProPara', function (event) {
         changeName();
-	    $('#renameModal').modal("hide");
+        $('#renameModal').modal("hide");
     });
-    
+
     // Delete process d3 modal 
     $('#confirmD3Modal').on('show.bs.modal', function (event) {
         $('#confirmD3ModalText').html('Are you sure you want to delete?');
-        
+
     });
     $('#confirmD3Modal').on('click', '#deleteD3Btn', function (event) {
         if (deleteID.split("_").length == 2) {
             removeEdge();
-        } else if (deleteID.split("_").length == 1){
+        } else if (deleteID.split("_").length == 1) {
             remove();
-        } 
-	    $('#confirmD3Modal').modal("hide");
+        }
+        $('#confirmD3Modal').modal("hide");
     });
 
 
@@ -1402,7 +1436,7 @@ $(document).ready(function () {
                     alert("Error: " + errorThrown);
                 }
             });
-        } 
+        }
     });
 
     //process group modal save button

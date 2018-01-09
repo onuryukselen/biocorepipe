@@ -43,6 +43,10 @@ else if ($p=="getAllProcesses"){
 else if ($p=="getProjects"){
     $data = $db -> getProjects($id,$ownerID);
 }
+else if ($p=="getProjectPipelines"){
+    $project_id = $_REQUEST['project_id'];
+    $data = $db -> getProjectPipelines($id,$project_id,$ownerID);
+}
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
 }
@@ -70,8 +74,14 @@ else if ($p=="removeProcess"){
 	$data = $db -> removeProcess($id);
 }
 else if ($p=="removeProject"){   
-//xxx remove added pipelines in the project
+    $db -> removeProjectPipelinebyProjectID($id);
     $data = $db -> removeProject($id);
+}
+else if ($p=="removeProjectPipeline"){   
+    $data = $db -> removeProjectPipeline($id);
+}
+else if ($p=="removeProjectPipelinebyProjectID"){   
+    $data = $db -> removeProjectPipelinebyProjectID($id);
 }
 else if ($p=="removeProcessParameter"){   
 	$data = $db -> removeProcessParameter($id);
@@ -137,11 +147,17 @@ else if ($p=="saveProcess"){
 }
 else if ($p=="saveProject"){
     $name = $_REQUEST['name'];
+    $summary = $_REQUEST['summary'];
     if (!empty($id)) {
-        $data = $db->updateProject($id, $name, $ownerID);
+        $data = $db->updateProject($id, $name, $summary, $ownerID);
     } else {
-        $data = $db->insertProject($name, $ownerID);
+        $data = $db->insertProject($name, $summary, $ownerID);
     }
+}
+else if ($p=="saveProjectPipeline"){
+    $pipeline_id = $_REQUEST['pipeline_id'];
+    $project_id = $_REQUEST['project_id'];
+        $data = $db->insertProjectPipeline($project_id, $pipeline_id, $ownerID);
 }
 //else if ($p=="savePipelineProcess"){
 //    $name = $_REQUEST['name'];
