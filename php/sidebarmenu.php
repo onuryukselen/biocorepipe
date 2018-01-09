@@ -1,8 +1,7 @@
 <!-- sidebar menu: : style can be found in sidebar.less -->
 <!--        Control Sidebar-->
 <div class=" dropdown messages-menu ">
-    <a id="newPipeline" class="btn btn-warning" style=" margin-left:15px;"
-               href="index.php?np=1" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
+    <a id="newPipeline" class="btn btn-warning" style=" margin-left:15px;" href="index.php?np=1" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="New Pipeline">
                   <span class="glyphicon-stack">
                     <i class="fa fa-plus-circle glyphicon-stack-2x" style="color:white;"></i>
                       <i class="fa fa-spinner glyphicon-stack-1x" style="color:white;"></i>
@@ -92,36 +91,40 @@ class dbfuncs {
      public function getPipelineSideBar($ownerID)
    {
       if ($ownerID != ''){
-        $sql= "SELECT name, id FROM biocorepipe_save where owner_id='$ownerID' OR perms = 63 ";
+        $where_b = "(b.owner_id='$ownerID' OR b.perms = 63)";
       } else {
-        $sql= "SELECT name, id FROM biocorepipe_save where perms = 63 ";   
-      }
+        $where_b = "b.perms = 63";
+       }     
+        $sql= "SELECT pip.id, pip.name
+               FROM biocorepipe_save pip
+               INNER JOIN (
+                SELECT name, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
+                FROM biocorepipe_save 
+                GROUP BY pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and $where_b ";
+         
      return self::queryTable($sql);
    }
    
    function getSubMenuFromSideBar($parent, $ownerID)
    {
        if ($ownerID != ''){
+           $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63)";
+           $where_b = "(b.owner_id='$ownerID' OR b.perms = 63)";
+           } else {
+           $where_pg = "pg.perms = 63";
+           $where_b = "b.perms = 63";
+           }
        $sql="SELECT p.id, p.name, p.owner_id, p.perms
              FROM process p
              INNER JOIN process_group pg 
-             ON p.process_group_id = pg.id and pg.group_name='$parent' and ( pg.owner_id='$ownerID' OR pg.perms = 63)
+             ON p.process_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
                 SELECT name, process_gid, owner_id, perms, MAX(rev_id) rev_id
                 FROM process 
                 GROUP BY process_gid
-                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and ( b.owner_id='$ownerID' OR b.perms = 63) ";
-       } else {
-                  $sql="SELECT p.id, p.name, p.owner_id, p.perms
-             FROM process p
-             INNER JOIN process_group pg 
-             ON p.process_group_id = pg.id and pg.group_name='$parent' and pg.perms = 63
-             INNER JOIN (
-                SELECT name, process_gid, owner_id, perms, MAX(rev_id) rev_id
-                FROM process 
-                GROUP BY process_gid
-                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and b.perms = 63 ";
-       }
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and $where_b ";
+
       return self::queryTable($sql);
    }
 }

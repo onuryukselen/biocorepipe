@@ -102,6 +102,7 @@
                                 <tr>
                                     <th>Check</th>
                                     <th>Pipeline Name</th>
+                                    <th>Rev</th>
                                     <th>Description</th>
                                     <th>Owner</th>
                                     <th>Modified On</th>

@@ -27,8 +27,6 @@ function getPage($np, $login, $id)
 function getJS($np, $login, $id)
 {
   $js = "<script src=\"js/jsfuncs.js\"></script>";
-//  $js .= "<script src=\"js/process2.js\"></script>";
-
     
   if ($np==1 && $login==1){$js .= "<script src=\"//d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script> 
   <script src=\"./dist/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>

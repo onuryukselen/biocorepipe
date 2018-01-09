@@ -20,15 +20,16 @@
         <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
                         <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
-        <button type="button" id="downPipeline" class="btn" name="button" onclick="download('nextflow.nf',createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
+        <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
                         <i class="glyphicon glyphicon-save"></i></a></button>
-        <button type="button" id="delPipeline" class="btn" name="button" data-backdrop="false" onclick="delPipeline()" style=" margin:0px; padding:0px;">
+        <button type="button" id="delPipeline" class="btn" name="button" data-toggle="modal" data-backdrop="false" data-target="#confirmModal" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Pipeline">
                         <i class="glyphicon glyphicon-trash"></i></a></button>
-        </i>
-        </i>
-        </i>
+        <span id="autosaveDiv">
+            <span id="autosave" style="font-color:#C5C5C5; font-size:15px;"></span>
+        </span>
+       
         <div id="pipeActionsDiv" style="float:right; margin-right:5px;" class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
@@ -40,8 +41,8 @@
 
         </div>
 
-        <div id="mPipeRevSpan" style="margin-right:5px; width:130px; float:right;">
-            <select id="mPipeRev" class="fbtn btn-default form-control mPipeChange" prev="-1" name="pipeline_rev_id"></select>
+        <div id="pipeRevSpan" style="margin-right:5px; width:110px; float:right;">
+            <select id="pipeRev" class="fbtn btn-default form-control mPipeChange" prev="-1" name="pipeline_rev_id"></select>
         </div>
 
 
@@ -49,7 +50,7 @@
 </div>
 
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px; " id="desPipeline">
-    <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by     <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span id="lasteditedPip">Feb. 8, 2017 12:15</span>
+    <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by     <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span class="lasteditedPip">Feb. 8, 2017 12:15</span>
     </div>
     </br>
     <div class="row" id="desTitlePip"><b>Description</b></div>
@@ -97,7 +98,6 @@
                 <table id="inputsTable" class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Given Name</th>
                             <th scope="col">Given Name</th>
                             <th scope="col">Identifier</th>
                             <th scope="col">File Type</th>
@@ -459,7 +459,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close cancelRev" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="confirmYesNoTitle">Confirm revision</h4>
             </div>
             <div class="modal-body">
@@ -475,7 +475,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-default cancelRev" data-dismiss="modal" >Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveRev">Save</button>
             </div>
         </div>

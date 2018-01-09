@@ -158,16 +158,27 @@ function signOut() {
     });
 }
 
+//use changeVal to trigger change event after using val()
+$.fn.changeVal = function (v) {
+    return $(this).val(v).trigger("change");
+}
+
 //Adjustable textwidth
 var $inputText = $('input.width-dynamic');
 // Resize based on text if text.length > 0
 // Otherwise resize based on the placeholder
+
+$("input.width-dynamic").on("change", function() {
+var namePip = $('input.width-dynamic').val();
+ resizeForText.call($inputText, namePip);
+});
+
 function resizeForText(text) {
     var $this = $(this);
     if (!text.trim()) {
         text = $this.attr('placeholder').trim();
     }
-    var $span = $this.parent().find('span');
+    var $span = $this.parent().find('span.width-dynamic');
     $span.text(text);
     var $inputSize = $span.width() + 10;
     if ($inputSize < 50) {
@@ -192,3 +203,6 @@ $inputText.each(function () {
     var $this = $(this);
     resizeForText.call($this, $this.val())
 });
+
+
+

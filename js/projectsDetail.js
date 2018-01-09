@@ -134,6 +134,8 @@
                         $(nTd).html("<a href='index.php?np=1&id=" + oData.id + "'>" + oData.name + "</a>");
                     }
             }, {
+                    "data": "rev_id"
+            }, {
                     "data": "summary"
             }, {
                     "data": "username"

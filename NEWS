@@ -1,3 +1,8 @@
+09.01.2018 Version 0.0.26
+Assigned downloaded nextflow file name as pipeline name.
+autosave feature on change of workflow is added.
+pipeline revisions feature completed.
+
 07.01.2018 Version 0.0.25
 Project pipelines part added.
 Project pipelines added to database.

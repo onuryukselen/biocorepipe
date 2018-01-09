@@ -313,12 +313,21 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
     
-    public function getRevisionData($process_gid) {
+    public function getProcessRevision($process_gid) {
 		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM process WHERE process_gid = $process_gid";
 		return self::queryTable($sql);
 	}
+    public function getPipelineRevision($pipeline_gid) {
+		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM biocorepipe_save WHERE pipeline_gid = $pipeline_gid";
+		return self::queryTable($sql);
+	}
+    
     public function getProcessGID($id) {
 		$sql = "SELECT  process_gid FROM process WHERE id = $id";
+		return self::queryTable($sql);
+	}
+    public function getPipelineGID($id) {
+		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = $id";
 		return self::queryTable($sql);
 	}
 	public function getInputs($id) {
@@ -329,16 +338,35 @@ class dbfuncs {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = $ownerID OR perms = 63) AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
 		return self::queryTable($sql);
 	}
+    public function checkProject($pipeline_id, $ownerID) {
+		$sql = "SELECT DISTINCT pp.id, p.name 
+        FROM project_pipeline pp
+        INNER JOIN project p ON pp.project_id = p.id
+        WHERE (pp.owner_id = $ownerID OR pp.perms = 63) AND pp.pipeline_id = $pipeline_id";
+		return self::queryTable($sql);
+	}
     public function getMaxProcess_gid() {
 		$sql = "SELECT MAX(process_gid) process_gid FROM process";
+		return self::queryTable($sql);
+	}
+    public function getMaxPipeline_gid() {
+		$sql = "SELECT MAX(pipeline_gid) pipeline_gid FROM biocorepipe_save";
 		return self::queryTable($sql);
 	}
     public function getProcess_gid($process_id) {
 		$sql = "SELECT process_gid FROM process WHERE id = $process_id";
 		return self::queryTable($sql);
 	}
+    public function getPipeline_gid($pipeline_id) {
+		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = $pipeline_id";
+		return self::queryTable($sql);
+	}
     public function getMaxRev_id($process_gid) {
 		$sql = "SELECT MAX(rev_id) rev_id FROM process WHERE process_gid = $process_gid";
+		return self::queryTable($sql);
+	}
+    public function getMaxPipRev_id($pipeline_gid) {
+		$sql = "SELECT MAX(rev_id) rev_id FROM biocorepipe_save WHERE pipeline_gid = $pipeline_gid";
 		return self::queryTable($sql);
 	}
 	public function getOutputs($id) {
@@ -359,19 +387,22 @@ class dbfuncs {
 		$mainG = "{\'mainG\':".json_encode($obj[3]->{"mainG"})."}";
 		$edges = "{\'edges\':".json_encode($obj[4]->{"edges"})."}";
         $summary = $obj[5]->{"summary"};
+        $pipeline_gid = $obj[6]->{"pipeline_gid"};
+        $rev_comment = $obj[7]->{"rev_comment"};
+        $rev_id = $obj[8]->{"rev_id"};
         
 	
 	    if ($id > 0){
-            $sql = "UPDATE biocorepipe_save set edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = $id";
+            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = $id";
 		}else{
-            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', now(), now(), '$ownerID', 3)";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', 3)";
 		}
   		return self::insTable($sql);
 	}
     
     
 	public function getSavedPipelines($ownerID) {
-		$sql = "select pip.id, pip.name, pip.summary, pip.date_modified, u.username 
+		$sql = "select pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username 
         FROM biocorepipe_save pip
         INNER JOIN users u ON pip.owner_id = u.id
         WHERE pip.owner_id = $ownerID OR pip.perms = 63";
