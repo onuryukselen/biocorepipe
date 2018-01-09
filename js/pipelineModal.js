@@ -156,7 +156,7 @@ function loadModalRevision(selProcessId) {
 
     //Ajax for revisions
     var revisions = getValues({
-        p: "getRevisionData",
+        p: "getProcessRevision",
         "process_id": selProcessId
     });
     if (revisions.length > 1) {
@@ -251,6 +251,14 @@ function checkPipeline(proid, proName) {
     var checkPipe = getValues({ p: "checkPipeline", "process_id": proid, "process_name": proName });
     return checkPipe
 }
+
+//Check if pipeline is ever used in projects 
+function checkProject(pipeline_id) {
+    var checkProj = getValues({ p: "checkProject", "pipeline_id": pipeline_id });
+    return checkProj
+}
+
+
 
 //Check if process parameters are the same
 //True equal
@@ -454,7 +462,49 @@ function checkDeletion(proID, proName) {
 }
 
 
-function checkRevision(data, proID, proName) {
+function checkDeletionPipe(pipeline_id) {
+    var warnUserPipe = false;
+    var warnPipeText = '';
+    //has selected pipeline ever used in projects?
+    var checkProj = checkProject(pipeline_id);
+    if (checkProj.length > 0) {
+        warnUserPipe = true;
+        warnPipeText = warnPipeText + 'It is not allowed to remove this revision, since this revision of pipeline exists in the following projects: '
+        $.each(checkProj, function (element) {
+            if (element !== 0) {
+                warnPipeText = warnPipeText + ', ';
+            }
+            warnPipeText = warnPipeText + '"' + checkProj[element].name + '"';
+        });
+        warnPipeText = warnPipeText + '</br></br>In order to delete this revision, you may remove the pipeline from above project/projects.'
+
+    }
+
+    return [warnUserPipe, warnPipeText];
+}
+
+function checkRevisionPipe(pipeline_id) {
+    var warnUserPipe = false;
+    var warnPipeText = '';
+    //has selected pipeline ever used in projects?
+    var checkProj = checkProject(pipeline_id);
+    if (checkProj.length > 0) {
+        warnUserPipe = true;
+        warnPipeText = warnPipeText + 'It is not allowed to save on current revision, since this revision of pipeline already used in projects.</br></br>In order to save on current revision, you may remove the process from following pipelines: '
+        $.each(checkProj, function (element) {
+            if (element !== 0) {
+                warnPipeText = warnPipeText + ', ';
+            }
+            warnPipeText = warnPipeText + '"' + checkProj[element].name + '"';
+        });
+        warnPipeText = warnPipeText + '</br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.'
+
+    }
+
+    return [warnUserPipe, warnPipeText];
+}
+
+function checkRevisionProc(data, proID, proName) {
     var warnUser = false;
     var infoText = '';
     var startPoint = 6;
@@ -591,12 +641,11 @@ function loadPipelineDetails(pipeline_id) {
         async: true,
         success: function (s) {
             $('#creatorInfoPip').css('display', "block");
-            $('#pipeline-title').val(s[0].name);
+            $('#pipeline-title').changeVal(s[0].name);
             $('#ownUserNamePip').text(s[0].username);
             $('#pipelineSum').val(s[0].summary);
             $('#datecreatedPip').text(s[0].date_created);
-            $('#lasteditedPip').text(s[0].date_modified);
-            resizeForText.call($inputText, s[0].name);
+            $('.lasteditedPip').text(s[0].date_modified);
             openPipeline(pipeline_id);
 
         },
@@ -604,6 +653,34 @@ function loadPipelineDetails(pipeline_id) {
             alert("Error: " + errorThrown);
         }
     });
+    //xxx
+    var getRevD = [];
+    getRevD.push({ name: "pipeline_id", value: pipeline_id });
+    getRevD.push({ name: "p", value: 'getPipelineRevision' });
+    $.ajax({
+        type: "GET",
+        url: "ajax/ajaxquery.php",
+        data: getRevD,
+        async: false,
+        success: function (s) {
+            if (s.length >1){
+                $("#pipeline-title").attr('disabled',"disabled");
+            }else {
+                $("#pipeline-title").removeAttr('disabled');
+            }
+            $("#pipeRev").empty();
+            for (var i = 0; i < s.length; i++) {
+                var param = s[i];
+                if (param.id === pipeline_id) { //selected option
+                    var optionAll = new Option('Revision: ' + param.rev_id + ' ' + param.rev_comment + ' on ' + param.date_modified, param.id, false, true);
+                } else {
+                    var optionAll = new Option('Revision: ' + param.rev_id + ' ' + param.rev_comment + ' on ' + param.date_modified, param.id);
+                }
+                    $("#pipeRev").append(optionAll);
+            }
+        }
+    });
+
 };
 
 $(document).ready(function () {
@@ -614,38 +691,18 @@ $(document).ready(function () {
 
     //Click on sideMenu items to Open Pipeline 
     //$('.pipelineItems').on('click', function (event) {
-//    $("#Pipelines").on('click', '.pipelineItems', function (event) {
-//        event.preventDefault();
-//        var button = $(event.currentTarget);
-//        var selPipelineId = event.currentTarget.id.replace(/(.*)-(.*)/, '$2');
-//        $('#pipeline-title').attr('pipelineid', selPipelineId);
-//        
-//        loadPipelineDetails(selPipelineId);
-//    });
+    //    $("#Pipelines").on('click', '.pipelineItems', function (event) {
+    //        event.preventDefault();
+    //        var button = $(event.currentTarget);
+    //        var selPipelineId = event.currentTarget.id.replace(/(.*)-(.*)/, '$2');
+    //        $('#pipeline-title').attr('pipelineid', selPipelineId);
+    //        
+    //        loadPipelineDetails(selPipelineId);
+    //    });
 
-    //Update Pipeline Name 
-    $("#pipeline-title").bind('blur keyup', function (e) { //Click outside of the field or enter
-        if (e.type == 'blur') {
-            if ($("#pipeline-title").attr('pipelineid') !== '') {
-                var el = $(this);
-                var pipeName = el.val();
-                var pipeID = el.attr('pipelineid');
-                if (pipeName !== '') {
-                    var ret = getValues({
-                        p: "savePipelineName",
-                        'name': pipeName,
-                        'id': pipeID
-                    });
 
-                    document.getElementById('pipeline-' + pipeID).innerHTML = '<i class="fa fa-angle-double-right"></i>' + pipeName;
-                }
-            }
-        } else if (e.keyCode == '13') {
-            $(this).blur();
-        }
-        //}
 
-    });
+  
     //Make modal draggable    
     $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button, span, a' });
 
@@ -700,6 +757,7 @@ $(document).ready(function () {
             var yCor = $('#selectProcess').attr("yCoor") - 70;
             addProcess(processDat, xCor, yCor);
         }
+        autosave();
     });
 
 
@@ -748,6 +806,13 @@ $(document).ready(function () {
                 refreshProcessModal(selProId);
             }
             $("#" + id).attr("prev", selProId);
+        })
+    });
+    
+        $(function () {
+        $(document).on('change', '#pipeRev', function (event) {
+            var selPipeRev = $('#pipeRev option:selected').val();
+            window.location.replace("index.php?np=1&id=" +selPipeRev);
         })
     });
 
@@ -816,20 +881,73 @@ $(document).ready(function () {
         cleanInfoModal();
 
     });
-    ///xxx
-    // Delete process modal 
+
+    // Delete process pipeline modal 
     $('#confirmModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         if (button.attr('id') === 'deleteRevision') {
+            $('#deleteBtn').attr('class', 'btn btn-primary delprocess');
             $('#confirmModalText').html('Are you sure you want to delete this process?');
-            //assign class to delprocess
-        }
-        else if (button.attr('id') === 'deletePipeRevision') {
+        } else if (button.attr('id') === 'deletePipeRevision' || button.attr('id') === 'delPipeline') {
+            $('#deleteBtn').attr('class', 'btn btn-primary delpipeline');
             $('#confirmModalText').html('Are you sure you want to delete this pipeline?');
-            //assign class to delpipeline
-            
         }
     });
+
+    $('#confirmModal').on('click', '.delpipeline', function (event) {
+        var pipeline_id = $('#pipeline-title').attr('pipelineid');
+        if (pipeline_id !== '') {
+            var warnUserPipe = false;
+            var warnPipeText = '';
+            [warnUserPipe, warnPipeText] = checkDeletionPipe(pipeline_id);
+
+            //A. If it is allowed to delete    
+            if (warnUserPipe === false) {
+                delPipeline();
+                //            var revsPipeline = getValues({ p: "getPipelineRevision", "process_id": pipeline_id });
+                //            var removedRev = [];
+                //            if (revisions.length === 1) {
+                //                var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
+                //                delSideMenuNode.parentNode.removeChild(delSideMenuNode);
+                //                delProMenuID = '';
+                //            } else if (revisions.length > 1) {
+                //                //remove the selected revision from list
+                //                for (var k = 0; k < revisions.length; k++) {
+                //                    if (revisions[k].id !== processIdDel) {
+                //                        removedRev.push(revisions[k]);
+                //                    }
+                //                }
+                //                //find  the maximum rev_id in the list
+                //                let max = removedRev[0].rev_id;
+                //                for (let i = 1, len = removedRev.length; i < len; i++) {
+                //                    let v = removedRev[i].rev_id;
+                //                    max = (v > max) ? v : max;
+                //                }
+                //                //find the id of the process which has the maximum rev_id
+                //                for (var k = 0; k < removedRev.length; k++) {
+                //                    if (removedRev[k].rev_id === max) {
+                //                        var revMaxId = removedRev[k].id
+                //                    }
+                //                }
+                //                var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
+                //                var delProName = delProMenuID.replace(PattPro, '$1');
+                //                var newMenuID = delProName + '@' + revMaxId;
+                //                var delProce = getValues({ p: "removeProcess", "id": processIdDel });
+                //                document.getElementById(delProMenuID).id = newMenuID;
+            }
+            //B. If it is not allowed to delete
+            else if (warnUserPipe === true) {
+                $('#warnDelete').off();
+                $('#warnDelete').on('show.bs.modal', function (event) {
+                    $('#warnDelText').html(warnPipeText);
+                });
+                $('#warnDelete').modal('show');
+            }
+            $('#confirmModal').modal('hide');
+        }
+    })
+
+
     $('#confirmModal').on('click', '.delprocess', function (event) {
         var processIdDel = $('#mIdPro').val();
         var disableCheck = $('#mName').attr('disabled');
@@ -860,7 +978,7 @@ $(document).ready(function () {
 
 
         } else if (warnUser === false) {
-            var revisions = getValues({ p: "getRevisionData", "process_id": processIdDel });
+            var revisions = getValues({ p: "getProcessRevision", "process_id": processIdDel });
             var removedRev = [];
             if (revisions.length === 1) {
                 var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
@@ -966,7 +1084,7 @@ $(document).ready(function () {
             var proName = data[2].value;
             var warnUser = false;
             var infoText = '';
-            [warnUser, infoText] = checkRevision(data, proID, proName);
+            [warnUser, infoText] = checkRevisionProc(data, proID, proName);
             //B.1)Save on current process
             if (warnUser === false) {
                 var proGroId = data[5].value;
@@ -1374,7 +1492,6 @@ $(document).ready(function () {
             }
         });
     });
-    //xxx
     // process group modal 
     $('#renameModal').on('show.bs.modal', function (event) {
         $('#renameModaltitle').html('Change Name');
@@ -1382,6 +1499,7 @@ $(document).ready(function () {
     });
     $('#renameModal').on('click', '#renameProPara', function (event) {
         changeName();
+        autosave();
         $('#renameModal').modal("hide");
     });
 
@@ -1396,6 +1514,7 @@ $(document).ready(function () {
         } else if (deleteID.split("_").length == 1) {
             remove();
         }
+        autosave();
         $('#confirmD3Modal').modal("hide");
     });
 

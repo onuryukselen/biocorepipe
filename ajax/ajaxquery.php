@@ -190,13 +190,21 @@ else if ($p=="getProcessData")
 	$id = $_REQUEST['process_id'];
     $data = $db->getProcessData($id, $ownerID);
 }
-else if ($p=="getRevisionData")
+else if ($p=="getProcessRevision")
 {
 	$id = $_REQUEST['process_id'];
     $process_gidAr =$db->getProcessGID($id);
     $checkarray = json_decode($process_gidAr,true); 
     $process_gid = $checkarray[0]["process_gid"];
-    $data = $db->getRevisionData($process_gid);
+    $data = $db->getProcessRevision($process_gid);
+}
+else if ($p=="getPipelineRevision")
+{
+	$id = $_REQUEST['pipeline_id'];
+    $pipeline_gidAr =$db->getPipelineGID($id);
+    $checkarray = json_decode($pipeline_gidAr,true); 
+    $pipeline_gid = $checkarray[0]["pipeline_gid"];
+    $data = $db->getPipelineRevision($pipeline_gid);
 }
 else if ($p=="checkPipeline")
 {
@@ -204,20 +212,39 @@ else if ($p=="checkPipeline")
 	$process_name = $_REQUEST['process_name'];
     $data = $db->checkPipeline($process_id,$process_name, $ownerID);
 }
+else if ($p=="checkProject")
+{
+	$pipeline_id = $_REQUEST['pipeline_id'];
+    $data = $db->checkProject($pipeline_id, $ownerID);
+}
 
 else if ($p=="getMaxProcess_gid")
 {
     $data = $db->getMaxProcess_gid();
+}
+else if ($p=="getMaxPipeline_gid")
+{
+    $data = $db->getMaxPipeline_gid();
 }
 else if ($p=="getProcess_gid")
 {
     $process_id = $_REQUEST['process_id'];
     $data = $db->getProcess_gid($process_id);
 }
+else if ($p=="getPipeline_gid")
+{
+    $pipeline_id = $_REQUEST['pipeline_id'];
+    $data = $db->getPipeline_gid($pipeline_id);
+}
 else if ($p=="getMaxRev_id")
 {
     $process_gid = $_REQUEST['process_gid'];
     $data = $db->getMaxRev_id($process_gid);
+}
+else if ($p=="getMaxPipRev_id")
+{
+    $pipeline_gid = $_REQUEST['pipeline_gid'];
+    $data = $db->getMaxPipRev_id($pipeline_gid);
 }
 else if ($p=="getInputs")
 {
