@@ -43,19 +43,19 @@
 	      return false;
 	  }
 
-//	  function getValues(data) {
-//	      var result = null;
-//	      $.ajax({
-//	          url: "ajax/ajaxquery.php",
-//	          data: data,
-//	          async: false,
-//	          cache: false,
-//	          success: function (data) {
-//	              result = data;
-//	          }
-//	      });
-//	      return result;
-//	  }
+	  //	  function getValues(data) {
+	  //	      var result = null;
+	  //	      $.ajax({
+	  //	          url: "ajax/ajaxquery.php",
+	  //	          data: data,
+	  //	          async: false,
+	  //	          cache: false,
+	  //	          success: function (data) {
+	  //	              result = data;
+	  //	          }
+	  //	      });
+	  //	      return result;
+	  //	  }
 
 	  refreshDataset()
 
@@ -133,14 +133,7 @@
 
 	  var timeoutId = 0;
 
-	  function autosave() {
-	      var pipName = $('#pipeline-title').val()
-	      if (pipName !== '') {
-	          $('#autosave').text('Saving...');
-	          if (timeoutId) clearTimeout(timeoutId);
-	          timeoutId = setTimeout(function () { save() }, 2000);
-	      }
-	  }
+	  function autosave() {}
 
 	  function newPipeline() {
 	      createSVG()
@@ -245,8 +238,8 @@
 	          .attr("id", "g-" + gNum)
 	          .attr("class", "g-" + id)
 	          .attr("transform", "translate(" + sDataX + "," + sDataY + ")")
-	          .on("mouseover", mouseOverG)
-	          .on("mouseout", mouseOutG)
+	      //	          .on("mouseover", mouseOverG)
+	      //	          .on("mouseout", mouseOutG)
 
 	      //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
 	      //outermost circle transparent
@@ -271,9 +264,9 @@
 	          .attr("r", ipR + ipIor)
 	          .attr("fill", "#E0E0E0")
 	          .attr('fill-opacity', 1)
-	          .on("mouseover", scMouseOver)
-	          .on("mouseout", scMouseOut)
-	          .call(drag)
+	      //	          .on("mouseover", scMouseOver)
+	      //	          .on("mouseout", scMouseOut)
+	      //	          .call(drag)
 
 	      //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
 	      //inner parameter circle 
@@ -296,7 +289,7 @@
 	          .on("mouseover", IOmouseOver)
 	          .on("mousemove", IOmouseMove)
 	          .on("mouseout", IOmouseOut)
-	          .on("mousedown", IOconnect)
+	      //	          .on("mousedown", IOconnect)
 
 	      //gnum(written in id): unique,
 	      g.append("text").attr("id", "text-" + gNum)
@@ -313,36 +306,36 @@
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
-	          .on("mouseover", scMouseOver)
-	          .on("mouseout", scMouseOut)
-	          .call(drag)
+	      //	          .on("mouseover", scMouseOver)
+	      //	          .on("mouseout", scMouseOut)
+	      //	          .call(drag)
 
-	      g.append("text").attr("id", "text-" + gNum)
-	          .datum([{
-	              cx: 0,
-	              cy: 0
-                }])
-	          .attr('font-family', "FontAwesome, sans-serif")
-	          .attr('font-size', '0.9em')
-	          .attr("x", -40)
-	          .attr("y", 5)
-	          .text('\uf040')
-	          .on("mousedown", rename)
+	      //	      g.append("text").attr("id", "text-" + gNum)
+	      //	          .datum([{
+	      //	              cx: 0,
+	      //	              cy: 0
+	      //                }])
+	      //	          .attr('font-family', "FontAwesome, sans-serif")
+	      //	          .attr('font-size', '0.9em')
+	      //	          .attr("x", -40)
+	      //	          .attr("y", 5)
+	      //	          .text('\uf040')
+	      //	          .on("mousedown", rename)
 
 	      //gnum(written in id): uniqe,
-	      g.append("text")
-	          .attr("id", "del-" + gNum)
-	          .attr('font-family', "FontAwesome, sans-serif")
-	          .attr('font-size', '1em')
-	          .attr("x", +30)
-	          .attr("y", 5)
-	          .text('\uf014')
-	          .style("opacity", 0.2)
-	          .on("mousedown", removeElement)
+	      //	      g.append("text")
+	      //	          .attr("id", "del-" + gNum)
+	      //	          .attr('font-family', "FontAwesome, sans-serif")
+	      //	          .attr('font-size', '1em')
+	      //	          .attr("x", +30)
+	      //	          .attr("y", 5)
+	      //	          .text('\uf014')
+	      //	          .style("opacity", 0.2)
+	      //	          .on("mousedown", removeElement)
 	  }
 
-	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName) {
-	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
+	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
 	  }
 
 	  function insertProRowTable(process_id, procName, procDesc, procRev) {
@@ -787,7 +780,7 @@
 	          givenNamePP = document.getElementById(this.id).getAttribute("name")
 
 
-	          d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate") //I/O olanları noncandia
+	          //	          d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate") //I/O olanları noncandia
 	          if (className[0] === "connect_to_input") {
 	              conToInput()
 	              tooltip.html('Connect to input')
@@ -795,7 +788,7 @@
 	              conToOutput()
 	              tooltip.html('Connect to output')
 	          } else if (givenNamePP === 'inputparam') {
-	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              //	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
 	              var paraData = parametersData.filter(function (el) {
 	                  return el.id == paraID
@@ -812,7 +805,7 @@
 	              var paraFileType = paraData[0].file_type
 	              tooltip.html('Output parameter<br/>File Type: <em>' + paraFileType + '</em>')
 	          } else {
-	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              //	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var givenNamePP = document.getElementById(this.id).getAttribute("name")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
 	              var paraData = parametersData.filter(function (el) {
@@ -823,7 +816,7 @@
 	              var paraName = paraData[0].name
 	              tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
 	          }
-	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
+	          //	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
 	          d3.selectAll("#" + this.id).attr("status", "mouseon")
 	          tooltip.style("visibility", "visible");
 
@@ -1059,11 +1052,18 @@
 	          rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
 	          if (rowExist) {
 	              var preProcess = '';
-	              $('#' + rowType + 'Ta-' + firGnum + '> :last-child').append('<span id=proGcomma-' + secGnum + '>, </span>');
-	              $('#' + rowType + 'Ta-' + firGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
+	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGcomma-' + secGnum + '>, </span>');
+	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
 	          } else {
-	              var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName);
-	              $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+	              if (rowType === 'input') {
+	                  var selectFileButton = getButtons('inputFile', 'Select File');
+	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
+	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+	              } else if (rowType === 'output') {
+	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, 'NA');
+	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+	              }
+
 	          }
 
 
@@ -1096,34 +1096,34 @@
 	          .attr("stroke-width", 2)
 	          .attr("stroke", "black")
 
-	      d3.select("#mainG").append("g")
-	          .attr("id", "c--" + fClick + "_" + sClick)
-	          .attr("transform", "translate(" + (candidates[fClickOrigin][0] + candidates[sClick][0]) / 2 + "," + (candidates[fClickOrigin][1] + candidates[sClick][1]) / 2 + ")")
-	          .attr("g_from", candidates[fClickOrigin][2])
-	          .attr("g_to", candidates[sClick][2])
-	          .attr("IO_from", fClick)
-	          .attr("IO_to", sClick)
-	          .on("mousedown", removeElement)
-	          .on("mouseover", delMouseOver)
-	          .on("mouseout", delMouseOut)
-	          .append("circle")
-	          .attr("id", "delc--" + fClick + "_" + sClick)
-	          .attr("class", "del")
-	          .attr("cx", 0)
-	          .attr("cy", 0)
-	          .attr("r", ior)
-	          .attr("fill", "#E0E0E0")
-	          .attr('fill-opacity', 0.4)
+	      //	      d3.select("#mainG").append("g")
+	      //	          .attr("id", "c--" + fClick + "_" + sClick)
+	      //	          .attr("transform", "translate(" + (candidates[fClickOrigin][0] + candidates[sClick][0]) / 2 + "," + (candidates[fClickOrigin][1] + candidates[sClick][1]) / 2 + ")")
+	      //	          .attr("g_from", candidates[fClickOrigin][2])
+	      //	          .attr("g_to", candidates[sClick][2])
+	      //	          .attr("IO_from", fClick)
+	      //	          .attr("IO_to", sClick)
+	      //	          .on("mousedown", removeElement)
+	      //	          .on("mouseover", delMouseOver)
+	      //	          .on("mouseout", delMouseOut)
+	      //	          .append("circle")
+	      //	          .attr("id", "delc--" + fClick + "_" + sClick)
+	      //	          .attr("class", "del")
+	      //	          .attr("cx", 0)
+	      //	          .attr("cy", 0)
+	      //	          .attr("r", ior)
+	      //	          .attr("fill", "#E0E0E0")
+	      //	          .attr('fill-opacity', 0.4)
 
-	      d3.select("#c--" + fClick + "_" + sClick)
-	          .append("text")
-	          .attr("id", "del--" + fClick + "_" + sClick)
-	          .attr('font-family', "FontAwesome, sans-serif")
-	          .attr('font-size', '1em')
-	          .attr("x", -5)
-	          .attr("y", 5)
-	          .text('\uf014')
-	          .style("opacity", 0.4)
+	      //	      d3.select("#c--" + fClick + "_" + sClick)
+	      //	          .append("text")
+	      //	          .attr("id", "del--" + fClick + "_" + sClick)
+	      //	          .attr('font-family', "FontAwesome, sans-serif")
+	      //	          .attr('font-size', '1em')
+	      //	          .attr("x", -5)
+	      //	          .attr("y", 5)
+	      //	          .text('\uf014')
+	      //	          .style("opacity", 0.4)
 
 	      edges.push(fClick + "_" + sClick)
 
@@ -1728,14 +1728,14 @@
 	                      savedList.push({ "rev_id": newPipRev_id });
 	                      sl = JSON.stringify(savedList);
 	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	                      console.log(ret);
+//	                      console.log(ret);
 	                      $('#confirmRevision').modal('hide');
 	                      $('#autosave').text('Changes saved on new revision');
 	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
 	                  }
 	              });
 	              $('#confirmRevision').modal('show');
-                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
 	          }
 	      }
@@ -1846,8 +1846,8 @@
 	              .attr("id", "g-" + gNum)
 	              .attr("class", "g-" + id)
 	              .attr("transform", "translate(" + (sDataX) + "," + (sDataY) + ")")
-	              .on("mouseover", mouseOverG)
-	              .on("mouseout", mouseOutG)
+	          //	              .on("mouseover", mouseOverG)
+	          //	              .on("mouseout", mouseOutG)
 	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
 	          g.append("circle").attr("id", "bc-" + gNum)
 	              .attr("class", "bc-" + id)
@@ -1873,9 +1873,9 @@
 	              .attr("r", r - ior)
 	              .attr("fill", "#BEBEBE")
 	              .attr('fill-opacity', 0.6)
-	              .on("mouseover", scMouseOver)
-	              .on("mouseout", scMouseOut)
-	              .call(drag)
+	          //	              .on("mouseover", scMouseOver)
+	          //	              .on("mouseout", scMouseOut)
+	          //	              .call(drag)
 	          //gnum(written in id): uniqe,
 	          g.append("text").attr("id", "text-" + gNum)
 	              .datum([{
@@ -1888,42 +1888,42 @@
 	              .attr('class', 'process')
 	              .text(truncateName(name, 'process'))
 	              .style("text-anchor", "middle")
-	              .on("mouseover", scMouseOver)
-	              .on("mouseout", scMouseOut)
-	              .call(drag)
+	          //	              .on("mouseover", scMouseOver)
+	          //	              .on("mouseout", scMouseOut)
+	          //	              .call(drag)
 
-	          g.append("text").attr("id", "text-" + gNum)
-	              .datum([{
-	                  cx: 0,
-	                  cy: 0
-			        }])
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '0.9em')
-	              .attr("x", -6)
-	              .attr("y", 15)
-	              .text('\uf040')
-	              .on("mousedown", rename)
+	          //	          g.append("text").attr("id", "text-" + gNum)
+	          //	              .datum([{
+	          //	                  cx: 0,
+	          //	                  cy: 0
+	          //			        }])
+	          //	              .attr('font-family', "FontAwesome, sans-serif")
+	          //	              .attr('font-size', '0.9em')
+	          //	              .attr("x", -6)
+	          //	              .attr("y", 15)
+	          //	              .text('\uf040')
+	          //	              .on("mousedown", rename)
 	          //gnum(written in id): uniqe,
-	          g.append("text")
-	              .attr("id", "del-" + gNum)
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '1em')
-	              .attr("x", -6)
-	              .attr("y", r + ior / 2)
-	              .text('\uf014')
-	              .style("opacity", 0.2)
-	              .on("mousedown", removeElement)
+	          //	          g.append("text")
+	          //	              .attr("id", "del-" + gNum)
+	          //	              .attr('font-family', "FontAwesome, sans-serif")
+	          //	              .attr('font-size', '1em')
+	          //	              .attr("x", -6)
+	          //	              .attr("y", r + ior / 2)
+	          //	              .text('\uf014')
+	          //	              .style("opacity", 0.2)
+	          //	              .on("mousedown", removeElement)
 
-	          g.append("text")
-	              .attr("id", "info-" + gNum)
-	              .attr("class", "info-" + id)
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '1em')
-	              .attr("x", -6)
-	              .attr("y", -1 * (r + ior / 2 - 10))
-	              .text('\uf013')
-	              .style("opacity", 0.2)
-	              .on("mousedown", getInfo)
+	          //	          g.append("text")
+	          //	              .attr("id", "info-" + gNum)
+	          //	              .attr("class", "info-" + id)
+	          //	              .attr('font-family', "FontAwesome, sans-serif")
+	          //	              .attr('font-size', '1em')
+	          //	              .attr("x", -6)
+	          //	              .attr("y", -1 * (r + ior / 2 - 10))
+	          //	              .text('\uf013')
+	          //	              .style("opacity", 0.2)
+	          //	              .on("mousedown", getInfo)
 	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
 	          for (var k = 0; k < inputs.length; k++) {
 	              d3.select("#g-" + gNum).append("circle")
@@ -1943,7 +1943,7 @@
 	                  .on("mouseover", IOmouseOver)
 	                  .on("mousemove", IOmouseMove)
 	                  .on("mouseout", IOmouseOut)
-	                  .on("mousedown", IOconnect)
+	              //	                  .on("mousedown", IOconnect)
 	          }
 
 	          for (var k = 0; k < outputs.length; k++) {
@@ -1963,7 +1963,7 @@
 	                  .on("mouseover", IOmouseOver)
 	                  .on("mousemove", IOmouseMove)
 	                  .on("mouseout", IOmouseOut)
-	                  .on("mousedown", IOconnect)
+	              //	                  .on("mousedown", IOconnect)
 	          }
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
@@ -1994,18 +1994,120 @@
 	  function saveReady() {
 	      document.getElementById("savePipeline").disabled = false;
 	  }
-	  document.getElementsByClassName("tablink")[0].click();
+	  //	  document.getElementsByClassName("tablink")[0].click();
+	  //
+	  //	  function openPage(evt, name) {
+	  //	      var i, x, tablinks;
+	  //	      x = document.getElementsByClassName("nodisp");
+	  //	      for (i = 0; i < x.length; i++) {
+	  //	          x[i].style.display = "none";
+	  //	      }
+	  //	      tablinks = document.getElementsByClassName("tablink");
+	  //	      for (i = 0; i < x.length; i++) {
+	  //	          tablinks[i].classList.remove("w3-light-grey");
+	  //	      }
+	  //	      document.getElementById(name).style.display = "block";
+	  //	      evt.currentTarget.classList.add("w3-light-grey");
+	  //	  }
 
-	  function openPage(evt, name) {
-	      var i, x, tablinks;
-	      x = document.getElementsByClassName("nodisp");
-	      for (i = 0; i < x.length; i++) {
-	          x[i].style.display = "none";
-	      }
-	      tablinks = document.getElementsByClassName("tablink");
-	      for (i = 0; i < x.length; i++) {
-	          tablinks[i].classList.remove("w3-light-grey");
-	      }
-	      document.getElementById(name).style.display = "block";
-	      evt.currentTarget.classList.add("w3-light-grey");
+
+	  function loadPipelineDetails(pipeline_id) {
+	      var getPipelineD = [];
+	      getPipelineD.push({ name: "id", value: pipeline_id });
+	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
+	      $.ajax({
+	          type: "POST",
+	          url: "ajax/ajaxquery.php",
+	          data: getPipelineD,
+	          async: true,
+	          success: function (s) {
+	              $('#pipeline-title').changeVal(s[0].name);
+	              $('#pipelineSum').val(s[0].summary);
+	              openPipeline(pipeline_id);
+	              $('#pipeline-title').attr('disabled', "disabled")
+	              $('#pipelineSum').attr('disabled', "disabled");
+	          },
+	          error: function (errorThrown) {
+	              alert("Error: " + errorThrown);
+	          }
+	      });
+	  };
+
+	  function loadProjectPipeline(pipeData) {
+	      $('#creatorInfoPip').css('display', "block");
+	      $('#ownUserNamePip').text(pipeData[0].username);
+	      $('#datecreatedPip').text(pipeData[0].date_created);
+	      $('.lasteditedPip').text(pipeData[0].date_modified);
+	      $("#pipeline-title").attr('disabled', "disabled");
 	  }
+
+
+
+	  $(document).ready(function () {
+	      projectPipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	      pipeData = getValues({ p: "getProjectPipelines", id: projectPipeline_id });
+	      pipeline_id = pipeData[0].pipeline_id;
+	      project_id = pipeData[0].project_id;
+	      $('#pipeline-title').attr('pipeline_id', pipeline_id);
+	      console.log(pipeData);
+	      if (projectPipeline_id !== '' && pipeline_id !== '') {
+	          loadPipelineDetails(pipeline_id);
+	          loadProjectPipeline(pipeData);
+	      }
+
+	      $('#inputFilemodal').on('show.bs.modal', function (e) {
+	          var button = $(e.relatedTarget);
+	          $(this).find('form').trigger('reset');
+	          var clickedRow = button.closest('tr'); //#inputTa-3
+	          if (button.attr('id') === 'inputFileSelect') {
+	              $('#filemodaltitle').html('Select/Add Input File');
+                  $('#mIdFile').attr('rowID', clickedRow[0].id);
+	          } 
+	      });
+
+          $('#inputFilemodal').on('click', '#selectfile', function (e) {
+            e.preventDefault();
+            var checkTab = $('#inputFilemodal').find('.active');
+            var checkdata = checkTab[1].getAttribute('id');
+            if (checkdata === 'manualTab') {
+                var formValues = $('#inputFilemodal').find('input');
+                var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
+                var gNumParam= rowID.split('-')[1];
+                var data = formValues.serializeArray(); // convert form to array
+                data.push({ name: "p", value: "saveFile" });
+                //insert into file table
+                var fileGet = getValues(data);
+                var file_id = fileGet.id;
+                //insert into project_file table
+                var proFileGet = getValues({ "p": "saveProjectFile", "file_id": file_id, "project_id": project_id });
+                var projectFileID = proFileGet.id;
+                //insert into project_pipeline_file table
+                var propipeFileGet = getValues({ 
+                    "p": "saveProPipeFile", 
+                    "file_id": file_id, 
+                    "project_id": project_id, 
+                    "pipeline_id": pipeline_id,
+                    "g_num": gNumParam
+                });
+                var projectPipelineFileID = propipeFileGet.id;
+                //get filedata from file table
+                var proFileGet = getValues({ "p": "getFiles", "id": file_id, });
+                //insert into #inputsTab
+                $('#' + rowID + '> :nth-child(6)' ).append('<span style="padding-right:5px;" id=filePath-' + gNumParam + '>' + proFileGet[0].file_path + '</span><i class="fa fa-pencil"></i><i class="fa fa-trash-o"></i>');
+            }
+//                      <button type="submit" id="saveProjectIcon" class="btn" name="button" data-backdrop="false" onclick="saveProjectIcon()" style=" margin:0px; padding:0px;">
+//                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Project">
+//                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
+              
+              
+//            console.log($('#' + rowID).find('#inputFileSelect'));
+            $('#' + rowID).find('#inputFileSelect').css('display','none');
+            $('#inputFilemodal').modal('hide');
+
+        });
+          
+          
+          
+          
+          
+	  });

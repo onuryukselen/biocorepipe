@@ -1,4 +1,3 @@
-
 <style type="text/css" media="screen">
     #editor {
         height: 300px;
@@ -29,7 +28,7 @@
         <span id="autosaveDiv">
             <span id="autosave" style="font-color:#C5C5C5; font-size:15px;"></span>
         </span>
-       
+
         <div id="pipeActionsDiv" style="float:right; margin-right:5px;" class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
@@ -37,8 +36,7 @@
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="dropdown">
-            <button class="btn btn-success dropdown-toggle" type="button" id="pipeRun" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;">Run</button>
-
+            <button class="btn btn-success" type="button" id="pipeRun" data-toggle="modal" href="#mRun" style="vertical-align:middle;">Run</button>
         </div>
 
         <div id="pipeRevSpan" style="margin-right:5px; width:110px; float:right;">
@@ -50,11 +48,12 @@
 </div>
 
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px; " id="desPipeline">
-    <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by     <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span class="lasteditedPip">Feb. 8, 2017 12:15</span>
+    <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span class="lasteditedPip">Feb. 8, 2017 12:15</span>
     </div>
     </br>
-    <div class="row" id="desTitlePip"><b>Description</b></div>
-    </br>
+    <div class="row" id="desTitlePip">
+        <h6><b>Description</b></h6>
+    </div>
     <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
@@ -448,7 +447,7 @@
             <div class="modal-body" id="confirmD3ModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary delprocess" data-dismiss="modal" id="deleteD3Btn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -475,7 +474,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default cancelRev" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-default cancelRev" data-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="saveRev">Save</button>
             </div>
         </div>
@@ -500,6 +499,83 @@
         </div>
     </div>
 </div>
+
+<!--Run Modal-->
+
+<div id="mRun" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="mRuntitle">Select Project to Run Pipeline </h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default" id="projecttablepanel">
+                    <div class="panel-heading clearfix">
+                        <div class="pull-right">
+                            <button type="button" class="btn btn-primary btn-sm" title="Add Project" id="addproject" data-toggle="modal" data-target="#projectmodal">Create a Project</button>
+                        </div>
+                        <div class="pull-left">
+                            <h5><i class="fa fa-calendar-o " style="margin-left:0px; margin-right:0px;"></i> Projects</h5>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <table id="projecttable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Check</th>
+                                    <th>Project Name</th>
+                                    <th>Owner</th>
+                                    <th>Created on</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectProject" data-clickedrow="">Select Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="projectmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="projectmodaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mProjectID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mProjectID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mProjectName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mProjectName" name="name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveproject" data-clickedrow="">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Run Modal ends-->
 
 
 

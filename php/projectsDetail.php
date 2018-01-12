@@ -25,9 +25,11 @@
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px;" id="desProject">
     <div class="row" id="creatorProject" style="font-size:12px;"> Created by <span id="ownUserName">admin</span> on <span id="datecreatedPj">Jan. 26, 2016 04:12</span> • Last edited on <span id="lasteditedPj">Feb. 8, 2017 12:15</span></div>
     </br>
-    <div class="row" id="desTitleProject"><b>Description</b>    </div>
+    <div class="pull-left">
+        <h6 class="row" id="desTitleProject"><b>Description</b> </h6>
+    </div>
     </br>
-    <div class="row"><textarea id="projectSum" placeholder="Enter project description here.." rows="5" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
+    <div class="row"><textarea id="projectSum" placeholder="Enter project description here.." rows="4" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 </div>
 
 
@@ -38,7 +40,7 @@
             <button type="button" class="btn btn-primary btn-sm" title="Add Project" id="addproject" data-toggle="modal" data-target="#runmodal">Add Pipeline to Run</button>
         </div>
         <div class="pull-left">
-            <h5><i class="fa fa-rocket"></i> Runs</h5>
+            <h5><i class="fa fa-rocket"></i> Project Runs</h5>
 
         </div>
     </div>
@@ -63,10 +65,10 @@
 <div class="panel panel-default" id="filetablepanel">
     <div class="panel-heading clearfix">
         <div class="pull-right">
-            <button type="button" class="btn btn-primary btn-sm" title="Add Files" id="addfile" data-toggle="modal" data-target="#filemodal">Add Files</button>
+            <button type="button" class="btn btn-primary btn-sm" title="Add Files" id="addfile" data-toggle="modal" data-target="#fileModal">Add Files to Project</button>
         </div>
         <div class="pull-left">
-            <h5><i class="fa fa-folder-open-o"></i> Files</h5>
+            <h5><i class="fa fa-folder-open-o"></i> Project Files</h5>
 
         </div>
     </div>
@@ -75,9 +77,9 @@
             <table id="filetable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>File Name</th>
-                        <th>File Type</th>
-                        <th>Sample ID</th>
+                        <th>File Path</th>
+<!--                        <th>File Extention</th>-->
+<!--                        <th>Sample ID</th>-->
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -116,6 +118,105 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saverun" data-clickedrow="">Select Pipelines</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fileModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="filemodaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <div id="fileAddOptions">
+                    <ul id="fileNav" class="nav nav-tabs">
+                        <li class="active"><a class="nav-item" data-toggle="tab" href="#manualTab">Manually</a></li>
+                        <li><a class="nav-item" data-toggle="tab" href="#publicFileTab">Public Files</a></li>
+                        <li><a class="nav-item" data-toggle="tab" href="#projectFileTab">Project Files</a></li>
+                    </ul>
+                    <div class="panel panel-default">
+                        <div id="fileContent" class="tab-content">
+                            <div id="manualTab" class="tab-pane fade in active">
+                                </br>
+                                <form style="padding-right:10px;" class="form-horizontal">
+                                    <div class="form-group" style="display:none">
+                                        <label for="mIdFile" class="col-sm-2 control-label">ID</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="mIdFile" name="id">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="display:none">
+                                        <label for="mFileName" class="col-sm-2 control-label">File Name</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="mFileName" name="name">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mFilePath" class="col-sm-2 control-label">File Path</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="mFilePath" name="file_path">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="publicFileTab" class="tab-pane fade ">
+                                </br>
+                                <table id="publicFileTable" class="table table-striped table-bordered display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Check</th>
+                                            <th scope="col">File Name</th>
+                                            <th scope="col">File Type</th>
+                                            <th scope="col">Sample ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div id="projectFileTab" class="tab-pane fade">
+                                </br>
+                                <div class="col-sm-3" style="border-right:1px solid lightgrey;">
+                                    <table id="projecListTable" class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Project Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-7">
+                                    <table id="projectFileTable" class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Check</th>
+                                                <th scope="col">File Name</th>
+                                                <th scope="col">File Type</th>
+                                                <th scope="col">Sample ID</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="savefile" data-clickedrow="">Add Files</button>
             </div>
         </div>
     </div>

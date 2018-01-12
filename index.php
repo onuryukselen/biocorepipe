@@ -34,9 +34,9 @@
     <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     <!-- selectize style -->
     <link rel="stylesheet" href="css/selectize.bootstrap3.css">
-<!--    bigger fonts-->
+    <!--    bigger fonts-->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -50,11 +50,11 @@
     <link href="//cdn.datatables.net/select/1.2.4/css/select.dataTables.min.css" rel="stylesheet" type="text/css" />
     <link href="//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="//editor.datatables.net/examples/resources/bootstrap/editor.bootstrap.css" rel="stylesheet" type="text/css" />
-<!--    dataTables.checkboxes-->
+    <!--    dataTables.checkboxes-->
     <link type="text/css" href="css/dataTables.checkboxes.css" rel="stylesheet" />
     <!-- jQuery 3 -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    
+
     <style>
         /* Ace Editor scroll problem fix */
 
@@ -145,14 +145,67 @@
         .active a {
             color: #428bca !important;
         }
-/*        table links should appear blue*/
-        #projecttable a, #runtable a, #allpipelinestable a{
+
+        /*        table links should appear blue*/
+
+        #projecttable a,
+        #runtable a,
+        #allpipelinestable a {
             color: #0570c1;
         }
-        #projecttable a:hover, #runtable a:hover, #allpipelinestable a:hover {
+
+        #projecttable a:hover,
+        #runtable a:hover,
+        #allpipelinestable a:hover {
             color: #428bca !important;
             text-decoration: underline;
         }
+
+        /*        public pipelines page*/
+        .boxheader {
+            font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+            padding: 1% 0;
+            border-bottom: 2px solid #eee;
+            height: 60px !important;
+        }
+        .widget-user-header {
+            height: 100px !important;
+        }
+        .box-body {
+            font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+            padding: 20px;
+            padding-top: 5px;
+        }
+        .movebox {
+            min-width: 220px;
+            min-height: 250px;
+            margin-bottom:10px;
+            border: 2px solid #dee2e8;
+            position: relative;
+            display: inline-block;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease-in-out;
+        }
+        .movebox::after {
+            position: absolute;
+            z-index: -1;
+            opacity: 0;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease-in-out;
+        }
+        /* Scale up the box */
+        .movebox:hover {
+             box-shadow: 0 0 20px rgba(33,33,33,.2); 
+        }
+        /* Fade in the pseudo-element with the bigger shadow */
+        .movebox:hover::after {
+            opacity: 1;
+        }
+        
+        
     </style>
 
 </head>
@@ -235,8 +288,9 @@
             <!-- Content Header (Page header) -->
             <section class="content-header">
                 <h1>
-                    Biocore <?php print getTitle($np); ?> Generation
-    
+                    Biocore
+                    <?php print getTitle($np); ?> Generation
+
                 </h1>
                 <ol class="breadcrumb">
                     <li><a href=""><i class="fa fa-dashboard"></i> Home</a></li>
@@ -253,7 +307,7 @@
                     <div class="box">
 
                         <!--/.box-header -->
-                        <div class="box-body table-responsive" style="overflow-y:scroll;">
+                        <div class="box-body table-responsive" style="min-height:90vh; overflow-y:scroll;">
 
                             <?php print getPage($np, $login, $id); 
                             

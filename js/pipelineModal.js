@@ -663,9 +663,9 @@ function loadPipelineDetails(pipeline_id) {
         data: getRevD,
         async: false,
         success: function (s) {
-            if (s.length >1){
-                $("#pipeline-title").attr('disabled',"disabled");
-            }else {
+            if (s.length > 1) {
+                $("#pipeline-title").attr('disabled', "disabled");
+            } else {
                 $("#pipeline-title").removeAttr('disabled');
             }
             $("#pipeRev").empty();
@@ -676,7 +676,7 @@ function loadPipelineDetails(pipeline_id) {
                 } else {
                     var optionAll = new Option('Revision: ' + param.rev_id + ' ' + param.rev_comment + ' on ' + param.date_modified, param.id);
                 }
-                    $("#pipeRev").append(optionAll);
+                $("#pipeRev").append(optionAll);
             }
         }
     });
@@ -702,7 +702,7 @@ $(document).ready(function () {
 
 
 
-  
+
     //Make modal draggable    
     $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, button, span, a' });
 
@@ -808,11 +808,11 @@ $(document).ready(function () {
             $("#" + id).attr("prev", selProId);
         })
     });
-    
-        $(function () {
+
+    $(function () {
         $(document).on('change', '#pipeRev', function (event) {
             var selPipeRev = $('#pipeRev option:selected').val();
-            window.location.replace("index.php?np=1&id=" +selPipeRev);
+            window.location.replace("index.php?np=1&id=" + selPipeRev);
         })
     });
 
@@ -1635,8 +1635,125 @@ $(document).ready(function () {
     });
 
 
+    //   ---- Run modal starts ---
 
 
+    var projectTable = $('#projecttable').DataTable({
+        "ajax": {
+            url: "ajax/ajaxquery.php",
+            data: { "p": "getProjects" },
+            "dataSrc": ""
+        },
+        "columns": [
+            {
+                "data": "id",
+                "checkboxes": {
+                    'targets': 0,
+                    'selectRow': true
+                }
+            },
+            {
+                "data": "name"
+            }, {
+                "data": "username"
+            }, {
+                "data": "date_created"
+            }],
+        'select': {
+            'style': 'single'
+        },
+        'order': [[1, 'asc']]
+    });
+
+    $('#mRun').on('show.bs.modal', function (event) {
+        projectTable.column(0).checkboxes.deselect();
+        var pipeline_id = $('#pipeline-title').attr('pipelineid');
+        if (pipeline_id === '') {
+        event.preventDefault();
+        }
+        
+    });
+
+
+    $('#mRun').on('click', '#selectProject', function (event) {
+        event.preventDefault();
+        var pipeline_id = $('#pipeline-title').attr('pipelineid');
+        var rows_selected = projectTable.column(0).checkboxes.selected();
+        if (rows_selected.length === 1 && pipeline_id !== '') {
+            var data = [];
+            var project_id = rows_selected[0];
+            data.push({ name: "project_id", value: project_id });
+            data.push({ name: "pipeline_id", value: pipeline_id });
+            data.push({ name: "p", value: "saveProjectPipeline" });
+            var proPipeGet = getValues(data);
+            var projectPipelineID = proPipeGet.id;
+            $('#mRun').modal('hide');
+	        setTimeout(function () { window.location.replace("index.php?np=3&id=" + projectPipelineID); }, 700);
+        }
+    });
+
+    $('#projectmodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'addproject') {
+            $('#projectmodaltitle').html('Add New Project');
+        } else {
+        }
+    });
+
+    $('#projectmodal').on('click', '#saveproject', function (event) {
+        event.preventDefault();
+        var formValues = $('#projectmodal').find('input');
+        var savetype = $('#mProjectID').val();
+        var data = formValues.serializeArray(); // convert form to array
+        data.push({ name: "p", value: "saveProject" });
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: data,
+            async: true,
+            success: function (s) {
+                if (savetype.length) { //edit
+
+                } else { //insert
+                    var getProjectData = [];
+                    getProjectData.push({ name: "id", value: s.id });
+                    getProjectData.push({ name: "p", value: 'getProjects' });
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: getProjectData,
+                        async: true,
+                        success: function (sc) {
+                            var projectDat = sc;
+                            var addData = {};
+                            var keys = projectTable.settings().init().columns;
+                            for (var i = 0; i < keys.length; i++) {
+                                var key = keys[i].data;
+                                addData[key] = projectDat[0][key];
+                            }
+                            addData.id = projectDat[0].id;
+                            projectTable.row.add(addData).draw();
+
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
+                }
+
+                $('#projectmodal').modal('hide');
+
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
+
+
+
+    //   ---- Run modal ends ---
 
 
 

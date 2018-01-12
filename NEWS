@@ -1,3 +1,10 @@
+11.01.2018 Version 0.0.27
+Run Pipeline page added.
+Run button in pipelines page activated.
+Public pipelines page updated.
+Project Files part added.
+Project Files added to database.
+
 09.01.2018 Version 0.0.26
 Assigned downloaded nextflow file name as pipeline name.
 autosave feature on change of workflow is added.
