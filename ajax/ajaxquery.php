@@ -51,6 +51,15 @@ else if ($p=="getProjectFiles"){
     $project_id = $_REQUEST['project_id'];
     $data = $db -> getProjectFiles($project_id,$ownerID);
 }
+else if ($p=="getProjectPipelineFiles"){
+    $g_num = $_REQUEST['g_num'];
+    $project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $data = $db->getProjectPipelineFiles($g_num, $project_pipeline_id,$ownerID);
+}
+else if ($p=="getAllProjectPipelineFiles"){
+    $project_pipeline_id = $_REQUEST['project_pipeline_id'];
+       $data = $db->getAllProjectPipelineFiles($project_pipeline_id,$ownerID);
+}
 else if ($p=="getFiles"){
     $data = $db -> getFiles($id,$ownerID);
 }
@@ -124,12 +133,13 @@ else if ($p=="saveProPipeFile"){
     $file_id = $_REQUEST['file_id'];
     $project_id = $_REQUEST['project_id'];
     $pipeline_id = $_REQUEST['pipeline_id'];
+    $project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $g_num = $_REQUEST['g_num'];
     
     if (!empty($id)) {
-       $data = $db->updateProPipeFile($id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+       $data = $db->updateProPipeFile($id, $project_pipeline_id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
     } else {
-       $data = $db->insertProPipeFile($file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+       $data = $db->insertProPipeFile($project_pipeline_id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
     }
 }
 else if ($p=="saveProjectFile"){

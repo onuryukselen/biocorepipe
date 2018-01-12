@@ -14,8 +14,8 @@
                 <li><a id="deleteRun" data-toggle="modal" href="#confirmModal">Delete Run</a></li>
             </ul>
         </div>
-        <div id="pipeRunDiv" style="float:right; margin-right:5px;" >
-<!--            <button class="btn btn-success" type="submit" id="runProPipe" onclick="runProjectPipe()" style="display:none; vertical-align:middle;">Start</button>-->
+        <div id="pipeRunDiv" style="float:right; margin-right:5px;">
+            <!--            <button class="btn btn-success" type="submit" id="runProPipe" onclick="runProjectPipe()" style="display:none; vertical-align:middle;">Start</button>-->
             <button class="btn btn-warning" type="submit" id="statusProPipe" onclick="runProjectPipe()" style="vertical-align:middle;" title="Waiting for input files" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>
@@ -34,7 +34,29 @@
     <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
+<div id="runSettings">
+    <div style="padding-bottom:7px;">
+        <h4>Run Settings</h4>
+    </div>
+    <div>
+        <form>
+           <div class="form-group">
+            <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
+              </div>
+           <div class="form-group">
+                <select style=" width:150px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
+                  <option value="" disabled selected>Choose environment </option>
+                  <option value="loc">Local</option>
+                  <option value="locdocker">Local with Docker</option>
+                  <option value="clus">Cluster</option>
+                  <option value="clusdocker">Cluster with Docker</option>
+            </select>
+            </div>
+        </form>
+    </div>
 
+</div>
+</br>
 <div id="workDetails">
     <div style="padding-bottom:7px;">
         <h4>Pipeline Files</h4>
@@ -76,7 +98,7 @@
                         <th scope="col">File Type</th>
                         <th scope="col">Qualifier</th>
                         <th scope="col">Process Name</th>
-                        <th style="color:#D59035" scope="col">File Path</th>
+                        <th style="color:#D59035" scope="col">File</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -231,7 +253,7 @@
                             </div>
 
                             <div id="projectFileTab" class="tab-pane fade">
-<!--                                </br>-->
+                                <!--                                </br>-->
                                 <div class="col-sm-3" style="border-right:1px solid lightgrey;">
                                     <table id="projecListTable" class="table">
                                         <thead>

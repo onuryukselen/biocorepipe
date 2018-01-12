@@ -1694,9 +1694,12 @@
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
+                  var numRev = $("#pipeRev option").length;
+                  if (numRev === 1) {//sidebar name change
 	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+                  }
 	              $('#autosave').text('All changes saved');
-
+//
 
 	          }
 	          //B.2 allow save on new revision

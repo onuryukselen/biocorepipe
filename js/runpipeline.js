@@ -1056,9 +1056,27 @@
 	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
 	          } else {
 	              if (rowType === 'input') {
-	                  var selectFileButton = getButtons('inputFile', 'Select File');
+	                  var selectFileButton = getButtonsModal('inputFile', 'Select File');
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+	                  //xxx get project_pipeline_files:
+                      console.log(project_pipeline_id);
+                      console.log(firGnum);
+	                  var getProPipeFiles = getValues({
+	                      p: "getProjectPipelineFiles",
+	                      project_pipeline_id: project_pipeline_id,
+	                      g_num: firGnum
+	                  });
+	                  console.log(getProPipeFiles)
+                      if (getProPipeFiles.length === 1) {
+                          var rowID=rowType + 'Ta-' + firGnum;
+                          var filePath = getProPipeFiles[0].file_path;
+                          insertSelectFile(rowID, firGnum, filePath);
+                          
+                      }
+                      
+
+
 	              } else if (rowType === 'output') {
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, 'NA');
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
@@ -1728,7 +1746,7 @@
 	                      savedList.push({ "rev_id": newPipRev_id });
 	                      sl = JSON.stringify(savedList);
 	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-//	                      console.log(ret);
+	                      //	                      console.log(ret);
 	                      $('#confirmRevision').modal('hide');
 	                      $('#autosave').text('Changes saved on new revision');
 	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
@@ -2041,16 +2059,23 @@
 	      $("#pipeline-title").attr('disabled', "disabled");
 	  }
 
+	  function insertSelectFile(rowID, gNumParam, filePath) {
+	      var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
+	      var deleteIcon = getIconButtonModal('inputDel', 'Delete', 'fa fa-trash-o');
+	      $('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
+          $('#' + rowID).find('#inputFileSelect').css('display', 'none');
+          
+	  }
 
 
 	  $(document).ready(function () {
-	      projectPipeline_id = $('#pipeline-title').attr('projectpipelineid');
-	      pipeData = getValues({ p: "getProjectPipelines", id: projectPipeline_id });
+	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	      pipeData = getValues({ p: "getProjectPipelines", id: project_pipeline_id });
 	      pipeline_id = pipeData[0].pipeline_id;
 	      project_id = pipeData[0].project_id;
 	      $('#pipeline-title').attr('pipeline_id', pipeline_id);
 	      console.log(pipeData);
-	      if (projectPipeline_id !== '' && pipeline_id !== '') {
+	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
 	          loadProjectPipeline(pipeData);
 	      }
@@ -2061,53 +2086,61 @@
 	          var clickedRow = button.closest('tr'); //#inputTa-3
 	          if (button.attr('id') === 'inputFileSelect') {
 	              $('#filemodaltitle').html('Select/Add Input File');
-                  $('#mIdFile').attr('rowID', clickedRow[0].id);
-	          } 
+	              $('#mIdFile').attr('rowID', clickedRow[0].id);
+	          } else if (button.attr('id') === 'inputFileEdit') {
+	              $('#filemodaltitle').html('Change Input File');
+	              $('#mIdFile').attr('rowID', clickedRow[0].id);
+	              //get gnum file data
+	              //	              $('#mIdFile').val( clickedRow[0].id);
+	          }
 	      });
 
-          $('#inputFilemodal').on('click', '#selectfile', function (e) {
-            e.preventDefault();
-            var checkTab = $('#inputFilemodal').find('.active');
-            var checkdata = checkTab[1].getAttribute('id');
-            if (checkdata === 'manualTab') {
-                var formValues = $('#inputFilemodal').find('input');
-                var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
-                var gNumParam= rowID.split('-')[1];
-                var data = formValues.serializeArray(); // convert form to array
-                data.push({ name: "p", value: "saveFile" });
-                //insert into file table
-                var fileGet = getValues(data);
-                var file_id = fileGet.id;
-                //insert into project_file table
-                var proFileGet = getValues({ "p": "saveProjectFile", "file_id": file_id, "project_id": project_id });
-                var projectFileID = proFileGet.id;
-                //insert into project_pipeline_file table
-                var propipeFileGet = getValues({ 
-                    "p": "saveProPipeFile", 
-                    "file_id": file_id, 
-                    "project_id": project_id, 
-                    "pipeline_id": pipeline_id,
-                    "g_num": gNumParam
-                });
-                var projectPipelineFileID = propipeFileGet.id;
-                //get filedata from file table
-                var proFileGet = getValues({ "p": "getFiles", "id": file_id, });
-                //insert into #inputsTab
-                $('#' + rowID + '> :nth-child(6)' ).append('<span style="padding-right:5px;" id=filePath-' + gNumParam + '>' + proFileGet[0].file_path + '</span><i class="fa fa-pencil"></i><i class="fa fa-trash-o"></i>');
-            }
-//                      <button type="submit" id="saveProjectIcon" class="btn" name="button" data-backdrop="false" onclick="saveProjectIcon()" style=" margin:0px; padding:0px;">
-//                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Project">
-//                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
-              
-              
-//            console.log($('#' + rowID).find('#inputFileSelect'));
-            $('#' + rowID).find('#inputFileSelect').css('display','none');
-            $('#inputFilemodal').modal('hide');
+	      $('#inputFilemodal').on('click', '#selectfile', function (e) {
+	          e.preventDefault();
+	          var checkTab = $('#inputFilemodal').find('.active');
+	          var checkdata = checkTab[1].getAttribute('id');
+	          if (checkdata === 'manualTab') {
+	              var formValues = $('#inputFilemodal').find('input');
+	              var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	              var gNumParam = rowID.split('-')[1];
+	              var data = formValues.serializeArray(); // convert form to array
+	              data.push({ name: "p", value: "saveFile" });
+	              //insert into file table
+	              var fileGet = getValues(data);
+	              var file_id = fileGet.id;
+	              //insert into project_file table
+	              var proFileGet = getValues({ "p": "saveProjectFile", "file_id": file_id, "project_id": project_id });
+	              var projectFileID = proFileGet.id;
+	              //insert into project_pipeline_file table
+                  console.log(project_pipeline_id);
+	              var propipeFileGet = getValues({
+	                  "p": "saveProPipeFile",
+	                  "file_id": file_id,
+	                  "project_id": project_id,
+	                  "pipeline_id": pipeline_id,
+	                  "project_pipeline_id": project_pipeline_id,
+	                  "g_num": gNumParam
+	              });
+	              var projectPipelineFileID = propipeFileGet.id;
+                  console.log(propipeFileGet);
+	              //get filedata from file table
+	              var proFileGet = getValues({ "p": "getFiles", "id": file_id, });
+	              var filePath = proFileGet[0].file_path;
+	              //insert into #inputsTab
+	              insertSelectFile(rowID, gNumParam, filePath);
+	          }
 
-        });
-          
-          
-          
-          
-          
+	          $('#inputFilemodal').modal('hide');
+
+	      });
+
+
+
+
+
+
+
+
+
+	      //xxx
 	  });

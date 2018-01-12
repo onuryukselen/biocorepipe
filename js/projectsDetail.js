@@ -98,7 +98,7 @@
             }, {
                 data: null,
                 className: "center",
-                defaultContent: getTableButtons("projectrun", REMOVE)
+                defaultContent: getButtonsDef('selectRun', 'Run') + getTableButtons("projectrun", REMOVE)
             }]
 
         });
@@ -157,13 +157,9 @@
                 data.push({ name: "project_id", value: project_id });
                 data.push({ name: "pipeline_id", value: $pipeline_id });
                 data.push({ name: "p", value: "saveProjectPipeline" });
-                $.ajax({
-                    type: "POST",
-                    url: "ajax/ajaxquery.php",
-                    data: data,
-                    async: true,
-                    success: function (s) {}
-                });
+                var proPipeGet = getValues(data);
+                console.log(proPipeGet);
+                var project_pipeline_id =proPipeGet.id;
 
                 var getProPipeData = [];
                 getProPipeData.push({ name: "id", value: $pipeline_id });
@@ -182,6 +178,9 @@
                             rowData[key] = pipelineDat[0][key];
                         }
                         rowData.pip_id = pipelineDat[0].id;
+                        rowData.id = project_pipeline_id;
+                        console.log(rowData);
+//                        console.log(keys);
                         runsTable.row.add(rowData).draw();
 
                     },
@@ -215,6 +214,17 @@
                     alert("Error: " + errorThrown);
                 }
             });
+        });
+        $('#runtable').on('click', '#selectRunRun', function (e) {
+            e.preventDefault();
+
+            var clickedRow = $(this).closest('tr');
+            var rowData = runsTable.row(clickedRow).data();
+            console.log(rowData.id);
+            var project_pipeline_id = (rowData.id);
+            window.location.replace("index.php?np=3&id=" + project_pipeline_id);
+            //xxx
+            
         });
 
         var filesTable = $('#filetable').DataTable({
