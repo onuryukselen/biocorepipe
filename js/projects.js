@@ -38,10 +38,6 @@ $(document).ready(function () {
             var rowData = projectTable.row(clickedRow).data();
             $('#saveproject').data('clickedrow', clickedRow);
             var formValues = $('#projectmodal').find('input');
-            //            var keys = Object.keys(rowData);
-            //            for (var i = 0; i < keys.length; i++) {
-            //                $(formValues[i]).val(rowData[keys[i]]);
-            //            }
             $(formValues[0]).val(rowData.id);
             $(formValues[1]).val(rowData.name);
 

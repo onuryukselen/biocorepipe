@@ -7,7 +7,6 @@
         data.push({ name: "id", value: project_id });
         data.push({ name: "summary", value: projectSummary });
         data.push({ name: "p", value: "saveProject" });
-        console.log(data);
 
         $.ajax({
             type: "POST",
@@ -27,14 +26,12 @@
         var getProjectD = [];
         getProjectD.push({ name: "id", value: project_id });
         getProjectD.push({ name: "p", value: 'getProjects' });
-        console.log(getProjectD);
         $.ajax({
             type: "POST",
             url: "ajax/ajaxquery.php",
             data: getProjectD,
             async: true,
             success: function (s) {
-                console.log(s);
                 $('#project-title').val(s[0].name);
                 $('#ownUserName').text(s[0].username);
                 $('#projectSum').val(s[0].summary);
@@ -51,7 +48,6 @@
 
     function delProject() {
         var project_id = $('#project-title').attr('projectid');
-        console.log(project_id);
         $.ajax({
             type: "POST",
             url: "ajax/ajaxquery.php",
@@ -61,26 +57,20 @@
             },
             async: true,
             success: function (s) {
-                console.log(s);
 
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);
             }
         });
-       window.location.replace("index.php?np=2");
+        window.location.replace("index.php?np=2");
     }
 
 
 
     $(document).ready(function () {
-
-
         var project_id = $('#project-title').attr('projectid');
         loadProjectDetails(project_id);
-
-
-
 
         var runsTable = $('#runtable').DataTable({
             "scrollY": "500px",
@@ -148,6 +138,10 @@
             'order': [[1, 'asc']]
         });
 
+
+
+
+
         $('#runmodal').on('show.bs.modal', function (event) {
             allpipelinestable.column(0).checkboxes.deselect();
             $('#runmodaltitle').html('Select Pipelines to Run');
@@ -180,7 +174,6 @@
                     data: getProPipeData,
                     async: true,
                     success: function (s) {
-                        console.log(s);
                         var pipelineDat = s;
                         var rowData = {};
                         var keys = runsTable.settings().init().columns;
@@ -189,7 +182,6 @@
                             rowData[key] = pipelineDat[0][key];
                         }
                         rowData.pip_id = pipelineDat[0].id;
-                        console.log(rowData);
                         runsTable.row.add(rowData).draw();
 
                     },
@@ -224,6 +216,95 @@
                 }
             });
         });
+
+        var filesTable = $('#filetable').DataTable({
+            "scrollY": "500px",
+            "scrollCollapse": true,
+            "scrollX": true,
+            "ajax": {
+                url: "ajax/ajaxquery.php",
+                data: {
+                    "project_id": project_id,
+                    "p": "getProjectFiles"
+                },
+                "dataSrc": ""
+            },
+            "columns": [{
+                "data": "file_path"
+            },  {
+                data: null,
+                className: "center",
+                defaultContent: getTableButtons("projectfile", REMOVE)
+            }]
+
+        });
+
+
+        $('#fileModal').on('show.bs.modal', function (event) {
+            //            allpipelinestable.column(0).checkboxes.deselect();
+            $(this).find('form').trigger('reset');
+            $('#filemodaltitle').html('Add Files to Project');
+
+        });
+
+
+        $('#fileModal').on('click', '#savefile', function (e) {
+            e.preventDefault();
+            var checkTab = $('#fileModal').find('.active');
+            var checkdata = checkTab[1].getAttribute('id');
+            if (checkdata === 'manualTab') {
+                var formValues = $('#fileModal').find('input');
+                var savetype = $('#mIdFile').val();
+                var data = formValues.serializeArray(); // convert form to array
+//                data.push({ name: "project_id", value: project_id });
+                data.push({ name: "p", value: "saveFile" });
+                //insert into file table
+                var fileGet = getValues(data);
+                var fileID = fileGet.id;
+                //insert into project_file table
+                var proFileGet = getValues({ "p": "saveProjectFile", "file_id": fileID, "project_id": project_id });
+                var projectFileID = proFileGet.id;
+                //get filedata from file table
+                var proFileGet = getValues({ "p": "getFiles", "id": fileID, });
+                //insert into #filetable
+                var rowData = {};
+                var keys = filesTable.settings().init().columns;
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i].data;
+                    rowData[key] = proFileGet[0][key];
+                }
+                rowData.id = projectFileID;
+                filesTable.row.add(rowData).draw();
+            }
+            $('#fileModal').modal('hide');
+
+        });
+
+        $('#filetable').on('click', '#projectfileremove', function (e) {
+            e.preventDefault();
+
+            var clickedRow = $(this).closest('tr');
+            var rowData = filesTable.row(clickedRow).data();
+            console.log(rowData);
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    id: rowData.id,
+                    p: "removeProjectFile"
+                },
+                async: true,
+                success: function (s) {
+                    filesTable.row(clickedRow).remove().draw();
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        });
+
+
+
 
 
 

@@ -148,15 +148,44 @@ class dbfuncs {
 		return self::queryTable($sql);
 
     }
-    public function getProjectPipelines($id,$project_id,$ownerID) {
-        $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
+    public function getFiles($id,$ownerID) {
+        $where = " where owner_id = $ownerID OR perms = 63"; 
 		if ($id != ""){
-			$where = " where pp.project_id = $project_id AND pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
+			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
 		}
-		$sql = "SELECT pp.id, pip.id as pip_id, pip.name, u.username, pip.summary, pip.date_modified 
-                FROM project_pipeline pp 
-                INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
-                INNER JOIN users u ON pip.owner_id = u.id 
+		$sql = "SELECT id, sample_id, file_path, file_ext 
+        FROM file $where";
+		return self::queryTable($sql);
+
+    }
+    
+    
+    public function getProjectPipelines($id,$project_id,$ownerID) {
+		if ($id != ""){
+			$where = " where pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
+            $sql = "SELECT pp.id, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, u.username
+                    FROM project_pipeline pp 
+                    INNER JOIN users u ON pp.owner_id = u.id 
+                    $where";    
+		} else {
+            $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
+            $sql = "SELECT pp.id, pip.id as pip_id, pip.name, u.username, pip.summary, pip.date_modified 
+                    FROM project_pipeline pp 
+                    INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
+                    INNER JOIN users u ON pip.owner_id = u.id 
+                    $where";    
+        }
+		
+		return self::queryTable($sql);
+
+    }
+ 
+    
+        public function getProjectFiles($project_id,$ownerID) {
+        $where = " where pf.project_id = $project_id AND (pf.owner_id = $ownerID OR pf.perms = 63)" ; 
+		$sql = "SELECT pf.id, f.id as file_id, f.file_path, f.file_ext, f.sample_id
+                FROM project_file pf
+                INNER JOIN file f ON f.id = pf.file_id
                 $where";
 		return self::queryTable($sql);
 
@@ -198,6 +227,10 @@ class dbfuncs {
         $sql = "DELETE FROM project_pipeline WHERE id = $id";
         return self::runSQL($sql);
     }
+    public function removeProjectFile($id) {
+        $sql = "DELETE FROM project_file WHERE id = $id";
+        return self::runSQL($sql);
+    }
     public function removeProjectPipelinebyProjectID($id) {
         $sql = "DELETE FROM project_pipeline WHERE project_id = $id";
         return self::runSQL($sql);
@@ -208,6 +241,34 @@ class dbfuncs {
         return self::runSQL($sql);
     }
 
+//    ----------- Files   ---------
+    public function insertProjectFile($project_id, $file_id, $ownerID) {
+        $sql = "INSERT INTO project_file(project_id, file_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$project_id', '$file_id', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+    public function insertFile($name, $file_path, $file_ext, $sample_id, $ownerID) {
+        $sql = "INSERT INTO file(name, file_path, file_ext, sample_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$file_path', '$file_ext', '$sample_id', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateFile($id, $name, $file_path, $file_ext, $sample_id, $ownerID) {
+        $sql = "UPDATE file SET name='$name', file_path='$file_path', file_ext='$file_ext', sample_id='$sample_id', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
+    public function insertProPipeFile($file_id, $project_id, $pipeline_id, $g_num, $ownerID) {
+        $sql = "INSERT INTO project_pipeline_file(file_id, project_id, pipeline_id, g_num, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$file_id', '$project_id', '$pipeline_id', '$g_num', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateProPipeFile($id, $file_id, $project_id, $pipeline_id, $gNum, $ownerID) {
+        $sql = "UPDATE file SET file_id='$file_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
     // ------- Process Parameters ------
 
 //    public function getAllProcessParameters($process_id, $type, $start, $end) {

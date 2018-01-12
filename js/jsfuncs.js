@@ -3,57 +3,62 @@ var EDIT = 2; // 10
 var REMOVE = 1; // 100
 
 function getTableButtons(name, buttons) {
-//ser <- 9f 
+    //ser <- 9f 
     var selectButton = '';
-    var editButton  = '';
+    var editButton = '';
     var removeButton = '';
 
 
-    if ( buttons.toString(2) & SELECT) {
-      selectButton = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Select" id="'+name+'select">Select</button> &nbsp; '
+    if (buttons.toString(2) & SELECT) {
+        selectButton = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Select" id="' + name + 'select">Select</button> &nbsp; '
     }
-    if ( buttons.toString(2) & EDIT) {
-      editButton = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="'+name+'edit" data-toggle="modal" data-target="#'+name+'modal">Edit</button> &nbsp;'
+    if (buttons.toString(2) & EDIT) {
+        editButton = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="' + name + 'edit" data-toggle="modal" data-target="#' + name + 'modal">Edit</button> &nbsp;'
     }
-    if ( buttons.toString(2) & REMOVE) {
-      removeButton = '<button type="button" class="btn btn-primary btn-sm" title="Remove" id="'+name+'remove">Remove</button></div>'
+    if (buttons.toString(2) & REMOVE) {
+        removeButton = '<button type="button" class="btn btn-primary btn-sm" title="Remove" id="' + name + 'remove">Remove</button></div>'
     }
- 
+
     return selectButton + editButton + removeButton
 }
-
+// eg. name:run buttons:select
+function getButtons(name, buttons) {
+    var buttonId = buttons.split(' ')[0];
+    var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal">' + buttons +'</button> &nbsp; '
+    return button;
+    }
 
 //SideBar menu Search Function
 //$('#tags').on('keyup',function(e){
-$('.main-sidebar').on('keyup', '#tags', function(e){
+$('.main-sidebar').on('keyup', '#tags', function (e) {
     var tagElems = $('#autocompletes1').children()
-      $(tagElems).hide()
-      for(var i = 0; i < tagElems.length; i++){
-          var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
-          
-             $(tagElems2).hide()
-             $(tagElems).eq(i).closest('li').children('ul.treeview-menu').hide()
-             for(var j = 0; j < tagElems2.length; j++){              
-                if(($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) === 0){
-                    $(tagElems).eq(i).show()
-                    if ($(this).val().toLowerCase() !== "") {
-                        $(tagElems).eq(i).closest('li').addClass('menu-open')
-                        $(tagElems).eq(i).closest('li').children('ul.treeview-menu').show()
-                    }else{
-                        $(tagElems).eq(i).closest('li').removeClass('menu-open')
-                        $(tagElems).show()
-                        
-                    }  
+    $(tagElems).hide()
+    for (var i = 0; i < tagElems.length; i++) {
+        var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
 
-                    $(tagElems2).eq(j).show()
-             }
-          }
-      }
+        $(tagElems2).hide()
+        $(tagElems).eq(i).closest('li').children('ul.treeview-menu').hide()
+        for (var j = 0; j < tagElems2.length; j++) {
+            if (($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) === 0) {
+                $(tagElems).eq(i).show()
+                if ($(this).val().toLowerCase() !== "") {
+                    $(tagElems).eq(i).closest('li').addClass('menu-open')
+                    $(tagElems).eq(i).closest('li').children('ul.treeview-menu').show()
+                } else {
+                    $(tagElems).eq(i).closest('li').removeClass('menu-open')
+                    $(tagElems).show()
+
+                }
+
+                $(tagElems2).eq(j).show()
+            }
+        }
+    }
     $('#inputs').show();
     $('#outputs').show();
     $('.header').show();
     $('#Pipelines').show();
-    
+
 });
 
 
@@ -168,9 +173,9 @@ var $inputText = $('input.width-dynamic');
 // Resize based on text if text.length > 0
 // Otherwise resize based on the placeholder
 
-$("input.width-dynamic").on("change", function() {
-var namePip = $('input.width-dynamic').val();
- resizeForText.call($inputText, namePip);
+$("input.width-dynamic").on("change", function () {
+    var namePip = $('input.width-dynamic').val();
+    resizeForText.call($inputText, namePip);
 });
 
 function resizeForText(text) {
@@ -204,5 +209,16 @@ $inputText.each(function () {
     resizeForText.call($this, $this.val())
 });
 
-
-
+function getValues(data) {
+    var result = null;
+    $.ajax({
+        url: "ajax/ajaxquery.php",
+        data: data,
+        async: false,
+        cache: false,
+        success: function (data) {
+            result = data;
+        }
+    });
+    return result;
+}

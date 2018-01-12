@@ -47,6 +47,13 @@ else if ($p=="getProjectPipelines"){
     $project_id = $_REQUEST['project_id'];
     $data = $db -> getProjectPipelines($id,$project_id,$ownerID);
 }
+else if ($p=="getProjectFiles"){
+    $project_id = $_REQUEST['project_id'];
+    $data = $db -> getProjectFiles($project_id,$ownerID);
+}
+else if ($p=="getFiles"){
+    $data = $db -> getFiles($id,$ownerID);
+}
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
 }
@@ -80,6 +87,9 @@ else if ($p=="removeProject"){
 else if ($p=="removeProjectPipeline"){   
     $data = $db -> removeProjectPipeline($id);
 }
+else if ($p=="removeProjectFile"){   
+    $data = $db -> removeProjectFile($id);
+}
 else if ($p=="removeProjectPipelinebyProjectID"){   
     $data = $db -> removeProjectPipelinebyProjectID($id);
 }
@@ -96,6 +106,36 @@ else if ($p=="saveParameter"){
     } else {
        $data = $db->insertParameter($name, $qualifier, $file_type, $ownerID);
     }
+}
+
+else if ($p=="saveFile"){
+    $name = $_REQUEST['name'];
+    $file_path = $_REQUEST['file_path'];
+    $file_ext = $_REQUEST['file_ext'];
+    $sample_id = $_REQUEST['sample_id'];
+    
+    if (!empty($id)) {
+       $data = $db->updateFile($id, $name, $file_path, $file_ext, $sample_id, $ownerID);
+    } else {
+       $data = $db->insertFile($name, $file_path, $file_ext, $sample_id, $ownerID);
+    }
+}
+else if ($p=="saveProPipeFile"){
+    $file_id = $_REQUEST['file_id'];
+    $project_id = $_REQUEST['project_id'];
+    $pipeline_id = $_REQUEST['pipeline_id'];
+    $g_num = $_REQUEST['g_num'];
+    
+    if (!empty($id)) {
+       $data = $db->updateProPipeFile($id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+    } else {
+       $data = $db->insertProPipeFile($file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+    }
+}
+else if ($p=="saveProjectFile"){
+    $file_id = $_REQUEST['file_id'];
+    $project_id = $_REQUEST['project_id'];
+    $data = $db->insertProjectFile($project_id, $file_id, $ownerID);
 }
 else if ($p=="saveUser"){
     $google_id = $_REQUEST['google_id'];
