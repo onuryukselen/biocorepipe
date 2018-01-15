@@ -432,12 +432,12 @@
 	          addProPipeTab(id)
 
 	          var inputs = getValues({
-	              p: "getInputs",
+	              p: "getInputsPP",
 	              "process_id": process_id
 	          })
 
 	          var outputs = getValues({
-	              p: "getOutputs",
+	              p: "getOutputsPP",
 	              "process_id": process_id
 	          })
 	          //gnum uniqe, id same id (Written in class) in same type process
@@ -1415,8 +1415,8 @@
 	                          secPart = secPart + secPartTemp
 	                          break
 	                      } else if (qual === "val") {
-	                          firstPartTemp = "params." + genParName + " =\"" + inputParamName + "\" \n"
-	                          secPartTemp = channelName + " = " + "params." + genParName + "\n"
+	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
+	                          secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
 	                          firstPart = firstPart + firstPartTemp
 	                          secPart = secPart + secPartTemp
 	                          break
@@ -1835,12 +1835,12 @@
 	          //--Pipeline details table ends---
 
 	          inputs = getValues({
-	              p: "getInputs",
+	              p: "getInputsPP",
 	              "process_id": id
 	          })
 
 	          outputs = getValues({
-	              p: "getOutputs",
+	              p: "getOutputsPP",
 	              "process_id": id
 	          })
 

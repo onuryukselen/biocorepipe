@@ -198,7 +198,7 @@
 
             var clickedRow = $(this).closest('tr');
             var rowData = runsTable.row(clickedRow).data();
-
+            console.log(rowData.id);
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
@@ -235,12 +235,12 @@
                 url: "ajax/ajaxquery.php",
                 data: {
                     "project_id": project_id,
-                    "p": "getProjectFiles"
+                    "p": "getProjectInputs"
                 },
                 "dataSrc": ""
             },
             "columns": [{
-                "data": "file_path"
+                "data": "name"
             },  {
                 data: null,
                 className: "center",
@@ -267,23 +267,23 @@
                 var savetype = $('#mIdFile').val();
                 var data = formValues.serializeArray(); // convert form to array
 //                data.push({ name: "project_id", value: project_id });
-                data.push({ name: "p", value: "saveFile" });
-                //insert into file table
-                var fileGet = getValues(data);
-                var fileID = fileGet.id;
-                //insert into project_file table
-                var proFileGet = getValues({ "p": "saveProjectFile", "file_id": fileID, "project_id": project_id });
-                var projectFileID = proFileGet.id;
-                //get filedata from file table
-                var proFileGet = getValues({ "p": "getFiles", "id": fileID, });
-                //insert into #filetable
+                data.push({ name: "p", value: "saveInput" });
+                //insert into input table
+                var inputGet = getValues(data);
+                var inputID = inputGet.id;
+                //insert into project_input table
+                var proInputGet = getValues({ "p": "saveProjectInput", "input_id": inputID, "project_id": project_id });
+                var projectInputID = proInputGet.id;
+                //get inputdata from input table
+                var proInputGet = getValues({ "p": "getInputs", "id": inputID, });
+                //insert into #filestable
                 var rowData = {};
                 var keys = filesTable.settings().init().columns;
                 for (var i = 0; i < keys.length; i++) {
                     var key = keys[i].data;
-                    rowData[key] = proFileGet[0][key];
+                    rowData[key] = proInputGet[0][key];
                 }
-                rowData.id = projectFileID;
+                rowData.id = projectInputID;
                 filesTable.row.add(rowData).draw();
             }
             $('#fileModal').modal('hide');
@@ -295,13 +295,18 @@
 
             var clickedRow = $(this).closest('tr');
             var rowData = filesTable.row(clickedRow).data();
-            console.log(rowData);
+            //xxx check if input is used in any project_pipeline_input or project_input
+            // then allow to delete
+            //get input_id from project input table
+	        var proInputGet = getValues({"p": "getProjectInput", id: rowData.id});
+            var input_id = proInputGet[0].input_id;
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
                 data: {
                     id: rowData.id,
-                    p: "removeProjectFile"
+                    input_id: input_id,
+                    p: "removeProjectInput"
                 },
                 async: true,
                 success: function (s) {

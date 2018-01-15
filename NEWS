@@ -1,3 +1,8 @@
+15.01.2018 Version 0.0.29
+Basic File/Set/Val selection/edit/delete feature in the run pipeline page completed.
+Database integration input, project_input, project_pipeline_input and run tables are completed.
+Run pipeline command creates run directory in RUNPATH and copy the the nextflow file.
+
 12.01.2018 Version 0.0.28
 Run Pipeline page upgraded.
 

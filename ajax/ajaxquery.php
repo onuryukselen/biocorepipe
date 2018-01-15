@@ -32,6 +32,27 @@ if (isset($_REQUEST['id'])) {
 if ($p=="createNextflow"){
 	$data = $db -> getNextflow($id);
 }
+else if ($p=="saveRun"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+	$nextText = $_REQUEST['nextText'];
+    if (!empty($id)) {
+//    $data = $db -> updateRun($id, $project_pipeline_id, $owner_id);
+    } else {
+    $idRun = $db -> insertRun($project_pipeline_id, $ownerID);
+    $idarray = json_decode($idRun,true); 
+    $run_id = $idarray["id"];
+    $nextText = urldecode($nextText);
+    $db -> insRun($run_id,$nextText);
+    //get input parameters
+    $allinputs = json_decode($db ->getProjectPipelineInputs("", $project_pipeline_id,$ownerID));
+    $cmd='nextflow nextflow.nf -c nextflow.config ';
+    foreach ($allinputs as $inputitem):
+        $cmd.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
+    endforeach;
+        $data = $cmd;
+    }
+
+}
 
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);
@@ -47,21 +68,28 @@ else if ($p=="getProjectPipelines"){
     $project_id = $_REQUEST['project_id'];
     $data = $db -> getProjectPipelines($id,$project_id,$ownerID);
 }
-else if ($p=="getProjectFiles"){
+else if ($p=="getProjectInputs"){
     $project_id = $_REQUEST['project_id'];
-    $data = $db -> getProjectFiles($project_id,$ownerID);
+    $data = $db -> getProjectInputs($project_id,$ownerID);
 }
-else if ($p=="getProjectPipelineFiles"){
+else if ($p=="getProjectInput"){
+    $data = $db -> getProjectInput($id,$ownerID);
+}
+else if ($p=="getProjectPipelineInputs"){
     $g_num = $_REQUEST['g_num'];
     $project_pipeline_id = $_REQUEST['project_pipeline_id'];
-    $data = $db->getProjectPipelineFiles($g_num, $project_pipeline_id,$ownerID);
+    if (!empty($id)) {
+    $data = $db->getProjectPipelineInputsById($id,$ownerID);
+    } else {
+    $data = $db->getProjectPipelineInputs($g_num, $project_pipeline_id,$ownerID);
+    }
 }
-else if ($p=="getAllProjectPipelineFiles"){
+else if ($p=="getAllProjectPipelineInputs"){
     $project_pipeline_id = $_REQUEST['project_pipeline_id'];
-       $data = $db->getAllProjectPipelineFiles($project_pipeline_id,$ownerID);
+       $data = $db->getAllProjectPipelineInputs($project_pipeline_id,$ownerID);
 }
-else if ($p=="getFiles"){
-    $data = $db -> getFiles($id,$ownerID);
+else if ($p=="getInputs"){
+    $data = $db -> getInputs($id,$ownerID);
 }
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
@@ -93,11 +121,20 @@ else if ($p=="removeProject"){
     $db -> removeProjectPipelinebyProjectID($id);
     $data = $db -> removeProject($id);
 }
-else if ($p=="removeProjectPipeline"){   
+else if ($p=="removeProjectPipeline"){  
+    $db -> removeProjectPipelineInputByPipe($id);
     $data = $db -> removeProjectPipeline($id);
 }
-else if ($p=="removeProjectFile"){   
-    $data = $db -> removeProjectFile($id);
+else if ($p=="removeProjectInput"){   
+    $input_id = $_REQUEST['input_id'];
+    $db -> removeProjectInput($id);
+    $data = $db -> removeInput($input_id);
+}
+else if ($p=="removeInput"){   
+    $data = $db -> removeInput($id);
+}
+else if ($p=="removeProjectPipelineInput"){   
+    $data = $db -> removeProjectPipelineInput($id);
 }
 else if ($p=="removeProjectPipelinebyProjectID"){   
     $data = $db -> removeProjectPipelinebyProjectID($id);
@@ -117,35 +154,34 @@ else if ($p=="saveParameter"){
     }
 }
 
-else if ($p=="saveFile"){
+else if ($p=="saveInput"){
     $name = $_REQUEST['name'];
-    $file_path = $_REQUEST['file_path'];
-    $file_ext = $_REQUEST['file_ext'];
-    $sample_id = $_REQUEST['sample_id'];
     
     if (!empty($id)) {
-       $data = $db->updateFile($id, $name, $file_path, $file_ext, $sample_id, $ownerID);
+       $data = $db->updateInput($id, $name, $ownerID);
     } else {
-       $data = $db->insertFile($name, $file_path, $file_ext, $sample_id, $ownerID);
+       $data = $db->insertInput($name, $ownerID);
     }
 }
-else if ($p=="saveProPipeFile"){
-    $file_id = $_REQUEST['file_id'];
+else if ($p=="saveProPipeInput"){
+    $input_id = $_REQUEST['input_id'];
     $project_id = $_REQUEST['project_id'];
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $g_num = $_REQUEST['g_num'];
+    $given_name = $_REQUEST['given_name'];
+    $qualifier = $_REQUEST['qualifier'];
     
     if (!empty($id)) {
-       $data = $db->updateProPipeFile($id, $project_pipeline_id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+       $data = $db->updateProPipeInput($id, $project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name,$qualifier, $ownerID);
     } else {
-       $data = $db->insertProPipeFile($project_pipeline_id, $file_id, $project_id, $pipeline_id, $g_num, $ownerID);
+       $data = $db->insertProPipeInput($project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name,$qualifier, $ownerID);
     }
 }
-else if ($p=="saveProjectFile"){
-    $file_id = $_REQUEST['file_id'];
+else if ($p=="saveProjectInput"){
+    $input_id = $_REQUEST['input_id'];
     $project_id = $_REQUEST['project_id'];
-    $data = $db->insertProjectFile($project_id, $file_id, $ownerID);
+    $data = $db->insertProjectInput($project_id, $input_id, $ownerID);
 }
 else if ($p=="saveUser"){
     $google_id = $_REQUEST['google_id'];
@@ -296,15 +332,15 @@ else if ($p=="getMaxPipRev_id")
     $pipeline_gid = $_REQUEST['pipeline_gid'];
     $data = $db->getMaxPipRev_id($pipeline_gid);
 }
-else if ($p=="getInputs")
+else if ($p=="getInputsPP")
 {
 	$process_id = $_REQUEST['process_id'];
-    $data = $db->getInputs($process_id);
+    $data = $db->getInputsPP($process_id);
 }
-else if ($p=="getOutputs")
+else if ($p=="getOutputsPP")
 {
 	$process_id = $_REQUEST['process_id'];
-    $data = $db->getOutputs($process_id);
+    $data = $db->getOutputsPP($process_id);
 }
 else if ($p=="getParametersData")
 {

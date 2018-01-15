@@ -200,6 +200,7 @@
 	              createEdges(eds[0], eds[1])
 	          }
 	      }
+	      checkReadytoRun();
 	  }
 
 
@@ -425,12 +426,12 @@
 	          addProPipeTab(id)
 
 	          var inputs = getValues({
-	              p: "getInputs",
+	              p: "getInputsPP",
 	              "process_id": process_id
 	          })
 
 	          var outputs = getValues({
-	              p: "getOutputs",
+	              p: "getOutputsPP",
 	              "process_id": process_id
 	          })
 	          //gnum uniqe, id same id (Written in class) in same type process
@@ -1056,27 +1057,28 @@
 	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
 	          } else {
 	              if (rowType === 'input') {
-	                  var selectFileButton = getButtonsModal('inputFile', 'Select File');
+	                  if (paraQualifier === 'file') {
+	                      var selectFileButton = getButtonsModal('inputFile', 'Select File');
+	                  } else if (paraQualifier === 'val') {
+	                      var selectFileButton = getButtonsModal('inputVal', 'Enter Value');
+	                  } else {
+	                      var selectFileButton = getButtonsModal('inputFile', 'Select Set');
+	                  }
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-	                  //xxx get project_pipeline_files:
-                      console.log(project_pipeline_id);
-                      console.log(firGnum);
-	                  var getProPipeFiles = getValues({
-	                      p: "getProjectPipelineFiles",
+	                  //xxx get project_pipeline_inputs:
+	                  var getProPipeInputs = getValues({
+	                      p: "getProjectPipelineInputs",
 	                      project_pipeline_id: project_pipeline_id,
 	                      g_num: firGnum
 	                  });
-	                  console.log(getProPipeFiles)
-                      if (getProPipeFiles.length === 1) {
-                          var rowID=rowType + 'Ta-' + firGnum;
-                          var filePath = getProPipeFiles[0].file_path;
-                          insertSelectFile(rowID, firGnum, filePath);
-                          
-                      }
-                      
+	                  if (getProPipeInputs.length === 1) {
+	                      var rowID = rowType + 'Ta-' + firGnum;
+	                      var filePath = getProPipeInputs[0].name; //value for val type
+	                      var proPipeInputID = getProPipeInputs[0].id;
+	                      insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
 
-
+	                  }
 	              } else if (rowType === 'output') {
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, 'NA');
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
@@ -1433,8 +1435,8 @@
 	                          secPart = secPart + secPartTemp
 	                          break
 	                      } else if (qual === "val") {
-	                          firstPartTemp = "params." + genParName + " =\"" + inputParamName + "\" \n"
-	                          secPartTemp = channelName + " = " + "params." + genParName + "\n"
+	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
+	                          secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
 	                          firstPart = firstPart + firstPartTemp
 	                          secPart = secPart + secPartTemp
 	                          break
@@ -1746,7 +1748,6 @@
 	                      savedList.push({ "rev_id": newPipRev_id });
 	                      sl = JSON.stringify(savedList);
 	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	                      //	                      console.log(ret);
 	                      $('#confirmRevision').modal('hide');
 	                      $('#autosave').text('Changes saved on new revision');
 	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
@@ -1850,12 +1851,12 @@
 	          //--Pipeline details table ends---
 
 	          inputs = getValues({
-	              p: "getInputs",
+	              p: "getInputsPP",
 	              "process_id": id
 	          })
 
 	          outputs = getValues({
-	              p: "getOutputs",
+	              p: "getOutputsPP",
 	              "process_id": id
 	          })
 
@@ -2039,10 +2040,11 @@
 	          data: getPipelineD,
 	          async: true,
 	          success: function (s) {
-	              $('#pipeline-title').changeVal(s[0].name);
+	              $('#pipeline-title').text(s[0].name);
+	              $('#pipeline-title').attr('href', 'index.php?np=1&id=' + pipeline_id);
+	              $('#project-title').attr('href', 'index.php?np=2&id=' + project_id);
 	              $('#pipelineSum').val(s[0].summary);
 	              openPipeline(pipeline_id);
-	              $('#pipeline-title').attr('disabled', "disabled")
 	              $('#pipelineSum').attr('disabled', "disabled");
 	          },
 	          error: function (errorThrown) {
@@ -2053,18 +2055,145 @@
 
 	  function loadProjectPipeline(pipeData) {
 	      $('#creatorInfoPip').css('display', "block");
+	      $('#project-title').text(pipeData[0].project_name);
 	      $('#ownUserNamePip').text(pipeData[0].username);
 	      $('#datecreatedPip').text(pipeData[0].date_created);
 	      $('.lasteditedPip').text(pipeData[0].date_modified);
-	      $("#pipeline-title").attr('disabled', "disabled");
+	      //	      $("#pipeline-title").attr('disabled', "disabled");
 	  }
 
-	  function insertSelectFile(rowID, gNumParam, filePath) {
-	      var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
-	      var deleteIcon = getIconButtonModal('inputDel', 'Delete', 'fa fa-trash-o');
+	  function insertSelectInput(rowID, gNumParam, filePath, proPipeInputID, qualifier) {
+	      if (qualifier === 'file' || qualifier === 'set') {
+	          var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
+	          var deleteIcon = getIconButton('inputDel', 'Delete', 'fa fa-trash-o');
+	          $('#' + rowID).find('#inputFileSelect').css('display', 'none');
+	      } else {
+	          var editIcon = getIconButtonModal('inputVal', 'Edit', 'fa fa-pencil');
+	          var deleteIcon = getIconButton('inputVal', 'Delete', 'fa fa-trash-o');
+	          $('#' + rowID).find('#inputValEnter').css('display', 'none');
+	      }
 	      $('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
-          $('#' + rowID).find('#inputFileSelect').css('display', 'none');
-          
+	      $('#' + rowID).attr('propipeinputid', proPipeInputID);
+	  }
+	  //xxx
+	  function removeSelectFile(rowID, sType) {
+	      if (sType === 'file' || sType === 'set') {
+	          $('#' + rowID).find('#inputFileSelect').css('display', 'inline');
+	      } else if (sType === 'val') {
+	          $('#' + rowID).find('#inputValEnter').css('display', 'inline');
+	      }
+	      $('#' + rowID + '> :nth-child(6) > span').remove();
+	      $('#' + rowID + '> :nth-child(6) > button')[2].remove();
+	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
+	      $('#' + rowID).removeAttr('propipeinputid');
+	  }
+
+	  function saveFileSetValModal(data, sType) {
+	      if (sType === 'file' || sType === 'set') {
+	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      } else if (sType === 'val') {
+	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      }
+	      var gNumParam = rowID.split('-')[1];
+	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
+	      data.push({ name: "p", value: "saveInput" });
+	      //insert into input table
+	      var inputGet = getValues(data);
+	      var input_id = inputGet.id;
+	      //insert into project_input table
+	      var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+	      var projectInputID = proInputGet.id;
+	      //insert into project_pipeline_input table
+	      var propipeInputGet = getValues({
+	          "p": "saveProPipeInput",
+	          "input_id": input_id,
+	          "project_id": project_id,
+	          "pipeline_id": pipeline_id,
+	          "project_pipeline_id": project_pipeline_id,
+	          "g_num": gNumParam,
+	          "given_name": given_name,
+	          "qualifier": qualifier
+	      });
+	      var projectPipelineInputID = propipeInputGet.id;
+	      //get inputdata from input table
+	      var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
+	      var filePath = proInputGet[0].name;
+	      //insert into #inputsTab
+	      insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
+	      checkReadytoRun();
+	  }
+
+	  function editFileSetValModal(data, sType) {
+	      if (sType === 'file' || sType === 'set') {
+	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      } else if (sType === 'val') {
+	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      }
+	      var gNumParam = rowID.split('-')[1];
+	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	      data.push({ name: "p", value: "saveInput" });
+	      //update file table
+	      var inputGet = getValues(data);
+	      var input_id = data[0].value;
+	      //update #inputsTab
+	      $('#filePath-' + gNumParam).text(data[1].value);
+	      checkReadytoRun();
+	  }
+
+	  function checkReadytoRun() {
+	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	      var getProPipeInputs = getValues({
+	          p: "getProjectPipelineInputs",
+	          project_pipeline_id: project_pipeline_id,
+	      });
+	      var numInputRows = $('#inputsTable > tbody').find('tr').length;
+	      if (getProPipeInputs.length === numInputRows) {
+	          $('#runProPipe').css('display', 'inline');
+	          $('#statusProPipe').css('display', 'none');
+	      } else {
+	          $('#runProPipe').css('display', 'none');
+	          $('#statusProPipe').css('display', 'inline');
+	      }
+	  }
+	  //xxx
+	  function runProjectPipe() {
+	      var nextTextRaw = createNextflowFile();
+	      nextText = encodeURIComponent(nextTextRaw);
+	      var delIntermediate = '';
+	      var environment = '';
+	      var profiles = {
+	          standard: {
+	              'process.executor': 'local'
+	          },
+	          cluster: {
+	              'process.executor': 'sge',
+	              'process.queue': 'long',
+	              'process.memory': '10GB'
+	          },
+	          cloud: {
+	              'process.executor': 'cirrus',
+	              'process.container': 'cbcrg/imagex',
+	              'docker.enabled': true
+	          }
+	      }
+
+	      var nextTextSend = getValues({
+	          p: "saveRun",
+	          nextText: nextText,
+	          project_pipeline_id: project_pipeline_id
+	      });
+
+	  }
+
+	  function callPHP() {
+	      var data = new FormData();
+	      data.append("data", "the_text_you_want_to_save");
+	      console.log(data);
+	      var xhr = new XMLHttpRequest();
+	      //var xhr = (window.XMLHttpRequest) ? new XMLHttpRequest() : new activeXObject("Microsoft.XMLHTTP");
+	      xhr.open('post', 'php/runpipeline.php', true);
+	      xhr.send(data);
 	  }
 
 
@@ -2074,7 +2203,6 @@
 	      pipeline_id = pipeData[0].pipeline_id;
 	      project_id = pipeData[0].project_id;
 	      $('#pipeline-title').attr('pipeline_id', pipeline_id);
-	      console.log(pipeData);
 	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
 	          loadProjectPipeline(pipeData);
@@ -2083,61 +2211,120 @@
 	      $('#inputFilemodal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
 	          $(this).find('form').trigger('reset');
-	          var clickedRow = button.closest('tr'); //#inputTa-3
+	          var clickedRow = button.closest('tr');
+	          var rowID = clickedRow[0].id; //#inputTa-3
+	          var gNumParam = rowID.split('-')[1];
+
 	          if (button.attr('id') === 'inputFileSelect') {
 	              $('#filemodaltitle').html('Select/Add Input File');
-	              $('#mIdFile').attr('rowID', clickedRow[0].id);
+	              $('#mIdFile').attr('rowID', rowID);
 	          } else if (button.attr('id') === 'inputFileEdit') {
 	              $('#filemodaltitle').html('Change Input File');
-	              $('#mIdFile').attr('rowID', clickedRow[0].id);
-	              //get gnum file data
-	              //	              $('#mIdFile').val( clickedRow[0].id);
+	              $('#mIdFile').attr('rowID', rowID);
+	              var proPipeInputID = $('#' + rowID).attr('propipeinputid');
+	              $('#mIdFile').val(proPipeInputID);
+	              // Get the input id of proPipeInput;
+	              var proInputGet = getValues({ "p": "getProjectPipelineInputs", "id": proPipeInputID });
+	              var input_id = proInputGet[0].input_id;
+	              var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
+	              //insert data into form
+	              var formValues = $('#inputFilemodal').find('input');
+	              var keys = Object.keys(inputGet);
+	              for (var i = 0; i < keys.length; i++) {
+	                  $(formValues[i]).val(inputGet[keys[i]]);
+	              }
+
 	          }
 	      });
 
 	      $('#inputFilemodal').on('click', '#selectfile', function (e) {
 	          e.preventDefault();
-	          var checkTab = $('#inputFilemodal').find('.active');
-	          var checkdata = checkTab[1].getAttribute('id');
-	          if (checkdata === 'manualTab') {
+	          var savetype = $('#mIdFile').val();
+	          if (!savetype.length) { //add item
+	              var checkTab = $('#inputFilemodal').find('.active');
+	              var checkdata = checkTab[1].getAttribute('id');
+	              if (checkdata === 'manualTab') {
+	                  var formValues = $('#inputFilemodal').find('input');
+	                  var data = formValues.serializeArray(); // convert form to array
+	                  // check if name is entered 
+	                  if (data[1].value !== '') {
+	                      saveFileSetValModal(data, 'file');
+	                      $('#inputFilemodal').modal('hide');
+	                  }
+	              }
+	          } else { //edit item
 	              var formValues = $('#inputFilemodal').find('input');
-	              var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
-	              var gNumParam = rowID.split('-')[1];
 	              var data = formValues.serializeArray(); // convert form to array
-	              data.push({ name: "p", value: "saveFile" });
-	              //insert into file table
-	              var fileGet = getValues(data);
-	              var file_id = fileGet.id;
-	              //insert into project_file table
-	              var proFileGet = getValues({ "p": "saveProjectFile", "file_id": file_id, "project_id": project_id });
-	              var projectFileID = proFileGet.id;
-	              //insert into project_pipeline_file table
-                  console.log(project_pipeline_id);
-	              var propipeFileGet = getValues({
-	                  "p": "saveProPipeFile",
-	                  "file_id": file_id,
-	                  "project_id": project_id,
-	                  "pipeline_id": pipeline_id,
-	                  "project_pipeline_id": project_pipeline_id,
-	                  "g_num": gNumParam
-	              });
-	              var projectPipelineFileID = propipeFileGet.id;
-                  console.log(propipeFileGet);
-	              //get filedata from file table
-	              var proFileGet = getValues({ "p": "getFiles", "id": file_id, });
-	              var filePath = proFileGet[0].file_path;
-	              //insert into #inputsTab
-	              insertSelectFile(rowID, gNumParam, filePath);
+	              // check if file_path is entered //xx?
+	              if (data[1].value !== '') {
+	                  editFileSetValModal(data, 'file');
+	                  $('#inputFilemodal').modal('hide');
+	              }
 	          }
-
-	          $('#inputFilemodal').modal('hide');
-
 	      });
 
+	      $('#inputsTab').on('click', '#inputDelDelete, #inputValDelete', function (e) {
 
+	          var clickedRow = $(this).closest('tr');
+	          var rowID = clickedRow[0].id; //#inputTa-3
+	          var gNumParam = rowID.split('-')[1];
+	          var proPipeInputID = $('#' + rowID).attr('propipeinputid');
+	          var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
+	          removeSelectFile(rowID, qualifier);
+	          checkReadytoRun();
+	      });
 
+	      $('#inputValmodal').on('show.bs.modal', function (e) {
+	          var button = $(e.relatedTarget);
+	          $(this).find('form').trigger('reset');
+	          var clickedRow = button.closest('tr');
+	          var rowID = clickedRow[0].id; //#inputTa-3
+	          var gNumParam = rowID.split('-')[1];
+	          if (button.attr('id') === 'inputValEnter') {
+	              $('#valmodaltitle').html('Add Value');
+	              $('#mIdVal').attr('rowID', rowID);
+	          } else if (button.attr('id') === 'inputValEdit') {
+	              $('#valmodaltitle').html('Edit Value');
+	              $('#mIdVal').attr('rowID', rowID);
+	              var proPipeInputID = $('#' + rowID).attr('propipeinputid');
+	              $('#mIdVal').val(proPipeInputID);
+	              // Get the input id of proPipeInput;
+	              var proInputGet = getValues({ "p": "getProjectPipelineInputs", "id": proPipeInputID });
+	              var input_id = proInputGet[0].input_id;
+	              var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
+	              //insert data into form
+	              var formValues = $('#inputValmodal').find('input');
+	              var keys = Object.keys(inputGet);
+	              for (var i = 0; i < keys.length; i++) {
+	                  $(formValues[i]).val(inputGet[keys[i]]);
+	              }
 
+	          }
+	      });
 
+	      $('#inputValmodal').on('click', '#saveValue', function (e) {
+	          e.preventDefault();
+	          var savetype = $('#mIdVal').val();
+	          if (!savetype.length) { //add item
+	              var formValues = $('#inputValmodal').find('input');
+	              var data = formValues.serializeArray(); // convert form to array
+	              // check if value is entered 
+	              if (data[1].value !== '') {
+	                  saveFileSetValModal(data, 'val');
+	                  $('#inputValmodal').modal('hide');
+	              }
+	          } else { //edit item
+	              var formValues = $('#inputValmodal').find('input');
+	              var data = formValues.serializeArray(); // convert form to array
+	              var filePath = data[1].value;
+	              // check if file_path is entered //xx?
+	              if (filePath !== '') {
+	                  editFileSetValModal(data, 'val');
+	                  $('#inputValmodal').modal('hide');
+	              }
+	          }
+	      });
 
 
 
