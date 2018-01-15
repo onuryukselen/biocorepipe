@@ -24,20 +24,26 @@ function getTableButtons(name, buttons) {
 // eg. name:run buttons:select
 function getButtonsModal(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal">' + buttons +'</button> &nbsp; '
+    var button = '<button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal">' + buttons +'</button> &nbsp;';
     return button;
     }
 //Default type of buttons
 function getButtonsDef(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'">' + buttons +'</button> &nbsp; ';
+    var button = '<button type="submit" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'">' + buttons +'</button> &nbsp;';
     return button;
     }
 
 
 function getIconButtonModal(name, buttons, icon) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal"><a data-toggle="tooltip" data-placement="bottom" data-original-title="'+ name + '"><i class="' + icon +'" style="font-size: 17px;"></i></a></button> &nbsp; ';
+    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal"><a data-toggle="tooltip" data-placement="bottom" data-original-title="'+ name + '"><i class="' + icon +'" style="font-size: 17px;"></i></a></button>';
+    return button;
+    }
+
+function getIconButton(name, buttons, icon) {
+    var buttonId = buttons.split(' ')[0];
+    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId +'"><a data-toggle="tooltip" data-placement="bottom" data-original-title="'+ name + '"><i class="' + icon +'" style="font-size: 17px;"></i></a></button>';
     return button;
     }
 

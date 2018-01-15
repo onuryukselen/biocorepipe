@@ -197,11 +197,11 @@ function loadSelectedProcess(selProcessId) {
     $('#mProcessGroup')[0].selectize.setValue(showProcess.process_group_id, false);
     //Ajax for selected process input/outputs
     var inputs = getValues({
-        p: "getInputs",
+        p: "getInputsPP",
         "process_id": selProcessId
     });
     var outputs = getValues({
-        p: "getOutputs",
+        p: "getOutputsPP",
         "process_id": selProcessId
     });
     for (var i = 0; i < inputs.length; i++) {
@@ -266,8 +266,8 @@ function checkProParameters(inputProParams, outputProParams, proID) {
 
     var pro1inputs = inputProParams;
     var pro1outputs = outputProParams;
-    var pro2inputs = getValues({ p: "getInputs", "process_id": proID });
-    var pro2outputs = getValues({ p: "getOutputs", "process_id": proID });
+    var pro2inputs = getValues({ p: "getInputsPP", "process_id": proID });
+    var pro2outputs = getValues({ p: "getOutputsPP", "process_id": proID });
     $.each(pro2inputs, function (element) {
         delete pro2inputs[element].id;
     });
@@ -587,11 +587,11 @@ function disableProModal(selProcessId) {
     editor.setReadOnly(true);
     //Ajax for selected process input/outputs
     var inputs = getValues({
-        p: "getInputs",
+        p: "getInputsPP",
         "process_id": selProcessId
     });
     var outputs = getValues({
-        p: "getOutputs",
+        p: "getOutputsPP",
         "process_id": selProcessId
     });
     for (var i = 0; i < inputs.length; i++) {
@@ -1114,8 +1114,8 @@ $(document).ready(function () {
                             var startPoint = 6; //first object in data array where inputparameters starts.
                             var ppIDinputList;
                             var ppIDoutputList;
-                            var inputsBefore = getValues({ p: "getInputs", "process_id": proID });
-                            var outputsBefore = getValues({ p: "getOutputs", "process_id": proID });
+                            var inputsBefore = getValues({ p: "getInputsPP", "process_id": proID });
+                            var outputsBefore = getValues({ p: "getOutputsPP", "process_id": proID });
                             [ppIDinputList, ppIDoutputList] = addProParatoDB(data, startPoint, proID);
                             updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
                             refreshDataset();

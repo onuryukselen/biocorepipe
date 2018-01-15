@@ -77,7 +77,7 @@
             <table id="filetable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
-                        <th>File Path</th>
+                        <th>Files</th>
 <!--                        <th>File Extention</th>-->
 <!--                        <th>Sample ID</th>-->
                         <th>Actions</th>
@@ -148,16 +148,10 @@
                                             <input type="text" class="form-control" id="mIdFile" name="id">
                                         </div>
                                     </div>
-                                    <div class="form-group" style="display:none">
-                                        <label for="mFileName" class="col-sm-2 control-label">File Name</label>
-                                        <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="mFileName" name="name">
-                                        </div>
-                                    </div>
                                     <div class="form-group">
                                         <label for="mFilePath" class="col-sm-2 control-label">File Path</label>
                                         <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="mFilePath" name="file_path">
+                                            <input type="text" class="form-control" id="mFilePath" name="name">
                                         </div>
                                     </div>
                                 </form>
