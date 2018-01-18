@@ -1,0 +1,6 @@
+N E X T F L O W  ~  version 0.26.3
+Launching `nextflow.nf` [kickass_noether] - revision: 68f898a4e3
+[warm up] executor > local
+[7f/63b11a] Submitted process > Build_Index
+[a9/39a9f5] Submitted process > Map_Tophat2 (1)
+[ed/c94faa] Submitted process > Map_Tophat2 (2)

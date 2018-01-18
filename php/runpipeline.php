@@ -1,4 +1,4 @@
-   <style>
+<style>
     .nodisp {
         display: block
     }
@@ -17,8 +17,10 @@
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;">
+            <button class="btn btn-success" type="submit" id="completeProPipe" style="display:none; vertical-align:middle;">Completed</button>
+            <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>
             <button class="btn btn-success" type="submit" id="runProPipe" onclick="runProjectPipe()" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
-            <button class="btn btn-warning" type="submit" id="statusProPipe"  style="vertical-align:middle;" title="Waiting for input files" data-placement="bottom" data-toggle="tooltip">Waiting</button>
+            <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters and selection of environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>
 </div>
@@ -36,6 +38,18 @@
     <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
+<div id="runLogs" style=" display:none;">
+    <div style="padding-bottom:7px;">
+        <h4>Run Logs</h4>
+    </div>
+    <div>
+        <div>
+            <textarea disabled id="runLogArea" rows="5" style="overflow-y: scroll; min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
+        </div>
+    </div>
+    </br>
+</div>
+
 <div id="runSettings">
     <div style="padding-bottom:7px;">
         <h4>Run Settings</h4>
@@ -48,10 +62,9 @@
             <div class="form-group">
                 <select style=" width:150px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
                   <option value="" disabled selected>Choose environment </option>
-                  <option value="loc">Local</option>
-                  <option value="locdocker">Local with Docker</option>
-                  <option value="clus">Cluster</option>
-                  <option value="clusdocker">Cluster with Docker</option>
+                  <option value="local">Local</option>
+                  <option value="cluster">Cluster</option>
+                  <option value="amazon">Amazon</option>
             </select>
             </div>
         </form>

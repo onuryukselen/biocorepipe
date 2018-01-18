@@ -1,0 +1,56 @@
+Jan-18 03:25:29.977 [main] DEBUG nextflow.cli.Launcher - $> /usr/bin/nextflow nextflow.nf --hg19 /mac/biocore/nextflowruns/trial1/data/ggal/ggal_1_48850000_49020000.Ggal71.500bpflank.fa --mate pair --gut_and_liver_readpairs /mac/biocore/nextflowruns/trial1/data/ggal/*_{1,2}.fq -with-trace
+Jan-18 03:25:30.141 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 0.26.3
+Jan-18 03:25:30.158 [main] INFO  nextflow.cli.CmdRun - Launching `nextflow.nf` [intergalactic_spence] - revision: 68f898a4e3
+Jan-18 03:25:30.174 [main] DEBUG nextflow.config.ConfigBuilder - Found config local: nextflow.config
+Jan-18 03:25:30.177 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /mac/biocore/biocorepipe/tmp/logs/run176/nextflow.config
+Jan-18 03:25:30.477 [main] DEBUG nextflow.config.ConfigBuilder - Setting config profile: 'standard'
+Jan-18 03:25:30.668 [main] DEBUG nextflow.Session - Session uuid: 847aa5de-bc38-4d39-8ff4-19c512860caa
+Jan-18 03:25:30.669 [main] DEBUG nextflow.Session - Run name: intergalactic_spence
+Jan-18 03:25:30.672 [main] DEBUG nextflow.Session - Executor pool size: 4
+Jan-18 03:25:30.693 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 0.26.3 build 4740
+  Modified: 30-11-2017 15:51 UTC 
+  System: Linux 4.9.49-moby
+  Runtime: Groovy 2.4.11 on Java HotSpot(TM) 64-Bit Server VM 1.8.0_151-b12
+  Encoding: UTF-8 (ANSI_X3.4-1968)
+  Process: 11976@22ce10a5da07 [172.17.0.2]
+  CPUs: 4 - Mem: 2 GB (1 GB) - Swap: 1,024 MB (1,024 MB)
+Jan-18 03:25:30.740 [main] DEBUG nextflow.Session - Work-dir: /mac/biocore/biocorepipe/tmp/logs/run176/work [fuseblk]
+Jan-18 03:25:30.741 [main] DEBUG nextflow.Session - Script base path does not exist or is not a directory: /mac/biocore/biocorepipe/tmp/logs/run176/bin
+Jan-18 03:25:30.903 [main] DEBUG nextflow.Session - Session start invoked
+Jan-18 03:25:30.907 [main] DEBUG nextflow.processor.TaskDispatcher - Dispatcher > start
+Jan-18 03:25:30.908 [main] DEBUG nextflow.trace.TraceFileObserver - Flow starting -- trace file: /mac/biocore/biocorepipe/tmp/logs/run176/trace.txt
+Jan-18 03:25:30.942 [main] DEBUG nextflow.script.ScriptRunner - > Script parsing
+Jan-18 03:25:31.100 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Jan-18 03:25:31.123 [main] DEBUG nextflow.Channel - files for syntax: glob; folder: /mac/biocore/nextflowruns/trial1/data/ggal/; pattern: *_{1,2}.fq; options: [:]
+Jan-18 03:25:31.301 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Jan-18 03:25:31.301 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Jan-18 03:25:31.308 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Jan-18 03:25:31.311 [main] INFO  nextflow.executor.Executor - [warm up] executor > local
+Jan-18 03:25:31.316 [main] DEBUG n.processor.LocalPollingMonitor - Creating local task monitor for executor 'local' > cpus=4; memory=2 GB; capacity=4; pollInterval=100ms; dumpInterval=5m
+Jan-18 03:25:31.326 [main] DEBUG nextflow.processor.TaskDispatcher - Starting monitor: LocalPollingMonitor
+Jan-18 03:25:31.327 [main] DEBUG n.processor.TaskPollingMonitor - >>> barrier register (monitor: local)
+Jan-18 03:25:31.330 [main] DEBUG nextflow.executor.Executor - Invoke register for executor: local
+Jan-18 03:25:31.368 [main] DEBUG nextflow.Session - >>> barrier register (process: Build_Index)
+Jan-18 03:25:31.373 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > Build_Index -- maxForks: 4
+Jan-18 03:25:31.409 [main] DEBUG nextflow.processor.ProcessFactory - << taskConfig executor: null
+Jan-18 03:25:31.409 [main] DEBUG nextflow.processor.ProcessFactory - >> processorType: 'local'
+Jan-18 03:25:31.410 [main] DEBUG nextflow.executor.Executor - Initializing executor: local
+Jan-18 03:25:31.411 [main] DEBUG nextflow.Session - >>> barrier register (process: Map_Tophat2)
+Jan-18 03:25:31.412 [main] DEBUG nextflow.processor.TaskProcessor - Creating operator > Map_Tophat2 -- maxForks: 4
+Jan-18 03:25:31.415 [main] DEBUG nextflow.script.ScriptRunner - > Await termination 
+Jan-18 03:25:31.415 [main] DEBUG nextflow.Session - Session await
+Jan-18 03:25:31.549 [Task submitter] INFO  nextflow.Session - [3a/2f36c1] Submitted process > Build_Index
+Jan-18 03:25:32.079 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 1; name: Build_Index; status: COMPLETED; exit: 0; error: -; workDir: /mac/biocore/biocorepipe/tmp/logs/run176/work/3a/2f36c1a7393b8e4c08e46b972acd12]
+Jan-18 03:25:32.122 [Actor Thread 1] DEBUG nextflow.Session - <<< barrier arrive (process: Build_Index)
+Jan-18 03:25:32.177 [Task submitter] INFO  nextflow.Session - [e5/5e9e8e] Submitted process > Map_Tophat2 (2)
+Jan-18 03:25:32.195 [Task submitter] INFO  nextflow.Session - [08/e31429] Submitted process > Map_Tophat2 (1)
+Jan-18 03:25:39.680 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 3; name: Map_Tophat2 (2); status: COMPLETED; exit: 0; error: -; workDir: /mac/biocore/biocorepipe/tmp/logs/run176/work/e5/5e9e8e763d3a9b64b30f858576d2e0]
+Jan-18 03:25:39.759 [Task monitor] DEBUG n.processor.TaskPollingMonitor - Task completed > TaskHandler[id: 2; name: Map_Tophat2 (1); status: COMPLETED; exit: 0; error: -; workDir: /mac/biocore/biocorepipe/tmp/logs/run176/work/08/e31429a664e7034bd8f1fe960b26bb]
+Jan-18 03:25:39.771 [Actor Thread 1] DEBUG nextflow.Session - <<< barrier arrive (process: Map_Tophat2)
+Jan-18 03:25:39.772 [main] DEBUG nextflow.Session - Session await > all process finished
+Jan-18 03:25:39.776 [Task monitor] DEBUG n.processor.TaskPollingMonitor - <<< barrier arrives (monitor: local)
+Jan-18 03:25:39.778 [main] DEBUG nextflow.Session - Session await > all barriers passed
+Jan-18 03:25:39.812 [main] DEBUG nextflow.trace.TraceFileObserver - Flow completing -- flushing trace file
+Jan-18 03:25:39.832 [main] DEBUG nextflow.CacheDB - Closing CacheDB done
+Jan-18 03:25:39.849 [main] DEBUG nextflow.script.ScriptRunner - > Execution complete -- Goodbye

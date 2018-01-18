@@ -1410,7 +1410,7 @@
 	                          break
 	                      } else if (qual === "set") {
 	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.end != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
+	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
 	                          firstPart = firstPart + firstPartTemp
 	                          secPart = secPart + secPartTemp
 	                          break
@@ -1501,6 +1501,10 @@
 	      if (script[0] === '"' && script[lastLetter] === '"') {
 	          script = script.substring(1, script.length - 1); //remove first and last duble quote
 	      }
+          //insert """ for script if not exist
+          if (script.search('"""') === -1){
+              script = '"""\n' + script + '\n"""'
+          }
 
 
 

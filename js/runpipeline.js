@@ -1430,7 +1430,7 @@
 	                          break
 	                      } else if (qual === "set") {
 	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.end != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
+	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
 	                          firstPart = firstPart + firstPartTemp
 	                          secPart = secPart + secPartTemp
 	                          break
@@ -1520,6 +1520,10 @@
 	      var lastLetter = script.length - 1;
 	      if (script[0] === '"' && script[lastLetter] === '"') {
 	          script = script.substring(1, script.length - 1); //remove first and last duble quote
+	      }
+	      //insert """ for script if not exist
+	      if (script.search('"""') === -1) {
+	          script = '"""\n' + script + '\n"""'
 	      }
 
 
@@ -2148,7 +2152,9 @@
 	          project_pipeline_id: project_pipeline_id,
 	      });
 	      var numInputRows = $('#inputsTable > tbody').find('tr').length;
-	      if (getProPipeInputs.length === numInputRows) {
+	      var profileNext = $('#chooseEnv').find(":selected").val();
+
+	      if (getProPipeInputs.length === numInputRows && profileNext !== '') {
 	          $('#runProPipe').css('display', 'inline');
 	          $('#statusProPipe').css('display', 'none');
 	      } else {
@@ -2156,44 +2162,93 @@
 	          $('#statusProPipe').css('display', 'inline');
 	      }
 	  }
+
+
 	  //xxx
 	  function runProjectPipe() {
 	      var nextTextRaw = createNextflowFile();
-	      nextText = encodeURIComponent(nextTextRaw);
+	      var nextText = encodeURIComponent(nextTextRaw);
 	      var delIntermediate = '';
-	      var environment = '';
-	      var profiles = {
-	          standard: {
-	              'process.executor': 'local'
-	          },
-	          cluster: {
-	              'process.executor': 'sge',
-	              'process.queue': 'long',
-	              'process.memory': '10GB'
-	          },
-	          cloud: {
-	              'process.executor': 'cirrus',
-	              'process.container': 'cbcrg/imagex',
-	              'docker.enabled': true
-	          }
-	      }
+	      var profileNext = $('#chooseEnv').find(":selected").val();
+	      console.log(profileNext);
 
+	      var configTextRaw = "";
+	      //	      var configTextRaw = 'profiles {' + '\n' +
+	      //	          'standard {' + '\n' +
+	      //	          '    process.executor = \'local\'' + '\n' +
+	      //	          '}' + '\n' +
+	      //	          'cluster {' + '\n' +
+	      //	          '    process.executor = \'sge\'' + '\n' +
+	      //	          '    process.queue = \'long\'' + '\n' +
+	      //	          '    process.memory = \'10GB\'' + '\n' +
+	      //	          '}' + '\n' +
+	      //	          'cloud {' + '\n' +
+	      //	          '    process.executor = \'cirrus\'' + '\n' +
+	      //	          '    process.container = \'cbcrg/imagex\'' + '\n' +
+	      //	          '   docker.enabled = true' + '\n' +
+	      //	          '}' + '\n' +
+	      //	          '}';
+	      var configText = encodeURIComponent(configTextRaw);
+
+
+	      //save nextflow text as nextflow.nf and start job
 	      var nextTextSend = getValues({
 	          p: "saveRun",
 	          nextText: nextText,
+	          configText: configText,
+	          profileNext: profileNext,
 	          project_pipeline_id: project_pipeline_id
 	      });
-
+          $('#runLogs').css('display','inline');
+	      $('#runProPipe').css('display', 'none');
+	      $('#runningProPipe').css('display', 'inline');
+          
+//	      checkRunStatus();
 	  }
 
-	  function callPHP() {
-	      var data = new FormData();
-	      data.append("data", "the_text_you_want_to_save");
-	      console.log(data);
-	      var xhr = new XMLHttpRequest();
-	      //var xhr = (window.XMLHttpRequest) ? new XMLHttpRequest() : new activeXObject("Microsoft.XMLHTTP");
-	      xhr.open('post', 'php/runpipeline.php', true);
-	      xhr.send(data);
+	  function checkRunStatus() {
+	      var runPid = getRunPid(project_pipeline_id);
+	      var status = "";
+	      intervalID = setInterval(function () {
+	          status = checkRunPid(runPid)
+	          console.log(status)
+	      }, 3000);
+	  }
+
+	  function checkRunPid(runPid) {
+          
+	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid });
+	      if (checkRunStatus === "running") {
+	          var runLog = getRunLog(project_pipeline_id);
+	          $('#runLogArea').val(runLog);
+	          return checkRunStatus;
+	      } else {
+	          var runLog = getRunLog(project_pipeline_id);
+	          $('#runLogArea').val(runLog);
+              $('#runningProPipe').css('display', 'none');
+              $('#completeProPipe').css('display', 'inline');
+	          clearInterval(intervalID);
+	      }
+	  }
+
+	  function getRunLog(project_pipeline_id) {
+
+	      var logText = getValues({
+	          p: "getRunLog",
+	          project_pipeline_id: project_pipeline_id
+	      });
+	      console.log(logText);
+	      return logText;
+	  }
+
+	  function getRunPid(project_pipeline_id) {
+
+	      var runData = getValues({
+	          p: "getRun",
+	          project_pipeline_id: project_pipeline_id
+	      });
+	      var runPid = runData[0].pid;
+	      return runPid;
 	  }
 
 
@@ -2326,6 +2381,12 @@
 	          }
 	      });
 
+	      $(function () {
+	          $(document).on('change', '#chooseEnv', function (event) {
+	              var selPipeRev = $('#chooseEnv option:selected').val();
+	              checkReadytoRun();
+	          })
+	      });
 
 
 
