@@ -1,4 +1,0 @@
-task_id	hash	native_id	name	status	exit	submit	duration	realtime	%cpu	rss	vmem	rchar	wchar
-1	7f/63b11a	18220	Build_Index	COMPLETED	0	2018-01-18 03:43:59.476	522ms	471ms	17.0%	15.5 MB	117.3 MB	1.2 MB	4.1 MB
-3	ed/c94faa	18331	Map_Tophat2 (2)	COMPLETED	0	2018-01-18 03:44:00.105	7.9s	7.8s	4.1%	41.7 MB	201.7 MB	337 MB	16.3 MB
-2	a9/39a9f5	18327	Map_Tophat2 (1)	COMPLETED	0	2018-01-18 03:44:00.089	8.1s	8s	23.3%	35.8 MB	197.7 MB	337 MB	16.4 MB
