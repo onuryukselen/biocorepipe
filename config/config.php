@@ -5,5 +5,5 @@
     define('DBPASS', '');
     define('DBPORT', 3306);
     define('LMUSER', 'root');
-    define('RUNPATH', 'temp');
+    define('RUNPATH', 'tmp');
 ?>

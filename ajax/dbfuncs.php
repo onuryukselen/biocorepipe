@@ -75,13 +75,66 @@ class dbfuncs {
      return json_encode($data);
    }
     
-    function insRun($run_id,$nextText)
+    function initRun($project_pipeline_id, $configText, $nextText)
     {
-    mkdir("../{$this->run_path}/{$run_id}", 0700, true);
-    $file = fopen("../{$this->run_path}/{$run_id}/nextflow.nf", 'w');//creates new file
-    fwrite($file, $nextText);
-    fclose($file);
+        mkdir("../{$this->run_path}/logs/run{$project_pipeline_id}", 0755, true);
+        $file = fopen("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
+        fwrite($file, $nextText);
+        fclose($file);
+        chmod("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.nf", 0755);
+        $file = fopen("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.config", 'w');//creates new file
+        fwrite($file, $configText);
+        fclose($file);
+        chmod("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.config", 0755);
     }
+    
+    function initRunCluster($project_pipeline_id, $configText, $nextText)
+    {
+        //mkdir in cluster
+        shell_exec("ssh oy28w@ghpcc06.umassrc.org 'mkdir -p ~/.dolphinnext/tmp/logs/run$project_pipeline_id'");
+        //copy nextflow file to run directory in cluster
+        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
+        shell_exec("scp $path/nextflow.nf oy28w@ghpcc06.umassrc.org:~/.dolphinnext/tmp/logs/run$project_pipeline_id");
+    }
+    
+    function runCmd($project_pipeline_id,$ownerID)
+    {
+        //get input parameters
+        $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
+        $next_inputs="";
+        foreach ($allinputs as $inputitem):
+            $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
+        endforeach;
+        //run command
+        $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1 && ';
+		$cmd .= "cd $path && nextflow nextflow.nf $next_inputs -with-trace> log.txt 2>&1 & echo $! &";
+        $pid_command = popen($cmd, "r" );
+        $pid = fread($pid_command, 2096);
+		$this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+		pclose($pid_command);
+        return json_encode($pid);
+    }
+    
+    function runCmdCluster($project_pipeline_id,$ownerID)
+    {
+        //get input parameters
+//         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
+        
+        $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+        $path= "~/.dolphinnext/tmp/logs/run$project_pipeline_id";
+        $next_inputs="";
+        foreach ($allinputs as $inputitem):
+            $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
+        endforeach;
+        //run command
+		$cmd="ssh oy28w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"/project/umw_biocore/bin/nextflow $path/nextflow.nf $next_inputs -with-trace> $path/log.txt \"'";
+        $pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+//        preg_match("/*<(.*)>/",$pidText, $matches);
+		$this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+        return json_encode($pid);
+    }
+
     
 //    ---------------  Users ---------------
     public function getUser($google_id) {
@@ -243,6 +296,32 @@ class dbfuncs {
 			('$project_pipeline_id', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
+    public function updateRunPid($project_pipeline_id, $pid, $ownerID) {
+        $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = $project_pipeline_id";
+        return self::runSQL($sql);
+    }
+    public function getRunLog($project_pipeline_id,$ownerID) {
+        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
+        // get contents of a file into a string
+        $filename = "$path/trace.txt";
+        $handle = fopen($filename, "r");
+        $content = fread($handle, filesize($filename));
+        fclose($handle);
+        return json_encode($content);
+    }
+    public function getRun($project_pipeline_id,$ownerID) {
+        $sql = "SELECT * FROM run WHERE project_pipeline_id = $project_pipeline_id";
+		return self::queryTable($sql);
+    }
+    
+    public function checkRunPid($pid) {
+        if (file_exists( "/proc/$pid" )){
+        return json_encode("running");
+        } else {
+        return json_encode("finished");    
+        }
+    }
+    
 //    ----------- Inputs   ---------
     
     public function getInputs($id,$ownerID) {

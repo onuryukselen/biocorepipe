@@ -34,24 +34,33 @@ if ($p=="createNextflow"){
 }
 else if ($p=="saveRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
-	$nextText = $_REQUEST['nextText'];
-    if (!empty($id)) {
-//    $data = $db -> updateRun($id, $project_pipeline_id, $owner_id);
-    } else {
-    $idRun = $db -> insertRun($project_pipeline_id, $ownerID);
-    $idarray = json_decode($idRun,true); 
-    $run_id = $idarray["id"];
-    $nextText = urldecode($nextText);
-    $db -> insRun($run_id,$nextText);
-    //get input parameters
-    $allinputs = json_decode($db ->getProjectPipelineInputs("", $project_pipeline_id,$ownerID));
-    $cmd='nextflow nextflow.nf -c nextflow.config ';
-    foreach ($allinputs as $inputitem):
-        $cmd.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
-    endforeach;
-        $data = $cmd;
+	$profileNext = $_REQUEST['profileNext'];
+	$nextTextRaw = $_REQUEST['nextText'];
+    $nextText = urldecode($nextTextRaw);
+	$configTextRaw = $_REQUEST['configText'];
+    $configText = urldecode($configTextRaw);
+    $db -> insertRun($project_pipeline_id, $ownerID);
+    if ($profileNext == "local"){
+        $db -> initRun($project_pipeline_id, $configText, $nextText);
+        $data = $db->runCmd($project_pipeline_id,$ownerID);
+    } else if ($profileNext == "cluster"){
+        $db -> initRun($project_pipeline_id, $configText, $nextText);
+        $db -> initRunCluster($project_pipeline_id, $configText, $nextText);
+        $data = $db->runCmdCluster($project_pipeline_id,$ownerID);
     }
 
+}
+else if ($p=="getRunLog"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $data = $db -> getRunLog($project_pipeline_id,$ownerID);
+}
+else if ($p=="getRun"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $data = $db -> getRun($project_pipeline_id,$ownerID);
+}
+else if ($p=="checkRunPid"){
+	$pid = $_REQUEST['pid'];
+    $data = $db -> checkRunPid($pid);
 }
 
 else if ($p=="getAllParameters"){

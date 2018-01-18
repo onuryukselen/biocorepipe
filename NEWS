@@ -1,3 +1,6 @@
+16.01.2018 Version 0.0.30
+Cluster/Local run options added.
+
 15.01.2018 Version 0.0.29
 Basic File/Set/Val selection/edit/delete feature in the run pipeline page completed.
 Database integration input, project_input, project_pipeline_input and run tables are completed.

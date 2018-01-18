@@ -490,7 +490,7 @@ function checkRevisionPipe(pipeline_id) {
     var checkProj = checkProject(pipeline_id);
     if (checkProj.length > 0) {
         warnUserPipe = true;
-        warnPipeText = warnPipeText + 'It is not allowed to save on current revision, since this revision of pipeline already used in projects.</br></br>In order to save on current revision, you may remove the process from following pipelines: '
+        warnPipeText = warnPipeText + 'It is not allowed to save on current revision, since this revision of pipeline already used in projects.</br></br>In order to save on current revision, you may remove the pipeline from following projects: '
         $.each(checkProj, function (element) {
             if (element !== 0) {
                 warnPipeText = warnPipeText + ', ';
