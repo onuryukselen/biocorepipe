@@ -25,7 +25,6 @@ require_once("config/config.php");
 $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
 
 class dbfuncs {
-    
 
 
     private $dbhost = DBHOST;

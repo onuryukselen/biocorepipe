@@ -114,15 +114,16 @@
 	          .attr("id", "svg")
 	          .attr("width", w)
 	          .attr("height", h)
-	          .on("mousedown", null)
+	          .on("mousedown", startzoom)
 	          .on("mouseup", autosave)
-	          .call(zoom)
+//	          .call(zoom)
 	      mainG = d3.select("#container").select("svg").append("g")
 	          .attr("id", "mainG")
 	          .attr("transform", "translate(" + 0 + "," + 0 + ")")
-
-
 	  }
+      function startzoom(){
+         d3.select("#container").call(zoom)
+      }
 
 	  $('#pipelineSum').keyup(function () {
 	      autosave();

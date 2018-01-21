@@ -5,5 +5,8 @@
     define('DBPASS', '');
     define('DBPORT', 3306);
     define('LMUSER', 'root');
-    define('RUNPATH', 'tmp');
+    define('RUNPATH', 'tmp/logs');
+    define('SSHPATH', 'tmp/.ssh');
+    define('DOLPHINPATH', '~/.dolphinnext/tmp/logs');
+
 ?>
