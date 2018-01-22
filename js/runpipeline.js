@@ -23,25 +23,25 @@
 	  }
 
 
-//	  function drop(event) {
-//	      event.preventDefault();
-//	      var processDat = event.dataTransfer.getData("Text");
-//	      var posX = 0;
-//	      var posY = 0;
-//
-//
-//	      var svgA = document.getElementById("svg")
-//	      var pt = svgA.createSVGPoint();
-//	      pt.x = event.clientX
-//	      pt.y = event.clientY
-//	      var svgGlobal = pt.matrixTransform(svgA.getScreenCTM().inverse())
-//	      posX = svgGlobal.x - 50
-//	      posY = svgGlobal.y - 70
-//	      addProcess(processDat, posX, posY);
-//	      autosave();
-//	      event.stopPropagation();
-//	      return false;
-//	  }
+	  //	  function drop(event) {
+	  //	      event.preventDefault();
+	  //	      var processDat = event.dataTransfer.getData("Text");
+	  //	      var posX = 0;
+	  //	      var posY = 0;
+	  //
+	  //
+	  //	      var svgA = document.getElementById("svg")
+	  //	      var pt = svgA.createSVGPoint();
+	  //	      pt.x = event.clientX
+	  //	      pt.y = event.clientY
+	  //	      var svgGlobal = pt.matrixTransform(svgA.getScreenCTM().inverse())
+	  //	      posX = svgGlobal.x - 50
+	  //	      posY = svgGlobal.y - 70
+	  //	      addProcess(processDat, posX, posY);
+	  //	      autosave();
+	  //	      event.stopPropagation();
+	  //	      return false;
+	  //	  }
 
 	  //	  function getValues(data) {
 	  //	      var result = null;
@@ -116,14 +116,15 @@
 	          .attr("height", h)
 	          .on("mousedown", startzoom)
 	          .on("mouseup", autosave)
-//	          .call(zoom)
+	      //	          .call(zoom)
 	      mainG = d3.select("#container").select("svg").append("g")
 	          .attr("id", "mainG")
 	          .attr("transform", "translate(" + 0 + "," + 0 + ")")
 	  }
-      function startzoom(){
-         d3.select("#container").call(zoom)
-      }
+
+	  function startzoom() {
+	      d3.select("#container").call(zoom)
+	  }
 
 	  $('#pipelineSum').keyup(function () {
 	      autosave();
@@ -2073,13 +2074,13 @@
 	      var proCluData = getValues({ p: "getProfileCluster" });
 	      if (proLocData.length + proCluData.length !== 0) {
 	          $.each(proLocData, function (el) {
-                  var option = new Option(proLocData[el].name + ' (local)', 'local-'+proLocData[el].id);
-                  $("#chooseEnv").append(option);
+	              var option = new Option(proLocData[el].name + ' (local)', 'local-' + proLocData[el].id);
+	              $("#chooseEnv").append(option);
 	          });
 	          $.each(proCluData, function (el) {
-                  var option = new Option(proCluData[el].name + ' (cluster: ' + proCluData[el].username +'@'+proCluData[el].hostname +')', 'cluster-'+proCluData[el].id);
-                  $("#chooseEnv").append(option);
-              });
+	              var option = new Option(proCluData[el].name + ' (cluster: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
+	              $("#chooseEnv").append(option);
+	          });
 	      }
 	  }
 
@@ -2189,10 +2190,10 @@
 	      var nextText = encodeURIComponent(nextTextRaw);
 	      var delIntermediate = '';
 	      var profileTypeId = $('#chooseEnv').find(":selected").val(); //local-32
-          var patt = /(.*)-(.*)/;
-          var proType = profileTypeId.replace(patt, '$1');
-          var proId = profileTypeId.replace(patt, '$2');
-//	      console.log(profileNext);
+	      var patt = /(.*)-(.*)/;
+	      var proType = profileTypeId.replace(patt, '$1');
+	      var proId = profileTypeId.replace(patt, '$2');
+	      //	      console.log(profileNext);
 
 	      var configTextRaw = "";
 	      //	      var configTextRaw = 'profiles {' + '\n' +
@@ -2222,21 +2223,31 @@
 	          profileId: proId,
 	          project_pipeline_id: project_pipeline_id
 	      });
-	      $('#runLogs').css('display', 'inline');
-	      $('#runProPipe').css('display', 'none');
-	      $('#runningProPipe').css('display', 'inline');
+	      console.log(nextTextSend);
+	      console.log(Object.keys(nextTextSend).length);
+	      if (proType === 'cluster') {
+	          if (nextTextSend.mkdir_pid && nextTextSend.copy_next_pid && nextTextSend.next_submit_pid) {
+	              $('#runLogs').css('display', 'inline');
+	              $('#runProPipe').css('display', 'none');
+	              $('#runningProPipe').css('display', 'inline');
+	              checkRunStatus();
+	          } else {
+	              $('#runLogs').css('display', 'inline');
+	              $('#runLogArea').val(nextTextSend);
+	          }
+	      }
 
-	      	      checkRunStatus();
+
 	  }
 
 	  function checkRunStatus() {
 	      var runPid = getRunPid(project_pipeline_id);
 	      var status = "";
-//	      intervalID = setInterval(function () {
-//	          status = checkRunPid(runPid)
-//	          console.log(status)
-//	      }, 3000);
-          interval_log_ID = setInterval(function () {
+	      //	      intervalID = setInterval(function () {
+	      //	          status = checkRunPid(runPid)
+	      //	          console.log(status)
+	      //	      }, 3000);
+	      interval_log_ID = setInterval(function () {
 	          status = checklog(project_pipeline_id)
 	          console.log(status)
 	      }, 3000);
@@ -2257,9 +2268,10 @@
 	          clearInterval(intervalID);
 	      }
 	  }
+
 	  function checklog(project_pipeline_id) {
-	          var runLog = getRunLog(project_pipeline_id);
-	          $('#runLogArea').val(runLog);
+	      var runLog = getRunLog(project_pipeline_id);
+	      $('#runLogArea').val(runLog);
 	  }
 
 	  function getRunLog(project_pipeline_id) {

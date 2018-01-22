@@ -42,8 +42,8 @@ else if ($p=="saveRun"){
     $configText = urldecode($configTextRaw);
     //add run into run table
     $db -> insertRun($project_pipeline_id, $ownerID);
-    $data = $db -> initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
-    $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID);
+    $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
+    $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID, $log_array);
 
 }
 else if ($p=="getRunLog"){

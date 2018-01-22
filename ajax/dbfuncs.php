@@ -80,10 +80,10 @@ class dbfuncs {
     function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
     {
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
-        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
-        fwrite($file, $nextText);
-        fclose($file);
-        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 0755);
+//        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
+//        fwrite($file, $nextText);
+//        fclose($file);
+//        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 0755);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 'w');//creates new file
         fwrite($file, $configText);
         fclose($file);
@@ -95,21 +95,25 @@ class dbfuncs {
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             //get userpky
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            //check $userpky file exist
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
             $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
             //mkdir in cluster
             $mkdir_pid = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 & echo $! &");
             if (!$mkdir_pid) die('Connection failed while creating new folder in the cluster');
-            echo $mkdir_pid;
+            $log_array = array('mkdir_pid' => $mkdir_pid);
             //copy nextflow file to run directory in cluster
             $copy_next_pid = shell_exec("scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
             if (!$copy_next_pid) die('Connection failed while copying nextflow file in to the cluster');
-            echo $copy_next_pid;
+            $log_array['copy_next_pid'] = $copy_next_pid;
+            return $log_array;
         }
     }
     
     
-    function runCmd($project_pipeline_id, $ownerID, $profileType, $profileId, $ownerID)
+    function runCmd($project_pipeline_id, $ownerID, $profileType, $profileId, $ownerID, $log_array)
     {
         //get input parameters
         $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
@@ -126,7 +130,8 @@ class dbfuncs {
             $pid = fread($pid_command, 2096);
 		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
 		    pclose($pid_command);
-            return json_encode($pid);
+            $log_array['next_submit_pid'] = $pid;
+            return json_encode($log_array);
             
         } else if ($profileType == "cluster") {
             //get username and hostname for connection
@@ -147,9 +152,11 @@ class dbfuncs {
 
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
             $cmd="ssh -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
-            $next_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-            if (!$next_pid) die('Connection failed while running nextflow in the cluster');
-            echo $next_pid;
+            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+            if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
+            $log_array['next_submit_pid'] = $next_submit_pid;
+            return json_encode($log_array);
+            
 //            preg_match("/Job <(.*)> is/",$content, $matches);
 //		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
         }

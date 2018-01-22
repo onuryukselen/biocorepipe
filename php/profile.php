@@ -160,7 +160,7 @@
                     </div>
                     <div id="mEnvNextPathDiv" class="form-group" style="display:none">
                         <label for="mEnvNextPath" class="col-sm-3 control-label">Nextflow Path
-                        <span><a data-toggle="tooltip" data-placement="bottom" title="Please enter the path of the nextflow, if it is not added to $PATH environment"><i class='glyphicon glyphicon-info-sign'></i></a></span>
+                        <span><a data-toggle="tooltip" data-placement="bottom" title="Please enter the path of the nextflow, if it is not added to $PATH environment. (eg. /project/umw_biocore/bin for ghpcc06.umassrc.org)"><i class='glyphicon glyphicon-info-sign'></i></a></span>
                         </label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="mEnvNextPath" name="next_path">
