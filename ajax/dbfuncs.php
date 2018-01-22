@@ -10,6 +10,8 @@ class dbfuncs {
     private $dbport = DBPORT;
     private $last_modified_user = LMUSER;
     private $run_path = RUNPATH;
+    private $ssh_path = SSHPATH;
+    private $dolphin_path = DOLPHINPATH;
     private static $link;
 
     function __construct() {
@@ -75,64 +77,98 @@ class dbfuncs {
      return json_encode($data);
    }
     
-    function initRun($project_pipeline_id, $configText, $nextText)
+    function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
     {
-        mkdir("../{$this->run_path}/logs/run{$project_pipeline_id}", 0755, true);
-        $file = fopen("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
-        fwrite($file, $nextText);
-        fclose($file);
-        chmod("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.nf", 0755);
-        $file = fopen("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.config", 'w');//creates new file
+        mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
+//        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
+//        fwrite($file, $nextText);
+//        fclose($file);
+//        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 0755);
+        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 'w');//creates new file
         fwrite($file, $configText);
         fclose($file);
-        chmod("../{$this->run_path}/logs/run{$project_pipeline_id}/nextflow.config", 0755);
+        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 0755);
+        if ($profileType == "cluster") {
+            // get username and hostname for connection
+            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            //get userpky
+            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            //check $userpky file exist
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
+            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
+            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+            //mkdir in cluster
+            $mkdir_pid = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 & echo $! &");
+            if (!$mkdir_pid) die('Connection failed while creating new folder in the cluster');
+            $log_array = array('mkdir_pid' => $mkdir_pid);
+            //copy nextflow file to run directory in cluster
+            $copy_next_pid = shell_exec("scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
+            if (!$copy_next_pid) die('Connection failed while copying nextflow file in to the cluster');
+            $log_array['copy_next_pid'] = $copy_next_pid;
+            return $log_array;
+        }
     }
     
-    function initRunCluster($project_pipeline_id, $configText, $nextText)
-    {
-        //mkdir in cluster
-        shell_exec("ssh oy28w@ghpcc06.umassrc.org 'mkdir -p ~/.dolphinnext/tmp/logs/run$project_pipeline_id'");
-        //copy nextflow file to run directory in cluster
-        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
-        shell_exec("scp $path/nextflow.nf oy28w@ghpcc06.umassrc.org:~/.dolphinnext/tmp/logs/run$project_pipeline_id");
-    }
     
-    function runCmd($project_pipeline_id,$ownerID)
+    function runCmd($project_pipeline_id, $ownerID, $profileType, $profileId, $ownerID, $log_array)
     {
         //get input parameters
         $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
-        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
         $next_inputs="";
         foreach ($allinputs as $inputitem):
             $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
         endforeach;
         //run command
-        $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1 && ';
-		$cmd .= "cd $path && nextflow nextflow.nf $next_inputs -with-trace> log.txt 2>&1 & echo $! &";
-        $pid_command = popen($cmd, "r" );
-        $pid = fread($pid_command, 2096);
-		$this->updateRunPid($project_pipeline_id, $pid, $ownerID);
-		pclose($pid_command);
-        return json_encode($pid);
+        if ($profileType == "local") {
+            $path= "../{$this->run_path}/run$project_pipeline_id";
+            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1 && ';
+		    $cmd .= "cd $path && nextflow nextflow.nf $next_inputs -with-trace> log.txt 2>&1 & echo $! &";
+            $pid_command = popen($cmd, "r" );
+            $pid = fread($pid_command, 2096);
+		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+		    pclose($pid_command);
+            $log_array['next_submit_pid'] = $pid;
+            return json_encode($log_array);
+            
+        } else if ($profileType == "cluster") {
+            //get username and hostname for connection
+            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            $next_path = $cluDataArr[0]["next_path"];
+            //eg. /project/umw_biocore/bin
+            if (!empty($next_path)){
+                $next_path_real = "$next_path/nextflow";
+            } else {
+                $next_path_real  = "nextflow";
+            }
+            //get userpky
+            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+
+            //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
+            $cmd="ssh -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+            if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
+            $log_array['next_submit_pid'] = $next_submit_pid;
+            return json_encode($log_array);
+            
+//            preg_match("/Job <(.*)> is/",$content, $matches);
+//		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+        }
     }
     
-    function runCmdCluster($project_pipeline_id,$ownerID)
-    {
-        //get input parameters
-//         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
-        
-        $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
-        $path= "~/.dolphinnext/tmp/logs/run$project_pipeline_id";
-        $next_inputs="";
-        foreach ($allinputs as $inputitem):
-            $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
-        endforeach;
-        //run command
-		$cmd="ssh oy28w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"/project/umw_biocore/bin/nextflow $path/nextflow.nf $next_inputs -with-trace> $path/log.txt \"'";
-        $pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-//        preg_match("/*<(.*)>/",$pidText, $matches);
-		$this->updateRunPid($project_pipeline_id, $pid, $ownerID);
-        return json_encode($pid);
+    
+    function insertPrikey_clu($id, $prikey_clu, $ownerID){
+        mkdir("../{$this->ssh_path}", 0755, true);
+        $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 'w');//creates new file
+        fwrite($file, $prikey_clu);
+        fclose($file);
+        chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
     }
 
     
@@ -155,10 +191,59 @@ class dbfuncs {
         $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = $id";
         return self::runSQL($sql);
     }
+//    ------------- Profiles   ------------
+    public function getProfileLocal($ownerID) {
+        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = $ownerID";
+        return self::queryTable($sql);    
+    }
+    public function getProfileClusterbyID($id, $ownerID) {
+        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = $ownerID and id = $id";
+        return self::queryTable($sql); 
+    }
+    public function getProfileCluster($ownerID) {
+        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = $ownerID";
+        return self::queryTable($sql);    
+    }
+    
+    public function insertProfileLocal($name, $executor, $next_path, $ownerID) {
+        $sql = "INSERT INTO profile_local (name, executor, next_path, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$executor','$next_path', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateProfileLocal($id, $name, $executor, $next_path, $ownerID) {
+        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
+    public function insertProfileCluster($name, $executor, $next_path, $username, $hostname, $ownerID) {
+        $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateProfileCluster($id, $name, $executor, $next_path, $username, $hostname, $ownerID) {
+        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    public function removeProLocal($id) {
+        $sql = "DELETE FROM profile_local WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function removeProCluster($id) {
+        $sql = "DELETE FROM profile_cluster WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function removeProAmazon($id) {
+        $sql = "DELETE FROM profile_amazon WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
     
 //    ------------- Parameters ------------
     
     public function getAllParameters($ownerID) {
+        if ($ownerID == ""){
+            $ownerID ="''";
+        }
         $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = $ownerID OR perms = 63";
         return self::queryTable($sql);
     }
@@ -188,6 +273,8 @@ class dbfuncs {
         $sql = "DELETE FROM parameter WHERE id = '$id'";
         return self::runSQL($sql);
     }
+
+    
     
     public function removeProcessGroup($id) {
         $sql = "DELETE FROM process_group WHERE id = '$id'";
@@ -301,9 +388,9 @@ class dbfuncs {
         return self::runSQL($sql);
     }
     public function getRunLog($project_pipeline_id,$ownerID) {
-        $path= "../{$this->run_path}/logs/run$project_pipeline_id";
+        $path= "../{$this->run_path}/run$project_pipeline_id";
         // get contents of a file into a string
-        $filename = "$path/trace.txt";
+        $filename = "$path/log.txt";
         $handle = fopen($filename, "r");
         $content = fread($handle, filesize($filename));
         fclose($handle);
@@ -505,6 +592,9 @@ class dbfuncs {
 // --------- New Pipeline -----------
 
 	public function getProcessData($id, $ownerID) {
+        if ($ownerID == ""){
+            $ownerID ="''";
+        }
 		$where = " where owner_id = $ownerID OR perms = 63"; 
 		if ($id != ""){
 			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
@@ -575,6 +665,9 @@ class dbfuncs {
 	}
 	
 	public function getParametersData($ownerID) {
+        if ($ownerID == ""){
+        $ownerID ="''";
+        }
 		$sql = "SELECT * FROM parameter WHERE owner_id = $ownerID OR perms = 63";
 		return self::queryTable($sql);
 	}
@@ -602,10 +695,14 @@ class dbfuncs {
     
     
 	public function getSavedPipelines($ownerID) {
+        if ($ownerID == ""){
+            $ownerID ="''";
+        }
+        $where = " where pip.owner_id = $ownerID OR pip.perms = 63";
 		$sql = "select pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username 
         FROM biocorepipe_save pip
         INNER JOIN users u ON pip.owner_id = u.id
-        WHERE pip.owner_id = $ownerID OR pip.perms = 63";
+        $where";
 		return self::queryTable($sql);
 	}
     
@@ -626,7 +723,6 @@ class dbfuncs {
     }
     
     public function insertPipelineName($name,$ownerID) {
-//        $user = "docker";
         $sql = "INSERT INTO biocorepipe_save(owner_id, name) VALUES 
 			('$ownerID','$name')";
         return self::insTable($sql);

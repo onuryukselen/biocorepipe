@@ -34,20 +34,16 @@ if ($p=="createNextflow"){
 }
 else if ($p=="saveRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
-	$profileNext = $_REQUEST['profileNext'];
+	$profileType = $_REQUEST['profileType'];
+	$profileId = $_REQUEST['profileId'];
 	$nextTextRaw = $_REQUEST['nextText'];
     $nextText = urldecode($nextTextRaw);
 	$configTextRaw = $_REQUEST['configText'];
     $configText = urldecode($configTextRaw);
+    //add run into run table
     $db -> insertRun($project_pipeline_id, $ownerID);
-    if ($profileNext == "local"){
-        $db -> initRun($project_pipeline_id, $configText, $nextText);
-        $data = $db->runCmd($project_pipeline_id,$ownerID);
-    } else if ($profileNext == "cluster"){
-        $db -> initRun($project_pipeline_id, $configText, $nextText);
-        $db -> initRunCluster($project_pipeline_id, $configText, $nextText);
-        $data = $db->runCmdCluster($project_pipeline_id,$ownerID);
-    }
+    $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
+    $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID, $log_array);
 
 }
 else if ($p=="getRunLog"){
@@ -142,6 +138,15 @@ else if ($p=="removeProjectInput"){
 else if ($p=="removeInput"){   
     $data = $db -> removeInput($id);
 }
+else if ($p=="removeProLocal"){   
+    $data = $db -> removeProLocal($id);
+}
+else if ($p=="removeProCluster"){   
+    $data = $db -> removeProCluster($id);
+}
+else if ($p=="removeProAmazon"){   
+    $data = $db -> removeProAmazon($id);
+}
 else if ($p=="removeProjectPipelineInput"){   
     $data = $db -> removeProjectPipelineInput($id);
 }
@@ -160,6 +165,50 @@ else if ($p=="saveParameter"){
        $data = $db->updateParameter($id, $name, $qualifier, $file_type, $ownerID);
     } else {
        $data = $db->insertParameter($name, $qualifier, $file_type, $ownerID);
+    }
+}
+
+else if ($p=="getProfileLocal")
+{
+    $data = $db->getProfileLocal($ownerID);
+}
+else if ($p=="getProfileCluster")
+{
+    if (!empty($id)) {
+    $data = $db->getProfileClusterbyID($id, $ownerID);
+    } else {
+    $data = $db->getProfileCluster($ownerID);
+        
+    }
+}
+
+else if ($p=="saveProfileLocal"){
+    $name = $_REQUEST['name'];
+    $executor = $_REQUEST['executor'];
+    $next_path = $_REQUEST['next_path'];
+    if (!empty($id)) {
+       $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $ownerID);
+    } else {
+       $data = $db->insertProfileLocal($name, $executor,$next_path, $ownerID);
+    }
+}
+else if ($p=="saveProfileCluster"){
+    $name = $_REQUEST['name'];
+    $executor = $_REQUEST['executor'];
+    $username = $_REQUEST['username'];
+    $hostname = $_REQUEST['hostname'];
+    $prikey_cluRaw = $_REQUEST['prikey_clu'];
+    $prikey_clu = urldecode($prikey_cluRaw);
+    $next_path = $_REQUEST['next_path'];
+    
+    if (!empty($id)) {
+       $data = $db->updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $ownerID);
+       $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
+    } else {
+       $data = $db->insertProfileCluster($name, $executor,$next_path, $username, $hostname, $ownerID);
+       $idArray = json_decode($data,true);
+       $id = $idArray["id"];
+       $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
     }
 }
 

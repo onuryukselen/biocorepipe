@@ -1,3 +1,15 @@
+22.01.2018 Version 0.0.32
+Debugging of run upgraded.
+
+21.01.2018 Version 0.0.31
+Dynamic add feature of public pipelines in homepage is added.
+Showing public pipelines by click of 'learn more' button is added.
+D3 zoom option is disabled until first click to make smooth webpage scrool.
+User profile page added.
+Database integration of local, cluster profiles is completed.
+cluster runs are ready to run by private key.
+
+
 16.01.2018 Version 0.0.30
 Cluster/Local run options added.
 

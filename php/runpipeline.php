@@ -44,7 +44,7 @@
     </div>
     <div>
         <div>
-            <textarea disabled id="runLogArea" rows="5" style="overflow-y: scroll; min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
+            <textarea disabled id="runLogArea" rows="10" style="overflow-y: scroll; min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
         </div>
     </div>
     </br>
@@ -60,11 +60,8 @@
                 <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
             </div>
             <div class="form-group">
-                <select style=" width:150px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
+                <select style=" width:350px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
                   <option value="" disabled selected>Choose environment </option>
-                  <option value="local">Local</option>
-                  <option value="cluster">Cluster</option>
-                  <option value="amazon">Amazon</option>
             </select>
             </div>
         </form>

@@ -238,6 +238,7 @@
                 </div>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
+                        <li><a href="index.php?np=4">Profile </a></li>
                         <li><a href="#"><i class="fa fa-gears"></i></a></li>
                     </ul>
                 </div>
