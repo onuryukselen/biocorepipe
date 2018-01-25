@@ -1,3 +1,6 @@
+25.01.2018 Version 0.0.34
+Cluster run option upgraded.
+
 24.01.2018 Version 0.0.33
 Sql constraint to remove project runs are removed.(fixed the remove button)
 Project runs table updated(modified date, description and name of the run)

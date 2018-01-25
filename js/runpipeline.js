@@ -292,205 +292,205 @@
 	      }
 	  }
 
-	  function addProcess(processDat, xpos, ypos) {
-	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
-	          x = (xpos - t.translate[0])
-	      y = (ypos - t.translate[1])
-	      z = t.scale[0]
-
-
-	      //var process_id = processData[index].id;
-
-	      //for input parameters:  
-	      if (processDat === "inputparam@inPro") {
-	          var name = processDat.split('@')[0]
-	          var process_id = processDat.split('@')[1]
-	          var id = process_id
-	          ipR = 70 / 2
-	          ipIor = ipR / 3
-	          var kind = "input"
-	          var sDataX = (5 + x + ipR + ipIor) / z
-	          var sDataY = (20 + y + ipR + ipIor) / z
-	          var pName = pName || "inputparam"
-	          var paramId = paramId || "inPara"
-	          var classtoparam = classtoparam || "connect_to_input output"
-	          var init = "o"
-	          var pColor = "orange"
-
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-	          processList[("g-" + gNum)] = name
-	          gNum = gNum + 1
-	      }
-	      //for output parameters:  
-	      else if (processDat === "outputparam@outPro") {
-	          var name = processDat.split('@')[0]
-	          var process_id = processDat.split('@')[1]
-	          var id = process_id
-	          ipR = 70 / 2
-	          ipIor = ipR / 3
-	          var kind = "output"
-	          var sDataX = (5 + x + ipR + ipIor) / z
-	          var sDataY = (20 + y + ipR + ipIor) / z
-	          var pName = pName || "outputparam"
-	          var paramId = paramId || "outPara"
-	          var classtoparam = classtoparam || "connect_to_output input"
-	          var init = "i"
-	          var pColor = "green"
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-
-	          processList[("g-" + gNum)] = name
-	          gNum = gNum + 1
-	      }
-
-	      //for processes:
-	      else {
-	          var name = processDat.split('@')[0]
-	          var process_id = processDat.split('@')[1]
-	          var id = process_id
-
-	          //--Pipeline details table add process--
-	          addProPipeTab(id, gNum)
-
-	          var inputs = getValues({
-	              p: "getInputsPP",
-	              "process_id": process_id
-	          })
-
-	          var outputs = getValues({
-	              p: "getOutputsPP",
-	              "process_id": process_id
-	          })
-	          //gnum uniqe, id same id (Written in class) in same type process
-	          g = d3.select("#mainG").append("g")
-	              .attr("id", "g-" + gNum)
-	              .attr("class", "g-" + id)
-	              .attr("transform", "translate(" + (-30 + x + r + ior) / z + "," + (-10 + y + r + ior) / z + ")")
-
-	              .on("mouseover", mouseOverG)
-	              .on("mouseout", mouseOutG)
-	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-	          g.append("circle").attr("id", "bc-" + gNum)
-	              .attr("class", "bc-" + id)
-	              .attr("type", "bc")
-	              .attr("cx", cx)
-	              .attr("cy", cy)
-	              .attr("r", r + ior)
-	              //  .attr('fill-opacity', 0.6)
-	              .attr("fill", "red")
-	              .transition()
-	              .delay(500)
-	              .duration(3000)
-	              .attr("fill", "#E0E0E0")
-	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
-	          g.append("circle")
-	              .datum([{
-	                  cx: 0,
-	                  cy: 0
-                }])
-	              .attr("id", "sc-" + gNum)
-	              .attr("class", "sc-" + id)
-	              .attr("type", "sc")
-	              .attr("r", r - ior)
-	              .attr("fill", "#BEBEBE")
-	              .attr('fill-opacity', 0.6)
-	              .on("mouseover", scMouseOver)
-	              .on("mouseout", scMouseOut)
-	              .call(drag)
-	          //gnum(written in id): uniqe,
-	          g.append("text").attr("id", "text-" + gNum)
-	              .datum([{
-	                  cx: 0,
-	                  cy: 0
-                }])
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '1em')
-	              .attr('name', name)
-	              .attr('class', 'process')
-	              .text(truncateName(name, 'process'))
-	              .style("text-anchor", "middle")
-	              .on("mouseover", scMouseOver)
-	              .on("mouseout", scMouseOut)
-	              .call(drag)
-
-	          g.append("text").attr("id", "text-" + gNum)
-	              .datum([{
-	                  cx: 0,
-	                  cy: 0
-                }])
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '0.9em')
-	              .attr("x", -6)
-	              .attr("y", 15)
-	              .text('\uf040')
-	              .on("mousedown", rename)
-
-	          //gnum(written in id): uniqe,
-	          g.append("text")
-	              .attr("id", "del-" + gNum)
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '1em')
-	              .attr("x", -6)
-	              .attr("y", r + ior / 2)
-	              .text('\uf014')
-	              .style("opacity", 0.2)
-	              .on("mousedown", removeElement)
-
-	          g.append("text")
-	              .attr("id", "info-" + gNum)
-	              .attr("class", "info-" + id)
-	              .attr('font-family', "FontAwesome, sans-serif")
-	              .attr('font-size', '1em')
-	              .attr("x", -6)
-	              .attr("y", -1 * (r + ior / 2 - 10))
-	              .text('\uf013')
-	              .style("opacity", 0.2)
-	              .on("mousedown", getInfo)
-
-	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
-	          for (var k = 0; k < inputs.length; k++) {
-	              d3.select("#g-" + gNum).append("circle")
-	                  .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
-	                  .attr("type", "I/O")
-	                  .attr("kind", "input")
-	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", inputs[k].name)
-	                  .attr("status", "standard")
-	                  .attr("connect", "single")
-	                  .attr("class", findType(inputs[k].parameter_id) + " input")
-	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
-	                  .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
-	                  .attr("r", ior)
-	                  .attr("fill", "tomato")
-	                  .attr('fill-opacity', 0.8)
-	                  .on("mouseover", IOmouseOver)
-	                  .on("mousemove", IOmouseMove)
-	                  .on("mouseout", IOmouseOut)
-	                  .on("mousedown", IOconnect)
-	          }
-	          for (var k = 0; k < outputs.length; k++) {
-	              d3.select("#g-" + gNum).append("circle")
-	                  .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
-	                  .attr("type", "I/O")
-	                  .attr("kind", "output")
-	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", outputs[k].name)
-	                  .attr("status", "standard")
-	                  .attr("connect", "single")
-	                  .attr("class", findType(outputs[k].parameter_id) + " output")
-	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
-	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
-	                  .attr("r", ior).attr("fill", "steelblue")
-	                  .attr('fill-opacity', 0.8)
-	                  .on("mouseover", IOmouseOver)
-	                  .on("mousemove", IOmouseMove)
-	                  .on("mouseout", IOmouseOut)
-	                  .on("mousedown", IOconnect)
-	          }
-	          processList[("g-" + gNum)] = name
-	          gNum = gNum + 1
-	      }
-
-	  }
+//	  function addProcess(processDat, xpos, ypos) {
+//	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
+//	          x = (xpos - t.translate[0])
+//	      y = (ypos - t.translate[1])
+//	      z = t.scale[0]
+//
+//
+//	      //var process_id = processData[index].id;
+//
+//	      //for input parameters:  
+//	      if (processDat === "inputparam@inPro") {
+//	          var name = processDat.split('@')[0]
+//	          var process_id = processDat.split('@')[1]
+//	          var id = process_id
+//	          ipR = 70 / 2
+//	          ipIor = ipR / 3
+//	          var kind = "input"
+//	          var sDataX = (5 + x + ipR + ipIor) / z
+//	          var sDataY = (20 + y + ipR + ipIor) / z
+//	          var pName = pName || "inputparam"
+//	          var paramId = paramId || "inPara"
+//	          var classtoparam = classtoparam || "connect_to_input output"
+//	          var init = "o"
+//	          var pColor = "orange"
+//
+//	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+//	          processList[("g-" + gNum)] = name
+//	          gNum = gNum + 1
+//	      }
+//	      //for output parameters:  
+//	      else if (processDat === "outputparam@outPro") {
+//	          var name = processDat.split('@')[0]
+//	          var process_id = processDat.split('@')[1]
+//	          var id = process_id
+//	          ipR = 70 / 2
+//	          ipIor = ipR / 3
+//	          var kind = "output"
+//	          var sDataX = (5 + x + ipR + ipIor) / z
+//	          var sDataY = (20 + y + ipR + ipIor) / z
+//	          var pName = pName || "outputparam"
+//	          var paramId = paramId || "outPara"
+//	          var classtoparam = classtoparam || "connect_to_output input"
+//	          var init = "i"
+//	          var pColor = "green"
+//	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+//
+//	          processList[("g-" + gNum)] = name
+//	          gNum = gNum + 1
+//	      }
+//
+//	      //for processes:
+//	      else {
+//	          var name = processDat.split('@')[0]
+//	          var process_id = processDat.split('@')[1]
+//	          var id = process_id
+//
+//	          //--Pipeline details table add process--
+//	          addProPipeTab(id, gNum)
+//
+//	          var inputs = getValues({
+//	              p: "getInputsPP",
+//	              "process_id": process_id
+//	          })
+//
+//	          var outputs = getValues({
+//	              p: "getOutputsPP",
+//	              "process_id": process_id
+//	          })
+//	          //gnum uniqe, id same id (Written in class) in same type process
+//	          g = d3.select("#mainG").append("g")
+//	              .attr("id", "g-" + gNum)
+//	              .attr("class", "g-" + id)
+//	              .attr("transform", "translate(" + (-30 + x + r + ior) / z + "," + (-10 + y + r + ior) / z + ")")
+//
+//	              .on("mouseover", mouseOverG)
+//	              .on("mouseout", mouseOutG)
+//	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
+//	          g.append("circle").attr("id", "bc-" + gNum)
+//	              .attr("class", "bc-" + id)
+//	              .attr("type", "bc")
+//	              .attr("cx", cx)
+//	              .attr("cy", cy)
+//	              .attr("r", r + ior)
+//	              //  .attr('fill-opacity', 0.6)
+//	              .attr("fill", "red")
+//	              .transition()
+//	              .delay(500)
+//	              .duration(3000)
+//	              .attr("fill", "#E0E0E0")
+//	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
+//	          g.append("circle")
+//	              .datum([{
+//	                  cx: 0,
+//	                  cy: 0
+//                }])
+//	              .attr("id", "sc-" + gNum)
+//	              .attr("class", "sc-" + id)
+//	              .attr("type", "sc")
+//	              .attr("r", r - ior)
+//	              .attr("fill", "#BEBEBE")
+//	              .attr('fill-opacity', 0.6)
+//	              .on("mouseover", scMouseOver)
+//	              .on("mouseout", scMouseOut)
+//	              .call(drag)
+//	          //gnum(written in id): uniqe,
+//	          g.append("text").attr("id", "text-" + gNum)
+//	              .datum([{
+//	                  cx: 0,
+//	                  cy: 0
+//                }])
+//	              .attr('font-family', "FontAwesome, sans-serif")
+//	              .attr('font-size', '1em')
+//	              .attr('name', name)
+//	              .attr('class', 'process')
+//	              .text(truncateName(name, 'process'))
+//	              .style("text-anchor", "middle")
+//	              .on("mouseover", scMouseOver)
+//	              .on("mouseout", scMouseOut)
+//	              .call(drag)
+//
+//	          g.append("text").attr("id", "text-" + gNum)
+//	              .datum([{
+//	                  cx: 0,
+//	                  cy: 0
+//                }])
+//	              .attr('font-family', "FontAwesome, sans-serif")
+//	              .attr('font-size', '0.9em')
+//	              .attr("x", -6)
+//	              .attr("y", 15)
+//	              .text('\uf040')
+//	              .on("mousedown", rename)
+//
+//	          //gnum(written in id): uniqe,
+//	          g.append("text")
+//	              .attr("id", "del-" + gNum)
+//	              .attr('font-family', "FontAwesome, sans-serif")
+//	              .attr('font-size', '1em')
+//	              .attr("x", -6)
+//	              .attr("y", r + ior / 2)
+//	              .text('\uf014')
+//	              .style("opacity", 0.2)
+//	              .on("mousedown", removeElement)
+//
+//	          g.append("text")
+//	              .attr("id", "info-" + gNum)
+//	              .attr("class", "info-" + id)
+//	              .attr('font-family', "FontAwesome, sans-serif")
+//	              .attr('font-size', '1em')
+//	              .attr("x", -6)
+//	              .attr("y", -1 * (r + ior / 2 - 10))
+//	              .text('\uf013')
+//	              .style("opacity", 0.2)
+//	              .on("mousedown", getInfo)
+//
+//	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
+//	          for (var k = 0; k < inputs.length; k++) {
+//	              d3.select("#g-" + gNum).append("circle")
+//	                  .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
+//	                  .attr("type", "I/O")
+//	                  .attr("kind", "input")
+//	                  .attr("parentG", "g-" + gNum)
+//	                  .attr("name", inputs[k].name)
+//	                  .attr("status", "standard")
+//	                  .attr("connect", "single")
+//	                  .attr("class", findType(inputs[k].parameter_id) + " input")
+//	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
+//	                  .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
+//	                  .attr("r", ior)
+//	                  .attr("fill", "tomato")
+//	                  .attr('fill-opacity', 0.8)
+//	                  .on("mouseover", IOmouseOver)
+//	                  .on("mousemove", IOmouseMove)
+//	                  .on("mouseout", IOmouseOut)
+//	                  .on("mousedown", IOconnect)
+//	          }
+//	          for (var k = 0; k < outputs.length; k++) {
+//	              d3.select("#g-" + gNum).append("circle")
+//	                  .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
+//	                  .attr("type", "I/O")
+//	                  .attr("kind", "output")
+//	                  .attr("parentG", "g-" + gNum)
+//	                  .attr("name", outputs[k].name)
+//	                  .attr("status", "standard")
+//	                  .attr("connect", "single")
+//	                  .attr("class", findType(outputs[k].parameter_id) + " output")
+//	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
+//	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
+//	                  .attr("r", ior).attr("fill", "steelblue")
+//	                  .attr('fill-opacity', 0.8)
+//	                  .on("mouseover", IOmouseOver)
+//	                  .on("mousemove", IOmouseMove)
+//	                  .on("mouseout", IOmouseOut)
+//	                  .on("mousedown", IOconnect)
+//	          }
+//	          processList[("g-" + gNum)] = name
+//	          gNum = gNum + 1
+//	      }
+//
+//	  }
 
 	  function findType(id) {
 	      parameter = parametersData.filter(function (el) {
@@ -1701,6 +1701,7 @@
 
 	  //xxx
 	  function runProjectPipe() {
+          
 	      var nextTextRaw = createNextflowFile();
 	      var nextText = encodeURIComponent(nextTextRaw);
 	      var delIntermediate = '';
@@ -1708,14 +1709,16 @@
 	      var patt = /(.*)-(.*)/;
 	      var proType = profileTypeId.replace(patt, '$1');
 	      var proId = profileTypeId.replace(patt, '$2');
-	      //	      console.log(profileNext);
+	      //xxx not working
+          if (proType === 'cluster') {
+	           $('#runProPipe').css('display', 'none');
+	           $('#connectingProPipe').css('display', 'inline');
+          }
 
 	      var configTextRaw = "";
 	      var configText = encodeURIComponent(configTextRaw);
-
-
 	      //save nextflow text as nextflow.nf and start job
-	      var nextTextSend = getValues({
+	      var serverLog = getValues({
 	          p: "saveRun",
 	          nextText: nextText,
 	          configText: configText,
@@ -1723,34 +1726,52 @@
 	          profileId: proId,
 	          project_pipeline_id: project_pipeline_id
 	      });
-	      console.log(nextTextSend);
+	      console.log(serverLog);
 	      if (proType === 'cluster') {
-	          if (nextTextSend.mkdir_copynext_pid && nextTextSend.next_submit_pid) {
+	          if ( serverLog.next_submit_pid) {
+	              $('#connectingProPipe').css('display', 'none');
 	              $('#runLogs').css('display', 'inline');
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
-	              checkRunStatus();
+	              checkServerLogTimer();
 	          } else {
 	              $('#runLogs').css('display', 'inline');
-	              $('#runLogArea').val(nextTextSend);
+	              $('#runLogArea').val(serverLog);
 	          }
 	      }
 
 
 	  }
 
-	  function checkRunStatus() {
-	      var runPid = getRunPid(project_pipeline_id);
-	      var status = "";
+	  function checkServerLogTimer() {
+	      interval_serverlog_ID = setInterval(function () {
+	          status = checkServerLog(project_pipeline_id)
+	      }, 3000);
+	  }
+
+	  function checkServerLog(project_pipeline_id) {
+	      var runLog = getServerLog(project_pipeline_id);
+	      $('#runLogArea').val(runLog);
+          var reg = /Job <(.*)> is submitted to queue/;  
+          var found = runLog.match(reg);
+          console.log(found.length);
+          if (found.length > 0){
+              var runPid = found[1];
+              //updateRunPid
+	      var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+              clearInterval(interval_serverlog_ID);
+          } 
+	  }
+
+	  function checkNextflowLog() {
+//	      var runPid = getRunPid(project_pipeline_id);
+//	      var status = "";
 	      //	      intervalID = setInterval(function () {
 	      //	          status = checkRunPid(runPid)
 	      //	          console.log(status)
 	      //	      }, 3000);
-	      interval_log_ID = setInterval(function () {
-	          status = checklog(project_pipeline_id)
-	          console.log(status)
-	      }, 3000);
 	  }
+
 
 	  function checkRunPid(runPid) {
 
@@ -1768,15 +1789,12 @@
 	      }
 	  }
 
-	  function checklog(project_pipeline_id) {
-	      var runLog = getRunLog(project_pipeline_id);
-	      $('#runLogArea').val(runLog);
-	  }
 
-	  function getRunLog(project_pipeline_id) {
+
+	  function getServerLog(project_pipeline_id) {
 
 	      var logText = getValues({
-	          p: "getRunLog",
+	          p: "getServerLog",
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      return logText;
@@ -1858,7 +1876,6 @@
 	      $('#pipeline-title').attr('pipeline_id', pipeline_id);
 	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
-
 	          loadProjectPipeline(pipeData);
 	      }
 
