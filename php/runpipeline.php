@@ -6,10 +6,26 @@
 
 <div class="box-header" style=" padding-top:0px;  font-size:large; ">
     <div style="padding-bottom:6px;  border-bottom:1px solid lightgrey;">
+        <i class="fa fa-rocket " style="padding-top:12px; margin-left:0px; margin-right:0px;"></i> Run:
+        <input class="box-dynamic width-dynamic" type="text" projectid="<?php echo $id;?>" name="projectTitle" autocomplete="off" placeholder="Enter Run Name" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 300px;" title="Rename" data-placement="bottom" data-toggle="tooltip" num="" id="run-title"><span class="width-dynamic" style="display:none"></span></input>
+
+        <i style="color:grey; font-size:25px; padding-top:12px; margin-left:10px; margin-right:10px;">|</i>
         <i class="fa fa-calendar-o " style="padding-top:12px; margin-left:0px; margin-right:0px;"></i> Project:
         <a href="" style="font-size: large; font-style:italic;  max-width: 500px;" id="project-title"></a>
-        <i class="fa fa-spinner " style="margin-left:10px; margin-right:0px;"></i> Pipeline:
+        <i style="color:grey; font-size:25px; padding-top:12px; margin-left:10px; margin-right:10px;">|</i>
+
+        <i class="fa fa-spinner " style="margin-left:0px; margin-right:0px;"></i> Pipeline:
         <a href="" projectpipelineid="<?php echo $id;?>" style="margin-left:0px; font-size: large; font-style:italic; align-self:center; max-width: 500px;" id="pipeline-title"></a>
+        <i style="color:grey; font-size:25px; padding-top:12px; margin-left:10px; margin-right:10px;">|</i>
+
+        <!--        Save and delete icons-->
+        <button type="submit" id="saveRunIcon" class="btn" name="button" data-backdrop="false" onclick="saveRunIcon()" style=" margin:0px; padding:0px;  ">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Run">
+                        <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
+        <button type="button" id="delRun" class="btn" name="button" data-backdrop="false" data-toggle="modal" href="#confirmModal" style=" margin:0px; padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Run">
+                        <i class="glyphicon glyphicon-trash"></i></a></button>
+        <!--        Save and delete icons ends-->
+
         <div id="pipeActionsDiv" style="float:right;  margin-right:5px;" class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
@@ -33,9 +49,9 @@
     </div>
     </br>
     <div class="row" id="desTitlePip">
-        <h6><b>Description</b></h6>
+        <h6><b>Run Description</b></h6>
     </div>
-    <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
+    <div class="row"><textarea id="runSum" rows="3" placeholder="Enter run description here.." style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
 
 </div>
 <div id="runLogs" style=" display:none;">
@@ -55,97 +71,166 @@
         <h4>Run Settings</h4>
     </div>
     <div>
-        <form>
-            <div class="form-group">
-                <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
-            </div>
-            <div class="form-group">
-                <select style=" width:350px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
-                  <option value="" disabled selected>Choose environment </option>
-            </select>
-            </div>
-        </form>
-    </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Output Directory (Full path)</label>
+                    <input type="text" class="form-control" style="width: 100%;" id="rOut_dir" name="output_dir" placeholder="Enter output directory">
+                </div>
 
+                <div class="form-group">
+                    <label>Advanced Options</label>
+                    <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-left:5px;" data-toggle="collapse" data-target="#advOpt"></a></i>
+
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Run Environment</label>
+                    <select id="chooseEnv" style="width: 100%;" class="fbtn btn-default form-control" name="runEnv">
+                          <option value="" disabled selected>Choose environment </option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- collapsed settings-->
+        <div id="advOpt" class="row collapse">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
+                </div>
+                <div class="form-group">
+                    <label>Permissions to View</label>
+                    <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
+                              <option value="3" selected>Only me </option>
+                              <option value="15">Only my group</option>
+                              <option value="63">Everyone </option>
+                        </select>
+                </div>
+                <div class="form-group">
+                    <label>Group Selection</label>
+                    <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
+                          <option value="" disabled selected>Choose group </option>
+                        </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div>
+                    <label><input type="checkbox" id="exec_all" name="exec_all" checked data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
+                    </div>
+                <div id="allProcessDiv" class="panel panel-default collapse in">
+                    <div id="allProcessSett">
+                        <table id="allProcessSettTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Queue</th>
+                                    <th scope="col">Memory</th>
+                                    <th scope="col">CPUs</th>
+                                </tr>
+                                <tr>
+                                    <td><input name="queue" class="form-control" type="text" value="long"></td>
+                                    <td><input class="form-control" type="text" name="memory" value="10 GB"></td>
+                                    <td><input name="cpu" class="form-control" type="text" value="2"></td>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                <label><input type="checkbox" id="exec_each" name="exec_each" data-toggle="collapse" data-target="#eachProcessDiv"> Executor Settings for Each Process</input></label>
+                </div>
+                <div id="eachProcessDiv" class="panel panel-default collapse">
+                    <div id="processTab">
+                        <table id="processTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Process Name</th>
+                                    <th scope="col">Queue</th>
+                                    <th scope="col">Memory</th>
+                                    <th scope="col">CPUs</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div><!-- collapsed settings ended-->
+    </div>
 </div>
 </br>
 <div id="workDetails">
     <div style="padding-bottom:7px;">
-        <h4>Pipeline Files</h4>
+        <h4>Pipeline Files<i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-minus-square-o collapseIcon" style="font-size:15px; padding-left:10px; vertical-align:2px;" data-toggle="collapse" data-target="#pipefiles"></a></i></h4>
     </div>
-    <!--
-    <ul id="inOutNav" class="nav nav-tabs nav-justified">
-        <li class="active"><a class="nav-item" data-toggle="tab" href="#processTab">Processes</a></li>
-        <li><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
-        <li><a class="nav-item" data-toggle="tab" href="#outputsTab">Outputs</a></li>
-    </ul>
--->
-    <div class="panel panel-default" style=" display:none;">
-        <div id="processTab">
-            </br>
-            <table id="processTable" class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Process Name</th>
-                        <th scope="col">Revision</th>
-                        <th scope="col">Description</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+
+    <div id="pipefiles" class="collapse in">
+
+        <div>
+            <h6><b>Inputs</b></h6>
         </div>
-    </div>
-
-    <div>
-        <h6><b>Inputs</b></h6>
-    </div>
-    <div class="panel panel-default">
-        <div id="inputsTab">
-            </br>
-            <table id="inputsTable" class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Given Name</th>
-                        <th scope="col">Identifier</th>
-                        <th scope="col">File Type</th>
-                        <th scope="col">Qualifier</th>
-                        <th scope="col">Process Name</th>
-                        <th style="color:#D59035" scope="col">File/Set/Val</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div class="panel panel-default">
+            <div id="inputsTab">
+                </br>
+                <table id="inputsTable" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Given Name</th>
+                            <th scope="col">Identifier</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">Qualifier</th>
+                            <th scope="col">Process Name</th>
+                            <th style="color:#D59035" scope="col">File/Set/Val</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div>
-        <h6><b>Outputs</b></h6>
-    </div>
+        <div>
+            <h6><b>Outputs</b></h6>
+        </div>
 
-    <div class="panel panel-default">
-        <div id="outputsTab">
-            </br>
-            <table id="outputsTable" class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">Given Name</th>
-                        <th scope="col">Identifier</th>
-                        <th scope="col">File Type</th>
-                        <th scope="col">Qualifier</th>
-                        <th scope="col">Process Name</th>
-                        <th scope="col">File/Set/Val</th>
+        <div class="panel panel-default">
+            <div id="outputsTab">
+                </br>
+                <table id="outputsTable" class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Given Name</th>
+                            <th scope="col">Identifier</th>
+                            <th scope="col">File Type</th>
+                            <th scope="col">Qualifier</th>
+                            <th scope="col">Process Name</th>
+                            <th scope="col">File/Set/Val</th>
 
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 </br>
 <div>
-    <h4>Workflow</h4>
-    <div class="panel panel-default">
-        <div style="height:500px;" id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    <div style="padding-bottom:7px;">
+        <h4>Workflow<i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-minus-square-o collapseIcon" style="font-size:15px; padding-left:10px; vertical-align:2px;" data-toggle="collapse" data-target="#workFlowDiv"></a></i></h4>
+    </div>
+    <div id="workFlowDiv" class="collapse in">
+        <h6><b>Description</b></h6>
+        <div style="padding-left:16px; padding-right:16px; padding-bottom:20px; " id="desTitlePip">
+            <div class="row"><textarea id="pipelineSum" rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
+        </div>
+
+
+        <div class="panel panel-default">
+            <div style="height:500px;" id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        </div>
     </div>
 </div>
 

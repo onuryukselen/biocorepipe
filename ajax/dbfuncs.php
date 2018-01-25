@@ -80,10 +80,10 @@ class dbfuncs {
     function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
     {
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
-//        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
-//        fwrite($file, $nextText);
-//        fclose($file);
-//        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 0755);
+        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
+        fwrite($file, $nextText);
+        fclose($file);
+        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 0755);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 'w');//creates new file
         fwrite($file, $configText);
         fclose($file);
@@ -101,13 +101,13 @@ class dbfuncs {
             if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
             $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
             //mkdir in cluster
-            $mkdir_pid = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 & echo $! &");
-            if (!$mkdir_pid) die('Connection failed while creating new folder in the cluster');
-            $log_array = array('mkdir_pid' => $mkdir_pid);
+            $mkdir_copynext_pid = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
+            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
+            $log_array = array('mkdir_copynext_pid' => $mkdir_copynext_pid);
             //copy nextflow file to run directory in cluster
-            $copy_next_pid = shell_exec("scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
-            if (!$copy_next_pid) die('Connection failed while copying nextflow file in to the cluster');
-            $log_array['copy_next_pid'] = $copy_next_pid;
+//            $copy_next_pid = shell_exec("scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
+//            if (!$copy_next_pid) die('Connection failed while copying nextflow file in to the cluster');
+//            $log_array['copy_next_pid'] = $copy_next_pid;
             return $log_array;
         }
     }
@@ -147,9 +147,15 @@ class dbfuncs {
             }
             //get userpky
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
-
+            //check if files are exist
+            $next_exist = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &");
+            preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
+            $log_array['next_exist'] = $next_exist;
+            // if $matches[2] == " ", it means nextflow file is exist otherwise die
+            if ($matches[2] == " ") {
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
             $cmd="ssh -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
@@ -157,8 +163,12 @@ class dbfuncs {
             $log_array['next_submit_pid'] = $next_submit_pid;
             return json_encode($log_array);
             
+            
 //            preg_match("/Job <(.*)> is/",$content, $matches);
 //		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+            }else if ($matches[2] == " not "){
+                die(json_encode('Nextflow file not exists'));
+            }
         }
     }
     
@@ -358,25 +368,7 @@ class dbfuncs {
         $sql = "UPDATE project SET name= '$name', summary= '$summary', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = $id";
         return self::runSQL($sql);
     }
-    public function getProjectPipelines($id,$project_id,$ownerID) {
-		if ($id != ""){
-			$where = " where pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
-            $sql = "SELECT pp.id, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, u.username, p.name as project_name
-                    FROM project_pipeline pp 
-                    INNER JOIN users u ON pp.owner_id = u.id 
-                    INNER JOIN project p ON pp.project_id = p.id 
-                    $where";    
-		} else {
-            $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
-            $sql = "SELECT pp.id, pip.id as pip_id, pip.name, u.username, pip.summary, pip.date_modified 
-                    FROM project_pipeline pp 
-                    INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
-                    INNER JOIN users u ON pip.owner_id = u.id 
-                    $where";    
-        }
-		
-		return self::queryTable($sql);
-    }
+
 //    ----------- Runs     ---------
     public function insertRun($project_pipeline_id, $ownerID) {
         $sql = "INSERT INTO run (project_pipeline_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
@@ -409,7 +401,7 @@ class dbfuncs {
         }
     }
     
-//    ----------- Inputs   ---------
+//    ----------- Inputs, Project Inputs   ---------
     
     public function getInputs($id,$ownerID) {
         $where = " where owner_id = $ownerID OR perms = 63"; 
@@ -435,8 +427,71 @@ class dbfuncs {
                 INNER JOIN input i ON i.id = pi.input_id
                 $where";
 		return self::queryTable($sql);
-
     }
+    
+    public function insertProjectInput($project_id, $input_id, $ownerID) {
+        $sql = "INSERT INTO project_input(project_id, input_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$project_id', '$input_id', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+    public function insertInput($name, $ownerID) {
+        $sql = "INSERT INTO input(name, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateInput($id, $name, $ownerID) {
+        $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+    
+
+    
+     // ------- Project Pipelines  ------
+ 
+    public function insertProjectPipeline($name, $project_id, $pipeline_id, $ownerID) {
+        $sql = "INSERT INTO project_pipeline(name, project_id, pipeline_id, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$name', '$project_id', '$pipeline_id', '$ownerID', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
+    public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $ownerID) {
+        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+        
+    }
+    
+    public function getProjectPipelines($id,$project_id,$ownerID) {
+		if ($id != ""){
+			$where = " where pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
+            $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms
+                    FROM project_pipeline pp 
+                    INNER JOIN users u ON pp.owner_id = u.id 
+                    INNER JOIN project p ON pp.project_id = p.id
+                    INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
+                    $where";    
+		} else {
+            $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
+            $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.date_modified 
+                    FROM project_pipeline pp 
+                    INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
+                    INNER JOIN users u ON pp.owner_id = u.id 
+                    $where";    
+        }
+		
+		return self::queryTable($sql);
+    }
+    
+     // ------- Project Pipeline Inputs  ------
+    public function insertProPipeInput($project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name, $qualifier, $ownerID) {
+        $sql = "INSERT INTO project_pipeline_input(project_pipeline_id, input_id, project_id, pipeline_id, g_num, given_name, qualifier, owner_id, perms, date_created, date_modified, last_modified_user) VALUES ('$project_pipeline_id', '$input_id', '$project_id', '$pipeline_id', '$g_num', '$given_name', '$qualifier', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+
+    public function updateProPipeInput($id, $project_pipeline_id, $input_id, $project_id, $pipeline_id, $gNum, $given_name, $qualifier, $ownerID) {
+        $sql = "UPDATE project_pipeline_input SET project_pipeline_id='$project_pipeline_id', input_id='$input_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', given_name='$given_name', qualifier='$qualifier', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    } 
+    
     public function getProjectPipelineInputs($g_num, $project_pipeline_id,$ownerID) {
         $where = " where ppi.project_pipeline_id = $project_pipeline_id AND (ppi.owner_id = $ownerID OR ppi.perms = 63)" ; 
         if ($g_num != ""){
@@ -465,36 +520,6 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     
-    public function insertProjectInput($project_id, $input_id, $ownerID) {
-        $sql = "INSERT INTO project_input(project_id, input_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$project_id', '$input_id', '$ownerID', 3, now(), now(), '$ownerID')";
-        return self::insTable($sql);
-    }
-    public function insertInput($name, $ownerID) {
-        $sql = "INSERT INTO input(name, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$name', '$ownerID', 3, now(), now(), '$ownerID')";
-        return self::insTable($sql);
-    }
-
-    public function updateInput($id, $name, $ownerID) {
-        $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = $id";
-        return self::runSQL($sql);
-    }
-    
-    public function insertProPipeInput($project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name, $qualifier, $ownerID) {
-        $sql = "INSERT INTO project_pipeline_input(project_pipeline_id, input_id, project_id, pipeline_id, g_num, given_name, qualifier, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$project_pipeline_id', '$input_id', '$project_id', '$pipeline_id', '$g_num', '$given_name', '$qualifier', '$ownerID', 3, now(), now(), '$ownerID')";
-        return self::insTable($sql);
-    }
-
-    public function updateProPipeInput($id, $project_pipeline_id, $input_id, $project_id, $pipeline_id, $gNum, $given_name, $qualifier, $ownerID) {
-        $sql = "UPDATE project_pipeline_input SET project_pipeline_id='$project_pipeline_id', input_id='$input_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', given_name='$given_name', qualifier='$qualifier', last_modified_user ='$ownerID'  WHERE id = $id";
-        return self::runSQL($sql);
-    }
-    
-    
-    
-    
     // ------- Process Parameters ------
 
 //    public function getAllProcessParameters($process_id, $type, $start, $end) {
@@ -512,12 +537,7 @@ class dbfuncs {
 //                WHERE pp.process_id = $process_id $typeExp AND pp.process_id = p.id";
 //        return self::queryTable($sql);
 //    }
- 
-    public function insertProjectPipeline($project_id, $pipeline_id, $ownerID) {
-        $sql = "INSERT INTO project_pipeline( project_id, pipeline_id, owner_id, date_created, date_modified, last_modified_user, perms) 
-                VALUES ('$project_id', '$pipeline_id', '$ownerID', now(), now(), '$ownerID', 3)";
-        return self::insTable($sql);
-    }
+   
 
     public function insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID) {
         $sql = "INSERT INTO process_parameter(name, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 

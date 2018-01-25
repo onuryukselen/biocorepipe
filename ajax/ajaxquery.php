@@ -301,14 +301,24 @@ else if ($p=="saveProject"){
 else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_id = $_REQUEST['project_id'];
-        $data = $db->insertProjectPipeline($project_id, $pipeline_id, $ownerID);
+    $name = $_REQUEST['name'];
+    $summary = $_REQUEST['summary'];
+    $output_dir = $_REQUEST['output_dir'];
+    $perms = $_REQUEST['perms'];
+    $profile = $_REQUEST['profile'];
+    $interdel = $_REQUEST['interdel'];
+    $group_id = $_REQUEST['group_id'];
+    $exec_each = $_REQUEST['exec_each'];
+    $exec_all = $_REQUEST['exec_all'];
+    $exec_all_settings = $_REQUEST['exec_all_settings'];
+    $exec_each_settings = $_REQUEST['exec_each_settings'];
+        if (!empty($id)) {
+        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $ownerID);
+    } else {
+        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $ownerID);
+    }
 }
-//else if ($p=="savePipelineProcess"){
-//    $name = $_REQUEST['name'];
-//    $pipeline_id = $_REQUEST['pipeline_id'];
-//    $process_id = $_REQUEST['process_id'];
-//    $data = $db->insertPipelineProcess($name, $pipeline_id, $process_id);
-//}
+
 else if ($p=="saveProcessParameter"){
     $name = $_REQUEST['name'];
     $process_id = $_REQUEST['process_id'];

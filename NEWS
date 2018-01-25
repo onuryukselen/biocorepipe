@@ -1,3 +1,10 @@
+24.01.2018 Version 0.0.33
+Sql constraint to remove project runs are removed.(fixed the remove button)
+Project runs table updated(modified date, description and name of the run)
+"Delete run" dropdown in run pipeline page is updated.
+Run pipeline page updated(run settings)
+Save on existing run feature is added.
+
 22.01.2018 Version 0.0.32
 Debugging of run upgraded.
 

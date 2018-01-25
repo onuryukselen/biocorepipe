@@ -488,7 +488,9 @@ function checkRevisionPipe(pipeline_id) {
     var warnPipeText = '';
     //has selected pipeline ever used in projects?
     var checkProj = checkProject(pipeline_id);
-    if (checkProj.length > 0) {
+    console.log(checkProj);
+    var numOfProject = checkProj.length;
+    if (numOfProject > 1) {
         warnUserPipe = true;
         warnPipeText = warnPipeText + 'It is not allowed to save on current revision, since this revision of pipeline already used in projects.</br></br>In order to save on current revision, you may remove the pipeline from following projects: '
         $.each(checkProj, function (element) {
@@ -498,10 +500,13 @@ function checkRevisionPipe(pipeline_id) {
             warnPipeText = warnPipeText + '"' + checkProj[element].name + '"';
         });
         warnPipeText = warnPipeText + '</br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.'
-
+    } else if (numOfProject === 1) {
+        warnUserPipe = true;
+        warnPipeText = warnPipeText + 'This revision of pipeline already used in one project (' + checkProj[0].name + ').';
+        warnPipeText = warnPipeText + '</br></br>Your changes may effect the current run. If you still want to save on existing revision, please click on "save on existing" button. </br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.'
     }
 
-    return [warnUserPipe, warnPipeText];
+    return [warnUserPipe, warnPipeText, numOfProject];
 }
 
 function checkRevisionProc(data, proID, proName) {
@@ -1669,9 +1674,9 @@ $(document).ready(function () {
         projectTable.column(0).checkboxes.deselect();
         var pipeline_id = $('#pipeline-title').attr('pipelineid');
         if (pipeline_id === '') {
-        event.preventDefault();
+            event.preventDefault();
         }
-        
+
     });
 
 
@@ -1680,24 +1685,56 @@ $(document).ready(function () {
         var pipeline_id = $('#pipeline-title').attr('pipelineid');
         var rows_selected = projectTable.column(0).checkboxes.selected();
         if (rows_selected.length === 1 && pipeline_id !== '') {
+//            var data = [];
+//            var project_id = rows_selected[0];
+//            data.push({ name: "project_id", value: project_id });
+//            data.push({ name: "pipeline_id", value: pipeline_id });
+//            data.push({ name: "p", value: "saveProjectPipeline" });
+            $('#runNameModal').modal('show');
+
+
+        }
+    });
+    //enter run name modal
+    $('#runNameModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'selectProject') {
+            $('#runNameModaltitle').html('Enter Run Name');
+        } else {}
+    });
+    //save run on database
+    $('#runNameModal').on('click', '#saveRun', function (event) {
+        event.preventDefault();
+        var pipeline_id = $('#pipeline-title').attr('pipelineid');
+        var rows_selected = projectTable.column(0).checkboxes.selected();
+        var run_name = $('#runName').val();
+        
+        if (rows_selected.length === 1 && pipeline_id !== '' && run_name !=='') {
             var data = [];
             var project_id = rows_selected[0];
+            data.push({ name: "name", value: run_name });
             data.push({ name: "project_id", value: project_id });
             data.push({ name: "pipeline_id", value: pipeline_id });
             data.push({ name: "p", value: "saveProjectPipeline" });
             var proPipeGet = getValues(data);
             var projectPipelineID = proPipeGet.id;
+            $('#runNameModal').modal('hide');
             $('#mRun').modal('hide');
-	        setTimeout(function () { window.location.replace("index.php?np=3&id=" + projectPipelineID); }, 700);
+            setTimeout(function () { window.location.replace("index.php?np=3&id=" + projectPipelineID); }, 700);
         }
     });
+
+
+
+
+
 
     $('#projectmodal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
         if (button.attr('id') === 'addproject') {
             $('#projectmodaltitle').html('Add New Project');
-        } else {
         }
     });
 
