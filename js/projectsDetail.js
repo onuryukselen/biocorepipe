@@ -85,12 +85,22 @@
                 "dataSrc": ""
             },
             "columns": [{
+                "data": "pp_name",
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html("<a href='index.php?np=3&id=" + oData.id + "'>" + oData.pp_name + "</a>");
+                }
+            },{
                 "data": "name",
                 "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                     $(nTd).html("<a href='index.php?np=1&id=" + oData.pip_id + "'>" + oData.name + "</a>");
                 }
             }, {
-                "data": "summary"
+                "data": "rev_id"
+            },{
+                "data": "summary",
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).text(truncateName(oData.summary, 'newTable'));
+                }
             }, {
                 "data": "username"
             }, {
@@ -99,8 +109,8 @@
                 data: null,
                 className: "center",
                 defaultContent: getButtonsDef('selectRun', 'Run') + getTableButtons("projectrun", REMOVE)
-            }]
-
+            }],
+            'order': [[5, 'desc']]
         });
 
 
@@ -126,14 +136,17 @@
             }, {
                     "data": "rev_id"
             }, {
-                    "data": "summary"
+                "data": "summary",
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).text(truncateName(oData.summary, 'newTable'));
+                }
             }, {
                     "data": "username"
             }, {
                     "data": "date_modified"
             }],
             'select': {
-                'style': 'multi'
+                'style': 'single'
             },
             'order': [[1, 'asc']]
         });
@@ -144,26 +157,49 @@
 
         $('#runmodal').on('show.bs.modal', function (event) {
             allpipelinestable.column(0).checkboxes.deselect();
-            $('#runmodaltitle').html('Select Pipelines to Run');
+            $('#runmodaltitle').html('Select Pipeline to Run');
 
         });
 
-        $('#runmodal').on('click', '#saverun', function (event) {
+        $('#runmodal').on('click', '#selectPipe', function (event) {
             event.preventDefault();
             var rows_selected = allpipelinestable.column(0).checkboxes.selected();
-            for (var i = 0; i < rows_selected.length; i++) {
+            if (rows_selected.length === 1) {
+                $('#runNameModal').modal('show');
+            }
+
+
+        });
+        
+        
+        //enter run name modal
+    $('#runNameModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'selectPipe') {
+            $('#runNameModaltitle').html('Enter Run Name');
+        } 
+    });
+    //save run on database
+    $('#runNameModal').on('click', '#saveRun', function (event) {
+        event.preventDefault();
+         var rows_selected = allpipelinestable.column(0).checkboxes.selected();
+         var run_name = $('#runName').val();
+        
+            if (rows_selected.length === 1 && run_name !== '') {
                 var data = [];
-                var $pipeline_id = rows_selected[i];
+                var $pipeline_id = rows_selected[0];
+                data.push({ name: "name", value: run_name });
                 data.push({ name: "project_id", value: project_id });
                 data.push({ name: "pipeline_id", value: $pipeline_id });
                 data.push({ name: "p", value: "saveProjectPipeline" });
                 var proPipeGet = getValues(data);
-                console.log(proPipeGet);
-                var project_pipeline_id =proPipeGet.id;
-
+                //add new row into the table
+                var project_pipeline_id = proPipeGet.id;
                 var getProPipeData = [];
-                getProPipeData.push({ name: "id", value: $pipeline_id });
-                getProPipeData.push({ name: "p", value: "loadPipeline" });
+                getProPipeData.push({ name: "id", value: project_pipeline_id });
+                getProPipeData.push({ name: "project_id", value: project_id });
+                getProPipeData.push({ name: "p", value: "getProjectPipelines" });
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -179,19 +215,16 @@
                         }
                         rowData.pip_id = pipelineDat[0].id;
                         rowData.id = project_pipeline_id;
-                        console.log(rowData);
-//                        console.log(keys);
                         runsTable.row.add(rowData).draw();
-
                     },
                     error: function (errorThrown) {
                         alert("Error: " + errorThrown);
                     }
                 });
+                $('#runNameModal').modal('hide');
+                $('#runmodal').modal('hide');
             }
-            $('#runmodal').modal('hide');
-
-        });
+    });
 
         $('#runtable').on('click', '#projectrunremove', function (e) {
             e.preventDefault();
@@ -223,7 +256,7 @@
             console.log(rowData.id);
             var project_pipeline_id = (rowData.id);
             window.location.replace("index.php?np=3&id=" + project_pipeline_id);
-            //xxx
+           
             
         });
 

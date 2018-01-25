@@ -243,3 +243,45 @@ function getValues(data) {
     });
     return result;
 }
+
+function truncateName(name, type) {
+	      if (type === 'inOut') {
+	          var letterLimit = 7;
+	      } else if (type === 'process') {
+	          var letterLimit = 12;
+	      } else if (type === 'newTable') {
+	          var letterLimit = 120;
+	      } else if (type === 'processTable') {
+	          var letterLimit = 300;
+	      }
+	      if (name.length > letterLimit)
+	          return name.substring(0, letterLimit) + '..';
+	      else
+	          return name;
+	  }
+
+$('.collapseIcon').on('click', function(e) {
+    var textClass=$(this).attr('class');
+    if (textClass.includes('fa-plus-square-o'))
+    {
+        $(this).removeClass('fa-plus-square-o');
+        $(this).addClass('fa-minus-square-o');
+    } else if (textClass.includes('fa-minus-square-o'))
+    {
+        $(this).removeClass('fa-minus-square-o');
+        $(this).addClass('fa-plus-square-o');
+    }
+    
+}); 
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+

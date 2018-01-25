@@ -204,7 +204,11 @@
         .movebox:hover::after {
             opacity: 1;
         }
-        
+        /* In order to fix textarea width*/
+        textarea {
+          resize: vertical;
+        }
+
         
     </style>
 

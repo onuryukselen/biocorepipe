@@ -22,41 +22,6 @@
 	      event.preventDefault();
 	  }
 
-
-	  //	  function drop(event) {
-	  //	      event.preventDefault();
-	  //	      var processDat = event.dataTransfer.getData("Text");
-	  //	      var posX = 0;
-	  //	      var posY = 0;
-	  //
-	  //
-	  //	      var svgA = document.getElementById("svg")
-	  //	      var pt = svgA.createSVGPoint();
-	  //	      pt.x = event.clientX
-	  //	      pt.y = event.clientY
-	  //	      var svgGlobal = pt.matrixTransform(svgA.getScreenCTM().inverse())
-	  //	      posX = svgGlobal.x - 50
-	  //	      posY = svgGlobal.y - 70
-	  //	      addProcess(processDat, posX, posY);
-	  //	      autosave();
-	  //	      event.stopPropagation();
-	  //	      return false;
-	  //	  }
-
-	  //	  function getValues(data) {
-	  //	      var result = null;
-	  //	      $.ajax({
-	  //	          url: "ajax/ajaxquery.php",
-	  //	          data: data,
-	  //	          async: false,
-	  //	          cache: false,
-	  //	          success: function (data) {
-	  //	              result = data;
-	  //	          }
-	  //	      });
-	  //	      return result;
-	  //	  }
-
 	  refreshDataset()
 
 	  function refreshDataset() {
@@ -157,16 +122,7 @@
 	      });
 	      window.location.replace("index.php?np=1");
 
-	      //	      $('#' + 'pipeline-' + pipeID).remove();
-	      //	      $('#pipeline-title').val('');
-	      //	      $('#pipeline-title').attr('pipelineid', '');
-	      //	      createSVG();
-	      //	      resizeForText.call($inputText, $inputText.attr('placeholder'));
-	      //          $('#creatorInfoPip').css('display', "none");
-	      //          $('#pipelineSum').val('');
-
 	  }
-
 
 
 	  function openPipeline(id) {
@@ -205,10 +161,7 @@
 	      checkReadytoRun();
 	  }
 
-
-
 	  d3.select("#container").style("background-image", "url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
-	  //	  d3.select("#container").style("background-image","url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").style("min-width","2300px").on("keydown",cancel).on("mousedown", cancel)
 
 	  var zoom = d3.behavior.zoom()
 	      .translate([0, 0])
@@ -309,54 +262,25 @@
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
-	      //	          .on("mouseover", scMouseOver)
-	      //	          .on("mouseout", scMouseOut)
-	      //	          .call(drag)
-
-	      //	      g.append("text").attr("id", "text-" + gNum)
-	      //	          .datum([{
-	      //	              cx: 0,
-	      //	              cy: 0
-	      //                }])
-	      //	          .attr('font-family', "FontAwesome, sans-serif")
-	      //	          .attr('font-size', '0.9em')
-	      //	          .attr("x", -40)
-	      //	          .attr("y", 5)
-	      //	          .text('\uf040')
-	      //	          .on("mousedown", rename)
-
-	      //gnum(written in id): uniqe,
-	      //	      g.append("text")
-	      //	          .attr("id", "del-" + gNum)
-	      //	          .attr('font-family', "FontAwesome, sans-serif")
-	      //	          .attr('font-size', '1em')
-	      //	          .attr("x", +30)
-	      //	          .attr("y", 5)
-	      //	          .text('\uf014')
-	      //	          .style("opacity", 0.2)
-	      //	          .on("mousedown", removeElement)
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
 	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
 	  }
 
-	  function insertProRowTable(process_id, procName, procDesc, procRev) {
-	      return '<tr id=procTa-' + process_id + '><td scope="row">' + procName + '</td><td>' + procRev + '</td><td>' + procDesc + '</td></tr>'
+	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef) {
+	      return '<tr procgnum=' + gNum + ' id=procTa-' + process_id + '><td>' + procName + '</td><td><input name="queue" class="form-control" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procCpuDef + '"></input></td></tr>'
 	  }
 
 	  //--Pipeline details table --
-	  function addProPipeTab(id) {
-	      var procData = processData.filter(function (el) { return el.id == id });
+	  function addProPipeTab(process_id, gNum) {
+	      var procData = processData.filter(function (el) { return el.id == process_id });
 	      var procName = procData[0].name;
-	      var procDesc = truncateName(procData[0].summary, 'processTable');
-	      var procRev = procData[0].rev_id;
-	      var proRow = insertProRowTable(id, procName, procDesc, procRev);
-	      var rowExistPro = '';
-	      var rowExistPro = document.getElementById('procTa-' + id);
-	      if (!rowExistPro) {
-	          $('#processTable > tbody:last-child').append(proRow);
-	      }
+	      var procQueDef = 'long';
+	      var procMemDef = '10 GB'
+	      var procCpuDef = '2';
+	      var proRow = insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef);
+	      $('#processTable > tbody:last-child').append(proRow);
 	  }
 
 	  function removeProPipeTab(id) {
@@ -425,7 +349,7 @@
 	          var id = process_id
 
 	          //--Pipeline details table add process--
-	          addProPipeTab(id)
+	          addProPipeTab(id, gNum)
 
 	          var inputs = getValues({
 	              p: "getInputsPP",
@@ -734,7 +658,6 @@
 	          d3.select("#" + g).remove()
 	          delete processList[g]
 	          removeLines(g)
-	          //	          cancelRemove()
 	      }
 	  }
 
@@ -748,9 +671,6 @@
 	          if (from == g || to == g) {
 	              lineid = allLines[line].id
 	              removeEdge('c--' + lineid)
-	              //	              d3.select("#" + lineid).remove()
-	              //	              edges.splice(edges.indexOf("lineid"), 1);
-	              //	              removeDelCircle(lineid)
 	          }
 	      }
 	  }
@@ -1088,19 +1008,11 @@
 
 	          }
 
-
-
-
-
 	      } else { //process to process connection
 	          fClickOrigin = first
 	          fClick = first
 	          sClick = second
 	      }
-
-
-
-
 
 	      d3.select("#mainG").append("line")
 	          .attr("id", fClick + "_" + sClick)
@@ -1117,35 +1029,6 @@
 	          .attr("IO_to", sClick)
 	          .attr("stroke-width", 2)
 	          .attr("stroke", "black")
-
-	      //	      d3.select("#mainG").append("g")
-	      //	          .attr("id", "c--" + fClick + "_" + sClick)
-	      //	          .attr("transform", "translate(" + (candidates[fClickOrigin][0] + candidates[sClick][0]) / 2 + "," + (candidates[fClickOrigin][1] + candidates[sClick][1]) / 2 + ")")
-	      //	          .attr("g_from", candidates[fClickOrigin][2])
-	      //	          .attr("g_to", candidates[sClick][2])
-	      //	          .attr("IO_from", fClick)
-	      //	          .attr("IO_to", sClick)
-	      //	          .on("mousedown", removeElement)
-	      //	          .on("mouseover", delMouseOver)
-	      //	          .on("mouseout", delMouseOut)
-	      //	          .append("circle")
-	      //	          .attr("id", "delc--" + fClick + "_" + sClick)
-	      //	          .attr("class", "del")
-	      //	          .attr("cx", 0)
-	      //	          .attr("cy", 0)
-	      //	          .attr("r", ior)
-	      //	          .attr("fill", "#E0E0E0")
-	      //	          .attr('fill-opacity', 0.4)
-
-	      //	      d3.select("#c--" + fClick + "_" + sClick)
-	      //	          .append("text")
-	      //	          .attr("id", "del--" + fClick + "_" + sClick)
-	      //	          .attr('font-family', "FontAwesome, sans-serif")
-	      //	          .attr('font-size', '1em')
-	      //	          .attr("x", -5)
-	      //	          .attr("y", 5)
-	      //	          .text('\uf014')
-	      //	          .style("opacity", 0.4)
 
 	      edges.push(fClick + "_" + sClick)
 
@@ -1164,9 +1047,6 @@
 	      var paramType = firstParamId.split("-")[1] //inPro or outPro
 	      var delsecGnum = secondParamId.split("-")[4] //gNum
 	      var delGnum = firstParamId.split("-")[4] //gNum
-
-
-
 
 	      //input/output param has still edge/edges
 	      //remove process name from pipeline details table
@@ -1197,7 +1077,6 @@
 	      if (!edges.searchFor(secondParamId)) {
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
-	      //	      cancelRemove()
 	  }
 
 	  function delMouseOver() {
@@ -1225,20 +1104,6 @@
 	      bodyW = body.offsetWidth;
 	      bodyH = body.scrollHeight;
 	      $('#renameModal').modal("show");
-	  }
-
-	  function truncateName(name, type) {
-	      if (type === 'inOut') {
-	          var letterLimit = 7;
-	      } else if (type === 'process') {
-	          var letterLimit = 12;
-	      } else if (type === 'processTable') {
-	          var letterLimit = 300;
-	      }
-	      if (name.length > letterLimit)
-	          return name.substring(0, letterLimit) + '..';
-	      else
-	          return name;
 	  }
 
 	  function changeName() {
@@ -1280,335 +1145,10 @@
 
 	      if (!binding) {
 	          $('#confirmD3Modal').modal("show");
-
-	          //	          d3.select("#container").append('div')
-	          //	              .attr('id', 'removeElement')
-	          //	              .style('position', 'absolute')
-	          //	              .style('top', 0)
-	          //	              .style('left', 0)
-	          //	              .style("width", bodyW + "px")
-	          //	              .style("height", bodyH + "px")
-	          //	              .style("background-color", "gray")
-	          //	              .style("opacity", 0.8)
-	          //	              .on("mousedown", cancelRemove)
-	          //
-	          //	          d3.select("#container").append('div')
-	          //	              .attr('id', 'removeElementCont')
-	          //	              .style('position', 'absolute')
-	          //	              .style('top', 100 + "px")
-	          //	              .style('left', 300 + "px")
-	          //	              .style("width", "500px")
-	          //	              .style("height", "200px")
-	          //	              .style("background-color", "white")
-	          //	              .style("opacity", 1)
-	          //
-	          //	          d3.select("#removeElementCont").append("div")
-	          //	              .attr("id", "removeTextCont")
-	          //	              .attr("class", "col-md-12")
-	          //	              .append("div")
-	          //	              .attr("class", "col-md-3")
-	          //
-	          //	          d3.select("#removeTextCont").append("div")
-	          //	              .attr("class", "col-md-6")
-	          //	              .style("margin-top", "40px")
-	          //	              .style("text-align", "center")
-	          //	              .append("text")
-	          //	              .attr("id", "warning")
-	          //	              .text("Are you sure you want to delete?")
-	          //
-	          //	          d3.select("#removeTextCont").append("div")
-	          //	              .attr("id", "removeButtonContainer")
-	          //	              .attr("class", "col-md-12")
-	          //	              .append("div")
-	          //	              .attr("class", "col-md-6")
-	          //	              .append("button")
-	          //	              .attr("class", "form-control btn-info")
-	          //	              .attr("onclick", "cancelRemove()")
-	          //	              .style("margin-top", "40px")
-	          //	              .text("No")
-	          //	          if (deleteID.split("_").length == 2) {
-	          //	              d3.select("#removeButtonContainer")
-	          //	                  .append("div")
-	          //	                  .attr("class", "col-md-6")
-	          //	                  .append("button")
-	          //	                  .attr("class", "form-control btn-success")
-	          //	                  .attr("onclick", "removeEdge()")
-	          //	                  .style("margin-top", "40px")
-	          //	                  .text("Yes")
-	          //	          } else if (deleteID.split("_").length == 1) {
-	          //	              d3.select("#removeButtonContainer")
-	          //	                  .append("div")
-	          //	                  .attr("class", "col-md-6")
-	          //	                  .append("button")
-	          //	                  .attr("class", "form-control btn-success")
-	          //	                  .attr("onclick", "remove()")
-	          //	                  .style("margin-top", "40px")
-	          //	                  .text("Yes")
-	          //	          }
 	      }
 	  }
 
-	  //	  function cancelRemove() {
-	  //	      d3.select("#removeElement").remove()
-	  //	      d3.select("#removeElementCont").remove()
-	  //
-	  //	  }
-
-	  //	  function cancelRename() {
-	  //	      d3.select("#renameContainer").remove()
-	  //	      d3.select("#rename").remove()
-	  //
-	  //	  }
-	  //nextflow variable must not contain "-", replaced by "_"
-	  function gFormat(gText) {
-	      gPatt = /(.*)-(.*)/
-	      gText = gText.replace(gPatt, '$1_$2')
-	      return gText
-	  }
-
-	  function createNextflowFile() {
-	      nextText = "params.outdir = 'results' " + " \n\n"
-	      iniTextSecond = ""
-	      //initial input data added
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          iniText = InputParameters(mainProcessId, key)
-	          iniTextSecond = iniTextSecond + iniText.secPart
-	          nextText = nextText + iniText.firstPart
-	      }
-	      nextText = nextText + "\n" + iniTextSecond + "\n"
-
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-	              proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
-	              nextText = nextText + proText
-	          }
-	      }
-	      return nextText
-	  }
-
-	  //Input parameters and channels with file paths
-	  function InputParameters(id, currgid) {
-	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-	      iText = {};
-	      firstPart = "";
-	      secPart = "";
-
-	      for (var i = 0; i < IList.length; i++) {
-	          Iid = IList[i].id
-	          inputIdSplit = Iid.split("-")
-	          ProId = inputIdSplit[1]
-	          userEntryId = "text-" + inputIdSplit[4]
-
-	          if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
-	              qual = parametersData.filter(function (el) {
-	                  return el.id == inputIdSplit[3]
-	              })[0].qualifier
-	              //filePath = parametersData.filter(function (el) {return el.id == inputIdSplit[3]})[0].file_path
-	              inputParamName = document.getElementById(userEntryId).getAttribute('name') //input parameter name
-
-	              for (var e = 0; e < edges.length; e++) {
-	                  if (edges[e].indexOf(Iid) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                      nodes = edges[e].split("_")
-	                      //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                      fNode = nodes[0]
-	                      sNode = nodes[1]
-	                      inputIdSplit = sNode.split("-")
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-
-
-
-	                      if (qual === "file") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-	                      } else if (qual === "set") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-	                      } else if (qual === "val") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-
-	                      }
-
-	                  }
-	              }
-	          }
-	      }
-	      iText.firstPart = firstPart
-	      iText.secPart = secPart
-
-	      return iText
-	  }
-
-	  function OutputParameters(id, currgid) {
-	      oText = ""
-	      var closePar = false
-	      oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-	      for (var i = 0; i < oList.length; i++) { //search through each output node
-	          oId = oList[i].id
-	          for (var e = 0; e < edges.length; e++) {
-	              if (edges[e].indexOf(oId) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                  nodes = edges[e].split("_")
-	                  //edgeLocF = nodes[0].indexOf("i-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                  fNode = nodes[0] //outPro node : get userEntryId and userEntryText and parameterID
-	                  sNode = nodes[1] //connected node
-
-	                  if (fNode.split("-")[1] === "outPro" && closePar === false) {
-	                      closePar = true
-	                      oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
-
-	                      outputName = document.getElementById(oId).getAttribute("name")
-	                      outputName = outputName.replace(/\*/g, '')
-	                      outputName = outputName.replace(/\?/g, '')
-	                      outputName = outputName.replace(/\'/g, '')
-	                      outputName = outputName.replace(/\"/g, '')
-	                      //outPro node : get userEntryId and userEntryText
-	                      parId = fNode.split("-")[4]
-	                      userEntryId = "text-" + fNode.split("-")[4]
-	                      outputParamName = document.getElementById(userEntryId).getAttribute('name') //user entered output parameter name
-	                      parFile = parametersData.filter(function (el) {
-	                          return el.id == fNode.split("-")[3]
-	                      })[0].file_type
-	                      tempText = "\tif \(filename =~ /" + outputName + "/\) filename\n"
-	                      // if (filename =~ /^path.8.fastq$/) filename 
-	                      oText = oText + tempText
-	                      //break
-	                  } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
-	                      outputName = document.getElementById(oId).getAttribute("name")
-	                      outputName = outputName.replace(/\*/g, '')
-	                      outputName = outputName.replace(/\?/g, '')
-	                      outputName = outputName.replace(/\'/g, '')
-	                      outputName = outputName.replace(/\"/g, '')
-
-	                      parFile = parametersData.filter(function (el) {
-	                          return el.id == fNode.split("-")[3]
-	                      })[0].file_type
-
-	                      tempText = "\telse if \(filename =~ /" + outputName + "/\) filename\n"
-	                      oText = oText + tempText
-
-	                  }
-	              }
-	          }
-	      }
-	      if (closePar === true) {
-	          oText = oText + "}\n\n"
-	          closePar = false
-	      }
-	      return oText
-	  }
-
-	  function IOandScriptForNf(id, currgid) {
-	      var processData = getValues({
-	          p: "getProcessData",
-	          "process_id": id
-	      })
-	      script = processData[0].script
-	      var lastLetter = script.length - 1;
-	      if (script[0] === '"' && script[lastLetter] === '"') {
-	          script = script.substring(1, script.length - 1); //remove first and last duble quote
-	      }
-	      //insert """ for script if not exist
-	      if (script.search('"""') === -1) {
-	          script = '"""\n' + script + '\n"""'
-	      }
-
-
-
-	      bodyInput = ""
-	      bodyOutput = ""
-	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-	      OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-	      for (var i = 0; i < IList.length; i++) {
-	          if (bodyInput == "") {
-	              bodyInput = "input:\n"
-	          }
-	          Iid = IList[i].id //i-11-0-9-0
-	          inputIdSplit = Iid.split("-")
-	          qual = parametersData.filter(function (el) {
-	              return el.id == inputIdSplit[3]
-	          })[0].qualifier
-	          inputName = document.getElementById(Iid).getAttribute("name")
-	          find = false
-	          for (var e = 0; e < edges.length; e++) {
-	              if (edges[e].indexOf(Iid) > -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                  find = true
-	                  nodes = edges[e].split("_")
-	                  //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                  fNode = nodes[0]
-	                  sNode = nodes[1]
-
-
-	                  if (nodes[0][0] == o) {
-
-	                      inputIdSplit = sNode.split("-")
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-	                  } else {
-	                      inputIdSplit = fNode.split("-")
-
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-	                  }
-	                  if (qual === "file") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  } else if (qual === "set") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  } else if (qual === "val") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  }
-	              }
-	          }
-	          if (find == false) {
-	              bodyInput = bodyInput + " " + qual + " " + inputName + " from " + "param" + "\n"
-
-	          }
-	      }
-
-	      for (var o = 0; o < OList.length; o++) {
-	          if (bodyOutput == "") {
-	              bodyOutput = "output:\n"
-	          }
-	          Oid = OList[o].id
-	          outputIdSplit = Oid.split("-")
-	          qual = parametersData.filter(function (el) {
-	              return el.id == outputIdSplit[3]
-	          })[0].qualifier
-	          outputName = document.getElementById(Oid).getAttribute("name")
-	          genParName = parametersData.filter(function (el) {
-	              return el.id == outputIdSplit[3]
-	          })[0].name
-	          channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
-
-	          if (qual === "file") {
-	              bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-	          } else if (qual === "set") {
-	              bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-	          }
-
-	      }
-	      body = bodyInput + "\n" + bodyOutput + "\n" + script
-	      return body
-	  }
+	
 
 	  function download(text) {
 	      var filename = $('#pipeline-title').val() + '.nf';
@@ -1624,148 +1164,148 @@
 	      document.body.removeChild(element);
 	  }
 
-	  function resetPos() {
-	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
-	  }
+//	  function resetPos() {
+//	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
+//	  }
 
-	  function refreshCreatorData(pipeline_id) {
-	      var getPipelineD = [];
-	      getPipelineD.push({ name: "id", value: pipeline_id });
-	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
-	      $.ajax({
-	          type: "POST",
-	          url: "ajax/ajaxquery.php",
-	          data: getPipelineD,
-	          async: true,
-	          success: function (s) {
-	              $('#creatorInfoPip').css('display', "block");
-	              $('#ownUserNamePip').text(s[0].username);
-	              $('#datecreatedPip').text(s[0].date_created);
-	              $('.lasteditedPip').text(s[0].date_modified);
+//	  function refreshCreatorData(pipeline_id) {
+//	      var getPipelineD = [];
+//	      getPipelineD.push({ name: "id", value: pipeline_id });
+//	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
+//	      $.ajax({
+//	          type: "POST",
+//	          url: "ajax/ajaxquery.php",
+//	          data: getPipelineD,
+//	          async: true,
+//	          success: function (s) {
+//	              $('#creatorInfoPip').css('display', "block");
+//	              $('#ownUserNamePip').text(s[0].username);
+//	              $('#datecreatedPip').text(s[0].date_created);
+//	              $('.lasteditedPip').text(s[0].date_modified);
+//
+//	          },
+//	          error: function (errorThrown) {
+//	              alert("Error: " + errorThrown);
+//	          }
+//	      });
+//
+//	  }
 
-	          },
-	          error: function (errorThrown) {
-	              alert("Error: " + errorThrown);
-	          }
-	      });
-
-	  }
-
-	  //xxx
-	  function save() {
-	      saveNodes = {}
-	      saveMainG = {}
-	      for (var key in processList) {
-	          t = d3.transform(d3.select('#' + key).attr("transform")),
-	              x = t.translate[0]
-	          y = t.translate[1]
-	          gClass = document.getElementById(key).className.baseVal
-	          prosessID = gClass.split("-")[1]
-	          processName = processList[key]
-	          saveNodes[key] = [x, y, prosessID, processName]
-	      }
-	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
-	          Mainx = Maint.translate[0]
-	      Mainy = Maint.translate[1]
-	      Mainz = Maint.scale[0]
-	      sName = document.getElementById("pipeline-title").value;
-	      var pipelineSummary = $('#pipelineSum').val();
-	      id = 0
-	      if (sName !== "" && dupliPipe === false) {
-	          id = $("#pipeline-title").attr('pipelineid');
-	      } else if (sName !== "" && dupliPipe === true) {
-	          id = '';
-	          sName = sName + '-copy'
-	      }
-
-	      saveMainG["mainG"] = [Mainx, Mainy, Mainz]
-	      savedList = [{
-	          "name": sName
-	      }, {
-	          "id": id
-	      }, {
-	          "nodes": saveNodes
-	      }, saveMainG, {
-	          "edges": edges
-	      }, {
-	          "summary": pipelineSummary
-	      }];
-	      //xxx
-	      //A. Add new pipeline
-	      if (sName !== "" && id === '') {
-	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
-	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
-	          savedList.push({ "pipeline_gid": newPipeline_gid });
-	          sl = JSON.stringify(savedList);
-	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	          $("#pipeline-title").attr('pipelineid', ret.id);
-	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
-	          if (dupliPipe === true) {
-	              $("#pipeline-title").changeVal(sName);
-	              dupliPipe = false;
-	          }
-	          $('#autosave').text('All changes saved');
-
-
-	      }
-	      //B. pipeline already exist
-	      else if (sName !== "" && id !== '') {
-	          var warnUserPipe = false;
-	          var warnPipeText = '';
-              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
-	          //B.1 allow updating on existing pipeline
-	          if (warnUserPipe === false) {
-	              sl = JSON.stringify(savedList);
-	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	              refreshCreatorData(pipeline_id);
-	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
-	              $('#autosave').text('All changes saved');
-
-
-	          }
-	          //B.2 allow save on new revision
-	          else if (warnUserPipe === true) {
-	              // ConfirmYesNo process modal 
-	              $('#confirmRevision').off();
-	              $('#confirmRevision').on('show.bs.modal', function (event) {
-	                  $(this).find('form').trigger('reset');
-	                  $('#confirmYesNoText').html(warnPipeText);
-	              });
-
-	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
-	                  $('#autosave').text('Changes not saved!');
-
-	              });
-
-	              $('#confirmRevision').on('click', '#saveRev', function (event) {
-	                  var confirmformValues = $('#confirmRevision').find('input');
-	                  var revCommentData = confirmformValues.serializeArray();
-	                  var revComment = revCommentData[0].value;
-	                  if (revComment === '') { //xxx warn user to enter comment
-	                  } else if (revComment !== '') {
-	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
-	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
-	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
-	                      savedList[1].id = ''
-	                      savedList.push({ "pipeline_gid": pipeline_gid });
-	                      savedList.push({ "rev_comment": revComment });
-	                      savedList.push({ "rev_id": newPipRev_id });
-	                      sl = JSON.stringify(savedList);
-	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	                      $('#confirmRevision').modal('hide');
-	                      $('#autosave').text('Changes saved on new revision');
-	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
-	                  }
-	              });
-	              $('#confirmRevision').modal('show');
-	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	              refreshCreatorData(pipeline_id);
-	          }
-	      }
-
-	  }
+//	  function save() {
+//	      saveNodes = {}
+//	      saveMainG = {}
+//	      for (var key in processList) {
+//	          t = d3.transform(d3.select('#' + key).attr("transform")),
+//	              x = t.translate[0]
+//	          y = t.translate[1]
+//	          gClass = document.getElementById(key).className.baseVal
+//	          prosessID = gClass.split("-")[1]
+//	          processName = processList[key]
+//	          saveNodes[key] = [x, y, prosessID, processName]
+//	      }
+//	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
+//	          Mainx = Maint.translate[0]
+//	      Mainy = Maint.translate[1]
+//	      Mainz = Maint.scale[0]
+//	      sName = document.getElementById("pipeline-title").value;
+//	      var pipelineSummary = $('#pipelineSum').val();
+//	      id = 0
+//	      if (sName !== "" && dupliPipe === false) {
+//	          id = $("#pipeline-title").attr('pipelineid');
+//	      } else if (sName !== "" && dupliPipe === true) {
+//	          id = '';
+//	          sName = sName + '-copy'
+//	      }
+//
+//	      saveMainG["mainG"] = [Mainx, Mainy, Mainz]
+//	      savedList = [{
+//	          "name": sName
+//	      }, {
+//	          "id": id
+//	      }, {
+//	          "nodes": saveNodes
+//	      }, saveMainG, {
+//	          "edges": edges
+//	      }, {
+//	          "summary": pipelineSummary
+//	      }];
+//
+//	      //xxx
+//	      //A. Add new pipeline
+//	      if (sName !== "" && id === '') {
+//	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
+//	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
+//	          savedList.push({ "pipeline_gid": newPipeline_gid });
+//	          sl = JSON.stringify(savedList);
+//	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
+//	          $("#pipeline-title").attr('pipelineid', ret.id);
+//	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+//	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+//	          if (dupliPipe === true) {
+//	              $("#pipeline-title").changeVal(sName);
+//	              dupliPipe = false;
+//	          }
+//	          $('#autosave').text('All changes saved');
+//
+//
+//	      }
+//	      //B. pipeline already exist
+//	      else if (sName !== "" && id !== '') {
+//	          var warnUserPipe = false;
+//	          var warnPipeText = '';
+//              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
+//	          //B.1 allow updating on existing pipeline
+//	          if (warnUserPipe === false) {
+//	              sl = JSON.stringify(savedList);
+//	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
+//	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+//	              refreshCreatorData(pipeline_id);
+//	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+//	              $('#autosave').text('All changes saved');
+//
+//
+//	          }
+//	          //B.2 allow save on new revision
+//	          else if (warnUserPipe === true) {
+//	              // ConfirmYesNo process modal 
+//	              $('#confirmRevision').off();
+//	              $('#confirmRevision').on('show.bs.modal', function (event) {
+//	                  $(this).find('form').trigger('reset');
+//	                  $('#confirmYesNoText').html(warnPipeText);
+//	              });
+//
+//	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
+//	                  $('#autosave').text('Changes not saved!');
+//
+//	              });
+//
+//	              $('#confirmRevision').on('click', '#saveRev', function (event) {
+//	                  var confirmformValues = $('#confirmRevision').find('input');
+//	                  var revCommentData = confirmformValues.serializeArray();
+//	                  var revComment = revCommentData[0].value;
+//	                  if (revComment === '') { //xxx warn user to enter comment
+//	                  } else if (revComment !== '') {
+//	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
+//	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
+//	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
+//	                      savedList[1].id = ''
+//	                      savedList.push({ "pipeline_gid": pipeline_gid });
+//	                      savedList.push({ "rev_comment": revComment });
+//	                      savedList.push({ "rev_id": newPipRev_id });
+//	                      sl = JSON.stringify(savedList);
+//	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
+//	                      $('#confirmRevision').modal('hide');
+//	                      $('#autosave').text('Changes saved on new revision');
+//	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
+//	                  }
+//	              });
+//	              $('#confirmRevision').modal('show');
+//	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+//	              refreshCreatorData(pipeline_id);
+//	          }
+//	      }
+//
+//	  }
 
 	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
@@ -1851,9 +1391,7 @@
 	          gNum = gNum + 1
 
 	      } else {
-	          addProPipeTab(id)
-
-
+	          addProPipeTab(id, gNum)
 	          //--Pipeline details table ends---
 
 	          inputs = getValues({
@@ -1871,8 +1409,7 @@
 	              .attr("id", "g-" + gNum)
 	              .attr("class", "g-" + id)
 	              .attr("transform", "translate(" + (sDataX) + "," + (sDataY) + ")")
-	          //	              .on("mouseover", mouseOverG)
-	          //	              .on("mouseout", mouseOutG)
+	   
 	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
 	          g.append("circle").attr("id", "bc-" + gNum)
 	              .attr("class", "bc-" + id)
@@ -1898,9 +1435,7 @@
 	              .attr("r", r - ior)
 	              .attr("fill", "#BEBEBE")
 	              .attr('fill-opacity', 0.6)
-	          //	              .on("mouseover", scMouseOver)
-	          //	              .on("mouseout", scMouseOut)
-	          //	              .call(drag)
+	   
 	          //gnum(written in id): uniqe,
 	          g.append("text").attr("id", "text-" + gNum)
 	              .datum([{
@@ -1913,42 +1448,7 @@
 	              .attr('class', 'process')
 	              .text(truncateName(name, 'process'))
 	              .style("text-anchor", "middle")
-	          //	              .on("mouseover", scMouseOver)
-	          //	              .on("mouseout", scMouseOut)
-	          //	              .call(drag)
-
-	          //	          g.append("text").attr("id", "text-" + gNum)
-	          //	              .datum([{
-	          //	                  cx: 0,
-	          //	                  cy: 0
-	          //			        }])
-	          //	              .attr('font-family', "FontAwesome, sans-serif")
-	          //	              .attr('font-size', '0.9em')
-	          //	              .attr("x", -6)
-	          //	              .attr("y", 15)
-	          //	              .text('\uf040')
-	          //	              .on("mousedown", rename)
-	          //gnum(written in id): uniqe,
-	          //	          g.append("text")
-	          //	              .attr("id", "del-" + gNum)
-	          //	              .attr('font-family', "FontAwesome, sans-serif")
-	          //	              .attr('font-size', '1em')
-	          //	              .attr("x", -6)
-	          //	              .attr("y", r + ior / 2)
-	          //	              .text('\uf014')
-	          //	              .style("opacity", 0.2)
-	          //	              .on("mousedown", removeElement)
-
-	          //	          g.append("text")
-	          //	              .attr("id", "info-" + gNum)
-	          //	              .attr("class", "info-" + id)
-	          //	              .attr('font-family', "FontAwesome, sans-serif")
-	          //	              .attr('font-size', '1em')
-	          //	              .attr("x", -6)
-	          //	              .attr("y", -1 * (r + ior / 2 - 10))
-	          //	              .text('\uf013')
-	          //	              .style("opacity", 0.2)
-	          //	              .on("mousedown", getInfo)
+	          
 	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
 	          for (var k = 0; k < inputs.length; k++) {
 	              d3.select("#g-" + gNum).append("circle")
@@ -2019,21 +1519,6 @@
 	  function saveReady() {
 	      document.getElementById("savePipeline").disabled = false;
 	  }
-	  //	  document.getElementsByClassName("tablink")[0].click();
-	  //
-	  //	  function openPage(evt, name) {
-	  //	      var i, x, tablinks;
-	  //	      x = document.getElementsByClassName("nodisp");
-	  //	      for (i = 0; i < x.length; i++) {
-	  //	          x[i].style.display = "none";
-	  //	      }
-	  //	      tablinks = document.getElementsByClassName("tablink");
-	  //	      for (i = 0; i < x.length; i++) {
-	  //	          tablinks[i].classList.remove("w3-light-grey");
-	  //	      }
-	  //	      document.getElementById(name).style.display = "block";
-	  //	      evt.currentTarget.classList.add("w3-light-grey");
-	  //	  }
 
 
 	  function loadPipelineDetails(pipeline_id) {
@@ -2059,16 +1544,46 @@
 	      });
 	  };
 
+	  function updateCheckBox(check_id, status) {
+	      if (check_id === '#exec_all' && status === "false") {
+	          $(check_id).trigger("click");
+	      } else if (check_id === '#exec_each' && status === "true") {
+	          $(check_id).trigger("click");
+	      }
+	      if (status === "true") {
+	          $(check_id).attr('checked', true);
+	      } else if (status === "false") {
+	          $(check_id).removeAttr('checked');
+	      }
+	  }
+
 	  function loadProjectPipeline(pipeData) {
+	      loadRunOptions();
 	      $('#creatorInfoPip').css('display', "block");
 	      $('#project-title').text(pipeData[0].project_name);
+	      $('#run-title').changeVal(pipeData[0].pp_name);
+	      $('#runSum').val(pipeData[0].summary);
+	      $('#rOut_dir').val(pipeData[0].output_dir);
+	      $('#chooseEnv').val(pipeData[0].profile);
+	      $('#perms').val(pipeData[0].perms);
+	      updateCheckBox('#intermeDel', pipeData[0].interdel);
+	      updateCheckBox('#exec_each', pipeData[0].exec_each);
+	      updateCheckBox('#exec_all', pipeData[0].exec_all);
+	      if (pipeData[0].group_id !== "0") {
+	          $('#groupSel').val(pipeData[0].group_id);
+	      }
+	      //	      var exec_all_settings 
+	      //	      var exec_each_settings 
+	      ///xxx
+	      console.log(pipeData)
+
+
 	      $('#ownUserNamePip').text(pipeData[0].username);
 	      $('#datecreatedPip').text(pipeData[0].date_created);
 	      $('.lasteditedPip').text(pipeData[0].date_modified);
-	      //	      $("#pipeline-title").attr('disabled', "disabled");
 	  }
 
-	  function loadRunSettings(project_pipeline_id) {
+	  function loadRunOptions() {
 	      //get profiles for user
 	      var proLocData = getValues({ p: "getProfileLocal" });
 	      var proCluData = getValues({ p: "getProfileCluster" });
@@ -2196,21 +1711,6 @@
 	      //	      console.log(profileNext);
 
 	      var configTextRaw = "";
-	      //	      var configTextRaw = 'profiles {' + '\n' +
-	      //	          'standard {' + '\n' +
-	      //	          '    process.executor = \'local\'' + '\n' +
-	      //	          '}' + '\n' +
-	      //	          'cluster {' + '\n' +
-	      //	          '    process.executor = \'sge\'' + '\n' +
-	      //	          '    process.queue = \'long\'' + '\n' +
-	      //	          '    process.memory = \'10GB\'' + '\n' +
-	      //	          '}' + '\n' +
-	      //	          'cloud {' + '\n' +
-	      //	          '    process.executor = \'cirrus\'' + '\n' +
-	      //	          '    process.container = \'cbcrg/imagex\'' + '\n' +
-	      //	          '   docker.enabled = true' + '\n' +
-	      //	          '}' + '\n' +
-	      //	          '}';
 	      var configText = encodeURIComponent(configTextRaw);
 
 
@@ -2224,9 +1724,8 @@
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      console.log(nextTextSend);
-	      console.log(Object.keys(nextTextSend).length);
 	      if (proType === 'cluster') {
-	          if (nextTextSend.mkdir_pid && nextTextSend.copy_next_pid && nextTextSend.next_submit_pid) {
+	          if (nextTextSend.mkdir_copynext_pid && nextTextSend.next_submit_pid) {
 	              $('#runLogs').css('display', 'inline');
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
@@ -2293,6 +1792,63 @@
 	      return runPid;
 	  }
 
+	  function saveRunIcon() {
+	      var data = [];
+	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	      var runSummary = $('#runSum').val();
+	      var run_name = $('#run-title').val();
+	      var output_dir = $('#rOut_dir').val();
+	      var profile = $('#chooseEnv').val();
+	      var perms = $('#perms').val();
+	      var interdel = $('#intermeDel').is(":checked").toString();
+	      var groupSel = $('#groupSel').val();
+	      var exec_each = $('#exec_each').is(":checked").toString();
+	      var exec_all = $('#exec_all').is(":checked").toString();
+	      var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
+	      var exec_all_settings = exec_all_settingsRaw.serializeArray();
+	      //	      var exec_all_settingsArr = {};
+	      //	      $.each(exec_all_settings, function (el) {
+	      //	          exec_all_settingsArr[exec_all_settings[el].name] = exec_all_settings[el].value;
+	      //	      });
+	      //	      var exec_all_settingsSend = JSON.stringify(exec_all_settingsArr);
+	      var exec_each_settingsRaw = $('#processTable').find('input');
+	      var exec_each_settings = exec_each_settingsRaw.serializeArray();
+
+
+
+	      if (run_name !== '') {
+	          data.push({ name: "id", value: project_pipeline_id });
+	          data.push({ name: "name", value: run_name });
+	          data.push({ name: "summary", value: runSummary });
+	          data.push({ name: "output_dir", value: output_dir });
+	          data.push({ name: "profile", value: profile });
+	          data.push({ name: "perms", value: perms });
+	          data.push({ name: "interdel", value: interdel });
+	          data.push({ name: "group_id", value: groupSel });
+	          data.push({ name: "exec_each", value: exec_each });
+	          data.push({ name: "exec_all", value: exec_all });
+	          data.push({ name: "exec_all_settings", value: JSON.stringify(exec_all_settings) });
+	          data.push({ name: "exec_each_settings", value: JSON.stringify(exec_each_settings) });
+	          data.push({ name: "p", value: "saveProjectPipeline" });
+	          console.log(data);
+	          $.ajax({
+	              type: "POST",
+	              url: "ajax/ajaxquery.php",
+	              data: data,
+	              async: true,
+	              success: function (s) {
+	                  //                loadProjectDetails(project_id);
+	              },
+	              error: function (errorThrown) {
+	                  alert("Error: " + errorThrown);
+	              }
+	          });
+	      } else {
+	          //xxx
+	          //Changes are not saved. Please enter the run name. 
+	      }
+	  }
+
 
 	  $(document).ready(function () {
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
@@ -2302,8 +1858,8 @@
 	      $('#pipeline-title').attr('pipeline_id', pipeline_id);
 	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
+
 	          loadProjectPipeline(pipeData);
-	          loadRunSettings(project_pipeline_id);
 	      }
 
 	      $('#inputFilemodal').on('show.bs.modal', function (e) {
@@ -2431,6 +1987,34 @@
 	          })
 	      });
 
+	      $('#confirmModal').on('show.bs.modal', function (e) {
+	          var button = $(e.relatedTarget);
+	          console.log(button.attr('id'));
+	          if (button.attr('id') === 'deleteRun' || button.attr('id') === 'delRun') {
+	              $('#confirmModalText').html('Are you sure you want to delete this run?');
+	          }
+	      });
+
+	      $('#confirmModal').on('click', '#deleteBtn', function (e) {
+	          e.preventDefault();
+	          project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	          console.log(project_pipeline_id);
+	          $.ajax({
+	              type: "POST",
+	              url: "ajax/ajaxquery.php",
+	              data: {
+	                  id: project_pipeline_id,
+	                  p: "removeProjectPipeline"
+	              },
+	              async: true,
+	              success: function (s) {
+	                  window.location.replace("index.php?np=2&id=" + project_id);
+	              },
+	              error: function (errorThrown) {
+	                  alert("Error: " + errorThrown);
+	              }
+	          });
+	      });
 
 
 	      //xxx

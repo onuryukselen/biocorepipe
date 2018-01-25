@@ -49,7 +49,9 @@
             <table id="runtable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
                     <tr>
+                        <th>Run Name</th>
                         <th>Pipeline Name</th>
+                        <th>Rev</th>
                         <th>Description</th>
                         <th>Owner</th>
                         <th>Modified on</th>
@@ -117,7 +119,38 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saverun" data-clickedrow="">Select Pipelines</button>
+                <button type="button" class="btn btn-primary" id="selectPipe" data-clickedrow="">Select Pipelines</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="runNameModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="runNameModaltitle">Enter Run Name</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="runID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="runID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="runName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="runName" name="name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveRun" data-clickedrow="">Save run</button>
             </div>
         </div>
     </div>

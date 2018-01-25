@@ -28,8 +28,6 @@
 	      var processDat = event.dataTransfer.getData("Text");
 	      var posX = 0;
 	      var posY = 0;
-
-
 	      var svgA = document.getElementById("svg")
 	      var pt = svgA.createSVGPoint();
 	      pt.x = event.clientX
@@ -42,20 +40,6 @@
 	      event.stopPropagation();
 	      return false;
 	  }
-
-//	  function getValues(data) {
-//	      var result = null;
-//	      $.ajax({
-//	          url: "ajax/ajaxquery.php",
-//	          data: data,
-//	          async: false,
-//	          cache: false,
-//	          success: function (data) {
-//	              result = data;
-//	          }
-//	      });
-//	      return result;
-//	  }
 
 	  refreshDataset()
 
@@ -116,14 +100,15 @@
 	          .attr("height", h)
 	          .on("mousedown", startzoom)
 	          .on("mouseup", autosave)
-//	          .call(zoom)
+	      //	          .call(zoom)
 	      mainG = d3.select("#container").select("svg").append("g")
 	          .attr("id", "mainG")
 	          .attr("transform", "translate(" + 0 + "," + 0 + ")")
 	  }
-      function startzoom(){
-         d3.select("#container").call(zoom)
-      }
+
+	  function startzoom() {
+	      d3.select("#container").call(zoom)
+	  }
 
 	  $('#pipelineSum').keyup(function () {
 	      autosave();
@@ -162,15 +147,6 @@
 	          'id': pipeID
 	      });
 	      window.location.replace("index.php?np=1");
-
-	      //	      $('#' + 'pipeline-' + pipeID).remove();
-	      //	      $('#pipeline-title').val('');
-	      //	      $('#pipeline-title').attr('pipelineid', '');
-	      //	      createSVG();
-	      //	      resizeForText.call($inputText, $inputText.attr('placeholder'));
-	      //          $('#creatorInfoPip').css('display', "none");
-	      //          $('#pipelineSum').val('');
-
 	  }
 
 
@@ -210,10 +186,7 @@
 	      }
 	  }
 
-
-
 	  d3.select("#container").style("background-image", "url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
-	  //	  d3.select("#container").style("background-image","url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").style("min-width","2300px").on("keydown",cancel).on("mousedown", cancel)
 
 	  var zoom = d3.behavior.zoom()
 	      .translate([0, 0])
@@ -1260,334 +1233,9 @@
 	      if (!binding) {
 	          $('#confirmD3Modal').modal("show");
 
-	          //	          d3.select("#container").append('div')
-	          //	              .attr('id', 'removeElement')
-	          //	              .style('position', 'absolute')
-	          //	              .style('top', 0)
-	          //	              .style('left', 0)
-	          //	              .style("width", bodyW + "px")
-	          //	              .style("height", bodyH + "px")
-	          //	              .style("background-color", "gray")
-	          //	              .style("opacity", 0.8)
-	          //	              .on("mousedown", cancelRemove)
-	          //
-	          //	          d3.select("#container").append('div')
-	          //	              .attr('id', 'removeElementCont')
-	          //	              .style('position', 'absolute')
-	          //	              .style('top', 100 + "px")
-	          //	              .style('left', 300 + "px")
-	          //	              .style("width", "500px")
-	          //	              .style("height", "200px")
-	          //	              .style("background-color", "white")
-	          //	              .style("opacity", 1)
-	          //
-	          //	          d3.select("#removeElementCont").append("div")
-	          //	              .attr("id", "removeTextCont")
-	          //	              .attr("class", "col-md-12")
-	          //	              .append("div")
-	          //	              .attr("class", "col-md-3")
-	          //
-	          //	          d3.select("#removeTextCont").append("div")
-	          //	              .attr("class", "col-md-6")
-	          //	              .style("margin-top", "40px")
-	          //	              .style("text-align", "center")
-	          //	              .append("text")
-	          //	              .attr("id", "warning")
-	          //	              .text("Are you sure you want to delete?")
-	          //
-	          //	          d3.select("#removeTextCont").append("div")
-	          //	              .attr("id", "removeButtonContainer")
-	          //	              .attr("class", "col-md-12")
-	          //	              .append("div")
-	          //	              .attr("class", "col-md-6")
-	          //	              .append("button")
-	          //	              .attr("class", "form-control btn-info")
-	          //	              .attr("onclick", "cancelRemove()")
-	          //	              .style("margin-top", "40px")
-	          //	              .text("No")
-	          //	          if (deleteID.split("_").length == 2) {
-	          //	              d3.select("#removeButtonContainer")
-	          //	                  .append("div")
-	          //	                  .attr("class", "col-md-6")
-	          //	                  .append("button")
-	          //	                  .attr("class", "form-control btn-success")
-	          //	                  .attr("onclick", "removeEdge()")
-	          //	                  .style("margin-top", "40px")
-	          //	                  .text("Yes")
-	          //	          } else if (deleteID.split("_").length == 1) {
-	          //	              d3.select("#removeButtonContainer")
-	          //	                  .append("div")
-	          //	                  .attr("class", "col-md-6")
-	          //	                  .append("button")
-	          //	                  .attr("class", "form-control btn-success")
-	          //	                  .attr("onclick", "remove()")
-	          //	                  .style("margin-top", "40px")
-	          //	                  .text("Yes")
-	          //	          }
 	      }
 	  }
 
-	  //	  function cancelRemove() {
-	  //	      d3.select("#removeElement").remove()
-	  //	      d3.select("#removeElementCont").remove()
-	  //
-	  //	  }
-
-	  //	  function cancelRename() {
-	  //	      d3.select("#renameContainer").remove()
-	  //	      d3.select("#rename").remove()
-	  //
-	  //	  }
-	  //nextflow variable must not contain "-", replaced by "_"
-	  function gFormat(gText) {
-	      gPatt = /(.*)-(.*)/
-	      gText = gText.replace(gPatt, '$1_$2')
-	      return gText
-	  }
-
-	  function createNextflowFile() {
-	      nextText = "params.outdir = 'results' " + " \n\n"
-	      iniTextSecond = ""
-	      //initial input data added
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          iniText = InputParameters(mainProcessId, key)
-	          iniTextSecond = iniTextSecond + iniText.secPart
-	          nextText = nextText + iniText.firstPart
-	      }
-	      nextText = nextText + "\n" + iniTextSecond + "\n"
-
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-	              proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
-	              nextText = nextText + proText
-	          }
-	      }
-	      return nextText
-	  }
-
-	  //Input parameters and channels with file paths
-	  function InputParameters(id, currgid) {
-	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-	      iText = {};
-	      firstPart = "";
-	      secPart = "";
-
-	      for (var i = 0; i < IList.length; i++) {
-	          Iid = IList[i].id
-	          inputIdSplit = Iid.split("-")
-	          ProId = inputIdSplit[1]
-	          userEntryId = "text-" + inputIdSplit[4]
-
-	          if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
-	              qual = parametersData.filter(function (el) {
-	                  return el.id == inputIdSplit[3]
-	              })[0].qualifier
-	              //filePath = parametersData.filter(function (el) {return el.id == inputIdSplit[3]})[0].file_path
-	              inputParamName = document.getElementById(userEntryId).getAttribute('name') //input parameter name
-
-	              for (var e = 0; e < edges.length; e++) {
-	                  if (edges[e].indexOf(Iid) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                      nodes = edges[e].split("_")
-	                      //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                      fNode = nodes[0]
-	                      sNode = nodes[1]
-	                      inputIdSplit = sNode.split("-")
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-
-
-
-	                      if (qual === "file") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-	                      } else if (qual === "set") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.set { " + channelName + "} \n\n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-	                      } else if (qual === "val") {
-	                          firstPartTemp = "params." + inputParamName + " =\"\" \n"
-	                          secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
-	                          firstPart = firstPart + firstPartTemp
-	                          secPart = secPart + secPartTemp
-	                          break
-
-	                      }
-
-	                  }
-	              }
-	          }
-	      }
-	      iText.firstPart = firstPart
-	      iText.secPart = secPart
-
-	      return iText
-	  }
-
-	  function OutputParameters(id, currgid) {
-	      oText = ""
-	      var closePar = false
-	      oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-	      for (var i = 0; i < oList.length; i++) { //search through each output node
-	          oId = oList[i].id
-	          for (var e = 0; e < edges.length; e++) {
-	              if (edges[e].indexOf(oId) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                  nodes = edges[e].split("_")
-	                  //edgeLocF = nodes[0].indexOf("i-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                  fNode = nodes[0] //outPro node : get userEntryId and userEntryText and parameterID
-	                  sNode = nodes[1] //connected node
-
-	                  if (fNode.split("-")[1] === "outPro" && closePar === false) {
-	                      closePar = true
-	                      oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
-
-	                      outputName = document.getElementById(oId).getAttribute("name")
-	                      outputName = outputName.replace(/\*/g, '')
-	                      outputName = outputName.replace(/\?/g, '')
-	                      outputName = outputName.replace(/\'/g, '')
-	                      outputName = outputName.replace(/\"/g, '')
-	                      //outPro node : get userEntryId and userEntryText
-	                      parId = fNode.split("-")[4]
-	                      userEntryId = "text-" + fNode.split("-")[4]
-	                      outputParamName = document.getElementById(userEntryId).getAttribute('name') //user entered output parameter name
-	                      parFile = parametersData.filter(function (el) {
-	                          return el.id == fNode.split("-")[3]
-	                      })[0].file_type
-	                      tempText = "\tif \(filename =~ /" + outputName + "/\) filename\n"
-	                      // if (filename =~ /^path.8.fastq$/) filename 
-	                      oText = oText + tempText
-	                      //break
-	                  } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
-	                      outputName = document.getElementById(oId).getAttribute("name")
-	                      outputName = outputName.replace(/\*/g, '')
-	                      outputName = outputName.replace(/\?/g, '')
-	                      outputName = outputName.replace(/\'/g, '')
-	                      outputName = outputName.replace(/\"/g, '')
-
-	                      parFile = parametersData.filter(function (el) {
-	                          return el.id == fNode.split("-")[3]
-	                      })[0].file_type
-
-	                      tempText = "\telse if \(filename =~ /" + outputName + "/\) filename\n"
-	                      oText = oText + tempText
-
-	                  }
-	              }
-	          }
-	      }
-	      if (closePar === true) {
-	          oText = oText + "}\n\n"
-	          closePar = false
-	      }
-	      return oText
-	  }
-
-	  function IOandScriptForNf(id, currgid) {
-	      var processData = getValues({
-	          p: "getProcessData",
-	          "process_id": id
-	      })
-	      script = processData[0].script
-	      var lastLetter = script.length - 1;
-	      if (script[0] === '"' && script[lastLetter] === '"') {
-	          script = script.substring(1, script.length - 1); //remove first and last duble quote
-	      }
-          //insert """ for script if not exist
-          if (script.search('"""') === -1){
-              script = '"""\n' + script + '\n"""'
-          }
-
-
-
-	      bodyInput = ""
-	      bodyOutput = ""
-	      IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-	      OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-	      for (var i = 0; i < IList.length; i++) {
-	          if (bodyInput == "") {
-	              bodyInput = "input:\n"
-	          }
-	          Iid = IList[i].id //i-11-0-9-0
-	          inputIdSplit = Iid.split("-")
-	          qual = parametersData.filter(function (el) {
-	              return el.id == inputIdSplit[3]
-	          })[0].qualifier
-	          inputName = document.getElementById(Iid).getAttribute("name")
-	          find = false
-	          for (var e = 0; e < edges.length; e++) {
-	              if (edges[e].indexOf(Iid) > -1) { //if not exist -1, if at first position 0, if at second pos. 12
-	                  find = true
-	                  nodes = edges[e].split("_")
-	                  //edgeLocF = nodes[0].indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-	                  fNode = nodes[0]
-	                  sNode = nodes[1]
-
-
-	                  if (nodes[0][0] == o) {
-
-	                      inputIdSplit = sNode.split("-")
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-	                  } else {
-	                      inputIdSplit = fNode.split("-")
-
-	                      genParName = parametersData.filter(function (el) {
-	                          return el.id == inputIdSplit[3]
-	                      })[0].name
-	                      channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-	                  }
-	                  if (qual === "file") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  } else if (qual === "set") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  } else if (qual === "val") {
-	                      bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-	                  }
-	              }
-	          }
-	          if (find == false) {
-	              bodyInput = bodyInput + " " + qual + " " + inputName + " from " + "param" + "\n"
-
-	          }
-	      }
-
-	      for (var o = 0; o < OList.length; o++) {
-	          if (bodyOutput == "") {
-	              bodyOutput = "output:\n"
-	          }
-	          Oid = OList[o].id
-	          outputIdSplit = Oid.split("-")
-	          qual = parametersData.filter(function (el) {
-	              return el.id == outputIdSplit[3]
-	          })[0].qualifier
-	          outputName = document.getElementById(Oid).getAttribute("name")
-	          genParName = parametersData.filter(function (el) {
-	              return el.id == outputIdSplit[3]
-	          })[0].name
-	          channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
-
-	          if (qual === "file") {
-	              bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-	          } else if (qual === "set") {
-	              bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-	          }
-
-	      }
-	      body = bodyInput + "\n" + bodyOutput + "\n" + script
-	      return body
-	  }
 
 	  function download(text) {
 	      var filename = $('#pipeline-title').val() + '.nf';
@@ -1669,7 +1317,6 @@
 	      }, {
 	          "summary": pipelineSummary
 	      }];
-	      //xxx
 	      //A. Add new pipeline
 	      if (sName !== "" && id === '') {
 	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
@@ -1692,19 +1339,20 @@
 	      else if (sName !== "" && id !== '') {
 	          var warnUserPipe = false;
 	          var warnPipeText = '';
-              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
+	          var numOfProject = '';
+              [warnUserPipe, warnPipeText, numOfProject] = checkRevisionPipe(id);
 	          //B.1 allow updating on existing pipeline
-	          if (warnUserPipe === false) {
+	          if (warnUserPipe === false || saveOnExist === true) {
 	              sl = JSON.stringify(savedList);
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
-                  var numRev = $("#pipeRev option").length;
-                  if (numRev === 1) {//sidebar name change
-	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
-                  }
+	              var numRev = $("#pipeRev option").length;
+	              if (numRev === 1) { //sidebar name change
+	                  document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	              }
 	              $('#autosave').text('All changes saved');
-//
+	              //
 
 	          }
 	          //B.2 allow save on new revision
@@ -1714,12 +1362,29 @@
 	              $('#confirmRevision').on('show.bs.modal', function (event) {
 	                  $(this).find('form').trigger('reset');
 	                  $('#confirmYesNoText').html(warnPipeText);
+	                  if (numOfProject === 1) {
+	                      $('#saveOnExist').css('display', 'inline');
+	                  }
 	              });
 
 	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
 	                  $('#autosave').text('Changes not saved!');
+	              });
+	              $('#confirmRevision').on('click', '#saveOnExist', function (event) {
+	                  sl = JSON.stringify(savedList);
+	                  var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	                  refreshCreatorData(pipeline_id);
+	                  var numRev = $("#pipeRev option").length;
+	                  if (numRev === 1) { //sidebar name change
+	                      document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	                  }
+                      saveOnExist = true;
+	                  $('#autosave').text('All changes saved');
+	                  $('#confirmRevision').modal('hide');
 
 	              });
+
 
 	              $('#confirmRevision').on('click', '#saveRev', function (event) {
 	                  var confirmformValues = $('#confirmRevision').find('input');
@@ -1743,7 +1408,7 @@
 	                  }
 	              });
 	              $('#confirmRevision').modal('show');
-                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
 	          }
 	      }
