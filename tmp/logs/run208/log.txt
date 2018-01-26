@@ -1,1 +1,1 @@
-Job <383930> is submitted to queue <long>.
+Job <408215> is submitted to queue <short>.

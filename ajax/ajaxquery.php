@@ -50,13 +50,29 @@ else if ($p=="getServerLog"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $data = $db -> getServerLog($project_pipeline_id,$ownerID);
 }
+else if ($p=="getNextflowLog"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $profileType = $_REQUEST['profileType'];
+	$profileId = $_REQUEST['profileId'];
+    if ($profileType == 'local') {
+    $data = $db -> getNextflowLog($project_pipeline_id,$profileType,"","");
+    } else if ($profileType == 'cluster') {
+    $data = $db -> getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID);
+    }
+}
 else if ($p=="getRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $data = $db -> getRun($project_pipeline_id,$ownerID);
 }
 else if ($p=="checkRunPid"){
 	$pid = $_REQUEST['pid'];
-    $data = $db -> checkRunPid($pid);
+	$profileType = $_REQUEST['profileType'];
+	$profileId = $_REQUEST['profileId'];
+    if ($profileType == 'local') {
+    $data = $db -> checkRunPid($pid,$profileType,"","");
+    } else if ($profileType == 'cluster') {
+    $data = $db -> checkRunPid($pid,$profileType,$profileId,$ownerID);
+    }
 }
 else if ($p=="updateRunPid"){
 	$pid = $_REQUEST['pid'];
