@@ -292,205 +292,205 @@
 	      }
 	  }
 
-//	  function addProcess(processDat, xpos, ypos) {
-//	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
-//	          x = (xpos - t.translate[0])
-//	      y = (ypos - t.translate[1])
-//	      z = t.scale[0]
-//
-//
-//	      //var process_id = processData[index].id;
-//
-//	      //for input parameters:  
-//	      if (processDat === "inputparam@inPro") {
-//	          var name = processDat.split('@')[0]
-//	          var process_id = processDat.split('@')[1]
-//	          var id = process_id
-//	          ipR = 70 / 2
-//	          ipIor = ipR / 3
-//	          var kind = "input"
-//	          var sDataX = (5 + x + ipR + ipIor) / z
-//	          var sDataY = (20 + y + ipR + ipIor) / z
-//	          var pName = pName || "inputparam"
-//	          var paramId = paramId || "inPara"
-//	          var classtoparam = classtoparam || "connect_to_input output"
-//	          var init = "o"
-//	          var pColor = "orange"
-//
-//	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-//	          processList[("g-" + gNum)] = name
-//	          gNum = gNum + 1
-//	      }
-//	      //for output parameters:  
-//	      else if (processDat === "outputparam@outPro") {
-//	          var name = processDat.split('@')[0]
-//	          var process_id = processDat.split('@')[1]
-//	          var id = process_id
-//	          ipR = 70 / 2
-//	          ipIor = ipR / 3
-//	          var kind = "output"
-//	          var sDataX = (5 + x + ipR + ipIor) / z
-//	          var sDataY = (20 + y + ipR + ipIor) / z
-//	          var pName = pName || "outputparam"
-//	          var paramId = paramId || "outPara"
-//	          var classtoparam = classtoparam || "connect_to_output input"
-//	          var init = "i"
-//	          var pColor = "green"
-//	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-//
-//	          processList[("g-" + gNum)] = name
-//	          gNum = gNum + 1
-//	      }
-//
-//	      //for processes:
-//	      else {
-//	          var name = processDat.split('@')[0]
-//	          var process_id = processDat.split('@')[1]
-//	          var id = process_id
-//
-//	          //--Pipeline details table add process--
-//	          addProPipeTab(id, gNum)
-//
-//	          var inputs = getValues({
-//	              p: "getInputsPP",
-//	              "process_id": process_id
-//	          })
-//
-//	          var outputs = getValues({
-//	              p: "getOutputsPP",
-//	              "process_id": process_id
-//	          })
-//	          //gnum uniqe, id same id (Written in class) in same type process
-//	          g = d3.select("#mainG").append("g")
-//	              .attr("id", "g-" + gNum)
-//	              .attr("class", "g-" + id)
-//	              .attr("transform", "translate(" + (-30 + x + r + ior) / z + "," + (-10 + y + r + ior) / z + ")")
-//
-//	              .on("mouseover", mouseOverG)
-//	              .on("mouseout", mouseOutG)
-//	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-//	          g.append("circle").attr("id", "bc-" + gNum)
-//	              .attr("class", "bc-" + id)
-//	              .attr("type", "bc")
-//	              .attr("cx", cx)
-//	              .attr("cy", cy)
-//	              .attr("r", r + ior)
-//	              //  .attr('fill-opacity', 0.6)
-//	              .attr("fill", "red")
-//	              .transition()
-//	              .delay(500)
-//	              .duration(3000)
-//	              .attr("fill", "#E0E0E0")
-//	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
-//	          g.append("circle")
-//	              .datum([{
-//	                  cx: 0,
-//	                  cy: 0
-//                }])
-//	              .attr("id", "sc-" + gNum)
-//	              .attr("class", "sc-" + id)
-//	              .attr("type", "sc")
-//	              .attr("r", r - ior)
-//	              .attr("fill", "#BEBEBE")
-//	              .attr('fill-opacity', 0.6)
-//	              .on("mouseover", scMouseOver)
-//	              .on("mouseout", scMouseOut)
-//	              .call(drag)
-//	          //gnum(written in id): uniqe,
-//	          g.append("text").attr("id", "text-" + gNum)
-//	              .datum([{
-//	                  cx: 0,
-//	                  cy: 0
-//                }])
-//	              .attr('font-family', "FontAwesome, sans-serif")
-//	              .attr('font-size', '1em')
-//	              .attr('name', name)
-//	              .attr('class', 'process')
-//	              .text(truncateName(name, 'process'))
-//	              .style("text-anchor", "middle")
-//	              .on("mouseover", scMouseOver)
-//	              .on("mouseout", scMouseOut)
-//	              .call(drag)
-//
-//	          g.append("text").attr("id", "text-" + gNum)
-//	              .datum([{
-//	                  cx: 0,
-//	                  cy: 0
-//                }])
-//	              .attr('font-family', "FontAwesome, sans-serif")
-//	              .attr('font-size', '0.9em')
-//	              .attr("x", -6)
-//	              .attr("y", 15)
-//	              .text('\uf040')
-//	              .on("mousedown", rename)
-//
-//	          //gnum(written in id): uniqe,
-//	          g.append("text")
-//	              .attr("id", "del-" + gNum)
-//	              .attr('font-family', "FontAwesome, sans-serif")
-//	              .attr('font-size', '1em')
-//	              .attr("x", -6)
-//	              .attr("y", r + ior / 2)
-//	              .text('\uf014')
-//	              .style("opacity", 0.2)
-//	              .on("mousedown", removeElement)
-//
-//	          g.append("text")
-//	              .attr("id", "info-" + gNum)
-//	              .attr("class", "info-" + id)
-//	              .attr('font-family', "FontAwesome, sans-serif")
-//	              .attr('font-size', '1em')
-//	              .attr("x", -6)
-//	              .attr("y", -1 * (r + ior / 2 - 10))
-//	              .text('\uf013')
-//	              .style("opacity", 0.2)
-//	              .on("mousedown", getInfo)
-//
-//	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
-//	          for (var k = 0; k < inputs.length; k++) {
-//	              d3.select("#g-" + gNum).append("circle")
-//	                  .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
-//	                  .attr("type", "I/O")
-//	                  .attr("kind", "input")
-//	                  .attr("parentG", "g-" + gNum)
-//	                  .attr("name", inputs[k].name)
-//	                  .attr("status", "standard")
-//	                  .attr("connect", "single")
-//	                  .attr("class", findType(inputs[k].parameter_id) + " input")
-//	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
-//	                  .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
-//	                  .attr("r", ior)
-//	                  .attr("fill", "tomato")
-//	                  .attr('fill-opacity', 0.8)
-//	                  .on("mouseover", IOmouseOver)
-//	                  .on("mousemove", IOmouseMove)
-//	                  .on("mouseout", IOmouseOut)
-//	                  .on("mousedown", IOconnect)
-//	          }
-//	          for (var k = 0; k < outputs.length; k++) {
-//	              d3.select("#g-" + gNum).append("circle")
-//	                  .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
-//	                  .attr("type", "I/O")
-//	                  .attr("kind", "output")
-//	                  .attr("parentG", "g-" + gNum)
-//	                  .attr("name", outputs[k].name)
-//	                  .attr("status", "standard")
-//	                  .attr("connect", "single")
-//	                  .attr("class", findType(outputs[k].parameter_id) + " output")
-//	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
-//	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
-//	                  .attr("r", ior).attr("fill", "steelblue")
-//	                  .attr('fill-opacity', 0.8)
-//	                  .on("mouseover", IOmouseOver)
-//	                  .on("mousemove", IOmouseMove)
-//	                  .on("mouseout", IOmouseOut)
-//	                  .on("mousedown", IOconnect)
-//	          }
-//	          processList[("g-" + gNum)] = name
-//	          gNum = gNum + 1
-//	      }
-//
-//	  }
+	  //	  function addProcess(processDat, xpos, ypos) {
+	  //	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
+	  //	          x = (xpos - t.translate[0])
+	  //	      y = (ypos - t.translate[1])
+	  //	      z = t.scale[0]
+	  //
+	  //
+	  //	      //var process_id = processData[index].id;
+	  //
+	  //	      //for input parameters:  
+	  //	      if (processDat === "inputparam@inPro") {
+	  //	          var name = processDat.split('@')[0]
+	  //	          var process_id = processDat.split('@')[1]
+	  //	          var id = process_id
+	  //	          ipR = 70 / 2
+	  //	          ipIor = ipR / 3
+	  //	          var kind = "input"
+	  //	          var sDataX = (5 + x + ipR + ipIor) / z
+	  //	          var sDataY = (20 + y + ipR + ipIor) / z
+	  //	          var pName = pName || "inputparam"
+	  //	          var paramId = paramId || "inPara"
+	  //	          var classtoparam = classtoparam || "connect_to_input output"
+	  //	          var init = "o"
+	  //	          var pColor = "orange"
+	  //
+	  //	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	  //	          processList[("g-" + gNum)] = name
+	  //	          gNum = gNum + 1
+	  //	      }
+	  //	      //for output parameters:  
+	  //	      else if (processDat === "outputparam@outPro") {
+	  //	          var name = processDat.split('@')[0]
+	  //	          var process_id = processDat.split('@')[1]
+	  //	          var id = process_id
+	  //	          ipR = 70 / 2
+	  //	          ipIor = ipR / 3
+	  //	          var kind = "output"
+	  //	          var sDataX = (5 + x + ipR + ipIor) / z
+	  //	          var sDataY = (20 + y + ipR + ipIor) / z
+	  //	          var pName = pName || "outputparam"
+	  //	          var paramId = paramId || "outPara"
+	  //	          var classtoparam = classtoparam || "connect_to_output input"
+	  //	          var init = "i"
+	  //	          var pColor = "green"
+	  //	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	  //
+	  //	          processList[("g-" + gNum)] = name
+	  //	          gNum = gNum + 1
+	  //	      }
+	  //
+	  //	      //for processes:
+	  //	      else {
+	  //	          var name = processDat.split('@')[0]
+	  //	          var process_id = processDat.split('@')[1]
+	  //	          var id = process_id
+	  //
+	  //	          //--Pipeline details table add process--
+	  //	          addProPipeTab(id, gNum)
+	  //
+	  //	          var inputs = getValues({
+	  //	              p: "getInputsPP",
+	  //	              "process_id": process_id
+	  //	          })
+	  //
+	  //	          var outputs = getValues({
+	  //	              p: "getOutputsPP",
+	  //	              "process_id": process_id
+	  //	          })
+	  //	          //gnum uniqe, id same id (Written in class) in same type process
+	  //	          g = d3.select("#mainG").append("g")
+	  //	              .attr("id", "g-" + gNum)
+	  //	              .attr("class", "g-" + id)
+	  //	              .attr("transform", "translate(" + (-30 + x + r + ior) / z + "," + (-10 + y + r + ior) / z + ")")
+	  //
+	  //	              .on("mouseover", mouseOverG)
+	  //	              .on("mouseout", mouseOutG)
+	  //	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
+	  //	          g.append("circle").attr("id", "bc-" + gNum)
+	  //	              .attr("class", "bc-" + id)
+	  //	              .attr("type", "bc")
+	  //	              .attr("cx", cx)
+	  //	              .attr("cy", cy)
+	  //	              .attr("r", r + ior)
+	  //	              //  .attr('fill-opacity', 0.6)
+	  //	              .attr("fill", "red")
+	  //	              .transition()
+	  //	              .delay(500)
+	  //	              .duration(3000)
+	  //	              .attr("fill", "#E0E0E0")
+	  //	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
+	  //	          g.append("circle")
+	  //	              .datum([{
+	  //	                  cx: 0,
+	  //	                  cy: 0
+	  //                }])
+	  //	              .attr("id", "sc-" + gNum)
+	  //	              .attr("class", "sc-" + id)
+	  //	              .attr("type", "sc")
+	  //	              .attr("r", r - ior)
+	  //	              .attr("fill", "#BEBEBE")
+	  //	              .attr('fill-opacity', 0.6)
+	  //	              .on("mouseover", scMouseOver)
+	  //	              .on("mouseout", scMouseOut)
+	  //	              .call(drag)
+	  //	          //gnum(written in id): uniqe,
+	  //	          g.append("text").attr("id", "text-" + gNum)
+	  //	              .datum([{
+	  //	                  cx: 0,
+	  //	                  cy: 0
+	  //                }])
+	  //	              .attr('font-family', "FontAwesome, sans-serif")
+	  //	              .attr('font-size', '1em')
+	  //	              .attr('name', name)
+	  //	              .attr('class', 'process')
+	  //	              .text(truncateName(name, 'process'))
+	  //	              .style("text-anchor", "middle")
+	  //	              .on("mouseover", scMouseOver)
+	  //	              .on("mouseout", scMouseOut)
+	  //	              .call(drag)
+	  //
+	  //	          g.append("text").attr("id", "text-" + gNum)
+	  //	              .datum([{
+	  //	                  cx: 0,
+	  //	                  cy: 0
+	  //                }])
+	  //	              .attr('font-family', "FontAwesome, sans-serif")
+	  //	              .attr('font-size', '0.9em')
+	  //	              .attr("x", -6)
+	  //	              .attr("y", 15)
+	  //	              .text('\uf040')
+	  //	              .on("mousedown", rename)
+	  //
+	  //	          //gnum(written in id): uniqe,
+	  //	          g.append("text")
+	  //	              .attr("id", "del-" + gNum)
+	  //	              .attr('font-family', "FontAwesome, sans-serif")
+	  //	              .attr('font-size', '1em')
+	  //	              .attr("x", -6)
+	  //	              .attr("y", r + ior / 2)
+	  //	              .text('\uf014')
+	  //	              .style("opacity", 0.2)
+	  //	              .on("mousedown", removeElement)
+	  //
+	  //	          g.append("text")
+	  //	              .attr("id", "info-" + gNum)
+	  //	              .attr("class", "info-" + id)
+	  //	              .attr('font-family', "FontAwesome, sans-serif")
+	  //	              .attr('font-size', '1em')
+	  //	              .attr("x", -6)
+	  //	              .attr("y", -1 * (r + ior / 2 - 10))
+	  //	              .text('\uf013')
+	  //	              .style("opacity", 0.2)
+	  //	              .on("mousedown", getInfo)
+	  //
+	  //	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
+	  //	          for (var k = 0; k < inputs.length; k++) {
+	  //	              d3.select("#g-" + gNum).append("circle")
+	  //	                  .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
+	  //	                  .attr("type", "I/O")
+	  //	                  .attr("kind", "input")
+	  //	                  .attr("parentG", "g-" + gNum)
+	  //	                  .attr("name", inputs[k].name)
+	  //	                  .attr("status", "standard")
+	  //	                  .attr("connect", "single")
+	  //	                  .attr("class", findType(inputs[k].parameter_id) + " input")
+	  //	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
+	  //	                  .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
+	  //	                  .attr("r", ior)
+	  //	                  .attr("fill", "tomato")
+	  //	                  .attr('fill-opacity', 0.8)
+	  //	                  .on("mouseover", IOmouseOver)
+	  //	                  .on("mousemove", IOmouseMove)
+	  //	                  .on("mouseout", IOmouseOut)
+	  //	                  .on("mousedown", IOconnect)
+	  //	          }
+	  //	          for (var k = 0; k < outputs.length; k++) {
+	  //	              d3.select("#g-" + gNum).append("circle")
+	  //	                  .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
+	  //	                  .attr("type", "I/O")
+	  //	                  .attr("kind", "output")
+	  //	                  .attr("parentG", "g-" + gNum)
+	  //	                  .attr("name", outputs[k].name)
+	  //	                  .attr("status", "standard")
+	  //	                  .attr("connect", "single")
+	  //	                  .attr("class", findType(outputs[k].parameter_id) + " output")
+	  //	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
+	  //	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
+	  //	                  .attr("r", ior).attr("fill", "steelblue")
+	  //	                  .attr('fill-opacity', 0.8)
+	  //	                  .on("mouseover", IOmouseOver)
+	  //	                  .on("mousemove", IOmouseMove)
+	  //	                  .on("mouseout", IOmouseOut)
+	  //	                  .on("mousedown", IOconnect)
+	  //	          }
+	  //	          processList[("g-" + gNum)] = name
+	  //	          gNum = gNum + 1
+	  //	      }
+	  //
+	  //	  }
 
 	  function findType(id) {
 	      parameter = parametersData.filter(function (el) {
@@ -1148,7 +1148,7 @@
 	      }
 	  }
 
-	
+
 
 	  function download(text) {
 	      var filename = $('#pipeline-title').val() + '.nf';
@@ -1164,148 +1164,148 @@
 	      document.body.removeChild(element);
 	  }
 
-//	  function resetPos() {
-//	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
-//	  }
+	  //	  function resetPos() {
+	  //	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
+	  //	  }
 
-//	  function refreshCreatorData(pipeline_id) {
-//	      var getPipelineD = [];
-//	      getPipelineD.push({ name: "id", value: pipeline_id });
-//	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
-//	      $.ajax({
-//	          type: "POST",
-//	          url: "ajax/ajaxquery.php",
-//	          data: getPipelineD,
-//	          async: true,
-//	          success: function (s) {
-//	              $('#creatorInfoPip').css('display', "block");
-//	              $('#ownUserNamePip').text(s[0].username);
-//	              $('#datecreatedPip').text(s[0].date_created);
-//	              $('.lasteditedPip').text(s[0].date_modified);
-//
-//	          },
-//	          error: function (errorThrown) {
-//	              alert("Error: " + errorThrown);
-//	          }
-//	      });
-//
-//	  }
+	  //	  function refreshCreatorData(pipeline_id) {
+	  //	      var getPipelineD = [];
+	  //	      getPipelineD.push({ name: "id", value: pipeline_id });
+	  //	      getPipelineD.push({ name: "p", value: 'loadPipeline' });
+	  //	      $.ajax({
+	  //	          type: "POST",
+	  //	          url: "ajax/ajaxquery.php",
+	  //	          data: getPipelineD,
+	  //	          async: true,
+	  //	          success: function (s) {
+	  //	              $('#creatorInfoPip').css('display', "block");
+	  //	              $('#ownUserNamePip').text(s[0].username);
+	  //	              $('#datecreatedPip').text(s[0].date_created);
+	  //	              $('.lasteditedPip').text(s[0].date_modified);
+	  //
+	  //	          },
+	  //	          error: function (errorThrown) {
+	  //	              alert("Error: " + errorThrown);
+	  //	          }
+	  //	      });
+	  //
+	  //	  }
 
-//	  function save() {
-//	      saveNodes = {}
-//	      saveMainG = {}
-//	      for (var key in processList) {
-//	          t = d3.transform(d3.select('#' + key).attr("transform")),
-//	              x = t.translate[0]
-//	          y = t.translate[1]
-//	          gClass = document.getElementById(key).className.baseVal
-//	          prosessID = gClass.split("-")[1]
-//	          processName = processList[key]
-//	          saveNodes[key] = [x, y, prosessID, processName]
-//	      }
-//	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
-//	          Mainx = Maint.translate[0]
-//	      Mainy = Maint.translate[1]
-//	      Mainz = Maint.scale[0]
-//	      sName = document.getElementById("pipeline-title").value;
-//	      var pipelineSummary = $('#pipelineSum').val();
-//	      id = 0
-//	      if (sName !== "" && dupliPipe === false) {
-//	          id = $("#pipeline-title").attr('pipelineid');
-//	      } else if (sName !== "" && dupliPipe === true) {
-//	          id = '';
-//	          sName = sName + '-copy'
-//	      }
-//
-//	      saveMainG["mainG"] = [Mainx, Mainy, Mainz]
-//	      savedList = [{
-//	          "name": sName
-//	      }, {
-//	          "id": id
-//	      }, {
-//	          "nodes": saveNodes
-//	      }, saveMainG, {
-//	          "edges": edges
-//	      }, {
-//	          "summary": pipelineSummary
-//	      }];
-//
-//	      //xxx
-//	      //A. Add new pipeline
-//	      if (sName !== "" && id === '') {
-//	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
-//	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
-//	          savedList.push({ "pipeline_gid": newPipeline_gid });
-//	          sl = JSON.stringify(savedList);
-//	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
-//	          $("#pipeline-title").attr('pipelineid', ret.id);
-//	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-//	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
-//	          if (dupliPipe === true) {
-//	              $("#pipeline-title").changeVal(sName);
-//	              dupliPipe = false;
-//	          }
-//	          $('#autosave').text('All changes saved');
-//
-//
-//	      }
-//	      //B. pipeline already exist
-//	      else if (sName !== "" && id !== '') {
-//	          var warnUserPipe = false;
-//	          var warnPipeText = '';
-//              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
-//	          //B.1 allow updating on existing pipeline
-//	          if (warnUserPipe === false) {
-//	              sl = JSON.stringify(savedList);
-//	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
-//	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-//	              refreshCreatorData(pipeline_id);
-//	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
-//	              $('#autosave').text('All changes saved');
-//
-//
-//	          }
-//	          //B.2 allow save on new revision
-//	          else if (warnUserPipe === true) {
-//	              // ConfirmYesNo process modal 
-//	              $('#confirmRevision').off();
-//	              $('#confirmRevision').on('show.bs.modal', function (event) {
-//	                  $(this).find('form').trigger('reset');
-//	                  $('#confirmYesNoText').html(warnPipeText);
-//	              });
-//
-//	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
-//	                  $('#autosave').text('Changes not saved!');
-//
-//	              });
-//
-//	              $('#confirmRevision').on('click', '#saveRev', function (event) {
-//	                  var confirmformValues = $('#confirmRevision').find('input');
-//	                  var revCommentData = confirmformValues.serializeArray();
-//	                  var revComment = revCommentData[0].value;
-//	                  if (revComment === '') { //xxx warn user to enter comment
-//	                  } else if (revComment !== '') {
-//	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
-//	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
-//	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
-//	                      savedList[1].id = ''
-//	                      savedList.push({ "pipeline_gid": pipeline_gid });
-//	                      savedList.push({ "rev_comment": revComment });
-//	                      savedList.push({ "rev_id": newPipRev_id });
-//	                      sl = JSON.stringify(savedList);
-//	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-//	                      $('#confirmRevision').modal('hide');
-//	                      $('#autosave').text('Changes saved on new revision');
-//	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
-//	                  }
-//	              });
-//	              $('#confirmRevision').modal('show');
-//	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-//	              refreshCreatorData(pipeline_id);
-//	          }
-//	      }
-//
-//	  }
+	  //	  function save() {
+	  //	      saveNodes = {}
+	  //	      saveMainG = {}
+	  //	      for (var key in processList) {
+	  //	          t = d3.transform(d3.select('#' + key).attr("transform")),
+	  //	              x = t.translate[0]
+	  //	          y = t.translate[1]
+	  //	          gClass = document.getElementById(key).className.baseVal
+	  //	          prosessID = gClass.split("-")[1]
+	  //	          processName = processList[key]
+	  //	          saveNodes[key] = [x, y, prosessID, processName]
+	  //	      }
+	  //	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
+	  //	          Mainx = Maint.translate[0]
+	  //	      Mainy = Maint.translate[1]
+	  //	      Mainz = Maint.scale[0]
+	  //	      sName = document.getElementById("pipeline-title").value;
+	  //	      var pipelineSummary = $('#pipelineSum').val();
+	  //	      id = 0
+	  //	      if (sName !== "" && dupliPipe === false) {
+	  //	          id = $("#pipeline-title").attr('pipelineid');
+	  //	      } else if (sName !== "" && dupliPipe === true) {
+	  //	          id = '';
+	  //	          sName = sName + '-copy'
+	  //	      }
+	  //
+	  //	      saveMainG["mainG"] = [Mainx, Mainy, Mainz]
+	  //	      savedList = [{
+	  //	          "name": sName
+	  //	      }, {
+	  //	          "id": id
+	  //	      }, {
+	  //	          "nodes": saveNodes
+	  //	      }, saveMainG, {
+	  //	          "edges": edges
+	  //	      }, {
+	  //	          "summary": pipelineSummary
+	  //	      }];
+	  //
+	  //	      //xxx
+	  //	      //A. Add new pipeline
+	  //	      if (sName !== "" && id === '') {
+	  //	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
+	  //	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
+	  //	          savedList.push({ "pipeline_gid": newPipeline_gid });
+	  //	          sl = JSON.stringify(savedList);
+	  //	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	  //	          $("#pipeline-title").attr('pipelineid', ret.id);
+	  //	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	  //	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+	  //	          if (dupliPipe === true) {
+	  //	              $("#pipeline-title").changeVal(sName);
+	  //	              dupliPipe = false;
+	  //	          }
+	  //	          $('#autosave').text('All changes saved');
+	  //
+	  //
+	  //	      }
+	  //	      //B. pipeline already exist
+	  //	      else if (sName !== "" && id !== '') {
+	  //	          var warnUserPipe = false;
+	  //	          var warnPipeText = '';
+	  //              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
+	  //	          //B.1 allow updating on existing pipeline
+	  //	          if (warnUserPipe === false) {
+	  //	              sl = JSON.stringify(savedList);
+	  //	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	  //	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	  //	              refreshCreatorData(pipeline_id);
+	  //	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	  //	              $('#autosave').text('All changes saved');
+	  //
+	  //
+	  //	          }
+	  //	          //B.2 allow save on new revision
+	  //	          else if (warnUserPipe === true) {
+	  //	              // ConfirmYesNo process modal 
+	  //	              $('#confirmRevision').off();
+	  //	              $('#confirmRevision').on('show.bs.modal', function (event) {
+	  //	                  $(this).find('form').trigger('reset');
+	  //	                  $('#confirmYesNoText').html(warnPipeText);
+	  //	              });
+	  //
+	  //	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
+	  //	                  $('#autosave').text('Changes not saved!');
+	  //
+	  //	              });
+	  //
+	  //	              $('#confirmRevision').on('click', '#saveRev', function (event) {
+	  //	                  var confirmformValues = $('#confirmRevision').find('input');
+	  //	                  var revCommentData = confirmformValues.serializeArray();
+	  //	                  var revComment = revCommentData[0].value;
+	  //	                  if (revComment === '') { //xxx warn user to enter comment
+	  //	                  } else if (revComment !== '') {
+	  //	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
+	  //	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
+	  //	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
+	  //	                      savedList[1].id = ''
+	  //	                      savedList.push({ "pipeline_gid": pipeline_gid });
+	  //	                      savedList.push({ "rev_comment": revComment });
+	  //	                      savedList.push({ "rev_id": newPipRev_id });
+	  //	                      sl = JSON.stringify(savedList);
+	  //	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	  //	                      $('#confirmRevision').modal('hide');
+	  //	                      $('#autosave').text('Changes saved on new revision');
+	  //	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
+	  //	                  }
+	  //	              });
+	  //	              $('#confirmRevision').modal('show');
+	  //	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	  //	              refreshCreatorData(pipeline_id);
+	  //	          }
+	  //	      }
+	  //
+	  //	  }
 
 	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
@@ -1409,7 +1409,7 @@
 	              .attr("id", "g-" + gNum)
 	              .attr("class", "g-" + id)
 	              .attr("transform", "translate(" + (sDataX) + "," + (sDataY) + ")")
-	   
+
 	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
 	          g.append("circle").attr("id", "bc-" + gNum)
 	              .attr("class", "bc-" + id)
@@ -1435,7 +1435,7 @@
 	              .attr("r", r - ior)
 	              .attr("fill", "#BEBEBE")
 	              .attr('fill-opacity', 0.6)
-	   
+
 	          //gnum(written in id): uniqe,
 	          g.append("text").attr("id", "text-" + gNum)
 	              .datum([{
@@ -1448,7 +1448,7 @@
 	              .attr('class', 'process')
 	              .text(truncateName(name, 'process'))
 	              .style("text-anchor", "middle")
-	          
+
 	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
 	          for (var k = 0; k < inputs.length; k++) {
 	              d3.select("#g-" + gNum).append("circle")
@@ -1701,7 +1701,7 @@
 
 	  //xxx
 	  function runProjectPipe() {
-          
+
 	      var nextTextRaw = createNextflowFile();
 	      var nextText = encodeURIComponent(nextTextRaw);
 	      var delIntermediate = '';
@@ -1710,10 +1710,10 @@
 	      var proType = profileTypeId.replace(patt, '$1');
 	      var proId = profileTypeId.replace(patt, '$2');
 	      //xxx not working
-          if (proType === 'cluster') {
-	           $('#runProPipe').css('display', 'none');
-	           $('#connectingProPipe').css('display', 'inline');
-          }
+	      if (proType === 'cluster') {
+	          $('#runProPipe').css('display', 'none');
+	          $('#connectingProPipe').css('display', 'inline');
+	      }
 
 	      var configTextRaw = "";
 	      var configText = encodeURIComponent(configTextRaw);
@@ -1728,67 +1728,101 @@
 	      });
 	      console.log(serverLog);
 	      if (proType === 'cluster') {
-	          if ( serverLog.next_submit_pid) {
+	          if (serverLog.next_submit_pid) {
 	              $('#connectingProPipe').css('display', 'none');
 	              $('#runLogs').css('display', 'inline');
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
-	              checkServerLogTimer();
+	              checkServerLogTimer(proType, proId);
 	          } else {
 	              $('#runLogs').css('display', 'inline');
 	              $('#runLogArea').val(serverLog);
 	          }
 	      }
-
-
 	  }
 
-	  function checkServerLogTimer() {
+	  function checkServerLogTimer(proType, proId) {
 	      interval_serverlog_ID = setInterval(function () {
-	          status = checkServerLog(project_pipeline_id)
+	          status = checkServerLog(project_pipeline_id, proType, proId)
 	      }, 3000);
 	  }
 
-	  function checkServerLog(project_pipeline_id) {
+	  function checkServerLog(project_pipeline_id, proType, proId) {
 	      var runLog = getServerLog(project_pipeline_id);
+	      console.log(runLog);
 	      $('#runLogArea').val(runLog);
-          var reg = /Job <(.*)> is submitted to queue/;  
-          var found = runLog.match(reg);
-          console.log(found.length);
-          if (found.length > 0){
-              var runPid = found[1];
-              //updateRunPid
-	      var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
-              clearInterval(interval_serverlog_ID);
-          } 
-	  }
-
-	  function checkNextflowLog() {
-//	      var runPid = getRunPid(project_pipeline_id);
-//	      var status = "";
-	      //	      intervalID = setInterval(function () {
-	      //	          status = checkRunPid(runPid)
-	      //	          console.log(status)
-	      //	      }, 3000);
-	  }
-
-
-	  function checkRunPid(runPid) {
-
-	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid });
-	      if (checkRunStatus === "running") {
-	          var runLog = getRunLog(project_pipeline_id);
-	          $('#runLogArea').val(runLog);
-	          return checkRunStatus;
+	      var reg = /Job <(.*)> is submitted to queue/;
+	      var found = runLog.match(reg);
+	      //          console.log(found.length);
+	      if (found && found.length > 0) {
+	          var runPid = found[1];
+	          //updateRunPid
+	          var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	          if (updateRunPidSend) {
+	              clearInterval(interval_serverlog_ID);
+	              checkNextflowLogTimer(proType, proId);
+	          }
 	      } else {
-	          var runLog = getRunLog(project_pipeline_id);
-	          $('#runLogArea').val(runLog);
-	          $('#runningProPipe').css('display', 'none');
-	          $('#completeProPipe').css('display', 'inline');
-	          clearInterval(intervalID);
+	          console.log("Error. Run not submitted");
+	          clearInterval(interval_serverlog_ID);
 	      }
 	  }
 
+	  function checkNextflowLogTimer(proType, proId) {
+	      var runPid = getRunPid(project_pipeline_id);
+	      var status = "";
+	      interval_nextlog_ID = setInterval(function () {
+	          status = checkRunPid(runPid, proType, proId)
+	          console.log(status)
+	      }, 3000);
+	  }
+
+
+	  function checkRunPid(runPid, proType, proId) {
+
+	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid, profileType: proType, profileId: proId });
+	      console.log(checkRunStatus);
+
+	      if (proType === 'local') {
+	          if (checkRunStatus === "running") {
+	              var runLog = getNextflowLog(project_pipeline_id, proType);
+	              $('#runLogArea').val(runLog);
+	              return checkRunStatus;
+	          } else if (checkRunStatus === "completed") {
+	              var runLog = getNextflowLog(project_pipeline_id, proType);
+	              $('#runLogArea').val(runLog);
+	              $('#runningProPipe').css('display', 'none');
+	              $('#completeProPipe').css('display', 'inline');
+	              clearInterval(interval_nextlog_ID);
+	          }
+	      } else if (proType === 'cluster') {
+	          if (checkRunStatus === "running") {
+	              var runLog = getNextflowLog(project_pipeline_id,proType,proId);
+                  console.log(runLog);
+	              //	          $('#runLogArea').val(runLog);
+	              return checkRunStatus;
+	          } else if (checkRunStatus === "completed") {
+	              var runLog = getNextflowLog(project_pipeline_id,proType,proId);
+                  console.log(runLog);
+	              //	          $('#runLogArea').val(runLog);
+	              $('#runningProPipe').css('display', 'none');
+	              $('#completeProPipe').css('display', 'inline');
+	              clearInterval(interval_nextlog_ID);
+	          }
+	      }
+	  }
+
+	  function getNextflowLog(project_pipeline_id, proType,proId) {
+	      if (proType === "cluster") {
+	          var logText = getValues({
+	              p: "getNextflowLog",
+	              project_pipeline_id: project_pipeline_id, 
+                  profileType: proType, 
+                  profileId: proId
+	          });
+	          return logText;
+	      }
+	  }
 
 
 	  function getServerLog(project_pipeline_id) {
@@ -2006,7 +2040,6 @@
 
 	      $('#confirmModal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
-	          console.log(button.attr('id'));
 	          if (button.attr('id') === 'deleteRun' || button.attr('id') === 'delRun') {
 	              $('#confirmModalText').html('Are you sure you want to delete this run?');
 	          }
@@ -2015,7 +2048,6 @@
 	      $('#confirmModal').on('click', '#deleteBtn', function (e) {
 	          e.preventDefault();
 	          project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
-	          console.log(project_pipeline_id);
 	          $.ajax({
 	              type: "POST",
 	              url: "ajax/ajaxquery.php",
