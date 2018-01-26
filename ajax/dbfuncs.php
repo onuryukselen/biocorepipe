@@ -418,7 +418,7 @@ class dbfuncs {
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
-            $check_run = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'bjobs $pid' 2>&1 &");
+            $check_run = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'bjobs' 2>&1 &");
             if (preg_match("/$pid/",$check_run)){
             return json_encode('running');
             } else {
@@ -429,16 +429,21 @@ class dbfuncs {
     
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
          if ($profileType == 'cluster'){
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+//            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
-            $check_run = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'bjobs $pid' 2>&1 &");
-            if (preg_match("/$pid/",$check_run)){
-            return json_encode('running');
-            } else {
-            return json_encode('completed');
-            }
+            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+             
+             
+            $check_run = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
+//             echo $check_run;
+//             echo $pid;
+//            if (preg_match("/$pid/",$check_run)){
+//            return json_encode('running');
+//            } else {
+//            return json_encode('completed');
+//            }
         }
     }
     
