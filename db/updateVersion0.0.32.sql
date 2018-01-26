@@ -4,7 +4,7 @@
   ADD `summary` varchar(256) NOT NULL after `name`,
   ADD `output_dir` varchar(256) NOT NULL after `summary`,
   ADD `profile` varchar(30) NOT NULL after `output_dir`,
-  ADD `interdel` varchar(6) NOT NULL after `run_env`,
+  ADD `interdel` varchar(6) NOT NULL after `profile`,
   ADD `exec_each` varchar(6) NOT NULL after `interdel`,
   ADD `exec_all` varchar(6) NOT NULL after `exec_each`,
   ADD `exec_all_settings` text NOT NULL after `exec_all`,

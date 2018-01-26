@@ -100,14 +100,10 @@ class dbfuncs {
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
             $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
-            //mkdir in cluster
-            $mkdir_copynext_pid = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
-            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
+            //mkdir and copy nextflow file to run directory in cluster
+            $mkdir_copynext_pid = shell_exec("ssh -oStrictHostKeyChecking=no -o ConnectTimeout=20 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1");
+//            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
             $log_array = array('mkdir_copynext_pid' => $mkdir_copynext_pid);
-            //copy nextflow file to run directory in cluster
-//            $copy_next_pid = shell_exec("scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 & echo $! &");
-//            if (!$copy_next_pid) die('Connection failed while copying nextflow file in to the cluster');
-//            $log_array['copy_next_pid'] = $copy_next_pid;
             return $log_array;
         }
     }
@@ -115,14 +111,14 @@ class dbfuncs {
     
     function runCmd($project_pipeline_id, $ownerID, $profileType, $profileId, $ownerID, $log_array)
     {
-        //get input parameters
-        $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
-        $next_inputs="";
-        foreach ($allinputs as $inputitem):
-            $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
-        endforeach;
-        //run command
         if ($profileType == "local") {
+            //get input parameters
+            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+            $next_inputs="";
+            foreach ($allinputs as $inputitem):
+                $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
+            endforeach;
+            //run command
             $path= "../{$this->run_path}/run$project_pipeline_id";
             $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1 && ';
 		    $cmd .= "cd $path && nextflow nextflow.nf $next_inputs -with-trace> log.txt 2>&1 & echo $! &";
@@ -134,6 +130,12 @@ class dbfuncs {
             return json_encode($log_array);
             
         } else if ($profileType == "cluster") {
+            //get input parameters
+            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+            $next_inputs="";
+            foreach ($allinputs as $inputitem):
+                $next_inputs.="--".$inputitem->{'given_name'}." '\"'\"'".$inputitem->{'name'}."'\"'\"' ";
+            endforeach;
             //get username and hostname for connection
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
@@ -151,23 +153,33 @@ class dbfuncs {
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
             //check if files are exist
-            $next_exist = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &");
+            $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
+            $next_exist = shell_exec($next_exist_cmd);
             preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
             $log_array['next_exist'] = $next_exist;
-            // if $matches[2] == " ", it means nextflow file is exist otherwise die
+            // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
-            $cmd="ssh -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh -oStrictHostKeyChecking=no -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
             $log_array['next_submit_pid'] = $next_submit_pid;
             return json_encode($log_array);
             
-            
-//            preg_match("/Job <(.*)> is/",$content, $matches);
-//		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
             }else if ($matches[2] == " not "){
-                die(json_encode('Nextflow file not exists'));
+                for( $i= 0 ; $i < 3 ; $i++ ){
+                     sleep(5);
+                     $next_exist = shell_exec($next_exist_cmd);
+                     preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
+                     $log_array['next_exist'] = $next_exist;
+                     if ($matches[2] == " ") {
+                         $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+                         if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
+                            $log_array['next_submit_pid'] = $next_submit_pid;
+                         return json_encode($log_array);
+                     }
+                }
+                die(json_encode('Connection failed. Nextflow file not exists in cluster'));
             }
         }
     }
@@ -379,7 +391,7 @@ class dbfuncs {
         $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = $project_pipeline_id";
         return self::runSQL($sql);
     }
-    public function getRunLog($project_pipeline_id,$ownerID) {
+    public function getServerLog($project_pipeline_id,$ownerID) {
         $path= "../{$this->run_path}/run$project_pipeline_id";
         // get contents of a file into a string
         $filename = "$path/log.txt";

@@ -35,9 +35,17 @@
                 <li><a id="deletePipeRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
             </ul>
         </div>
-        <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="dropdown">
-            <button class="btn btn-success" type="button" id="pipeRun" data-toggle="modal" href="#mRun" style="vertical-align:middle;">Run</button>
+        <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="btn-group">
+            <button class="btn btn-success"  type="button" id="pipeRun" data-toggle="modal" href="#mRun" style="vertical-align:middle;">Run</button>
+            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a href="#">Run on Existing</a></li>
+                  </ul>
         </div>
+ 
 
         <div id="pipeRevSpan" style="margin-right:5px; width:110px; float:right;">
             <select id="pipeRev" class="fbtn btn-default form-control mPipeChange" prev="-1" name="pipeline_rev_id"></select>

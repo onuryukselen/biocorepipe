@@ -46,9 +46,9 @@ else if ($p=="saveRun"){
     $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID, $log_array);
 
 }
-else if ($p=="getRunLog"){
+else if ($p=="getServerLog"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
-    $data = $db -> getRunLog($project_pipeline_id,$ownerID);
+    $data = $db -> getServerLog($project_pipeline_id,$ownerID);
 }
 else if ($p=="getRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
@@ -57,6 +57,11 @@ else if ($p=="getRun"){
 else if ($p=="checkRunPid"){
 	$pid = $_REQUEST['pid'];
     $data = $db -> checkRunPid($pid);
+}
+else if ($p=="updateRunPid"){
+	$pid = $_REQUEST['pid'];
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $data = $db -> updateRunPid($project_pipeline_id, $pid, $ownerID);
 }
 
 else if ($p=="getAllParameters"){
