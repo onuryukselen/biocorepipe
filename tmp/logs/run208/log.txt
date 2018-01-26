@@ -1,1 +1,0 @@
-Job <408215> is submitted to queue <short>.
