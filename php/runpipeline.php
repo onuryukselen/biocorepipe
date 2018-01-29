@@ -73,36 +73,53 @@
     </div>
     <div>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="form-group">
                     <label>Output Directory (Full path)</label>
                     <input type="text" class="form-control" style="width: 100%;" id="rOut_dir" name="output_dir" placeholder="Enter output directory">
                 </div>
-
-                <div class="form-group">
-                    <label>Advanced Options</label>
-                    <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-left:5px;" data-toggle="collapse" data-target="#advOpt"></a></i>
-
-
-                </div>
-            </div>
-            <div class="col-md-6">
                 <div class="form-group">
                     <label>Run Environment</label>
                     <select id="chooseEnv" style="width: 100%;" class="fbtn btn-default form-control" name="runEnv">
                           <option value="" disabled selected>Choose environment </option>
                     </select>
                 </div>
-
+                </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                   <div>
+                    <input type="checkbox" id="docker_check" name="docker_check"  data-toggle="collapse" data-target="#docker_imgDiv"> Use Docker Image</input>
+                    </div>
+                    <div id="docker_imgDiv" class="collapse">
+                    <input type="text" class="form-control" style="width: 100%;" id="docker_img" name="docker_img" placeholder="Enter docker image">
+                    </div>
+                </div>
+                </div>
+                 <div class="col-md-6">
+                <div class="form-group">
+                    <input type="checkbox" id="singu_check" name="singu_check"  data-toggle="collapse" data-target="#singu_imgDiv"> Use Singularity Image</input>
+                    <div id="singu_imgDiv" class="collapse">
+                    <input type="text" class="form-control " style="width: 100%;" id="singu_img" name="singu_img" placeholder="Enter singularity image file path">
+                    </div>
+                </div>
+                </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Advanced Options</label>
+                    <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-left:5px;" data-toggle="collapse" data-target="#advOpt"></a></i>
+                </div>
             </div>
         </div>
 
         <!-- collapsed settings-->
         <div id="advOpt" class="row collapse">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <div class="form-group">
                     <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
                 </div>
+                </div>
+            <div class="col-md-6">
+                
                 <div class="form-group">
                     <label>Permissions to View</label>
                     <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
@@ -111,6 +128,8 @@
                               <option value="63">Everyone </option>
                         </select>
                 </div>
+                </div>
+            <div class="col-md-6">
                 <div class="form-group">
                     <label>Group Selection</label>
                     <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
@@ -118,10 +137,35 @@
                         </select>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
+               <div>
+                    <label> Executor Settings for Nextflow</label>
+                </div>
+                <div id="execNextDiv" class="panel panel-default collapse in">
+                    <div id="execNextSett">
+                        <table id="execNextSettTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Queue</th>
+                                    <th scope="col">Memory</th>
+                                    <th scope="col">CPUs</th>
+                                    <th scope="col">Time(min.)</th>
+                                </tr>
+                            </thead>
+                                <tbody>
+                                <tr>
+                                    <td><input name="queue" class="form-control" type="text" value="short"></td>
+                                    <td><input class="form-control" type="text" name="memory" value="32024"></td>
+                                    <td><input name="cpu" class="form-control" type="text" value="1"></td>
+                                    <td><input name="time" class="form-control" type="text" value="100"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 <div>
                     <label><input type="checkbox" id="exec_all" name="exec_all" checked data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
-                    </div>
+                </div>
                 <div id="allProcessDiv" class="panel panel-default collapse in">
                     <div id="allProcessSett">
                         <table id="allProcessSettTable" class="table">
@@ -130,14 +174,17 @@
                                     <th scope="col">Queue</th>
                                     <th scope="col">Memory</th>
                                     <th scope="col">CPUs</th>
-                                </tr>
-                                <tr>
-                                    <td><input name="queue" class="form-control" type="text" value="long"></td>
-                                    <td><input class="form-control" type="text" name="memory" value="10 GB"></td>
-                                    <td><input name="cpu" class="form-control" type="text" value="2"></td>
+                                    <th scope="col">Time(min.)</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                                <tbody>
+                                <tr>
+                                    <td><input name="queue" class="form-control" type="text" value="short"></td>
+                                    <td><input class="form-control" type="text" name="memory" value="10 GB"></td>
+                                    <td><input name="cpu" class="form-control" type="text" value="2"></td>
+                                    <td><input name="time" class="form-control" type="text" value="100"></td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -153,6 +200,7 @@
                                     <th scope="col">Queue</th>
                                     <th scope="col">Memory</th>
                                     <th scope="col">CPUs</th>
+                                    <th scope="col">Time(min.)</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

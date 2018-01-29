@@ -1,3 +1,10 @@
+28.01.2018 Version 0.0.36
+docker and singularity image options are added and functional.
+nextflow logs are now loaded to run logs area.
+output directory in the run page added to nextflow file as a publish directory.
+nextflow and all process job parameters are functional in run pipeline page. 
+Delete intermediate runs feature is added.
+
 26.01.2018 Version 0.0.35
 Cluster run option upgraded.
 
