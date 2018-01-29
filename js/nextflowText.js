@@ -5,10 +5,66 @@ function gFormat(gText) {
     return gText
 }
 
+function sortProcessList(processList) {
+    console.log(processList);
+    //remove inPro, outPro from edges
+    var allEdges = edges;
+    var mainEdges = [];
+    for (var e = 0; e < allEdges.length; e++) {
+        if (allEdges[e].indexOf("inPro") === -1 && edges[e].indexOf("outPro") === -1) { //if not exist -1, 
+            //swap to make sure, first node is output (for simplification)
+            var nodes = allEdges[e].split("_")
+            if (nodes[0][0] === "i") {
+                mainEdges.push(nodes[1] + '_' + nodes[0]);
+            } else {
+                mainEdges.push(allEdges[e]);
+            }
+        }
+    }
+    var sortGnum = [];
+    for (var e = 0; e < mainEdges.length; e++) {   
+        var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
+        var outGnum = '';
+        var inGnum = '';
+        var outGnum = mainEdges[e].replace(patt, '$5');
+        var inGnum = mainEdges[e].replace(patt, '$10');
+        //for first raw insert both values
+        //xxx first can be push but other should be splice
+        if (!sortGnum.includes(outGnum)){
+            sortGnum.push(outGnum);
+            var index = sortGnum.indexOf(outGnum);
+        } else {
+            var index = sortGnum.indexOf(outGnum);
+        }
+        if (!sortGnum.includes(inGnum)){
+            sortGnum.splice(index+1, 0, inGnum);
+            var index = sortGnum.indexOf(inGnum); //last index after insertion
+        } else {
+            var index = sortGnum.indexOf(inGnum);
+        }
+        //stop for final edge
+        if (e+1 < mainEdges.length) {
+          for (var k = e+1; k < mainEdges.length; k++) {
+           var outGnum2 = '';
+           var inGnum2 = '';
+           var outGnum2 = mainEdges[k].replace(patt, '$5');
+           var inGnum2 = mainEdges[k].replace(patt, '$10');
+              if (inGnum === outGnum2){
+                  if (!sortGnum.includes(inGnum2)){
+                  sortGnum.splice(index+1, 0, inGnum2);
+                  }
+              }
+        }
+        }
+    }
+    console.log(sortGnum);
+    
 
+
+}
 
 function createNextflowFile(nxf_runmode) {
-    nextText ="";
+    nextText = "";
     if (nxf_runmode === "run") {
         var output_dir = $('#rOut_dir').val();
         if (output_dir) {
@@ -38,8 +94,8 @@ function createNextflowFile(nxf_runmode) {
     }
     var endText = '';
     if (nxf_runmode === "run") {
-	    var interdel = $('#intermeDel').is(":checked");
-        if (interdel && interdel===true) {
+        var interdel = $('#intermeDel').is(":checked");
+        if (interdel && interdel === true) {
             endText = "workflow.onComplete { file('work').deleteDir() } \n";
         }
     }
