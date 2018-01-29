@@ -19,7 +19,7 @@
         <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
                         <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
-        <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile())" data-backdrop="false" style=" margin:0px; padding:0px;">
+        <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile(&quot;pipeline&quot;))" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
                         <i class="glyphicon glyphicon-save"></i></a></button>
         <button type="button" id="delPipeline" class="btn" name="button" data-toggle="modal" data-backdrop="false" data-target="#confirmModal" style=" margin:0px; padding:0px;">
@@ -42,7 +42,7 @@
                     <span class="sr-only">Toggle Dropdown</span>
                   </button>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Run on Existing</a></li>
+                    <li><a href="#">Existing Runs</a></li>
                   </ul>
         </div>
  

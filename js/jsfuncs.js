@@ -24,28 +24,28 @@ function getTableButtons(name, buttons) {
 // eg. name:run buttons:select
 function getButtonsModal(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal">' + buttons +'</button> &nbsp;';
+    var button = '<button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '" data-toggle="modal" data-target="#' + name + 'modal">' + buttons + '</button> &nbsp;';
     return button;
-    }
+}
 //Default type of buttons
 function getButtonsDef(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId +'">' + buttons +'</button> &nbsp;';
+    var button = '<button type="submit" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '">' + buttons + '</button> &nbsp;';
     return button;
-    }
+}
 
 
 function getIconButtonModal(name, buttons, icon) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId +'" data-toggle="modal" data-target="#' + name + 'modal"><a data-toggle="tooltip" data-placement="bottom" data-original-title="'+ name + '"><i class="' + icon +'" style="font-size: 17px;"></i></a></button>';
+    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId + '" data-toggle="modal" data-target="#' + name + 'modal"><a data-toggle="tooltip" data-placement="bottom" data-original-title="' + name + '"><i class="' + icon + '" style="font-size: 17px;"></i></a></button>';
     return button;
-    }
+}
 
 function getIconButton(name, buttons, icon) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId +'"><a data-toggle="tooltip" data-placement="bottom" data-original-title="'+ name + '"><i class="' + icon +'" style="font-size: 17px;"></i></a></button>';
+    var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="' + name + '"><i class="' + icon + '" style="font-size: 17px;"></i></a></button>';
     return button;
-    }
+}
 
 
 
@@ -245,43 +245,41 @@ function getValues(data) {
 }
 
 function truncateName(name, type) {
-	      if (type === 'inOut') {
-	          var letterLimit = 7;
-	      } else if (type === 'process') {
-	          var letterLimit = 12;
-	      } else if (type === 'newTable') {
-	          var letterLimit = 120;
-	      } else if (type === 'processTable') {
-	          var letterLimit = 300;
-	      }
-	      if (name.length > letterLimit)
-	          return name.substring(0, letterLimit) + '..';
-	      else
-	          return name;
-	  }
+    if (type === 'inOut') {
+        var letterLimit = 7;
+    } else if (type === 'process') {
+        var letterLimit = 12;
+    } else if (type === 'newTable') {
+        var letterLimit = 120;
+    } else if (type === 'processTable') {
+        var letterLimit = 300;
+    }
+    if (name.length > letterLimit)
+        return name.substring(0, letterLimit) + '..';
+    else
+        return name;
+}
 
-$('.collapseIcon').on('click', function(e) {
-    var textClass=$(this).attr('class');
-    if (textClass.includes('fa-plus-square-o'))
-    {
+$('.collapseIcon').on('click', function (e) {
+    var textClass = $(this).attr('class');
+    if (textClass.includes('fa-plus-square-o')) {
         $(this).removeClass('fa-plus-square-o');
         $(this).addClass('fa-minus-square-o');
-    } else if (textClass.includes('fa-minus-square-o'))
-    {
+    } else if (textClass.includes('fa-minus-square-o')) {
         $(this).removeClass('fa-minus-square-o');
         $(this).addClass('fa-plus-square-o');
     }
-    
-}); 
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+});
 
+
+// fills the from with the object data. find is comma separated string: 'input, p'
+//eg.  fillForm('#execNextSettTable','input', exec_next_settings);
+ 
+function fillForm(formId, find, data) {
+    var formValues = $(formId).find(find);
+    var keys = Object.keys(data);
+    for (var i = 0; i < keys.length; i++) {
+        $(formValues[i]).val(data[keys[i]]);
+    }
+}

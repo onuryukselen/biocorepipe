@@ -1330,29 +1330,29 @@
 	      return gText
 	  }
 
-	  function createNextflowFile() {
-	      nextText = "params.outdir = 'results' " + " \n\n"
-	      iniTextSecond = ""
-	      //initial input data added
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          iniText = InputParameters(mainProcessId, key)
-	          iniTextSecond = iniTextSecond + iniText.secPart
-	          nextText = nextText + iniText.firstPart
-	      }
-	      nextText = nextText + "\n" + iniTextSecond + "\n"
-
-	      for (var key in processList) {
-	          className = document.getElementById(key).getAttribute("class");
-	          mainProcessId = className.split("-")[1]
-	          if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-	              proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
-	              nextText = nextText + proText
-	          }
-	      }
-	      return nextText
-	  }
+//	  function createNextflowFile() {
+//	      nextText = "params.outdir = 'results' " + " \n\n"
+//	      iniTextSecond = ""
+//	      //initial input data added
+//	      for (var key in processList) {
+//	          className = document.getElementById(key).getAttribute("class");
+//	          mainProcessId = className.split("-")[1]
+//	          iniText = InputParameters(mainProcessId, key)
+//	          iniTextSecond = iniTextSecond + iniText.secPart
+//	          nextText = nextText + iniText.firstPart
+//	      }
+//	      nextText = nextText + "\n" + iniTextSecond + "\n"
+//
+//	      for (var key in processList) {
+//	          className = document.getElementById(key).getAttribute("class");
+//	          mainProcessId = className.split("-")[1]
+//	          if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
+//	              proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
+//	              nextText = nextText + proText
+//	          }
+//	      }
+//	      return nextText
+//	  }
 
 	  //Input parameters and channels with file paths
 	  function InputParameters(id, currgid) {
