@@ -1,3 +1,8 @@
+29.01.2018 Version 0.0.38
+pipeline sorting algorithm added.
+while adding new parameter, if type is selected val: then file type will assigned as identifier.
+entering file_type is mandatory for set and file
+
 29.01.2018 Version 0.0.37
 database errors fixed by adding quote.
 

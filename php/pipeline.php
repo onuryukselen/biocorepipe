@@ -313,7 +313,7 @@
                                         </select>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="mFileTypeDiv">
                         <label for="mFileType" class="col-sm-2 control-label">File Type</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mFileType" name="file_type">

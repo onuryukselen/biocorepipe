@@ -8,7 +8,7 @@ class dbfuncs {
     private $dbuser = DBUSER;
     private $dbpass = DBPASS;
     private $dbport = DBPORT;
-    private $last_modified_user = LMUSER;
+//    private $last_modified_user = LMUSER;
     private $run_path = RUNPATH;
     private $ssh_path = SSHPATH;
     private $dolphin_path = DOLPHINPATH;

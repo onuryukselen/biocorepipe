@@ -10,7 +10,7 @@ class dbfuncsPublic {
     private $dbuser = DBUSER;
     private $dbpass = DBPASS;
     private $dbport = DBPORT;
-    private $last_modified_user = LMUSER;
+//    private $last_modified_user = LMUSER;
     private static $link;
 
     function __construct() {
