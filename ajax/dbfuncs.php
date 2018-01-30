@@ -206,11 +206,11 @@ class dbfuncs {
     
 //    ---------------  Users ---------------
     public function getUser($google_id) {
-        $sql = "SELECT * FROM users WHERE google_id = $google_id";
+        $sql = "SELECT * FROM users WHERE google_id = '$google_id'";
         return self::queryTable($sql);
     }
     public function getUserLess($google_id) {
-        $sql = "SELECT username, name, email, google_image FROM users WHERE google_id = $google_id";
+        $sql = "SELECT username, name, email, google_image FROM users WHERE google_id = '$google_id'";
         return self::queryTable($sql);
     }
     public function insertUser($google_id, $name, $email, $google_image, $username) {
@@ -220,20 +220,20 @@ class dbfuncs {
     }
     
     public function updateUser($id, $google_id, $name, $email, $google_image, $username) {
-        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = $id";
+        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = '$id'";
         return self::runSQL($sql);
     }
 //    ------------- Profiles   ------------
     public function getProfileLocal($ownerID) {
-        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = $ownerID";
+        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileClusterbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = $ownerID and id = $id";
+        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 
     }
     public function getProfileCluster($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = $ownerID";
+        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     
@@ -244,7 +244,7 @@ class dbfuncs {
     }
 
     public function updateProfileLocal($id, $name, $executor, $next_path, $ownerID) {
-        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -254,7 +254,7 @@ class dbfuncs {
     }
 
     public function updateProfileCluster($id, $name, $executor, $next_path, $username, $hostname, $ownerID) {
-        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProLocal($id) {
@@ -276,7 +276,7 @@ class dbfuncs {
         if ($ownerID == ""){
             $ownerID ="''";
         }
-        $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = $ownerID OR perms = 63";
+        $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = '$ownerID' OR perms = 63";
         return self::queryTable($sql);
     }
 
@@ -287,7 +287,7 @@ class dbfuncs {
     }
 
     public function updateParameter($id, $name, $qualifier, $file_type, $ownerID) {
-        $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='$ownerID', file_type='$file_type'  WHERE id = $id";
+        $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='$ownerID', file_type='$file_type'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -297,7 +297,7 @@ class dbfuncs {
     }
 
     public function updateProcessGroup($id, $group_name, $ownerID) {
-        $sql = "UPDATE process_group SET group_name='$group_name', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE process_group SET group_name='$group_name', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -321,7 +321,7 @@ class dbfuncs {
     }
 
     public function getAllProcessGroups($ownerID) {
-        $sql = "SELECT id, group_name FROM process_group WHERE owner_id = $ownerID OR perms = 63";
+        $sql = "SELECT id, group_name FROM process_group WHERE owner_id = '$ownerID' OR perms = 63";
         return self::queryTable($sql);
     }
     
@@ -331,52 +331,52 @@ class dbfuncs {
     }
 
     public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID) {
-        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user = '$ownerID'  WHERE id = $id";
+        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user = '$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
     public function removeProcess($id) {
-        $sql = "DELETE FROM process WHERE id = $id";
+        $sql = "DELETE FROM process WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProject($id) {
-        $sql = "DELETE FROM project WHERE id = $id";
+        $sql = "DELETE FROM project WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipeline($id) {
-        $sql = "DELETE FROM project_pipeline WHERE id = $id";
+        $sql = "DELETE FROM project_pipeline WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeInput($id) {
-        $sql = "DELETE FROM input WHERE id = $id";
+        $sql = "DELETE FROM input WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInput($id) {
-        $sql = "DELETE FROM project_pipeline_input WHERE id = $id";
+        $sql = "DELETE FROM project_pipeline_input WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputByPipe($id) {
-        $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = $id";
+        $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectInput($id) {
-        $sql = "DELETE FROM project_input WHERE id = $id";
+        $sql = "DELETE FROM project_input WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelinebyProjectID($id) {
-        $sql = "DELETE FROM project_pipeline WHERE project_id = $id";
+        $sql = "DELETE FROM project_pipeline WHERE project_id = '$id'";
         return self::runSQL($sql);
     }
     
     public function removeProcessByProcessGroupID($process_group_id) {
-        $sql = "DELETE FROM process WHERE process_group_id = $process_group_id";
+        $sql = "DELETE FROM process WHERE process_group_id = '$process_group_id'";
         return self::runSQL($sql);
     }
 //    ----------- Projects   ---------
     public function getProjects($id,$ownerID) {
-        $where = " where p.owner_id = $ownerID OR p.perms = 63"; 
+        $where = " where p.owner_id = '$ownerID' OR p.perms = 63"; 
 		if ($id != ""){
-			$where = " where p.id = $id AND (p.owner_id = $ownerID OR p.perms = 63)";
+			$where = " where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63)";
 		}
 		$sql = "SELECT p.id, p.name, p.summary, p.date_created, u.username, p.date_modified FROM project p INNER JOIN users u ON p.owner_id = u.id $where";
 		return self::queryTable($sql);
@@ -387,7 +387,7 @@ class dbfuncs {
     }
 
     public function updateProject($id, $name, $summary, $ownerID) {
-        $sql = "UPDATE project SET name= '$name', summary= '$summary', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = $id";
+        $sql = "UPDATE project SET name= '$name', summary= '$summary', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -398,7 +398,7 @@ class dbfuncs {
         return self::insTable($sql);
     }
     public function updateRunPid($project_pipeline_id, $pid, $ownerID) {
-        $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = $project_pipeline_id";
+        $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
         return self::runSQL($sql);
     }
     public function getServerLog($project_pipeline_id,$ownerID) {
@@ -411,7 +411,7 @@ class dbfuncs {
         return json_encode($content);
     }
     public function getRun($project_pipeline_id,$ownerID) {
-        $sql = "SELECT * FROM run WHERE project_pipeline_id = $project_pipeline_id";
+        $sql = "SELECT * FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
 		return self::queryTable($sql);
     }
     
@@ -451,16 +451,16 @@ class dbfuncs {
 //    ----------- Inputs, Project Inputs   ---------
     
     public function getInputs($id,$ownerID) {
-        $where = " where owner_id = $ownerID OR perms = 63"; 
+        $where = " where owner_id = '$ownerID' OR perms = 63"; 
 		if ($id != ""){
-			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
+			$where = " where id = '$id' AND (owner_id = '$ownerID' OR perms = 63)";
 		}
 		$sql = "SELECT id, name 
         FROM input $where";
 		return self::queryTable($sql);
     }
     public function getProjectInputs($project_id,$ownerID) {
-        $where = " where pi.project_id = $project_id AND (pi.owner_id = $ownerID OR pi.perms = 63)" ; 
+        $where = " where pi.project_id = '$project_id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63)" ; 
 		$sql = "SELECT pi.id, i.id as input_id, i.name
                 FROM project_input pi
                 INNER JOIN input i ON i.id = pi.input_id
@@ -468,7 +468,7 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     public function getProjectInput($id,$ownerID) {
-        $where = " where pi.id = $id AND (pi.owner_id = $ownerID OR pi.perms = 63)" ; 
+        $where = " where pi.id = '$id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63)" ; 
 		$sql = "SELECT pi.id, i.id as input_id, i.name
                 FROM project_input pi
                 INNER JOIN input i ON i.id = pi.input_id
@@ -488,7 +488,7 @@ class dbfuncs {
     }
 
     public function updateInput($id, $name, $ownerID) {
-        $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -502,14 +502,14 @@ class dbfuncs {
         return self::insTable($sql);
     }
     public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $ownerID) {
-        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings',  date_modified= now(), last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings',  date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
         
     }
     
     public function getProjectPipelines($id,$project_id,$ownerID) {
 		if ($id != ""){
-			$where = " where pp.id = $id AND (pp.owner_id = $ownerID OR pp.perms = 63)";
+			$where = " where pp.id = '$id' AND (pp.owner_id = '$ownerID' OR pp.perms = 63)";
             $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms, pp.docker_check, pp.docker_img, pp.singu_check, pp.singu_img, pp.exec_next_settings
                     FROM project_pipeline pp 
                     INNER JOIN users u ON pp.owner_id = u.id 
@@ -517,7 +517,7 @@ class dbfuncs {
                     INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
                     $where";    
 		} else {
-            $where = " where pp.project_id = $project_id AND (pp.owner_id = $ownerID OR pp.perms = 63)" ; 
+            $where = " where pp.project_id = '$project_id' AND (pp.owner_id = '$ownerID' OR pp.perms = 63)" ; 
             $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.date_modified 
                     FROM project_pipeline pp 
                     INNER JOIN biocorepipe_save pip ON pip.id = pp.pipeline_id
@@ -540,9 +540,9 @@ class dbfuncs {
     } 
     
     public function getProjectPipelineInputs($g_num, $project_pipeline_id,$ownerID) {
-        $where = " where ppi.project_pipeline_id = $project_pipeline_id AND (ppi.owner_id = $ownerID OR ppi.perms = 63)" ; 
+        $where = " where ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
         if ($g_num != ""){
-			 $where = " where ppi.g_num= $g_num AND ppi.project_pipeline_id = $project_pipeline_id AND (ppi.owner_id = $ownerID OR ppi.perms = 63)" ; 
+			 $where = " where ppi.g_num= '$g_num' AND ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
 		}
 		$sql = "SELECT ppi.id, i.id as input_id, i.name, ppi.given_name
                 FROM project_pipeline_input ppi
@@ -551,7 +551,7 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     public function getProjectPipelineInputsById($id,$ownerID) {
-        $where = " where ppi.id= $id AND (ppi.owner_id = $ownerID OR ppi.perms = 63)" ; 
+        $where = " where ppi.id= '$id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
 		$sql = "SELECT ppi.id, i.id as input_id, i.name
                 FROM project_pipeline_input ppi
                 INNER JOIN input i ON i.id = ppi.input_id
@@ -559,7 +559,7 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     public function  getAllProjectPipelineInputs($project_pipeline_id,$ownerID) {
-        $where = " where ppi.project_pipeline_id = $project_pipeline_id AND (ppi.owner_id = $ownerID OR ppi.perms = 63)" ; 
+        $where = " where ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
 		$sql = "SELECT ppi.id, i.id as input_id, i.name
                 FROM project_pipeline_input ppi
                 INNER JOIN input i ON i.id = ppi.input_id
@@ -593,17 +593,17 @@ class dbfuncs {
     }
     
     public function updateProcessParameter($id, $name, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = $id";
+        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
     public function removeProcessParameter($id) {
-        $sql = "DELETE FROM process_parameter WHERE id = $id";
+        $sql = "DELETE FROM process_parameter WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
     public function removeProcessParameterByParameterID($parameter_id) {
-        $sql = "DELETE FROM process_parameter WHERE parameter_id = $parameter_id";
+        $sql = "DELETE FROM process_parameter WHERE parameter_id = '$parameter_id'";
         return self::runSQL($sql);
     }
 
@@ -611,11 +611,11 @@ class dbfuncs {
         $sql = "DELETE process_parameter
                 FROM process_parameter 
                 JOIN process ON process.id = process_parameter.process_id 
-                WHERE process.process_group_id = $process_group_id";        
+                WHERE process.process_group_id = '$process_group_id'";        
         return self::runSQL($sql);
     }
     public function removeProcessParameterByProcessID($process_id) {
-        $sql = "DELETE FROM process_parameter WHERE process_id = $process_id";
+        $sql = "DELETE FROM process_parameter WHERE process_id = '$process_id'";
         return self::runSQL($sql);
     }
 
@@ -662,44 +662,44 @@ class dbfuncs {
         if ($ownerID == ""){
             $ownerID ="''";
         }
-		$where = " where owner_id = $ownerID OR perms = 63"; 
+		$where = " where owner_id = '$ownerID' OR perms = 63"; 
 		if ($id != ""){
-			$where = " where id = $id AND (owner_id = $ownerID OR perms = 63)";
+			$where = " where id = '$id' AND (owner_id = '$ownerID' OR perms = 63)";
 		}
 		$sql = "SELECT id, process_group_id, name, version, summary, script, rev_id FROM process $where";
 		return self::queryTable($sql);
 	}
     
     public function getProcessRevision($process_gid) {
-		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM process WHERE process_gid = $process_gid";
+		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM process WHERE process_gid = '$process_gid'";
 		return self::queryTable($sql);
 	}
     public function getPipelineRevision($pipeline_gid) {
-		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM biocorepipe_save WHERE pipeline_gid = $pipeline_gid";
+		$sql = "SELECT id, rev_id, rev_comment, last_modified_user, date_created, date_modified  FROM biocorepipe_save WHERE pipeline_gid = '$pipeline_gid'";
 		return self::queryTable($sql);
 	}
     
     public function getProcessGID($id) {
-		$sql = "SELECT  process_gid FROM process WHERE id = $id";
+		$sql = "SELECT  process_gid FROM process WHERE id = '$id'";
 		return self::queryTable($sql);
 	}
     public function getPipelineGID($id) {
-		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = $id";
+		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = '$id'";
 		return self::queryTable($sql);
 	}
 	public function getInputsPP($id) {
-		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'input'";
+		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = '$id' and type = 'input'";
 		return self::queryTable($sql);
 	}
 	public function checkPipeline($process_id,$process_name, $ownerID) {
-		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = $ownerID OR perms = 63) AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
+		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = '$ownerID' OR perms = 63) AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
 		return self::queryTable($sql);
 	}
     public function checkProject($pipeline_id, $ownerID) {
 		$sql = "SELECT DISTINCT pp.id, p.name 
         FROM project_pipeline pp
         INNER JOIN project p ON pp.project_id = p.id
-        WHERE (pp.owner_id = $ownerID OR pp.perms = 63) AND pp.pipeline_id = $pipeline_id";
+        WHERE (pp.owner_id = '$ownerID' OR pp.perms = 63) AND pp.pipeline_id = '$pipeline_id'";
 		return self::queryTable($sql);
 	}
     public function getMaxProcess_gid() {
@@ -711,23 +711,23 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
     public function getProcess_gid($process_id) {
-		$sql = "SELECT process_gid FROM process WHERE id = $process_id";
+		$sql = "SELECT process_gid FROM process WHERE id = '$process_id'";
 		return self::queryTable($sql);
 	}
     public function getPipeline_gid($pipeline_id) {
-		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = $pipeline_id";
+		$sql = "SELECT pipeline_gid FROM biocorepipe_save WHERE id = '$pipeline_id'";
 		return self::queryTable($sql);
 	}
     public function getMaxRev_id($process_gid) {
-		$sql = "SELECT MAX(rev_id) rev_id FROM process WHERE process_gid = $process_gid";
+		$sql = "SELECT MAX(rev_id) rev_id FROM process WHERE process_gid = '$process_gid'";
 		return self::queryTable($sql);
 	}
     public function getMaxPipRev_id($pipeline_gid) {
-		$sql = "SELECT MAX(rev_id) rev_id FROM biocorepipe_save WHERE pipeline_gid = $pipeline_gid";
+		$sql = "SELECT MAX(rev_id) rev_id FROM biocorepipe_save WHERE pipeline_gid = '$pipeline_gid'";
 		return self::queryTable($sql);
 	}
 	public function getOutputsPP($id) {
-		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = $id and type = 'output'";
+		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = '$id' and type = 'output'";
 		return self::queryTable($sql);
 	}
 	
@@ -735,7 +735,7 @@ class dbfuncs {
         if ($ownerID == ""){
         $ownerID ="''";
         }
-		$sql = "SELECT * FROM parameter WHERE owner_id = $ownerID OR perms = 63";
+		$sql = "SELECT * FROM parameter WHERE owner_id = '$ownerID' OR perms = 63";
 		return self::queryTable($sql);
 	}
 	
@@ -753,7 +753,7 @@ class dbfuncs {
         
 	
 	    if ($id > 0){
-            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = $id";
+            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = '$id'";
 		}else{
             $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', 3)";
 		}
@@ -765,7 +765,7 @@ class dbfuncs {
         if ($ownerID == ""){
             $ownerID ="''";
         }
-        $where = " where pip.owner_id = $ownerID OR pip.perms = 63";
+        $where = " where pip.owner_id = '$ownerID' OR pip.perms = 63";
 		$sql = "select pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username 
         FROM biocorepipe_save pip
         INNER JOIN users u ON pip.owner_id = u.id
@@ -777,15 +777,15 @@ class dbfuncs {
 		$sql = "select pip.*, u.username
         FROM biocorepipe_save pip 
         INNER JOIN users u ON pip.owner_id = u.id
-        where pip.id = $id";
+        where pip.id = '$id'";
 	   return self::queryTable($sql);
 	}
     public function removePipelineById($id) {
-		$sql = "DELETE FROM biocorepipe_save WHERE id = $id";
+		$sql = "DELETE FROM biocorepipe_save WHERE id = '$id'";
 	   return self::runSQL($sql);
 	}
     public function updatePipelineName($id, $name) {
-        $sql = "UPDATE biocorepipe_save SET name='$name'  WHERE id = $id";
+        $sql = "UPDATE biocorepipe_save SET name='$name'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     

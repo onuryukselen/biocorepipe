@@ -1551,6 +1551,14 @@
 	          $('.lasteditedPip').text(pipeData[0].date_modified);
 	      }
 	  }
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 
 	  function loadProjectPipeline(pipeData) {
 	      loadRunOptions();
@@ -1575,12 +1583,16 @@
 	      //xxx
 
 	      //insert exec_next_settings data into exec_next_settings table 
-	      var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
-          fillForm('#execNextSettTable','input', exec_next_settings);
+          if (IsJsonString(pipeData[0].exec_next_settings)){
+             var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
+             fillForm('#execNextSettTable','input', exec_next_settings);
+          }
           
 	      //insert exec_all_settings data into allProcessSettTable table 
+          if (IsJsonString(pipeData[0].exec_all_settings)){
 	      var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
           fillForm('#allProcessSettTable','input', exec_all_settings);
+          }
 
 	      //	      var exec_each_settings 
 	      console.log(pipeData)
