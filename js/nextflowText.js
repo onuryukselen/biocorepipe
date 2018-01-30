@@ -6,7 +6,6 @@ function gFormat(gText) {
 }
 
 function sortProcessList(processList) {
-    console.log(processList);
     //remove inPro, outPro from edges
     var allEdges = edges;
     var mainEdges = [];
@@ -22,45 +21,68 @@ function sortProcessList(processList) {
         }
     }
     var sortGnum = [];
-    for (var e = 0; e < mainEdges.length; e++) {   
+    for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
         var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
         var outGnum = '';
         var inGnum = '';
         var outGnum = mainEdges[e].replace(patt, '$5');
         var inGnum = mainEdges[e].replace(patt, '$10');
         //for first raw insert both values
-        //xxx first can be push but other should be splice
-        if (!sortGnum.includes(outGnum)){
-            sortGnum.push(outGnum);
-            var index = sortGnum.indexOf(outGnum);
+        //first can be added by push but other should be splice
+        if (!sortGnum.includes(outGnum)) {
+            //if output of input is exist in the array, insert before it.
+            if (sortGnum.includes(inGnum)) {
+                var index = sortGnum.indexOf(inGnum);
+                sortGnum.splice(index, 0, outGnum);
+                var index = sortGnum.indexOf(outGnum);
+            } else {
+                sortGnum.push(outGnum);
+                var index = sortGnum.indexOf(outGnum);
+            }
         } else {
+            //check if the position of outGnum if inGnum is also exist in array
+            if (sortGnum.includes(inGnum) && sortGnum.includes(outGnum)) {
+                var indexIn = sortGnum.indexOf(inGnum);
+                var indexOut = sortGnum.indexOf(outGnum);
+                if (indexOut > indexIn){
+                    sortGnum.splice(indexOut,1);
+                    sortGnum.splice(indexIn, 0, outGnum);
+                }
+            }
             var index = sortGnum.indexOf(outGnum);
         }
-        if (!sortGnum.includes(inGnum)){
-            sortGnum.splice(index+1, 0, inGnum);
+        if (!sortGnum.includes(inGnum)) {
+            sortGnum.splice(index + 1, 0, inGnum);
             var index = sortGnum.indexOf(inGnum); //last index after insertion
         } else {
             var index = sortGnum.indexOf(inGnum);
         }
         //stop for final edge
-        if (e+1 < mainEdges.length) {
-          for (var k = e+1; k < mainEdges.length; k++) {
-           var outGnum2 = '';
-           var inGnum2 = '';
-           var outGnum2 = mainEdges[k].replace(patt, '$5');
-           var inGnum2 = mainEdges[k].replace(patt, '$10');
-              if (inGnum === outGnum2){
-                  if (!sortGnum.includes(inGnum2)){
-                  sortGnum.splice(index+1, 0, inGnum2);
-                  }
-              }
-        }
+        if (e + 1 < mainEdges.length) {
+            for (var k = e + 1; k < mainEdges.length; k++) {
+                var outGnum2 = '';
+                var inGnum2 = '';
+                var outGnum2 = mainEdges[k].replace(patt, '$5');
+                var inGnum2 = mainEdges[k].replace(patt, '$10');
+                if (inGnum === outGnum2) {
+                    if (!sortGnum.includes(inGnum2)) {
+                        sortGnum.splice(index + 1, 0, inGnum2);
+                    }
+                }
+            }
         }
     }
-    console.log(sortGnum);
-    
-
-
+    var sortProcessList = [];
+    $.each(sortGnum, function (el) {
+        sortProcessList.push("g-" + sortGnum[el]);
+    });
+    //add remaining input and output params by using processlist
+    for (var key in processList) {
+        if (!sortProcessList.includes(key)) {
+            sortProcessList.push(key);
+        }
+    }
+    return sortProcessList;
 }
 
 function createNextflowFile(nxf_runmode) {
@@ -74,24 +96,26 @@ function createNextflowFile(nxf_runmode) {
         nextText = "params.outdir = 'results' " + " \n\n";
     }
     iniTextSecond = ""
+    //sortProcessList
+    var sortedProcessList = sortProcessList(processList);
     //initial input data added
-    for (var key in processList) {
+    sortedProcessList.forEach(function(key) {
         className = document.getElementById(key).getAttribute("class");
-        mainProcessId = className.split("-")[1]
-        iniText = InputParameters(mainProcessId, key)
-        iniTextSecond = iniTextSecond + iniText.secPart
-        nextText = nextText + iniText.firstPart
-    }
+        mainProcessId = className.split("-")[1];
+        iniText = InputParameters(mainProcessId, key);
+        iniTextSecond = iniTextSecond + iniText.secPart;
+        nextText = nextText + iniText.firstPart;
+    });
     nextText = nextText + "\n" + iniTextSecond + "\n"
 
-    for (var key in processList) {
+    sortedProcessList.forEach(function(key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
             proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
             nextText = nextText + proText
         }
-    }
+    });
     var endText = '';
     if (nxf_runmode === "run") {
         var interdel = $('#intermeDel').is(":checked");
@@ -105,7 +129,7 @@ function createNextflowFile(nxf_runmode) {
 
 //Input parameters and channels with file paths
 function InputParameters(id, currgid) {
-    IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
+    IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0];
     iText = {};
     firstPart = "";
     secPart = "";
@@ -114,7 +138,7 @@ function InputParameters(id, currgid) {
         Iid = IList[i].id
         inputIdSplit = Iid.split("-")
         ProId = inputIdSplit[1]
-        userEntryId = "text-" + inputIdSplit[4]
+        userEntryId = "text-" + inputIdSplit[4];
 
         if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
             qual = parametersData.filter(function (el) {

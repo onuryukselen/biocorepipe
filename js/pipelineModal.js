@@ -772,14 +772,26 @@ $(document).ready(function () {
 
     renderParam = {
         option: function (data, escape) {
-            return '<div class="option">' +
+            if (data.qualifier === 'val'){
+                return '<div class="option">' +
+                '<span class="title">' + escape(data.name) + '</span>' +
+                '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
+                '</div>';
+            } else {
+                return '<div class="option">' +
                 '<span class="title">' + escape(data.name) + '</span>' +
                 '<span class="url">' + 'File Type: ' + escape(data.file_type) + '</span>' +
                 '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
                 '</div>';
+            }
+
         },
         item: function (data, escape) {
+            if (data.qualifier === 'val'){
+            return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.qualifier) + ')</small></i>' + '</div>';    
+            } else {
             return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.file_type) + ', ' + escape(data.qualifier) + ')</small></i>' + '</div>';
+            }
         }
     };
 
@@ -1261,8 +1273,19 @@ $(document).ready(function () {
         $("#" + col3init + "-" + String(num)).remove()
     });
 
+    //parameter modal file type change:(save file type as identifier for val)
+    $('#modalQualifier').change(function () {
+        if ($('#modalQualifier').val() === 'val'){
+            $('#mFileTypeDiv').css('display','none');
+        }
+        else {
+            $('#mFileTypeDiv').css('display','block');
+        }
+    });
+    
     //parameter modal 
     $('#parametermodal').on('show.bs.modal', function (event) {
+        $('#mFileTypeDiv').css('display','block');
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
         //ajax for parameters
@@ -1424,6 +1447,7 @@ $(document).ready(function () {
                     var keys = Object.keys(showParam);
                     for (var i = 0; i < keys.length; i++) {
                         $(formValuesModal[i]).val(showParam[keys[i]]);
+                        $('#modalQualifier').trigger("change");
                     }
                 }
             });
@@ -1452,6 +1476,10 @@ $(document).ready(function () {
         var selParName = data[1].value;
         var selParQual = data[2].value;
         var selParType = data[3].value;
+        if (selParQual === 'val') {
+            selParType =selParName; 
+        }
+        if (selParName !== '' && selParQual !== '' && selParType !== ''){
         data.push({
             name: "p",
             value: "saveParameter"
@@ -1496,6 +1524,7 @@ $(document).ready(function () {
                 alert("Error: " + errorThrown);
             }
         });
+        }
     });
     // process group modal 
     $('#renameModal').on('show.bs.modal', function (event) {
