@@ -83,6 +83,11 @@ else if ($p=="updateRunPid"){
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);
 }
+else if ($p=="savefeedback"){
+	$email = $_REQUEST['email'];
+	$message = $_REQUEST['message'];
+    $data = $db -> savefeedback($email,$message);
+}
 
 else if ($p=="getAllProcesses"){
     $data = $db -> getAllProcesses();
@@ -191,7 +196,11 @@ else if ($p=="saveParameter"){
 
 else if ($p=="getProfileLocal")
 {
+    if (!empty($id)) {
+    $data = $db->getProfileLocalbyID($id, $ownerID);
+    } else {
     $data = $db->getProfileLocal($ownerID);
+    }
 }
 else if ($p=="getProfileCluster")
 {
@@ -199,7 +208,23 @@ else if ($p=="getProfileCluster")
     $data = $db->getProfileClusterbyID($id, $ownerID);
     } else {
     $data = $db->getProfileCluster($ownerID);
-        
+    }
+}
+
+else if ($p=="getProfileAmazon")
+{
+    if (!empty($id)) {
+    $data = $db->getProfileAmazonbyID($id, $ownerID);
+//    $dataArray = json_decode($data,true);
+//    foreach($dataArray as $d){
+//		$access = $d["access_key"];
+//		$d["access_key"] = trim(amazonDecode($access));
+//		$secret = $d["secret_key"];
+//		$d["secret_key"] = trim(amazonDecode($secret));
+//	}
+//	$data=json_encode($dataArray);
+    } else {
+    $data = $db->getProfileAmazon($ownerID);
     }
 }
 
@@ -230,6 +255,33 @@ else if ($p=="saveProfileCluster"){
        $idArray = json_decode($data,true);
        $id = $idArray["id"];
        $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
+    }
+}
+else if ($p=="saveProfileAmazon"){
+    $name = $_REQUEST['name'];
+    $executor = $_REQUEST['executor'];
+    $amz_def_reg = $_REQUEST['amz_def_reg'];
+    $amz_acc_key = $_REQUEST['amz_acc_key'];
+    $amz_acc_key = $db->amazonEncode($amz_acc_key);
+    $amz_suc_key = $_REQUEST['amz_suc_key'];
+    $amz_suc_key = $db->amazonEncode($amz_suc_key);
+    $ins_type = $_REQUEST['ins_type'];
+    $image_id = $_REQUEST['image_id'];
+    $pubkeyRaw = $_REQUEST['pubkey'];
+    $pubkey = urldecode($pubkeyRaw);
+    $prikey_amzRaw = $_REQUEST['prikey_amz'];
+    $prikey_amz = urldecode($prikey_amzRaw);
+    $next_path = $_REQUEST['next_path'];
+    if (!empty($id)) {
+       $data = $db->updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID);
+//       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
+//       $db->insertPubkey($id, $pubkey, $ownerID);
+    } else {
+       $data = $db->insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID);
+       $idArray = json_decode($data,true);
+       $id = $idArray["id"];
+//       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
+//       $db->insertPubkey($id, $pubkey, $ownerID);
     }
 }
 

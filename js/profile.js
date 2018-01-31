@@ -2,13 +2,17 @@ $(document).ready(function () {
     //get profiles for user
     var proLocData = getValues({ p: "getProfileLocal" });
     var proCluData = getValues({ p: "getProfileCluster" });
-    if (proLocData.length + proCluData.length !== 0) {
+    var proAmzData = getValues({ p: "getProfileAmazon" });
+    if (proLocData.length + proCluData.length + proAmzData.length !== 0) {
         $('#noProfile').css('display', 'none');
         $.each(proLocData, function (el) {
             addLocalRow(proLocData[el].id, proLocData[el].name, proLocData[el].next_path, proLocData[el].executor);
         });
         $.each(proCluData, function (el) {
             addClusterRow(proCluData[el].id, proCluData[el].name, proCluData[el].next_path, proCluData[el].executor, proCluData[el].username, proCluData[el].hostname);
+        });
+        $.each(proAmzData, function (el) {
+            addAmazonRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].next_path, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id);
         });
     }
 
@@ -19,12 +23,18 @@ $(document).ready(function () {
     function addClusterRow(id, name, next_path, executor, username, hostname) {
             $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Cluster</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
     }
+    function addAmazonRow(id, name, next_path, executor, instance_type, image_id) {
+            $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
+    }
     function updateLocalRow(id, name, next_path, executor) {
         $('#profilesTable > thead > #local-'+ id).html('<td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
     }
 
     function updateClusterRow(id, name, next_path, executor, username, hostname) {
             $('#profilesTable > thead > #cluster-'+ id).html('<td>' + name + '</td> <td>Cluster</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
+    }
+    function updateAmazonRow(id, name, next_path, executor, instance_type, image_id) {
+            $('#profilesTable > thead > #amazon-'+ id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
     }
 
 
@@ -42,14 +52,14 @@ $(document).ready(function () {
             var formValues = $('#profilemodal').find('input, select');
             console.log(formValues);
             if (proType === "local") {
-                var data = getValues({ p: "getProfileLocal" });
+                var data = getValues({ p: "getProfileLocal", id: proId });
                 $('#chooseEnv').val('local').trigger('change');
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
                 $(formValues[10]).val(data[0].next_path);
                 $(formValues[11]).val(data[0].executor);
             } else if (proType === "cluster") {
-                var data = getValues({ p: "getProfileCluster" });
+                var data = getValues({ p: "getProfileCluster", id: proId });
                 $('#chooseEnv').val('cluster').trigger('change');
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
@@ -58,7 +68,18 @@ $(document).ready(function () {
                 $(formValues[3]).val(data[0].username);
                 $(formValues[4]).val(data[0].hostname);
             } else if (proType === "amazon") {
+                var data = getValues({ p: "getProfileAmazon", id: proId });
+                console.log(data);
                 $('#chooseEnv').val('amazon').trigger('change');
+                $(formValues[0]).val(data[0].id);
+                $(formValues[1]).val(data[0].name);
+                $(formValues[10]).val(data[0].next_path);
+                $(formValues[11]).val(data[0].executor);
+                $(formValues[5]).val(data[0].default_region);
+                $(formValues[8]).val(data[0].instance_type);
+                $(formValues[9]).val(data[0].image_id);
+                $(formValues[6]).val(data[0].access_key);
+                $(formValues[7]).val(data[0].secret_key);
             }
                 $('#chooseEnv').attr('disabled', "disabled");
         }
@@ -106,16 +127,19 @@ $(document).ready(function () {
         var formValues = $('#profilemodal').find('input, select, textarea');
         var savetype = $('#mEnvId').val();
         var data = formValues.serializeArray(); // convert form to array
-        data[5].value = encodeURIComponent(data[5].value);
         var selEnvType = $('#chooseEnv option:selected').val();
         if (selEnvType.length) {
             if (selEnvType === "local") {
                 data.push({ name: "p", value: "saveProfileLocal" });
             } else if (selEnvType === "cluster") {
+                data[5].value = encodeURIComponent(data[5].value);
                 data.push({ name: "p", value: "saveProfileCluster" });
             } else if (selEnvType === "amazon") {
+                data[5].value = encodeURIComponent(data[6].value);
+                data[5].value = encodeURIComponent(data[7].value);
                 data.push({ name: "p", value: "saveProfileAmazon" });
             }
+                        console.log(data);
 
             $.ajax({
                 type: "POST",
@@ -124,15 +148,13 @@ $(document).ready(function () {
                 async: true,
                 success: function (s) {
                     if (savetype.length) { //edit
-                        console.log(data);
                         var clickedRowId = selEnvType + '-' +savetype;
-                        console.log(clickedRowId);
                         if (selEnvType === "local") {
                              updateLocalRow(data[0].value, data[1].value, data[13].value, data[14].value)
                         } else if (selEnvType === "cluster") {
                             updateClusterRow(data[0].value, data[1].value, data[13].value, data[14].value, data[3].value, data[4].value)
                         } else if (selEnvType === "amazon") {
-
+                            updateAmazonRow(data[0].value, data[1].value, data[13].value, data[14].value, data[11].value, data[12].value); 
                         }
                         //                        var clickedRow = $('#saveproject').data('clickedrow');
                         //                        var getProjectData = [];
@@ -168,7 +190,7 @@ $(document).ready(function () {
                         } else if (selEnvType === "cluster") {
                             addClusterRow(s.id, data[1].value, data[13].value, data[14].value, data[3].value, data[4].value);
                         } else if (selEnvType === "amazon") {
-
+                            addAmazonRow(s.id, data[1].value, data[13].value, data[14].value, data[11].value, data[12].value); 
                         }
                         var numRows = $('#profilesTable > > tr').length;
                         if (numRows > 2) {
