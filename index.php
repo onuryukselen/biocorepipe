@@ -34,6 +34,8 @@
     <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
     <!-- selectize style -->
     <link rel="stylesheet" href="css/selectize.bootstrap3.css">
+    <!-- feedback modal style -->
+    <link rel="stylesheet" href="css/feedback.css">
     <!--    bigger fonts-->
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
@@ -223,7 +225,7 @@
                 <!-- mini logo for sidebar mini 50x50 pixels -->
                 <span class="logo-mini"><b>U</b>Bio</span>
                 <!-- logo for regular state and mobile devices -->
-                <span class="logo-lg"><b>UMassMed</b>Biocore</span>
+                <span class="logo-lg" style="font-size:17px;"><b>Biocore</b> DolphinNext<b><sub> BETA</sub></b></span>
             </a>
 
             <!-- Header Navbar: style can be found in header.less -->
@@ -242,8 +244,9 @@
                 </div>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <li><a href="index.php?np=4">Profile </a></li>
-                        <li><a href="#"><i class="fa fa-gears"></i></a></li>
+                        <li><a href="index.php?np=4">Profiles </a></li>
+                        <li > <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
+<!--                        <li><a href="#"><i class="fa fa-gears"></i></a></li>-->
                     </ul>
                 </div>
             </nav>
@@ -332,6 +335,24 @@
             <div class="control-sidebar-bg"></div>
         </div>
         <!-- ./wrapper -->
+<!--        feedback modal-->
+        <div id="feedback">
+	<div id="feedback-form" style='display:none;' class="col-xs-4 col-md-4 panel panel-default">
+		<form method="POST" action="/feedback" class="form panel-body" role="form">
+			<div class="form-group">
+				<input class="form-control" name="email" autofocus placeholder="Your e-mail" type="email" />
+			</div>
+			<div class="form-group">
+				<textarea class="form-control" name="message" required placeholder="Please write your feedback here..." rows="5"></textarea>
+			</div>
+			<button class="btn btn-primary pull-right" type="submit">Send</button>
+		</form>
+	</div>
+	<div id="feedback-tab">Feedback</div>
+</div>
+<!--        feedback modal ends-->
+       
+        
 
         <!--Google Platform Library on your web pages that integrate Google Sign-In-->
         <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -378,6 +399,8 @@
         <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
         <?php print getJS($np, $login, $id); ?>
+        
+        
 </body>
 
 </html>

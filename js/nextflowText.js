@@ -21,6 +21,7 @@ function sortProcessList(processList) {
         }
     }
     var sortGnum = [];
+    if (mainEdges.length > 0){
     for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
         var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
         var outGnum = '';
@@ -71,6 +72,7 @@ function sortProcessList(processList) {
                 }
             }
         }
+    }
     }
     var sortProcessList = [];
     $.each(sortGnum, function (el) {

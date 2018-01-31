@@ -283,3 +283,39 @@ function fillForm(formId, find, data) {
         $(formValues[i]).val(data[keys[i]]);
     }
 }
+
+
+
+$(function() {
+	$("#feedback-tab").click(function() {
+		$("#feedback-form").toggle("slide right");
+	});
+
+	$("#feedback-form form").on('submit', function(event) {
+		var $form = $(this);
+        var data = $form.serializeArray();
+        data.push({name:"p" , value:"savefeedback"}) 
+        console.log(data);
+		$.ajax({
+			type: "POST",
+			url: "ajax/ajaxquery.php",
+			data: data,
+			success: function() {
+				$("#feedback-form").toggle("slide right").find("textarea").val('');
+			}
+		});
+		event.preventDefault();
+	});
+});
+
+
+
+
+
+
+
+
+
+
+
+

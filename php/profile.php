@@ -123,15 +123,33 @@
                         </div>
                     </div>
                     <div id="mPubKeyDiv" class="form-group" style="display:none">
-                        <label for="mPriKey" class="col-sm-3 control-label">Public Key</label>
+                        <label for="mPubKey" class="col-sm-3 control-label">Public Key</label>
                         <div class="col-sm-9">
-                            <textarea type="text" rows="5" class="form-control" id="mPriKey" name="prikey"></textarea>
+                            <textarea type="text" rows="5" class="form-control" id="mPubKey" name="pubkey"></textarea>
                         </div>
                     </div>
                     <div id="mEnvAmzDefRegDiv" class="form-group" style="display:none">
                         <label for="mEnvAmzDefReg" class="col-sm-3 control-label">Default Region</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="mEnvAmzDefReg" name="amz_def_reg">
+                            <select id="mEnvAmzDefReg" class="fbtn btn-default form-control" name="amz_def_reg">
+                                  <option value="us-east-2">US East (Ohio) (us-east-2) </option>
+                                  <option value="us-east-1">US East (N. Virginia) (us-east-1)</option>
+                                  <option value="us-west-1">US West (N. California) (us-west-1)</option>
+                                  <option value="us-west-2">US West (Oregon) (us-west-2)</option>
+                                  <option value="ap-northeast-1">Asia Pacific (Tokyo) (ap-northeast-1)</option>
+                                  <option value="ap-northeast-2">Asia Pacific (Seoul) (ap-northeast-2)</option>
+                                  <option value="ap-south-1">Asia Pacific (Mumbai) (ap-south-1)</option>
+                                  <option value="ap-southeast-1">Asia Pacific (Singapore) (ap-southeast-1)</option>
+                                  <option value="ap-southeast-2">Asia Pacific (Sydney) (ap-southeast-2)</option>
+                                  <option value="ca-central-1">Canada (Central) (ca-central-1)</option>
+                                  <option value="cn-north-1">China (Beijing) (cn-north-1)</option>
+                                  <option value="cn-northwest-1">China (Ningxia) (cn-northwest-1)</option>
+                                  <option value="eu-central-1">EU (Frankfurt) (eu-central-1)</option>
+                                  <option value="eu-west-1">EU (Ireland) (eu-west-1)</option>
+                                  <option value="eu-west-2">EU (London) (eu-west-2)</option>
+                                  <option value="eu-west-3">EU (Paris) (eu-west-3)</option>
+                                  <option value="sa-east-1">South America (Sao Paulo) (sa-east-1)</option>
+                                  </select>
                         </div>
                     </div>
                     <div id="mEnvAmzAccKeyDiv" class="form-group" style="display:none">
@@ -141,7 +159,7 @@
                         </div>
                     </div>
                     <div id="mEnvAmzSucKeyDiv" class="form-group" style="display:none">
-                        <label for="mEnvAmzSucKey" class="col-sm-3 control-label">Success Key</label>
+                        <label for="mEnvAmzSucKey" class="col-sm-3 control-label">Secret Key</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="mEnvAmzSucKey" name="amz_suc_key">
                         </div>

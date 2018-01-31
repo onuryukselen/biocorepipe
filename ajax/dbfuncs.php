@@ -89,6 +89,9 @@ class dbfuncs {
         fclose($file);
         chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 0755);
         if ($profileType == "cluster") {
+            // get outputdir
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
             // get username and hostname for connection
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
@@ -99,7 +102,7 @@ class dbfuncs {
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
-            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //mkdir and copy nextflow file to run directory in cluster
             $mkdir_copynext_pid =shell_exec("ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 ");
 //           command below not working without &
@@ -139,6 +142,7 @@ class dbfuncs {
             endforeach;
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
             $exec_next_settings = $proPipeAll[0]->{'exec_next_settings'};
             $queue = json_decode($exec_next_settings)->{'queue'};
             $memory = json_decode($exec_next_settings)->{'memory'};
@@ -161,7 +165,7 @@ class dbfuncs {
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
-            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //check if files are exist
             $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
             $next_exist = shell_exec($next_exist_cmd);
@@ -170,7 +174,7 @@ class dbfuncs {
             // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
-            $cmd="ssh -oStrictHostKeyChecking=no -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh -oStrictHostKeyChecking=no -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
             $log_array['next_submit_pid'] = $next_submit_pid;
@@ -202,6 +206,19 @@ class dbfuncs {
         fclose($file);
         chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
     }
+    
+        function amazonEncode($a_key){
+            $cmd = "cd ../scripts && python encode.py AMAZON $a_key";
+            $amazon_key = popen( $cmd, "r" );
+            $encrypted_a_key=fread($amazon_key, 2096);
+            return $encrypted_a_key;
+        }
+	   function amazonDecode($a_key){
+           $cmd = "cd ../scripts && python decode.py AMAZON $a_key";
+           $amazon_key = popen( $cmd, "r" );
+           $decrypted_a_key=fread($amazon_key, 2096);
+           return $decrypted_a_key;
+       }
 
     
 //    ---------------  Users ---------------
@@ -228,12 +245,24 @@ class dbfuncs {
         $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
+    public function getProfileLocalbyID($id,$ownerID) {
+        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
+        return self::queryTable($sql);    
+    }
     public function getProfileClusterbyID($id, $ownerID) {
         $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 
     }
     public function getProfileCluster($ownerID) {
         $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);    
+    }
+    public function getProfileAmazon($ownerID) {
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id FROM profile_amazon WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);    
+    }
+    public function getProfileAmazonbyID($id, $ownerID) {
+        $sql = "SELECT id, name, executor, next_path, instance_type, image_id, secret_key, access_key FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     
@@ -257,6 +286,15 @@ class dbfuncs {
         $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
+    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID) {
+        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID) {
+        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    
     public function removeProLocal($id) {
         $sql = "DELETE FROM profile_local WHERE id = '$id'";
         return self::runSQL($sql);
@@ -442,7 +480,10 @@ class dbfuncs {
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
-            $dolphin_path_real = "{$this->dolphin_path}/run{$project_pipeline_id}";
+            // get outputdir
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             $nextflow_log = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
              return json_encode($nextflow_log);
         }
@@ -655,6 +696,13 @@ class dbfuncs {
         return self::queryTable($sql);
     }
 	
+    //------- feedback ------
+    
+        public function savefeedback($email,$message) {
+        $sql = "INSERT INTO feedback(email, message, date_created) VALUES 
+			('$email', '$message', now())";
+        return self::insTable($sql);
+        }
 	
 // --------- New Pipeline -----------
 
