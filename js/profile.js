@@ -69,6 +69,7 @@ $(document).ready(function () {
                 $(formValues[15]).val(data[0].executor);
                 $(formValues[3]).val(data[0].username);
                 $(formValues[4]).val(data[0].hostname);
+                $(formValues[5]).val(data[0].prikey_clu);
             } else if (proType === "amazon") {
                 var data = getValues({ p: "getProfileAmazon", id: proId });
                 console.log(data);
