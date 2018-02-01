@@ -84,25 +84,25 @@
                           <option value="" disabled selected>Choose environment </option>
                     </select>
                 </div>
-                </div>
+            </div>
             <div class="col-md-6">
                 <div class="form-group">
-                   <div>
-                    <input type="checkbox" id="docker_check" name="docker_check"  data-toggle="collapse" data-target="#docker_imgDiv"> Use Docker Image</input>
+                    <div>
+                        <input type="checkbox" id="docker_check" name="docker_check" data-toggle="collapse" data-target="#docker_imgDiv"> Use Docker Image</input>
                     </div>
                     <div id="docker_imgDiv" class="collapse">
-                    <input type="text" class="form-control" style="width: 100%;" id="docker_img" name="docker_img" placeholder="Enter docker image">
+                        <input type="text" class="form-control" style="width: 100%;" id="docker_img" name="docker_img" placeholder="Enter docker image">
                     </div>
                 </div>
-                </div>
-                 <div class="col-md-6">
+            </div>
+            <div class="col-md-6">
                 <div class="form-group">
-                    <input type="checkbox" id="singu_check" name="singu_check"  data-toggle="collapse" data-target="#singu_imgDiv"> Use Singularity Image</input>
+                    <input type="checkbox" id="singu_check" name="singu_check" data-toggle="collapse" data-target="#singu_imgDiv"> Use Singularity Image</input>
                     <div id="singu_imgDiv" class="collapse">
-                    <input type="text" class="form-control " style="width: 100%;" id="singu_img" name="singu_img" placeholder="Enter singularity image file path">
+                        <input type="text" class="form-control " style="width: 100%;" id="singu_img" name="singu_img" placeholder="Enter singularity image file path">
                     </div>
                 </div>
-                </div>
+            </div>
             <div class="col-md-12">
                 <div class="form-group">
                     <label>Advanced Options</label>
@@ -117,9 +117,14 @@
                 <div class="form-group">
                     <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
                 </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label>Run Command <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    <textarea id="runCmd" rows="1" name="runCmd" placeholder="Enter commands here.." style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
                 </div>
+            </div>
             <div class="col-md-6">
-                
                 <div class="form-group">
                     <label>Permissions to View</label>
                     <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
@@ -128,7 +133,7 @@
                               <option value="63">Everyone </option>
                         </select>
                 </div>
-                </div>
+            </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label>Group Selection</label>
@@ -138,7 +143,7 @@
                 </div>
             </div>
             <div class="col-md-12">
-               <div>
+                <div>
                     <label> Executor Settings for Nextflow</label>
                 </div>
                 <div id="execNextDiv" class="panel panel-default collapse in">
@@ -152,7 +157,7 @@
                                     <th scope="col">Time(min.)</th>
                                 </tr>
                             </thead>
-                                <tbody>
+                            <tbody>
                                 <tr>
                                     <td><input name="queue" class="form-control" type="text" value="short"></td>
                                     <td><input class="form-control" type="text" name="memory" value="32024"></td>
@@ -177,7 +182,7 @@
                                     <th scope="col">Time(min.)</th>
                                 </tr>
                             </thead>
-                                <tbody>
+                            <tbody>
                                 <tr>
                                     <td><input name="queue" class="form-control" type="text" value="short"></td>
                                     <td><input class="form-control" type="text" name="memory" value="10 GB"></td>
@@ -189,7 +194,7 @@
                     </div>
                 </div>
                 <div>
-                <label><input type="checkbox" id="exec_each" name="exec_each" data-toggle="collapse" data-target="#eachProcessDiv"> Executor Settings for Each Process</input></label>
+                    <label><input type="checkbox" id="exec_each" name="exec_each" data-toggle="collapse" data-target="#eachProcessDiv"> Executor Settings for Each Process</input></label>
                 </div>
                 <div id="eachProcessDiv" class="panel panel-default collapse">
                     <div id="processTab">
@@ -208,7 +213,8 @@
                     </div>
                 </div>
             </div>
-        </div><!-- collapsed settings ended-->
+        </div>
+        <!-- collapsed settings ended-->
     </div>
 </div>
 </br>

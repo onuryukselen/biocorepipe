@@ -1570,6 +1570,7 @@
 	      $('#rOut_dir').val(pipeData[0].output_dir);
 	      $('#chooseEnv').val(pipeData[0].profile);
 	      $('#perms').val(pipeData[0].perms);
+	      $('#runCmd').val(pipeData[0].cmd);
 	      updateCheckBox('#intermeDel', pipeData[0].interdel);
 	      updateCheckBox('#exec_each', pipeData[0].exec_each);
 	      updateCheckBox('#exec_all', pipeData[0].exec_all);
@@ -1722,10 +1723,22 @@
 
 	  }
 
+//callbackfunction to first change the status of button to connecting
+//function doSomething(callback) {
+//    // ...
+//    // Call the callback
+//    callback('stuff', 'goes', 'here');
+//}
+//function foo(a, b, c) {
+//    // I'm the callback
+//    alert(a + " " + b + " " + c);
+//}
+//doSomething(foo);
 
-	  //xxx
+
+      //click on run button
 	  function runProjectPipe() {
-	      saveRunIcon()
+	      saveRunIcon();
 	      nxf_runmode = true;
 	      var nextTextRaw = createNextflowFile("run");
 	      nxf_runmode = false;
@@ -1737,8 +1750,8 @@
 	      var proId = profileTypeId.replace(patt, '$2');
 	      //xxx not working
 	      if (proType === 'cluster') {
-	          $('#runProPipe').css('display', 'none');
-	          $('#connectingProPipe').css('display', 'inline');
+              document.getElementById("runProPipe").style.display = "none";
+              document.getElementById("connectingProPipe").style.display = "inline";
 	      }
 	      var configTextRaw = '';
 	      if ($('#docker_check').is(":checked") === true) {
@@ -1948,6 +1961,7 @@
 	      var perms = $('#perms').val();
 	      var interdel = $('#intermeDel').is(":checked").toString();
 	      var groupSel = $('#groupSel').val();
+          var cmd = encodeURIComponent($('#runCmd').val());
 	      var exec_each = $('#exec_each').is(":checked").toString();
 	      var exec_all = $('#exec_all').is(":checked").toString();
 	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
@@ -1970,6 +1984,7 @@
 	          data.push({ name: "profile", value: profile });
 	          data.push({ name: "perms", value: perms });
 	          data.push({ name: "interdel", value: interdel });
+	          data.push({ name: "cmd", value: cmd });
 	          data.push({ name: "group_id", value: groupSel });
 	          data.push({ name: "exec_each", value: exec_each });
 	          data.push({ name: "exec_all", value: exec_all });

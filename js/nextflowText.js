@@ -89,14 +89,14 @@ function sortProcessList(processList) {
 
 function createNextflowFile(nxf_runmode) {
     nextText = "";
-//    if (nxf_runmode === "run") {
-//        var output_dir = $('#rOut_dir').val();
-//        if (output_dir) {
-//            nextText = "params.outdir = '" + output_dir + "' " + " \n\n";
-//        }
-//    } else {
+    if (nxf_runmode === "run") {
+        var output_dir = $('#rOut_dir').val();
+        if (output_dir) {
+            nextText = "params.outdir = '" + output_dir + "' " + " \n\n";
+        }
+    } else {
         nextText = "params.outdir = 'results' " + " \n\n";
-//    }
+    }
     iniTextSecond = ""
     //sortProcessList
     var sortedProcessList = sortProcessList(processList);
@@ -210,7 +210,7 @@ function OutputParameters(id, currgid) {
 
                 if (fNode.split("-")[1] === "outPro" && closePar === false) {
                     closePar = true
-                    oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
+                    oText = "publishDir params.outdir, mode: 'move',\n\tsaveAs: {filename ->\n"
 
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = outputName.replace(/\*/g, '')

@@ -386,6 +386,7 @@ else if ($p=="saveProjectPipeline"){
     $perms = $_REQUEST['perms'];
     $profile = $_REQUEST['profile'];
     $interdel = $_REQUEST['interdel'];
+    $cmd = urldecode($_REQUEST['cmd']);
     $group_id = $_REQUEST['group_id'];
     $exec_each = $_REQUEST['exec_each'];
     $exec_all = $_REQUEST['exec_all'];
@@ -397,7 +398,7 @@ else if ($p=="saveProjectPipeline"){
     $singu_check = $_REQUEST['singu_check'];
     $singu_img = $_REQUEST['singu_img'];
         if (!empty($id)) {
-        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $ownerID);
+        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $ownerID);
     } else {
         $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $ownerID);
     }

@@ -121,7 +121,7 @@ class dbfuncs {
             if (!file_exists($run_path_real."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //mkdir and copy nextflow file to run directory in cluster
-            $mkdir_copynext_pid =shell_exec("ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 ");
+            $mkdir_copynext_pid =shell_exec("ssh -oStrictHostKeyChecking=no -o ChallengeResponseAuthentication=no -o PasswordAuthentication=no -o ConnectTimeout=5 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -o ChallengeResponseAuthentication=no -o PasswordAuthentication=no -o ConnectTimeout=5 -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 ");
 //           command below not working without &
 //            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
             $log_array = array('mkdir_copynext_pid' => $mkdir_copynext_pid);
@@ -142,6 +142,7 @@ class dbfuncs {
             // get outputdir  
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
+            $proPipeCmd = $proPipeAll[0]->{'cmd'};
             //profile cmd before nextflow run
             $locData=$this->getProfileLocalbyID($profileId, $ownerID);
             $locDataArr=json_decode($locData,true);
@@ -159,7 +160,7 @@ class dbfuncs {
             $log_path_server = "$server_dir/{$this->run_path}/run{$project_pipeline_id}";
             //run command
 //            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1  ';
-		    $cmd = "$profileCmd && cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace> $log_path_server/log.txt 2>&1 & echo $! &";
+		    $cmd = "cd $run_path_real && $proPipeCmd && $profileCmd && $next_path_real nextflow.nf $next_inputs -with-trace> $log_path_server/log.txt 2>&1 & echo $! &";
             $pid_command = popen($cmd, "r" );
             $pid = fread($pid_command, 2096);
 		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
@@ -177,6 +178,7 @@ class dbfuncs {
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
+            $proPipeCmd = $proPipeAll[0]->{'cmd'};
             $exec_next_settings = $proPipeAll[0]->{'exec_next_settings'};
             $queue = json_decode($exec_next_settings)->{'queue'};
             $memory = json_decode($exec_next_settings)->{'memory'};
@@ -202,14 +204,14 @@ class dbfuncs {
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //check if files are exist
-            $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
+            $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -o ChallengeResponseAuthentication=no -o PasswordAuthentication=no -o ConnectTimeout=5 -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
             $next_exist = shell_exec($next_exist_cmd);
             preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
             $log_array['next_exist'] = $next_exist;
             // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
-            $cmd="ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5  -i $userpky $connect '$profileCmd && cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh -oStrictHostKeyChecking=no -o ChallengeResponseAuthentication=no -o PasswordAuthentication=no -o ConnectTimeout=5  -i $userpky $connect 'cd $dolphin_path_real && $proPipeCmd && $profileCmd && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
             $log_array['next_submit_pid'] = $next_submit_pid;
@@ -584,8 +586,8 @@ class dbfuncs {
                 VALUES ('$name', '$project_id', '$pipeline_id', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
-    public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $ownerID) {
-        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings',  date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $ownerID) {
+        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', cmd='$cmd', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings',  date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
         
     }
@@ -593,7 +595,7 @@ class dbfuncs {
     public function getProjectPipelines($id,$project_id,$ownerID) {
 		if ($id != ""){
 			$where = " where pp.id = '$id' AND (pp.owner_id = '$ownerID' OR pp.perms = 63)";
-            $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms, pp.docker_check, pp.docker_img, pp.singu_check, pp.singu_img, pp.exec_next_settings
+            $sql = "SELECT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms, pp.docker_check, pp.docker_img, pp.singu_check, pp.singu_img, pp.exec_next_settings, pp.cmd
                     FROM project_pipeline pp 
                     INNER JOIN users u ON pp.owner_id = u.id 
                     INNER JOIN project p ON pp.project_id = p.id
