@@ -49,22 +49,24 @@ $(document).ready(function () {
             var patt = /(.*)-(.*)/;
             var proType = clickedRowId.replace(patt, '$1');
             var proId = clickedRowId.replace(patt, '$2');
-            var formValues = $('#profilemodal').find('input, select');
+            var formValues = $('#profilemodal').find('input, select, textarea');
             console.log(formValues);
             if (proType === "local") {
                 var data = getValues({ p: "getProfileLocal", id: proId });
                 $('#chooseEnv').val('local').trigger('change');
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
-                $(formValues[10]).val(data[0].next_path);
-                $(formValues[11]).val(data[0].executor);
+                $(formValues[13]).val(data[0].cmd);
+                $(formValues[14]).val(data[0].next_path);
+                $(formValues[15]).val(data[0].executor);
             } else if (proType === "cluster") {
                 var data = getValues({ p: "getProfileCluster", id: proId });
                 $('#chooseEnv').val('cluster').trigger('change');
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
-                $(formValues[10]).val(data[0].next_path);
-                $(formValues[11]).val(data[0].executor);
+                $(formValues[13]).val(data[0].cmd);
+                $(formValues[14]).val(data[0].next_path);
+                $(formValues[15]).val(data[0].executor);
                 $(formValues[3]).val(data[0].username);
                 $(formValues[4]).val(data[0].hostname);
             } else if (proType === "amazon") {
@@ -73,13 +75,14 @@ $(document).ready(function () {
                 $('#chooseEnv').val('amazon').trigger('change');
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
-                $(formValues[10]).val(data[0].next_path);
-                $(formValues[11]).val(data[0].executor);
-                $(formValues[5]).val(data[0].default_region);
-                $(formValues[8]).val(data[0].instance_type);
-                $(formValues[9]).val(data[0].image_id);
-                $(formValues[6]).val(data[0].access_key);
-                $(formValues[7]).val(data[0].secret_key);
+                $(formValues[13]).val(data[0].cmd);
+                $(formValues[14]).val(data[0].next_path);
+                $(formValues[15]).val(data[0].executor);
+                $(formValues[8]).val(data[0].default_region);
+                $(formValues[11]).val(data[0].instance_type);
+                $(formValues[12]).val(data[0].image_id);
+                $(formValues[9]).val(data[0].access_key);
+                $(formValues[10]).val(data[0].secret_key);
             }
                 $('#chooseEnv').attr('disabled', "disabled");
         }
@@ -92,14 +95,14 @@ $(document).ready(function () {
             var blockList = [];
             if (selEnvType === "local") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv"];
-                var blockList = ["mExecDiv", "mEnvNextPathDiv"];
+                var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
             } else if (selEnvType === "cluster") {
                 var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv"];
-                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv"];
+                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
 
             } else if (selEnvType === "amazon") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv"];
-                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv"];
+                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
             }
             $.each(noneList, function (element) {
                 $('#' + noneList[element]).css('display', 'none');
@@ -112,7 +115,7 @@ $(document).ready(function () {
 
     // Dismiss parameters modal 
     $('#profilemodal').on('hide.bs.modal', function (event) {
-        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv"];
+        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
         $.each(noneList, function (element) {
             $('#' + noneList[element]).css('display', 'none');
         });
@@ -150,11 +153,11 @@ $(document).ready(function () {
                     if (savetype.length) { //edit
                         var clickedRowId = selEnvType + '-' +savetype;
                         if (selEnvType === "local") {
-                             updateLocalRow(data[0].value, data[1].value, data[13].value, data[14].value)
+                             updateLocalRow(data[0].value, data[1].value, data[14].value, data[15].value)
                         } else if (selEnvType === "cluster") {
-                            updateClusterRow(data[0].value, data[1].value, data[13].value, data[14].value, data[3].value, data[4].value)
+                            updateClusterRow(data[0].value, data[1].value, data[14].value, data[15].value, data[3].value, data[4].value)
                         } else if (selEnvType === "amazon") {
-                            updateAmazonRow(data[0].value, data[1].value, data[13].value, data[14].value, data[11].value, data[12].value); 
+                            updateAmazonRow(data[0].value, data[1].value, data[14].value, data[15].value, data[11].value, data[12].value); 
                         }
                         //                        var clickedRow = $('#saveproject').data('clickedrow');
                         //                        var getProjectData = [];
@@ -186,11 +189,11 @@ $(document).ready(function () {
                     } else { //insert
                         console.log(data);
                         if (selEnvType === "local") {
-                            addLocalRow(s.id, data[1].value, data[13].value, data[14].value);
+                            addLocalRow(s.id, data[1].value, data[14].value, data[15].value);
                         } else if (selEnvType === "cluster") {
-                            addClusterRow(s.id, data[1].value, data[13].value, data[14].value, data[3].value, data[4].value);
+                            addClusterRow(s.id, data[1].value, data[14].value, data[15].value, data[3].value, data[4].value);
                         } else if (selEnvType === "amazon") {
-                            addAmazonRow(s.id, data[1].value, data[13].value, data[14].value, data[11].value, data[12].value); 
+                            addAmazonRow(s.id, data[1].value, data[14].value, data[15].value, data[11].value, data[12].value); 
                         }
                         var numRows = $('#profilesTable > > tr').length;
                         if (numRows > 2) {
