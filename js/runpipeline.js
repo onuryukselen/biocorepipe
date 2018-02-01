@@ -1551,14 +1551,15 @@
 	          $('.lasteditedPip').text(pipeData[0].date_modified);
 	      }
 	  }
-function IsJsonString(str) {
-    try {
-        JSON.parse(str);
-    } catch (e) {
-        return false;
-    }
-    return true;
-}
+
+	  function IsJsonString(str) {
+	      try {
+	          JSON.parse(str);
+	      } catch (e) {
+	          return false;
+	      }
+	      return true;
+	  }
 
 	  function loadProjectPipeline(pipeData) {
 	      loadRunOptions();
@@ -1583,16 +1584,16 @@ function IsJsonString(str) {
 	      //xxx
 
 	      //insert exec_next_settings data into exec_next_settings table 
-          if (IsJsonString(pipeData[0].exec_next_settings)){
-             var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
-             fillForm('#execNextSettTable','input', exec_next_settings);
-          }
-          
+	      if (IsJsonString(pipeData[0].exec_next_settings)) {
+	          var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
+	          fillForm('#execNextSettTable', 'input', exec_next_settings);
+	      }
+
 	      //insert exec_all_settings data into allProcessSettTable table 
-          if (IsJsonString(pipeData[0].exec_all_settings)){
-	      var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
-          fillForm('#allProcessSettTable','input', exec_all_settings);
-          }
+	      if (IsJsonString(pipeData[0].exec_all_settings)) {
+	          var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
+	          fillForm('#allProcessSettTable', 'input', exec_all_settings);
+	      }
 
 	      //	      var exec_each_settings 
 	      console.log(pipeData)
@@ -1709,18 +1710,22 @@ function IsJsonString(str) {
 	      var numInputRows = $('#inputsTable > tbody').find('tr').length;
 	      var profileNext = $('#chooseEnv').find(":selected").val();
 	      var output_dir = $('#rOut_dir').val();
-	      if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
-	          $('#runProPipe').css('display', 'inline');
-	          $('#statusProPipe').css('display', 'none');
-	      } else {
-	          $('#runProPipe').css('display', 'none');
-	          $('#statusProPipe').css('display', 'inline');
+	      if ($('#statusProPipe').css('display') === 'inline-block' || $('#runProPipe').css('display') === 'inline-block') {
+	          if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+	              $('#runProPipe').css('display', 'inline');
+	              $('#statusProPipe').css('display', 'none');
+	          } else {
+	              $('#runProPipe').css('display', 'none');
+	              $('#statusProPipe').css('display', 'inline');
+	          }
 	      }
+
 	  }
 
 
 	  //xxx
 	  function runProjectPipe() {
+	      saveRunIcon()
 	      nxf_runmode = true;
 	      var nextTextRaw = createNextflowFile("run");
 	      nxf_runmode = false;
@@ -1778,7 +1783,18 @@ function IsJsonString(str) {
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      console.log(serverLogGet);
-	      if (proType === 'cluster') {
+	      if (proType === 'local') {
+	          if (serverLogGet.next_submit_pid) {
+	              $('#connectingProPipe').css('display', 'none');
+	              $('#runLogs').css('display', 'inline');
+	              $('#runProPipe').css('display', 'none');
+	              $('#runningProPipe').css('display', 'inline');
+	              checkServerLogTimer(proType, proId);
+	          } else {
+	              $('#runLogs').css('display', 'inline');
+	              $('#runLogArea').val(serverLogGet);
+	          }
+	      } else if (proType === 'cluster') {
 	          if (serverLogGet.next_submit_pid) {
 	              $('#connectingProPipe').css('display', 'none');
 	              $('#runLogs').css('display', 'inline');
@@ -1799,22 +1815,29 @@ function IsJsonString(str) {
 	  }
 
 	  function checkServerLog(project_pipeline_id, proType, proId) {
-	      serverLog = getServerLog(project_pipeline_id);
-	      $('#runLogArea').val(serverLog);
-	      var reg = /Job <(.*)> is submitted to queue/;
-	      var found = serverLog.match(reg);
-	      //          console.log(found.length);
-	      if (found && found.length > 0) {
-	          var runPid = found[1];
-	          //updateRunPid
-	          var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
-	          if (updateRunPidSend) {
-	              clearInterval(interval_serverlog_ID);
-	              checkNextflowLogTimer(proType, proId);
-	          }
-	      } else {
-	          console.log("Error. Run not submitted");
+
+	      if (proType === 'local') {
 	          clearInterval(interval_serverlog_ID);
+	          checkNextflowLogTimer(proType, proId);
+	      }
+	      if (proType === 'cluster') {
+	          serverLog = getServerLog(project_pipeline_id);
+	          $('#runLogArea').val(serverLog);
+	          var reg = /Job <(.*)> is submitted to queue/;
+	          var found = serverLog.match(reg);
+	          //          console.log(found.length);
+	          if (found && found.length > 0) {
+	              var runPid = found[1];
+	              //updateRunPid
+	              var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	              if (updateRunPidSend) {
+	                  clearInterval(interval_serverlog_ID);
+	                  checkNextflowLogTimer(proType, proId);
+	              }
+	          } else {
+	              console.log("Error. Run not submitted");
+	              clearInterval(interval_serverlog_ID);
+	          }
 	      }
 	  }
 
@@ -1840,13 +1863,11 @@ function IsJsonString(str) {
 	              return checkRunStatus;
 	          } else if (checkRunStatus === "completed") {
 	              var runLog = getNextflowLog(project_pipeline_id, proType);
+	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
 	              $('#runLogArea').val(runLog);
-
 	              $('#runningProPipe').css('display', 'none');
 	              $('#completeProPipe').css('display', 'inline');
 	              clearInterval(interval_nextlog_ID);
-
-
 	          }
 	      } else if (proType === 'cluster') {
 	          if (checkRunStatus === "running") {
@@ -1869,7 +1890,10 @@ function IsJsonString(str) {
 	  }
 
 	  function getNextflowLog(project_pipeline_id, proType, proId) {
-	      if (proType === "cluster") {
+	      if (proType === "local") {
+	          var logText = getServerLog(project_pipeline_id);
+	          return logText;
+	      } else if (proType === "cluster") {
 	          var logText = getValues({
 	              p: "getNextflowLog",
 	              project_pipeline_id: project_pipeline_id,

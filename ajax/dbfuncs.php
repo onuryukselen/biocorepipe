@@ -88,6 +88,22 @@ class dbfuncs {
         fwrite($file, $configText);
         fclose($file);
         chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 0755);
+        if ($profileType == "local") {
+            // get outputdir
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            $run_path_real = "$outdir/run{$project_pipeline_id}";
+            //check nextflow file
+            $log_path_server = "../{$this->run_path}/run{$project_pipeline_id}";
+            if (!file_exists($log_path_server."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
+            if (!file_exists($log_path_server."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
+            //mkdir and copy nextflow and config file to run directory in local
+            mkdir("$run_path_real", 0755, true);
+            $pid_command = popen("cp $log_path_server/nextflow.nf $run_path_real/nextflow.nf && cp $log_path_server/nextflow.config $run_path_real/nextflow.config", 'r');//copy file
+            $pid = fread($pid_command, 2096);
+            pclose($pid_command);
+            chmod("$run_path_real/nextflow.nf", 0755);
+        }
         if ($profileType == "cluster") {
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
@@ -102,9 +118,10 @@ class dbfuncs {
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
+            if (!file_exists($run_path_real."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //mkdir and copy nextflow file to run directory in cluster
-            $mkdir_copynext_pid =shell_exec("ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 ");
+            $mkdir_copynext_pid =shell_exec("ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt && scp -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1 ");
 //           command below not working without &
 //            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
             $log_array = array('mkdir_copynext_pid' => $mkdir_copynext_pid);
@@ -122,10 +139,27 @@ class dbfuncs {
             foreach ($allinputs as $inputitem):
                 $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
             endforeach;
+            // get outputdir  
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            //profile cmd before nextflow run
+            $locData=$this->getProfileLocalbyID($profileId, $ownerID);
+            $locDataArr=json_decode($locData,true);
+            $next_path = $locDataArr[0]["next_path"];
+            $profileCmd = $locDataArr[0]['cmd'];
+            //eg. /project/umw_biocore/bin
+            if (!empty($next_path)){
+                $next_path_real = "$next_path/nextflow";
+            } else {
+                $next_path_real  = "nextflow";
+            }
+            $run_path_real = "$outdir/run{$project_pipeline_id}";
+            chdir('../');
+            $server_dir = getcwd();
+            $log_path_server = "$server_dir/{$this->run_path}/run{$project_pipeline_id}";
             //run command
-            $path= "../{$this->run_path}/run$project_pipeline_id";
-            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1 && ';
-		    $cmd .= "cd $path && nextflow nextflow.nf $next_inputs -with-trace> log.txt 2>&1 & echo $! &";
+//            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1  ';
+		    $cmd = "$profileCmd && cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace> $log_path_server/log.txt 2>&1 & echo $! &";
             $pid_command = popen($cmd, "r" );
             $pid = fread($pid_command, 2096);
 		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
@@ -155,6 +189,7 @@ class dbfuncs {
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             $next_path = $cluDataArr[0]["next_path"];
+            $profileCmd = $cluDataArr[0]["cmd"];
             //eg. /project/umw_biocore/bin
             if (!empty($next_path)){
                 $next_path_real = "$next_path/nextflow";
@@ -167,14 +202,14 @@ class dbfuncs {
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //check if files are exist
-            $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
+            $next_exist_cmd= "ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5 -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
             $next_exist = shell_exec($next_exist_cmd);
             preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
             $log_array['next_exist'] = $next_exist;
             // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
             //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
-            $cmd="ssh -oStrictHostKeyChecking=no -i $userpky $connect 'source /etc/bashrc && module load java/1.8.0_31 && cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh -oStrictHostKeyChecking=no -o ConnectTimeout=5  -i $userpky $connect '$profileCmd && cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"' >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
             $log_array['next_submit_pid'] = $next_submit_pid;
@@ -242,56 +277,56 @@ class dbfuncs {
     }
 //    ------------- Profiles   ------------
     public function getProfileLocal($ownerID) {
-        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, cmd FROM profile_local WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileLocalbyID($id,$ownerID) {
-        $sql = "SELECT id, name, executor, next_path FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, cmd FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     public function getProfileClusterbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 
     }
     public function getProfileCluster($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname FROM profile_cluster WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd FROM profile_cluster WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazon($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id FROM profile_amazon WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd FROM profile_amazon WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazonbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, instance_type, image_id, secret_key, access_key FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     
-    public function insertProfileLocal($name, $executor, $next_path, $ownerID) {
-        $sql = "INSERT INTO profile_local (name, executor, next_path, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$name', '$executor','$next_path', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileLocal($name, $executor, $next_path, $cmd, $ownerID) {
+        $sql = "INSERT INTO profile_local (name, executor, next_path, cmd, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$name', '$executor','$next_path', '$cmd', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
 
-    public function updateProfileLocal($id, $name, $executor, $next_path, $ownerID) {
-        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileLocal($id, $name, $executor, $next_path, $cmd, $ownerID) {
+        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', cmd='$cmd', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
-    public function insertProfileCluster($name, $executor, $next_path, $username, $hostname, $ownerID) {
-        $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileCluster($name, $executor, $next_path, $username, $hostname, $cmd, $ownerID) {
+        $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, cmd, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$cmd', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
 
-    public function updateProfileCluster($id, $name, $executor, $next_path, $username, $hostname, $ownerID) {
-        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileCluster($id, $name, $executor, $next_path, $username, $hostname, $cmd, $ownerID) {
+        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', cmd='$cmd', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID) {
-        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $ownerID) {
+        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, cmd, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$cmd', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID) {
-        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $ownerID) {
+        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     

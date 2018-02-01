@@ -176,6 +176,14 @@
                             <input type="text" class="form-control" id="mEnvImageId" name="image_id">
                         </div>
                     </div>
+                    <div id="mEnvCmdDiv" class="form-group" style="display:none">
+                        <label for="mEnvCmd" class="col-sm-3 control-label">Run command
+                        <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31)"><i class='glyphicon glyphicon-info-sign'></i></a></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <textarea type="text" rows="3" class="form-control" id="mEnvCmd" name="cmd"></textarea>
+                        </div>
+                    </div>
                     <div id="mEnvNextPathDiv" class="form-group" style="display:none">
                         <label for="mEnvNextPath" class="col-sm-3 control-label">Nextflow Path
                         <span><a data-toggle="tooltip" data-placement="bottom" title="Please enter the path of the nextflow, if it is not added to $PATH environment. (eg. /project/umw_biocore/bin for ghpcc06.umassrc.org)"><i class='glyphicon glyphicon-info-sign'></i></a></span>

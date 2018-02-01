@@ -214,15 +214,14 @@ else if ($p=="getProfileCluster")
 else if ($p=="getProfileAmazon")
 {
     if (!empty($id)) {
-    $data = $db->getProfileAmazonbyID($id, $ownerID);
-//    $dataArray = json_decode($data,true);
-//    foreach($dataArray as $d){
-//		$access = $d["access_key"];
-//		$d["access_key"] = trim(amazonDecode($access));
-//		$secret = $d["secret_key"];
-//		$d["secret_key"] = trim(amazonDecode($secret));
-//	}
-//	$data=json_encode($dataArray);
+    $data = json_decode($db->getProfileAmazonbyID($id, $ownerID));
+    foreach($data as $d){
+		$access = $d->access_key;
+        $d->access_key = trim($db->amazonDecode($access));
+		$secret = $d->secret_key;
+		$d->secret_key = trim($db->amazonDecode($secret));
+	}
+	$data=json_encode($data);
     } else {
     $data = $db->getProfileAmazon($ownerID);
     }
@@ -232,15 +231,17 @@ else if ($p=="saveProfileLocal"){
     $name = $_REQUEST['name'];
     $executor = $_REQUEST['executor'];
     $next_path = $_REQUEST['next_path'];
+    $cmd = $_REQUEST['cmd'];
     if (!empty($id)) {
-       $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $ownerID);
+       $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $cmd, $ownerID);
     } else {
-       $data = $db->insertProfileLocal($name, $executor,$next_path, $ownerID);
+       $data = $db->insertProfileLocal($name, $executor,$next_path, $cmd, $ownerID);
     }
 }
 else if ($p=="saveProfileCluster"){
     $name = $_REQUEST['name'];
     $executor = $_REQUEST['executor'];
+    $cmd = $_REQUEST['cmd'];
     $username = $_REQUEST['username'];
     $hostname = $_REQUEST['hostname'];
     $prikey_cluRaw = $_REQUEST['prikey_clu'];
@@ -248,10 +249,10 @@ else if ($p=="saveProfileCluster"){
     $next_path = $_REQUEST['next_path'];
     
     if (!empty($id)) {
-       $data = $db->updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $ownerID);
+       $data = $db->updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $cmd, $ownerID);
        $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
     } else {
-       $data = $db->insertProfileCluster($name, $executor,$next_path, $username, $hostname, $ownerID);
+       $data = $db->insertProfileCluster($name, $executor,$next_path, $username, $hostname, $cmd, $ownerID);
        $idArray = json_decode($data,true);
        $id = $idArray["id"];
        $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
@@ -260,6 +261,7 @@ else if ($p=="saveProfileCluster"){
 else if ($p=="saveProfileAmazon"){
     $name = $_REQUEST['name'];
     $executor = $_REQUEST['executor'];
+    $cmd = $_REQUEST['cmd'];
     $amz_def_reg = $_REQUEST['amz_def_reg'];
     $amz_acc_key = $_REQUEST['amz_acc_key'];
     $amz_acc_key = $db->amazonEncode($amz_acc_key);
@@ -273,11 +275,11 @@ else if ($p=="saveProfileAmazon"){
     $prikey_amz = urldecode($prikey_amzRaw);
     $next_path = $_REQUEST['next_path'];
     if (!empty($id)) {
-       $data = $db->updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID);
+       $data = $db->updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $ownerID);
 //       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
 //       $db->insertPubkey($id, $pubkey, $ownerID);
     } else {
-       $data = $db->insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $ownerID);
+       $data = $db->insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $ownerID);
        $idArray = json_decode($data,true);
        $id = $idArray["id"];
 //       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
