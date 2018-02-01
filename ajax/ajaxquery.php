@@ -205,7 +205,11 @@ else if ($p=="getProfileLocal")
 else if ($p=="getProfileCluster")
 {
     if (!empty($id)) {
-    $data = $db->getProfileClusterbyID($id, $ownerID);
+        $data = json_decode($db->getProfileClusterbyID($id, $ownerID));
+        foreach($data as $d){
+            $d->prikey_clu = $db->readPrikey_clu($id, $ownerID);
+        }
+        $data=json_encode($data);
     } else {
     $data = $db->getProfileCluster($ownerID);
     }

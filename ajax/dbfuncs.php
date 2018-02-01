@@ -241,6 +241,13 @@ class dbfuncs {
         fclose($file);
         chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
     }
+    function readPrikey_clu($id, $ownerID){
+        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        $handle = fopen($filename, 'r');//creates new file
+        $content = fread($handle, filesize($filename));
+        fclose($handle);
+        return $content;
+    }
     
         function amazonEncode($a_key){
             $cmd = "cd ../scripts && python encode.py AMAZON $a_key";
