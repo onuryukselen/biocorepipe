@@ -60,7 +60,7 @@
 
 <!-- profilemodal  Starts-->
 <div id="profilemodal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -86,7 +86,7 @@
                             <select style="width:150px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
                                   <option value="" disabled selected>Select environment </option>
                                   <option value="local">Local</option>
-                                  <option value="cluster">Cluster</option>
+                                  <option value="cluster">Remote Machine</option>
                                   <option value="amazon">Amazon</option>
                                 </select>
                         </div>
@@ -113,7 +113,7 @@
                         </label>
                         <div class="col-sm-9">
                             <textarea type="text" rows="5" class="form-control" id="mPriKeyClu" name="prikey_clu"></textarea>
-                            <p style ="font-size:13px;"><b style ="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the cluster. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the cluster by user </p>
+                            <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the cluster. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the cluster by user </p>
                         </div>
                     </div>
                     <div id="mPriKeyAmzDiv" class="form-group" style="display:none">
@@ -193,21 +193,47 @@
                         </div>
                     </div>
                     <div id="mExecDiv" class="form-group" style="display:none">
-                        <label for="mExec" class="col-sm-3 control-label">Executor</label>
+                        <label for="mExec" class="col-sm-3 control-label">Executor of Nextflow</label>
                         <div class="col-sm-9">
                             <select style=" width:150px" id="mExec" class="fbtn btn-default form-control" name="executor">
-                                  <option value="none">None </option>
+<!--                                  <option value="none">None </option>-->
                                   <option value="local">Local</option>
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
                                   <option value="slurm">SLURM</option>
-                                  <option value="pbs">PBS/Torque</option>
-                                  <option value="nqsii">NQSII</option>
-                                  <option value="condor">HTCondor</option>
-                                  <option value="ignite">Ignite</option>
-                                  <option value="k8s">Kubernetes</option>
-                                  <option value="awsbatch">AWS Batch</option>
+<!--                                  <option value="pbs">PBS/Torque</option>-->
+<!--                                  <option value="nqsii">NQSII</option>-->
+<!--                                  <option value="condor">HTCondor</option>-->
+<!--                                  <option value="ignite">Ignite</option>-->
+<!--                                  <option value="k8s">Kubernetes</option>-->
+<!--                                  <option value="awsbatch">AWS Batch</option>-->
                                 </select>
+                        </div>
+                    </div>
+                    <div id="execNextDiv" class="form-group" style="display:none">
+                        <label for="execNext" class="col-sm-3 control-label">Executor Settings for Nextflow</label>
+                        <div id="execNextSett" class="col-sm-9">
+                            <div class="panel panel-default">
+                                <table id="execNextSettTable" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Queue</th>
+                                            <th scope="col">Memory</th>
+                                            <th scope="col">CPUs</th>
+                                            <th scope="col">Time(min.)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input id="next_queue" name="next_queue" class="form-control" type="text" value="short"></td>
+                                            <td><input id="next_memory" class="form-control" type="text" name="next_memory" value="32024"></td>
+                                            <td><input id="next_cpu" name="next_cpu" class="form-control" type="text" value="1"></td>
+                                            <td><input id="next_time" name="next_time" class="form-control" type="text" value="100"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
                         </div>
                     </div>
                 </form>

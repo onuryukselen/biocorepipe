@@ -33,6 +33,7 @@
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;">
+            <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>
             <button class="btn btn-success" type="submit" id="completeProPipe" style="display:none; vertical-align:middle;">Completed</button>
             <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>
             <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>
@@ -143,31 +144,6 @@
                 </div>
             </div>
             <div class="col-md-12">
-                <div>
-                    <label> Executor Settings for Nextflow</label>
-                </div>
-                <div id="execNextDiv" class="panel panel-default collapse in">
-                    <div id="execNextSett">
-                        <table id="execNextSettTable" class="table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Queue</th>
-                                    <th scope="col">Memory</th>
-                                    <th scope="col">CPUs</th>
-                                    <th scope="col">Time(min.)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><input name="queue" class="form-control" type="text" value="short"></td>
-                                    <td><input class="form-control" type="text" name="memory" value="32024"></td>
-                                    <td><input name="cpu" class="form-control" type="text" value="1"></td>
-                                    <td><input name="time" class="form-control" type="text" value="100"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
                 <div>
                     <label><input type="checkbox" id="exec_all" name="exec_all" checked data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
                 </div>
