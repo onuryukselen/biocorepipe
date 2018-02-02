@@ -21,7 +21,7 @@ $(document).ready(function () {
     }
 
     function addClusterRow(id, name, next_path, executor, username, hostname) {
-            $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Cluster</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
+            $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Remote Machine</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
     }
     function addAmazonRow(id, name, next_path, executor, instance_type, image_id) {
             $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
@@ -31,7 +31,7 @@ $(document).ready(function () {
     }
 
     function updateClusterRow(id, name, next_path, executor, username, hostname) {
-            $('#profilesTable > thead > #cluster-'+ id).html('<td>' + name + '</td> <td>Cluster</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
+            $('#profilesTable > thead > #cluster-'+ id).html('<td>' + name + '</td> <td>Remote Machine</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
     }
     function updateAmazonRow(id, name, next_path, executor, instance_type, image_id) {
             $('#profilesTable > thead > #amazon-'+ id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path +'<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
@@ -50,23 +50,26 @@ $(document).ready(function () {
             var proType = clickedRowId.replace(patt, '$1');
             var proId = clickedRowId.replace(patt, '$2');
             var formValues = $('#profilemodal').find('input, select, textarea');
+            function fillFixedCol(formValues,data){
+                $(formValues[0]).val(data[0].id);
+                $(formValues[1]).val(data[0].name);
+                $(formValues[13]).val(data[0].cmd);
+                $(formValues[14]).val(data[0].next_path);
+                $(formValues[15]).val(data[0].executor);
+                $(formValues[16]).val(data[0].next_queue);
+                $(formValues[17]).val(data[0].next_memory);
+                $(formValues[18]).val(data[0].next_cpu);
+                $(formValues[19]).val(data[0].next_time);
+            };
             console.log(formValues);
             if (proType === "local") {
                 var data = getValues({ p: "getProfileLocal", id: proId });
                 $('#chooseEnv').val('local').trigger('change');
-                $(formValues[0]).val(data[0].id);
-                $(formValues[1]).val(data[0].name);
-                $(formValues[13]).val(data[0].cmd);
-                $(formValues[14]).val(data[0].next_path);
-                $(formValues[15]).val(data[0].executor);
+                fillFixedCol(formValues,data);
             } else if (proType === "cluster") {
                 var data = getValues({ p: "getProfileCluster", id: proId });
                 $('#chooseEnv').val('cluster').trigger('change');
-                $(formValues[0]).val(data[0].id);
-                $(formValues[1]).val(data[0].name);
-                $(formValues[13]).val(data[0].cmd);
-                $(formValues[14]).val(data[0].next_path);
-                $(formValues[15]).val(data[0].executor);
+                fillFixedCol(formValues,data);
                 $(formValues[3]).val(data[0].username);
                 $(formValues[4]).val(data[0].hostname);
                 $(formValues[5]).val(data[0].prikey_clu);
@@ -74,16 +77,12 @@ $(document).ready(function () {
                 var data = getValues({ p: "getProfileAmazon", id: proId });
                 console.log(data);
                 $('#chooseEnv').val('amazon').trigger('change');
-                $(formValues[0]).val(data[0].id);
-                $(formValues[1]).val(data[0].name);
-                $(formValues[13]).val(data[0].cmd);
-                $(formValues[14]).val(data[0].next_path);
-                $(formValues[15]).val(data[0].executor);
+                fillFixedCol(formValues,data);
                 $(formValues[8]).val(data[0].default_region);
-                $(formValues[11]).val(data[0].instance_type);
-                $(formValues[12]).val(data[0].image_id);
                 $(formValues[9]).val(data[0].access_key);
                 $(formValues[10]).val(data[0].secret_key);
+                $(formValues[11]).val(data[0].instance_type);
+                $(formValues[12]).val(data[0].image_id);
             }
                 $('#chooseEnv').attr('disabled', "disabled");
         }
@@ -96,14 +95,14 @@ $(document).ready(function () {
             var blockList = [];
             if (selEnvType === "local") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv"];
-                var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
+                var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
             } else if (selEnvType === "cluster") {
                 var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv"];
-                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
+                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
 
             } else if (selEnvType === "amazon") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv"];
-                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
+                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
             }
             $.each(noneList, function (element) {
                 $('#' + noneList[element]).css('display', 'none');
@@ -116,7 +115,7 @@ $(document).ready(function () {
 
     // Dismiss parameters modal 
     $('#profilemodal').on('hide.bs.modal', function (event) {
-        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv"];
+        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
         $.each(noneList, function (element) {
             $('#' + noneList[element]).css('display', 'none');
         });
@@ -124,6 +123,8 @@ $(document).ready(function () {
         
     });
 
+
+    
 
     $('#profilemodal').on('click', '#saveEnv', function (event) {
         event.preventDefault();
@@ -143,8 +144,7 @@ $(document).ready(function () {
                 data[5].value = encodeURIComponent(data[7].value);
                 data.push({ name: "p", value: "saveProfileAmazon" });
             }
-                        console.log(data);
-
+        console.log(data)
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",

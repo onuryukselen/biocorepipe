@@ -8,6 +8,7 @@
     define('RUNPATH', 'tmp/logs');
     define('SSHPATH', 'tmp/.ssh');
     define('DOLPHINPATH', '~/.dolphinnext/tmp/logs');
+    define('SSHSETT', '-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -o ConnectTimeout=3');
 
 ?>
 

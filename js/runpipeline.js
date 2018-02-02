@@ -1615,7 +1615,7 @@
 	              $("#chooseEnv").append(option);
 	          });
 	          $.each(proCluData, function (el) {
-	              var option = new Option(proCluData[el].name + ' (cluster: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
+	              var option = new Option(proCluData[el].name + ' (remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
 	              $("#chooseEnv").append(option);
 	          });
 	      }
@@ -1803,8 +1803,11 @@
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
 	              checkServerLogTimer(proType, proId);
+                  //Error occured
 	          } else {
 	              $('#runLogs').css('display', 'inline');
+                  $('#connectingProPipe').css('display', 'none');
+	              $('#errorProPipe').css('display', 'inline');
 	              $('#runLogArea').val(serverLogGet);
 	          }
 	      } else if (proType === 'cluster') {
@@ -1814,9 +1817,14 @@
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
 	              checkServerLogTimer(proType, proId);
+                  
 	          } else {
+                  //error occured before job starts
 	              $('#runLogs').css('display', 'inline');
-	              $('#runLogArea').val(serverLogGet);
+	              $('#connectingProPipe').css('display', 'none');
+	              $('#errorProPipe').css('display', 'inline');
+                  serverLog = getServerLog(project_pipeline_id);
+	              $('#runLogArea').val(serverLogGet +"\n" +serverLog);
 	          }
 	      }
 	  }
@@ -1850,6 +1858,9 @@
 	          } else {
 	              console.log("Error. Run not submitted");
 	              clearInterval(interval_serverlog_ID);
+	              $('#errorProPipe').css('display', 'inline');
+	              $('#runningProPipe').css('display', 'none');
+                  
 	          }
 	      }
 	  }
@@ -1964,8 +1975,8 @@
           var cmd = encodeURIComponent($('#runCmd').val());
 	      var exec_each = $('#exec_each').is(":checked").toString();
 	      var exec_all = $('#exec_all').is(":checked").toString();
-	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
-	      var exec_next_settings = formToJson(exec_next_settingsRaw, 'stringify');
+//	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
+//	      var exec_next_settings = formToJson(exec_next_settingsRaw, 'stringify');
 	      var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	      var exec_all_settings = formToJson(exec_all_settingsRaw, 'stringify');
 	      var exec_each_settingsRaw = $('#processTable').find('input');
@@ -1988,7 +1999,7 @@
 	          data.push({ name: "group_id", value: groupSel });
 	          data.push({ name: "exec_each", value: exec_each });
 	          data.push({ name: "exec_all", value: exec_all });
-	          data.push({ name: "exec_next_settings", value: exec_next_settings });
+//	          data.push({ name: "exec_next_settings", value: exec_next_settings });
 	          data.push({ name: "exec_all_settings", value: exec_all_settings });
 	          data.push({ name: "exec_each_settings", value: exec_each_settings });
 	          data.push({ name: "docker_check", value: docker_check });
