@@ -143,11 +143,11 @@
                         </select>
                 </div>
             </div>
-            <div class="col-md-12">
+            <div id="jobSettingsDiv" class="col-md-12">
                 <div>
-                    <label><input type="checkbox" id="exec_all" name="exec_all" checked data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
+                    <label><input type="checkbox" id="exec_all" name="exec_all"  data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
                 </div>
-                <div id="allProcessDiv" class="panel panel-default collapse in">
+                <div id="allProcessDiv" class="panel panel-default collapse">
                     <div id="allProcessSett">
                         <table id="allProcessSettTable" class="table">
                             <thead>
@@ -160,10 +160,10 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><input name="queue" class="form-control" type="text" value="short"></td>
-                                    <td><input class="form-control" type="text" name="memory" value="10 GB"></td>
-                                    <td><input name="cpu" class="form-control" type="text" value="2"></td>
-                                    <td><input name="time" class="form-control" type="text" value="100"></td>
+                                    <td><input id="job_queue" name="job_queue" class="form-control" type="text" value="short"></td>
+                                    <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32024"></td>
+                                    <td><input id="job_cpu" name="job_cpu" class="form-control" type="text" value="1"></td>
+                                    <td><input id="job_time" name="job_time" class="form-control" type="text" value="100"></td>
                                 </tr>
                             </tbody>
                         </table>

@@ -265,7 +265,12 @@
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
-	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
+	      if (paraQualifier !== "val") {
+	          return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
+	      } else {
+	          return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + "-" + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
+	      }
+
 	  }
 
 	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef) {
@@ -742,7 +747,11 @@
 	              var paraFileType = paraData[0].file_type
 	              var paraQualifier = paraData[0].qualifier
 	              var paraName = paraData[0].name
-	              tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+	              if (paraQualifier !== 'val') {
+	                  tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+	              } else {
+	                  tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+	              }
 	          }
 	          //	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
 	          d3.selectAll("#" + this.id).attr("status", "mouseon")
@@ -1440,7 +1449,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", inputs[k].name)
+	                  .attr("name", inputs[k].sname)
 	                  .attr("connect", "single")
 	                  .attr("status", "standard")
 	                  .attr("class", findType(inputs[k].parameter_id) + " input")
@@ -1461,7 +1470,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", outputs[k].name)
+	                  .attr("name", outputs[k].sname)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")
@@ -1529,9 +1538,9 @@
 	  };
 
 	  function updateCheckBox(check_id, status) {
-	      if (check_id === '#exec_all' && status === "false") {
-	          $(check_id).trigger("click");
-	      } else if ((check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check') && status === "true") {
+	      //	      if (check_id === '#exec_all' && status === "false") {
+	      //	          $(check_id).trigger("click");
+	      if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check') && status === "true") {
 	          $(check_id).trigger("click");
 	      }
 	      if (status === "true") {
@@ -1543,7 +1552,7 @@
 
 	  function refreshCreatorData(project_pipeline_id) {
 	      pipeData = getValues({ p: "getProjectPipelines", id: project_pipeline_id });
-	      console.log(pipeData);
+	      //	      console.log(pipeData);
 	      if (pipeData) {
 	          $('#creatorInfoPip').css('display', "block");
 	          $('#ownUserNamePip').text(pipeData[0].username);
@@ -1582,22 +1591,26 @@
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
 	      }
-	      //xxx
-
-	      //insert exec_next_settings data into exec_next_settings table 
-	      if (IsJsonString(pipeData[0].exec_next_settings)) {
-	          var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
-	          fillForm('#execNextSettTable', 'input', exec_next_settings);
+	      //insert exec_next_settings data into exec_next_settings table
+	      //	      if (IsJsonString(pipeData[0].exec_next_settings)) {
+	      //	          var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
+	      //	          fillForm('#execNextSettTable', 'input', exec_next_settings);
+	      //	      }
+	      //check executor_job if its local
+	      var [allProSett, profileData] = getJobData("both");
+	          var executor_job = profileData[0].executor_job;
+	      if (executor_job === 'local') {
+	          $('#jobSettingsDiv').css('display', 'none');
+	      } else {
+	          $('#jobSettingsDiv').css('display', 'inline');
+	          //insert exec_all_settings data into allProcessSettTable table 
+	          if (IsJsonString(pipeData[0].exec_all_settings)) {
+                  console.log(pipeData);
+	              var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
+	              fillForm('#allProcessSettTable', 'input', exec_all_settings);
+	          }
 	      }
 
-	      //insert exec_all_settings data into allProcessSettTable table 
-	      if (IsJsonString(pipeData[0].exec_all_settings)) {
-	          var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
-	          fillForm('#allProcessSettTable', 'input', exec_all_settings);
-	      }
-
-	      //	      var exec_each_settings 
-	      console.log(pipeData)
 
 
 	      $('#ownUserNamePip').text(pipeData[0].username);
@@ -1723,20 +1736,34 @@
 
 	  }
 
-//callbackfunction to first change the status of button to connecting
-//function doSomething(callback) {
-//    // ...
-//    // Call the callback
-//    callback('stuff', 'goes', 'here');
-//}
-//function foo(a, b, c) {
-//    // I'm the callback
-//    alert(a + " " + b + " " + c);
-//}
-//doSomething(foo);
+	  function configTextAllProcess(exec_all_settings) {
+	      for (var keyParam in exec_all_settings) {
+	          if (keyParam === 'time' || keyParam === 'job_time') {
+	              window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
+	          } else if (keyParam === 'cpu' || keyParam === 'job_cpu') {
+	              window.configTextRaw += 'process.' + 'cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	          } else if (keyParam === 'queue' || keyParam === 'job_queue') {
+	              window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	          } else if (keyParam === 'memory' || keyParam === 'job_memory') {
+	              window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	          }
+	      }
+	  }
+
+	  //callbackfunction to first change the status of button to connecting
+	  //function doSomething(callback) {
+	  //    // ...
+	  //    // Call the callback
+	  //    callback('stuff', 'goes', 'here');
+	  //}
+	  //function foo(a, b, c) {
+	  //    // I'm the callback
+	  //    alert(a + " " + b + " " + c);
+	  //}
+	  //doSomething(foo);
 
 
-      //click on run button
+	  //click on run button
 	  function runProjectPipe() {
 	      saveRunIcon();
 	      nxf_runmode = true;
@@ -1750,10 +1777,10 @@
 	      var proId = profileTypeId.replace(patt, '$2');
 	      //xxx not working
 	      if (proType === 'cluster') {
-              document.getElementById("runProPipe").style.display = "none";
-              document.getElementById("connectingProPipe").style.display = "inline";
+	          document.getElementById("runProPipe").style.display = "none";
+	          document.getElementById("connectingProPipe").style.display = "inline";
 	      }
-	      var configTextRaw = '';
+	      configTextRaw = '';
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
 	          configTextRaw += 'process.container = \'' + docker_img + '\'\n';
@@ -1764,19 +1791,18 @@
 	          configTextRaw += 'process.container = \'' + singu_img + '\'\n';
 	          configTextRaw += 'singularity.enabled = true\n';
 	      }
+	      //check executor_job if its local
+	      var [allProSett, profileData] = getJobData("both");
+	      var executor_job = profileData[0].executor_job;
+          configTextRaw += 'process.executor = \'' + executor_job + '\'\n';
+          
 	      //all process settings eg. process.queue = 'short'
 	      if ($('#exec_all').is(":checked") === true) {
 	          var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	          var exec_all_settings = formToJson(exec_all_settingsRaw);
-	          for (var keyParam in exec_all_settings) {
-	              if (keyParam === 'time') {
-	                  configTextRaw += 'process.' + keyParam + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
-	              } else if (keyParam === 'cpu') {
-	                  configTextRaw += 'process.' + keyParam + 's = \'' + exec_all_settings[keyParam] + '\'\n';
-	              } else {
-	                  configTextRaw += 'process.' + keyParam + ' = \'' + exec_all_settings[keyParam] + '\'\n';
-	              }
-	          };
+	          configTextAllProcess(exec_all_settings);
+	      } else {
+	          configTextAllProcess(allProSett);
 	      }
 	      //          if ($('#exec_each').is(":checked") === true) {
 	      //	      var exec_each_settingsRaw = $('#processTable').find('input');
@@ -1803,10 +1829,10 @@
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
 	              checkServerLogTimer(proType, proId);
-                  //Error occured
+	              //Error occured
 	          } else {
 	              $('#runLogs').css('display', 'inline');
-                  $('#connectingProPipe').css('display', 'none');
+	              $('#connectingProPipe').css('display', 'none');
 	              $('#errorProPipe').css('display', 'inline');
 	              $('#runLogArea').val(serverLogGet);
 	          }
@@ -1817,14 +1843,14 @@
 	              $('#runProPipe').css('display', 'none');
 	              $('#runningProPipe').css('display', 'inline');
 	              checkServerLogTimer(proType, proId);
-                  
+
 	          } else {
-                  //error occured before job starts
+	              //error occured before job starts
 	              $('#runLogs').css('display', 'inline');
 	              $('#connectingProPipe').css('display', 'none');
 	              $('#errorProPipe').css('display', 'inline');
-                  serverLog = getServerLog(project_pipeline_id);
-	              $('#runLogArea').val(serverLogGet +"\n" +serverLog);
+	              serverLog = getServerLog(project_pipeline_id);
+	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
 	          }
 	      }
 	  }
@@ -1842,11 +1868,11 @@
 	          checkNextflowLogTimer(proType, proId);
 	      }
 	      if (proType === 'cluster') {
+	          //xxx if executor of nextflow is lsf 
 	          serverLog = getServerLog(project_pipeline_id);
 	          $('#runLogArea').val(serverLog);
 	          var reg = /Job <(.*)> is submitted to queue/;
 	          var found = serverLog.match(reg);
-	          //          console.log(found.length);
 	          if (found && found.length > 0) {
 	              var runPid = found[1];
 	              //updateRunPid
@@ -1858,9 +1884,9 @@
 	          } else {
 	              console.log("Error. Run not submitted");
 	              clearInterval(interval_serverlog_ID);
-	              $('#errorProPipe').css('display', 'inline');
+	              $('#completeProPipe').css('display', 'inline');
 	              $('#runningProPipe').css('display', 'none');
-                  
+
 	          }
 	      }
 	  }
@@ -1972,11 +1998,11 @@
 	      var perms = $('#perms').val();
 	      var interdel = $('#intermeDel').is(":checked").toString();
 	      var groupSel = $('#groupSel').val();
-          var cmd = encodeURIComponent($('#runCmd').val());
+	      var cmd = encodeURIComponent($('#runCmd').val());
 	      var exec_each = $('#exec_each').is(":checked").toString();
 	      var exec_all = $('#exec_all').is(":checked").toString();
-//	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
-//	      var exec_next_settings = formToJson(exec_next_settingsRaw, 'stringify');
+	      //	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
+	      //	      var exec_next_settings = formToJson(exec_next_settingsRaw, 'stringify');
 	      var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	      var exec_all_settings = formToJson(exec_all_settingsRaw, 'stringify');
 	      var exec_each_settingsRaw = $('#processTable').find('input');
@@ -1999,7 +2025,7 @@
 	          data.push({ name: "group_id", value: groupSel });
 	          data.push({ name: "exec_each", value: exec_each });
 	          data.push({ name: "exec_all", value: exec_all });
-//	          data.push({ name: "exec_next_settings", value: exec_next_settings });
+	          //	          data.push({ name: "exec_next_settings", value: exec_next_settings });
 	          data.push({ name: "exec_all_settings", value: exec_all_settings });
 	          data.push({ name: "exec_each_settings", value: exec_each_settings });
 	          data.push({ name: "docker_check", value: docker_check });
@@ -2027,6 +2053,34 @@
 	      }
 	  }
 
+	  function getProfileData(proType, proId) {
+	      if (proType === 'local') {
+	          var profileData = getValues({ p: "getProfileLocal", id: proId });
+	      } else if (proType === 'cluster') {
+	          var profileData = getValues({ p: "getProfileCluster", id: proId });
+	      } else if (proType === 'amazon') {
+	          var profileData = getValues({ p: "getProfileAmazon", id: proId });
+	      }
+	      return profileData;
+	  }
+
+	  function getJobData(getType) {
+	      var chooseEnv = $('#chooseEnv option:selected').val();
+	      var patt = /(.*)-(.*)/;
+	      var proType = chooseEnv.replace(patt, '$1');
+	      var proId = chooseEnv.replace(patt, '$2');
+	      var profileData = getProfileData(proType, proId);
+	      var allProSett = {};
+	      allProSett.job_queue = profileData[0].job_queue;
+	      allProSett.job_memory = profileData[0].job_memory;
+	      allProSett.job_cpu = profileData[0].job_cpu;
+	      allProSett.job_time = profileData[0].job_time;
+	      if (getType === "job") {
+	          return profileData;
+	      } else if (getType === "both") {
+	          return [allProSett, profileData];
+	      }
+	  }
 
 	  $(document).ready(function () {
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
@@ -2048,6 +2102,25 @@
 	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
 	              $('#docker_check').trigger("click");
 	          }
+	      });
+
+
+
+
+	      $(function () {
+	          $(document).on('change', '#chooseEnv', function () {
+	              var [allProSett, profileData] = getJobData("both");
+	              var executor_job = profileData[0].executor_job;
+	              if (executor_job === 'local') {
+	                  $('#jobSettingsDiv').css('display', 'none');
+	              } else {
+	                  $('#jobSettingsDiv').css('display', 'inline');
+	              }
+	              if ($('#exec_all').is(":checked") === true) {
+	                  $('#exec_all').trigger("click");
+	              }
+	              fillForm('#allProcessSettTable', 'input', allProSett);
+	          })
 	      });
 
 	      $('#inputFilemodal').on('show.bs.modal', function (e) {

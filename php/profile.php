@@ -197,7 +197,7 @@
                         <div class="col-sm-9">
                             <select style=" width:150px" id="mExec" class="fbtn btn-default form-control" name="executor">
 <!--                                  <option value="none">None </option>-->
-                                  <option value="local">Local</option>
+                                  <option class="hideClu" value="local">Local</option>
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
                                   <option value="slurm">SLURM</option>
@@ -233,7 +233,49 @@
                                     </tbody>
                                 </table>
                             </div>
-
+                        </div>
+                    </div>
+                    <div id="mExecJobDiv" class="form-group" style="display:none">
+                        <label for="mExecJob" class="col-sm-3 control-label">Executor of Nextflow Jobs</label>
+                        <div class="col-sm-9">
+                            <select style=" width:150px" id="mExecJob" class="fbtn btn-default form-control" name="executor_job">
+<!--                                  <option value="none">None </option>-->
+                                  <option value="local">Local</option>
+                                  <option value="sge">SGE</option>
+                                  <option value="lsf">LSF</option>
+                                  <option value="slurm">SLURM</option>
+<!--                                  <option value="pbs">PBS/Torque</option>-->
+<!--                                  <option value="nqsii">NQSII</option>-->
+<!--                                  <option value="condor">HTCondor</option>-->
+<!--                                  <option value="ignite">Ignite</option>-->
+<!--                                  <option value="k8s">Kubernetes</option>-->
+<!--                                  <option value="awsbatch">AWS Batch</option>-->
+                                </select>
+                        </div>
+                    </div>
+                    <div id="execJobSetDiv" class="form-group" style="display:none">
+                        <label for="execJobSet" class="col-sm-3 control-label">Executor Settings for Nextflow Jobs</label>
+                        <div id="execJobSet" class="col-sm-9">
+                            <div class="panel panel-default">
+                                <table id="execJobSetTable" class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Queue</th>
+                                            <th scope="col">Memory</th>
+                                            <th scope="col">CPUs</th>
+                                            <th scope="col">Time(min.)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><input id="job_queue" name="job_queue" class="form-control" type="text" value="short"></td>
+                                            <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32024"></td>
+                                            <td><input id="job_cpu" name="job_cpu" class="form-control" type="text" value="1"></td>
+                                            <td><input id="job_time" name="job_time" class="form-control" type="text" value="100"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </form>
