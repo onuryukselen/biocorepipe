@@ -207,13 +207,13 @@ function loadSelectedProcess(selProcessId) {
     for (var i = 0; i < inputs.length; i++) {
         var numForm = i + 1;
         $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
-        $('#mInName-' + numForm).val(inputs[i].name);
+        $('#mInName-' + numForm).val(inputs[i].sname);
         $('#mInName-' + numForm).attr('ppID', inputs[i].id);
     }
     for (var i = 0; i < outputs.length; i++) {
         var numForm = i + 1;
         $('#mOutputs-' + numForm)[0].selectize.setValue(outputs[i].parameter_id, false);
-        $('#mOutName-' + numForm).val(outputs[i].name);
+        $('#mOutName-' + numForm).val(outputs[i].sname);
         $('#mOutName-' + numForm).attr('ppID', outputs[i].id);
     }
 };
@@ -305,7 +305,7 @@ function addProParatoDB(data, startPoint, process_id) {
                     ppIDinputList.push(ppID);
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'input' });
-                    dataToProcessParam.push({ name: "name", value: data[k].value });
+                    dataToProcessParam.push({ name: "sname", value: encodeURIComponent(data[k].value) });
                     dataToProcessParam.push({ name: "process_id", value: process_id });
                     dataToProcessParam.push({ name: "id", value: ppID });
                     dataToProcessParam.push({ name: "p", value: "saveProcessParameter" });
@@ -321,7 +321,7 @@ function addProParatoDB(data, startPoint, process_id) {
                     ppIDoutputList.push(ppID);
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'output' });
-                    dataToProcessParam.push({ name: "name", value: data[k].value });
+                    dataToProcessParam.push({ name: "sname", value: encodeURIComponent(data[k].value) });
                     dataToProcessParam.push({ name: "process_id", value: process_id });
                     dataToProcessParam.push({ name: "id", value: ppID });
                     dataToProcessParam.push({ name: "p", value: "saveProcessParameter" });
@@ -364,7 +364,7 @@ function addProParatoDBbyRev(data, startPoint, process_id) {
                 } else if (data[k].name === 'mInName-' + matchSPart && data[k].value !== '') {
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'input' });
-                    dataToProcessParam.push({ name: "name", value: data[k].value });
+                    dataToProcessParam.push({ name: "sname", value: encodeURIComponent(data[k].value) });
                     dataToProcessParam.push({ name: "process_id", value: process_id });
                     dataToProcessParam.push({ name: "p", value: "saveProcessParameter" });
                 }
@@ -377,7 +377,7 @@ function addProParatoDBbyRev(data, startPoint, process_id) {
                 } else if (data[k].name === 'mOutName-' + matchSPart && data[k].value !== '') {
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'output' });
-                    dataToProcessParam.push({ name: "name", value: data[k].value });
+                    dataToProcessParam.push({ name: "sname", value: encodeURIComponent(data[k].value) });
                     dataToProcessParam.push({ name: "process_id", value: process_id });
                     dataToProcessParam.push({ name: "p", value: "saveProcessParameter" });
                 }
@@ -1476,7 +1476,9 @@ $(document).ready(function () {
         var selParName = data[1].value;
         var selParQual = data[2].value;
         var selParType = data[3].value;
+        console.log(data);
         if (selParQual === 'val') {
+            data[3].value =selParName; 
             selParType =selParName; 
         }
         if (selParName !== '' && selParQual !== '' && selParType !== ''){

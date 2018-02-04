@@ -278,9 +278,14 @@ $('.collapseIcon').on('click', function (e) {
  
 function fillForm(formId, find, data) {
     var formValues = $(formId).find(find);
+
     var keys = Object.keys(data);
     for (var i = 0; i < keys.length; i++) {
         $(formValues[i]).val(data[keys[i]]);
+    console.log(data);
+    console.log(keys[i]);
+    console.log(data[keys[i]]);
+        
     }
 }
 

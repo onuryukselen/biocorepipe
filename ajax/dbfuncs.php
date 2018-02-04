@@ -56,6 +56,10 @@ class dbfuncs {
         {
             if ($row['script']){
             $row['script'] = htmlspecialchars_decode($row['script'], ENT_QUOTES);
+            } else  if ($row['sname']){
+            $row['sname'] = htmlspecialchars_decode($row['sname'], ENT_QUOTES);
+            } else  if ($row['process_parameter_name']){
+            $row['process_parameter_name'] = htmlspecialchars_decode($row['process_parameter_name'], ENT_QUOTES);
             }
             
             $data[]=$row;
@@ -309,6 +313,10 @@ class dbfuncs {
         fclose($handle);
         return $content;
     }
+    function delPrikey_clu($id, $ownerID){
+        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        unlink($filename); 
+    }
     
         function amazonEncode($a_key){
             $cmd = "cd ../scripts && python encode.py AMAZON $a_key";
@@ -345,55 +353,55 @@ class dbfuncs {
     }
 //    ------------- Profiles   ------------
     public function getProfileLocal($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_local WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileLocalbyID($id,$ownerID) {
-        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     public function getProfileClusterbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 
     }
     public function getProfileCluster($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_cluster WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_cluster WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazon($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_amazon WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_amazon WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazonbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     
-    public function insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "INSERT INTO profile_local (name, executor, next_path, cmd, next_memory, next_queue, next_time, next_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES ('$name', '$executor','$next_path', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "INSERT INTO profile_local (name, executor, next_path, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES ('$name', '$executor','$next_path', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
 
-    public function updateProfileLocal($id, $name, $executor, $next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileLocal($id, $name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
-    public function insertProfileCluster($name, $executor, $next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, cmd, next_memory, next_queue, next_time, next_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileCluster($name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
 
-    public function updateProfileCluster($id, $name, $executor, $next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, cmd, next_memory, next_queue, next_time, next_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID) {
-        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
+        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -729,14 +737,14 @@ class dbfuncs {
 //    }
    
 
-    public function insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "INSERT INTO process_parameter(name, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 
-                VALUES ('$name', '$process_id', '$parameter_id', '$type', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $ownerID) {
+        $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
     
-    public function updateProcessParameter($id, $name, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "UPDATE process_parameter SET name='$name', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $ownerID) {
+        $sql = "UPDATE process_parameter SET sname='$sname', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -772,7 +780,7 @@ class dbfuncs {
                 pro.id as process_id,
                 pro.name as process_name,
                 pro.script as process_script,
-                propara.name as process_parameter_name,
+                propara.sname as process_parameter_name,
                 propara.type as process_parameter_type,
                 para.id as parameter_id,	
                 para.name as parameter_name,
@@ -838,7 +846,7 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
 	public function getInputsPP($id) {
-		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = '$id' and type = 'input'";
+		$sql = "SELECT parameter_id, sname, id FROM process_parameter where process_id = '$id' and type = 'input'";
 		return self::queryTable($sql);
 	}
 	public function checkPipeline($process_id,$process_name, $ownerID) {
@@ -877,7 +885,7 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
 	public function getOutputsPP($id) {
-		$sql = "SELECT parameter_id, name, id FROM process_parameter where process_id = '$id' and type = 'output'";
+		$sql = "SELECT parameter_id, sname, id FROM process_parameter where process_id = '$id' and type = 'output'";
 		return self::queryTable($sql);
 	}
 	

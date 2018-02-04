@@ -167,7 +167,8 @@ else if ($p=="removeInput"){
 else if ($p=="removeProLocal"){   
     $data = $db -> removeProLocal($id);
 }
-else if ($p=="removeProCluster"){   
+else if ($p=="removeProCluster"){  
+    $db->delPrikey_clu($id, $ownerID);
     $data = $db -> removeProCluster($id);
 }
 else if ($p=="removeProAmazon"){   
@@ -240,10 +241,15 @@ else if ($p=="saveProfileLocal"){
     $next_queue = $_REQUEST['next_queue'];
     $next_time = $_REQUEST['next_time'];
     $next_cpu = $_REQUEST['next_cpu'];
+    $executor_job = $_REQUEST['executor_job'];
+    $job_memory = $_REQUEST['job_memory'];
+    $job_queue = $_REQUEST['job_queue'];
+    $job_time = $_REQUEST['job_time'];
+    $job_cpu = $_REQUEST['job_cpu'];
     if (!empty($id)) {
-       $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
+       $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
     } else {
-       $data = $db->insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
+       $data = $db->insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
     }
 }
 else if ($p=="saveProfileCluster"){
@@ -254,6 +260,11 @@ else if ($p=="saveProfileCluster"){
     $next_queue = $_REQUEST['next_queue'];
     $next_time = $_REQUEST['next_time'];
     $next_cpu = $_REQUEST['next_cpu'];
+    $executor_job = $_REQUEST['executor_job'];
+    $job_memory = $_REQUEST['job_memory'];
+    $job_queue = $_REQUEST['job_queue'];
+    $job_time = $_REQUEST['job_time'];
+    $job_cpu = $_REQUEST['job_cpu'];
     $username = $_REQUEST['username'];
     $hostname = $_REQUEST['hostname'];
     $prikey_cluRaw = $_REQUEST['prikey_clu'];
@@ -261,10 +272,10 @@ else if ($p=="saveProfileCluster"){
     $next_path = $_REQUEST['next_path'];
     
     if (!empty($id)) {
-       $data = $db->updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
+       $data = $db->updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
        $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
     } else {
-       $data = $db->insertProfileCluster($name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
+       $data = $db->insertProfileCluster($name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
        $idArray = json_decode($data,true);
        $id = $idArray["id"];
        $db->insertPrikey_clu($id, $prikey_clu, $ownerID);
@@ -278,6 +289,11 @@ else if ($p=="saveProfileAmazon"){
     $next_queue = $_REQUEST['next_queue'];
     $next_time = $_REQUEST['next_time'];
     $next_cpu = $_REQUEST['next_cpu'];
+    $executor_job = $_REQUEST['executor_job'];
+    $job_memory = $_REQUEST['job_memory'];
+    $job_queue = $_REQUEST['job_queue'];
+    $job_time = $_REQUEST['job_time'];
+    $job_cpu = $_REQUEST['job_cpu'];
     $amz_def_reg = $_REQUEST['amz_def_reg'];
     $amz_acc_key = $_REQUEST['amz_acc_key'];
     $amz_acc_key = $db->amazonEncode($amz_acc_key);
@@ -291,15 +307,15 @@ else if ($p=="saveProfileAmazon"){
     $prikey_amz = urldecode($prikey_amzRaw);
     $next_path = $_REQUEST['next_path'];
     if (!empty($id)) {
-       $data = $db->updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
-//       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
-//       $db->insertPubkey($id, $pubkey, $ownerID);
+       $data = $db->updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
+//       $db->insertPrikey($id, $prikey_amz, "amz", $ownerID); //add type
+//       $db->insertPubkey($id, $pubkey, "amz", $ownerID);
     } else {
-       $data = $db->insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $ownerID);
+       $data = $db->insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
        $idArray = json_decode($data,true);
        $id = $idArray["id"];
-//       $db->insertPrikey_amz($id, $prikey_amz, $ownerID);
-//       $db->insertPubkey($id, $pubkey, $ownerID);
+//       $db->insertPrikey($id, $prikey_amz, "amz", $ownerID); //add type
+//       $db->insertPubkey($id, $pubkey, "amz", $ownerID);
     }
 }
 
@@ -370,8 +386,7 @@ else if ($p=="saveProcess"){
     $process_gid = $_REQUEST['process_gid'];
     $summary = $_REQUEST['summary'];
     $process_group_id = $_REQUEST['process_group_id'];
-    $script = $_REQUEST['script']; 
-    $script = htmlspecialchars($script, ENT_QUOTES);
+    $script = htmlspecialchars($_REQUEST['script'], ENT_QUOTES);
     $rev_id = $_REQUEST['rev_id']; 
     $rev_comment = $_REQUEST['rev_comment']; 
     if (!empty($id)) {
@@ -417,14 +432,14 @@ else if ($p=="saveProjectPipeline"){
 }
 
 else if ($p=="saveProcessParameter"){
-    $name = $_REQUEST['name'];
+    $sname = htmlspecialchars(urldecode($_REQUEST['sname']), ENT_QUOTES);
     $process_id = $_REQUEST['process_id'];
     $parameter_id = $_REQUEST['parameter_id'];
     $type = $_REQUEST['type'];
     if (!empty($id)) {
-        $data = $db->updateProcessParameter($id, $name, $process_id, $parameter_id, $type, $ownerID);
+        $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $ownerID);
     } else {
-        $data = $db->insertProcessParameter($name, $process_id, $parameter_id, $type, $ownerID);
+        $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $ownerID);
     }
 }
 

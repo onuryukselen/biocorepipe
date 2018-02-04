@@ -316,7 +316,11 @@
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName) {
-	      return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+          if (paraQualifier !== "val"){
+	        return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+          } else {
+            return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + '-' + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'    
+          }
 	  }
 
 	  function insertProRowTable(process_id, procName, procDesc, procRev) {
@@ -507,7 +511,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", inputs[k].name)
+	                  .attr("name", inputs[k].sname)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
 	                  .attr("class", findType(inputs[k].parameter_id) + " input")
@@ -527,7 +531,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", outputs[k].name)
+	                  .attr("name", outputs[k].sname)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")
@@ -795,7 +799,11 @@
 	              var paraFileType = paraData[0].file_type
 	              var paraQualifier = paraData[0].qualifier
 	              var paraName = paraData[0].name
-	              tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+                  if (paraQualifier !== 'val'){
+	                   tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+                  } else {
+	                   tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+                  }
 	          }
 	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
 	          d3.selectAll("#" + this.id).attr("status", "mouseon")
@@ -1604,7 +1612,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", inputs[k].name)
+	                  .attr("name", inputs[k].sname)
 	                  .attr("connect", "single")
 	                  .attr("status", "standard")
 	                  .attr("class", findType(inputs[k].parameter_id) + " input")
@@ -1625,7 +1633,7 @@
 	                  .attr("type", "I/O")
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
-	                  .attr("name", outputs[k].name)
+	                  .attr("name", outputs[k].sname)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")

@@ -60,12 +60,18 @@ $(document).ready(function () {
                 $(formValues[17]).val(data[0].next_memory);
                 $(formValues[18]).val(data[0].next_cpu);
                 $(formValues[19]).val(data[0].next_time);
+                $(formValues[20]).val(data[0].executor_job);
+                $(formValues[21]).val(data[0].job_queue);
+                $(formValues[22]).val(data[0].job_memory);
+                $(formValues[23]).val(data[0].job_cpu);
+                $(formValues[24]).val(data[0].job_time);
             };
             console.log(formValues);
             if (proType === "local") {
                 var data = getValues({ p: "getProfileLocal", id: proId });
                 $('#chooseEnv').val('local').trigger('change');
                 fillFixedCol(formValues,data);
+                $('#mExec').trigger('change');
             } else if (proType === "cluster") {
                 var data = getValues({ p: "getProfileCluster", id: proId });
                 $('#chooseEnv').val('cluster').trigger('change');
@@ -73,6 +79,7 @@ $(document).ready(function () {
                 $(formValues[3]).val(data[0].username);
                 $(formValues[4]).val(data[0].hostname);
                 $(formValues[5]).val(data[0].prikey_clu);
+                $('#mExec').trigger('change');
             } else if (proType === "amazon") {
                 var data = getValues({ p: "getProfileAmazon", id: proId });
                 console.log(data);
@@ -83,6 +90,7 @@ $(document).ready(function () {
                 $(formValues[10]).val(data[0].secret_key);
                 $(formValues[11]).val(data[0].instance_type);
                 $(formValues[12]).val(data[0].image_id);
+                $('#mExec').trigger('change');
             }
                 $('#chooseEnv').attr('disabled', "disabled");
         }
@@ -94,15 +102,21 @@ $(document).ready(function () {
             var noneList = [];
             var blockList = [];
             if (selEnvType === "local") {
-                var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv"];
-                var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
+                var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "execJobSetDiv"];
+                var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv"];
+//                if ($('#mExec > .hideClu').length === 0){
+//                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
+//                }
             } else if (selEnvType === "cluster") {
-                var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv"];
-                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
-
+                var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "execJobSetDiv"];
+                var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv"];
+//                $('#mExec > .hideClu').remove();
             } else if (selEnvType === "amazon") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv"];
-                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
+                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv", "execJobSetDiv"];
+//                if ($('#mExec > .hideClu').length === 0){
+//                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
+//                }
             }
             $.each(noneList, function (element) {
                 $('#' + noneList[element]).css('display', 'none');
@@ -110,16 +124,44 @@ $(document).ready(function () {
             $.each(blockList, function (element) {
                 $('#' + blockList[element]).css('display', 'block');
             });
+            $('#mExec').trigger('change');
+            
+        })
+    });
+    $(function () {
+        $(document).on('change', '#mExec', function () {
+            var mExecType = $('#mExec option:selected').val();
+            $('#mExecJob').val(mExecType).trigger('change');
+            $('#mExecJob').attr('disabled',"disabled");
+            if (mExecType === "local") {
+                $('#execNextDiv').css('display', 'none');
+                $('#mExecJobDiv').css('display', 'block');
+            } else if (mExecType === "sge" ||mExecType === "lsf" || mExecType === "slurm") {
+                $('#execNextDiv').css('display', 'block');
+                $('#mExecJobDiv').css('display', 'block');
+            }
+        })
+    });
+    
+        $(function () {
+        $(document).on('change', '#mExecJob', function () {
+            var mExecJobType = $('#mExecJob option:selected').val();
+            if (mExecJobType === "local") {
+                $('#execJobSetDiv').css('display', 'none');
+            } else if (mExecJobType === "sge" ||mExecJobType === "lsf" || mExecJobType === "slurm") {
+                $('#execJobSetDiv').css('display', 'block');
+            }
         })
     });
 
     // Dismiss parameters modal 
     $('#profilemodal').on('hide.bs.modal', function (event) {
-        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv"];
+        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv", "mExecJobDiv", "execJobSetDiv"];
         $.each(noneList, function (element) {
             $('#' + noneList[element]).css('display', 'none');
         });
         $('#chooseEnv').removeAttr('disabled');
+        $('#mExecJob').removeAttr('disabled');
         
     });
 
@@ -129,6 +171,7 @@ $(document).ready(function () {
     $('#profilemodal').on('click', '#saveEnv', function (event) {
         event.preventDefault();
         $('#chooseEnv').removeAttr('disabled');
+        $('#mExecJob').removeAttr('disabled');
         var formValues = $('#profilemodal').find('input, select, textarea');
         var savetype = $('#mEnvId').val();
         var data = formValues.serializeArray(); // convert form to array
