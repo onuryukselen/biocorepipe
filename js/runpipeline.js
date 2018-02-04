@@ -1597,9 +1597,10 @@
 	      //	          fillForm('#execNextSettTable', 'input', exec_next_settings);
 	      //	      }
 	      //check executor_job if its local
+          if (pipeData[0].profile !== ""){
 	      var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
-	      if (executor_job === 'local') {
+              if (executor_job === 'local') {
 	          $('#jobSettingsDiv').css('display', 'none');
 	      } else {
 	          $('#jobSettingsDiv').css('display', 'inline');
@@ -1610,6 +1611,10 @@
 	              fillForm('#allProcessSettTable', 'input', exec_all_settings);
 	          }
 	      }
+          } else {
+	          $('#jobSettingsDiv').css('display', 'none');
+          }
+	      
 
 
 
