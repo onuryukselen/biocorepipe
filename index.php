@@ -287,7 +287,7 @@
                     $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
                     if ($ownerID != ''){$login = 1;} 
                     else { $login = 0;}
-                    include("php/sidebarmenu.php");
+                    print getSidebarMenu($np, $login);
                 ?>
 
         </aside>

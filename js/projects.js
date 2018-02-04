@@ -1,3 +1,15 @@
+//function updateSideBarProject(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal) {
+//
+//    document.getElementById(sMenuProIdFirst).setAttribute('id', sMenuProIdFinal);
+//    var PattMenu = /(.*)@(.*)/; //Map_Tophat2@11
+//    var nMenuProName = sMenuProIdFinal.replace(PattMenu, '$1');
+//    document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + nMenuProName;
+//    if (sMenuProGroupIdFirst !== sMenuProGroupIdFinal) {
+//        document.getElementById(sMenuProIdFinal).remove();
+//        $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + nMenuProName + '</a></li>');
+//    }
+//}
+
 $(document).ready(function () {
     var projectTable = $('#projecttable').DataTable({
         "scrollY": "500px",

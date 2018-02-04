@@ -9,9 +9,6 @@ function getTitle($np)
   else if ($np==2){$ret = "Project";}
   else if ($np==3){$ret = "Run";}
   else if ($np==4){$ret = "Profile";}
-//  else if ($np==3){$ret = "Pipelines";}
-//  else if ($np==4){$ret = "New params";}
-//  else if ($np==5){$ret = "New pipelines";}
   return $ret; 
 }
 
@@ -23,10 +20,13 @@ function getPage($np, $login, $id)
   else if ($np==2 && $login==1 && !empty($id)){include("php/projectsDetail.php");}
   else if ($np==3 && $login==1 && !empty($id)){include("php/runpipeline.php");}
   else if ($np==4 && $login==1){include("php/profile.php");}
-//  else if ($np==3){include("php/pipelines.php");}
-//  else if ($np==4){include("php/newparams.php");}
-//  else if ($np==5){include("php/pipeline3.php");}
   else {include("php/public.php");}
+}
+
+function getSidebarMenu($np,$login)
+{
+  if (($np==2 || $np==3 || $np==4) && $login==1){include("php/sidebarmenuproject.php"); }
+  else {include("php/sidebarmenu.php");}
 }
 
 function getJS($np, $login, $id)
