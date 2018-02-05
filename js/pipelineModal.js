@@ -209,12 +209,25 @@ function loadSelectedProcess(selProcessId) {
         $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
         $('#mInName-' + numForm).val(inputs[i].sname);
         $('#mInName-' + numForm).attr('ppID', inputs[i].id);
+        var closureText=decodeHtml(inputs[i].closure);
+        $('#mInClosure-' + numForm).val(closureText);
+        if (inputs[i].operator !== ''){
+        $('#mInOpt-' + numForm).val(inputs[i].operator);
+            $('#mInOptBut-' + numForm).trigger('click');
+        }
+        
     }
     for (var i = 0; i < outputs.length; i++) {
         var numForm = i + 1;
         $('#mOutputs-' + numForm)[0].selectize.setValue(outputs[i].parameter_id, false);
         $('#mOutName-' + numForm).val(outputs[i].sname);
         $('#mOutName-' + numForm).attr('ppID', outputs[i].id);
+        var closureText=decodeHtml(outputs[i].closure);
+        $('#mOutClosure-' + numForm).val(closureText);
+        if (outputs[i].operator !== ''){
+        $('#mOutOpt-' + numForm).val(outputs[i].operator);
+            $('#mOutOptBut-' + numForm).trigger('click');
+        }
     }
 };
 
@@ -283,6 +296,8 @@ function checkProParameters(inputProParams, outputProParams, proID) {
 //-----Add input output parameters to process_parameters
 // startpoint: first object in data array where inputparameters starts.
 function addProParatoDB(data, startPoint, process_id) {
+    console.log(data);
+    console.log(startPoint);
 
     var ppIDinputList = [];
     var ppIDoutputList = [];
@@ -296,6 +311,18 @@ function addProParatoDB(data, startPoint, process_id) {
         var matchSPart = data[i].name.replace(PattPar, '$2')
         var matchVal = data[i].value
         if (matchFPart === 'mInputs' && matchVal !== '') {
+            //first check if closures are visible
+            if ($("#mInClosure-" + matchSPart).css('visibility') === 'visible') {
+                for (var n = startPoint; n < data.length; n++) {
+                    if (data[n].name === 'mInOpt-' + matchSPart) {
+                        dataToProcessParam.push({ name: "operator", value: data[n].value });
+                    } 
+                    else if (data[n].name === 'mInClosure-' + matchSPart) {
+                        dataToProcessParam.push({ name: "closure", value: encodeURIComponent(data[n].value) });
+                    }
+                }
+            }
+            //for process parameters
             for (var k = startPoint; k < data.length; k++) {
                 if (data[k].name === 'mInName-' + matchSPart && data[k].value === '') {
                     dataToProcessParam = [];
@@ -312,6 +339,18 @@ function addProParatoDB(data, startPoint, process_id) {
                 }
             }
         } else if (matchFPart === 'mOutputs' && matchVal !== '') {
+                      //first check if closures are visible
+            if ($("#mOutClosure-" + matchSPart).css('visibility') === 'visible') {
+                for (var n = startPoint; n < data.length; n++) {
+                    if (data[n].name === 'mOutOpt-' + matchSPart) {
+                        dataToProcessParam.push({ name: "operator", value: data[n].value });
+                    } 
+                    else if (data[n].name === 'mOutClosure-' + matchSPart) {
+                        dataToProcessParam.push({ name: "closure", value: encodeURIComponent(data[n].value) });
+                    }
+                }
+            }
+            //for process parameters 
             for (var k = startPoint; k < data.length; k++) {
                 if (data[k].name === 'mOutName-' + matchSPart && data[k].value === '') {
                     dataToProcessParam = [];
@@ -328,6 +367,7 @@ function addProParatoDB(data, startPoint, process_id) {
                 }
             }
         }
+        console.log(dataToProcessParam);
         if (dataToProcessParam.length > 0) {
             $.ajax({
                 type: "POST",
@@ -772,25 +812,25 @@ $(document).ready(function () {
 
     renderParam = {
         option: function (data, escape) {
-            if (data.qualifier === 'val'){
+            if (data.qualifier === 'val') {
                 return '<div class="option">' +
-                '<span class="title">' + escape(data.name) + '</span>' +
-                '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
-                '</div>';
+                    '<span class="title">' + escape(data.name) + '</span>' +
+                    '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
+                    '</div>';
             } else {
                 return '<div class="option">' +
-                '<span class="title">' + escape(data.name) + '</span>' +
-                '<span class="url">' + 'File Type: ' + escape(data.file_type) + '</span>' +
-                '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
-                '</div>';
+                    '<span class="title">' + escape(data.name) + '</span>' +
+                    '<span class="url">' + 'File Type: ' + escape(data.file_type) + '</span>' +
+                    '<span class="url">' + 'Qualifier: ' + escape(data.qualifier) + '</span>' +
+                    '</div>';
             }
 
         },
         item: function (data, escape) {
-            if (data.qualifier === 'val'){
-            return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.qualifier) + ')</small></i>' + '</div>';    
+            if (data.qualifier === 'val') {
+                return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.qualifier) + ')</small></i>' + '</div>';
             } else {
-            return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.file_type) + ', ' + escape(data.qualifier) + ')</small></i>' + '</div>';
+                return '<div class="item" data-value="' + escape(data.id) + '">' + escape(data.name) + '  <i><small>' + '  (' + escape(data.file_type) + ', ' + escape(data.qualifier) + ')</small></i>' + '</div>';
             }
         }
     };
@@ -1220,6 +1260,10 @@ $(document).ready(function () {
             var col1init = "m" + type + "puts"; //column1 initials
             var col2init = "m" + type + "Name";
             var col3init = "m" + type + "Namedel";
+            var col4init = "m" + type + "OptBut";
+            var col5init = "m" + type + "Opt";
+            var col6init = "m" + type + "Closure";
+            var col7init = "m" + type + "Optdel";
 
             var num = id.replace(Patt, '$2');
             var prevParId = $("#" + id).attr("prev");
@@ -1236,8 +1280,19 @@ $(document).ready(function () {
                 }
                 $("#" + col1init).append('<select id="' + col1init + '-' + idRows + '" num="' + idRows + '" class="fbtn btn-default form-control mParChange" style ="margin-bottom: 5px;" prev ="-1"  name="' + col1init + '-' + idRows + '"></select>');
                 $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
-                $("#" + col3init).append('<button type="submit" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
-
+                $("#" + col3init).append('<button  type="submit" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
+                $("#" + col4init).append('<a href="#" data-toggle="tooltip" data-placement="bottom" data-original-title="Add/Remove operator" class="btn btn-default addOpt" style ="margin-bottom: 5px;" id="' + col4init + '-' + String(idRows - 1) + '" name="' + col4init + '-' + String(idRows - 1) + '"> <span><i class="fa fa-wrench"></i></span></a>');
+                $("#" + col5init).append('<select class="form-control" style ="visibility:hidden; margin-bottom: 5px;" id="' + col5init + '-' + String(idRows - 1) + '" name="' + col5init + '-' + String(idRows - 1) + '"></button>');
+                $("#" + col6init).append('<input type="text" ppID="" placeholder="Enter operator content" class="form-control " style ="visibility:hidden; margin-bottom: 5px;" id="' + col6init + '-' + String(idRows - 1) + '" name="' + col6init + '-' + String(idRows - 1) + '">');
+                $("#" + col7init).append('<button type="submit" class="btn btn-default form-control delOpt" style ="visibility:hidden; margin-bottom: 5px;" id="' + col7init + '-' + String(idRows - 1) + '" name="' + col7init + '-' + String(idRows - 1) + '"><i class="glyphicon glyphicon-remove"></i></button>');
+                //load closure options
+                var closureOpt = $('#mOutOpt-0 option').each(function () {
+                    var val = $(this).val()
+                    var optionClo = new Option(val, val);
+                    $('#' + col5init + '-' + String(idRows - 1)).append(optionClo);
+                });
+                $('#' + col5init + '-' + String(idRows - 1) + ' option:first').attr('disabled', "disabled");
+                console.log('#' + col5init + '-' + String(idRows - 1) + ' option:first');
                 var opt = $('#mInputs > :first-child')[0].selectize.options;
                 var newOpt = [];
                 $.each(opt, function (element) {
@@ -1257,35 +1312,85 @@ $(document).ready(function () {
 
     });
 
+    //toggle operators section in addprocessmodal when click on wrench
+    $(document).on("click", ".addOpt", function (event) {
+        event.preventDefault();
+        var id = $(this).attr("id");
+        var Patt = /m(.*)OptBut-(.*)/;
+        var type = id.replace(Patt, '$1'); //In or Out
+        var num = id.replace(Patt, '$2');
+        var col4init = "m" + type + "OptBut";
+        var col5init = "m" + type + "Opt";
+        var col6init = "m" + type + "Closure";
+        var col7init = "m" + type + "Optdel";
+        if ($("#" + col5init + "-" + String(num)).css('visibility') === 'visible') {
+            $("#" + col4init + "-" + String(num)).css('background', '#E7E7E7');
+            $("#" + col5init + "-" + String(num)).css('visibility', 'hidden');
+            $("#" + col6init + "-" + String(num)).css('visibility', 'hidden');
+            $("#" + col7init + "-" + String(num)).css('visibility', 'hidden');
+
+        } else if ($("#" + col5init + "-" + String(num)).css('visibility') === 'hidden') {
+            $("#" + col4init + "-" + String(num)).css('background', '#FFF');
+            $("#" + col5init + "-" + String(num)).css('visibility', 'visible');
+            $("#" + col6init + "-" + String(num)).css('visibility', 'visible');
+            $("#" + col7init + "-" + String(num)).css('visibility', 'visible');
+        }
+    });
+    //remove operators section in addprocessmodal when click on wrench
+    $(document).on("click", ".delOpt", function (event) {
+        event.preventDefault();
+        var id = $(this).attr("id");
+        var Patt = /m(.*)Optdel-(.*)/;
+        var type = id.replace(Patt, '$1'); //In or Out
+        var num = id.replace(Patt, '$2');
+        var col4init = "m" + type + "OptBut";
+        var col5init = "m" + type + "Opt";
+        var col6init = "m" + type + "Closure";
+        var col7init = "m" + type + "Optdel";
+        $("#" + col4init + "-" + String(num)).css('background', '#E7E7E7');
+        $("#" + col5init + "-" + String(num)).css('visibility', 'hidden');
+        $("#" + col6init + "-" + String(num)).css('visibility', 'hidden');
+        $("#" + col7init + "-" + String(num)).css('visibility', 'hidden');
+    });
+
+
+
     //remove  dropdown list of parameters
     $(document).on("click", ".delRow", function (event) {
         event.preventDefault();
         var id = $(this).attr("id");
         var Patt = /m(.*)Namedel-(.*)/;
         var type = id.replace(Patt, '$1'); //In or Out
+        var num = id.replace(Patt, '$2');
         var col1init = "m" + type + "puts"; //column1 initials
         var col2init = "m" + type + "Name";
         var col3init = "m" + type + "Namedel";
-        var num = id.replace(Patt, '$2');
-        $("#" + col1init + "-" + String(num)).next().remove()
-        $("#" + col1init + "-" + String(num)).remove()
-        $("#" + col2init + "-" + String(num)).remove()
-        $("#" + col3init + "-" + String(num)).remove()
+        var col4init = "m" + type + "OptBut";
+        var col5init = "m" + type + "Opt";
+        var col6init = "m" + type + "Closure";
+        var col7init = "m" + type + "Optdel";
+        $("#" + col1init + "-" + String(num)).next().remove();
+        $("#" + col1init + "-" + String(num)).remove();
+        $("#" + col2init + "-" + String(num)).remove();
+        $("#" + col3init + "-" + String(num)).remove();
+        $("#" + col4init + "-" + String(num)).remove();
+        $("#" + col5init + "-" + String(num)).remove();
+        $("#" + col6init + "-" + String(num)).remove();
+        $("#" + col7init + "-" + String(num)).remove();
     });
 
     //parameter modal file type change:(save file type as identifier for val)
     $('#modalQualifier').change(function () {
-        if ($('#modalQualifier').val() === 'val'){
-            $('#mFileTypeDiv').css('display','none');
-        }
-        else {
-            $('#mFileTypeDiv').css('display','block');
+        if ($('#modalQualifier').val() === 'val') {
+            $('#mFileTypeDiv').css('display', 'none');
+        } else {
+            $('#mFileTypeDiv').css('display', 'block');
         }
     });
-    
+
     //parameter modal 
     $('#parametermodal').on('show.bs.modal', function (event) {
-        $('#mFileTypeDiv').css('display','block');
+        $('#mFileTypeDiv').css('display', 'block');
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
         //ajax for parameters
@@ -1478,54 +1583,54 @@ $(document).ready(function () {
         var selParType = data[3].value;
         console.log(data);
         if (selParQual === 'val') {
-            data[3].value =selParName; 
-            selParType =selParName; 
+            data[3].value = selParName;
+            selParType = selParName;
         }
-        if (selParName !== '' && selParQual !== '' && selParType !== ''){
-        data.push({
-            name: "p",
-            value: "saveParameter"
-        });
-        $.ajax({
-            type: "POST",
-            url: "ajax/ajaxquery.php",
-            data: data,
-            async: false,
-            success: function (s) {
-                if (savetype.length) { //Edit Parameter
-                    //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.updateOption(selParID, {
-                            id: selParID,
-                            name: selParName,
-                            qualifier: selParQual,
-                            file_type: selParType
-                        });
-                    }
+        if (selParName !== '' && selParQual !== '' && selParType !== '') {
+            data.push({
+                name: "p",
+                value: "saveParameter"
+            });
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: data,
+                async: false,
+                success: function (s) {
+                    if (savetype.length) { //Edit Parameter
+                        //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
+                        var allBox = $('#addProcessModal').find('select');
+                        for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                            var parBoxId = allBox[i].getAttribute('id');
+                            $('#' + parBoxId)[0].selectize.updateOption(selParID, {
+                                id: selParID,
+                                name: selParName,
+                                qualifier: selParQual,
+                                file_type: selParType
+                            });
+                        }
 
-                } else { //Add Parameter
-                    //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
-                    var allBox = $('#addProcessModal').find('select');
-                    for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
-                        var parBoxId = allBox[i].getAttribute('id');
-                        $('#' + parBoxId)[0].selectize.addOption({
-                            id: s.id,
-                            name: selParName,
-                            qualifier: selParQual,
-                            file_type: selParType
-                        });
+                    } else { //Add Parameter
+                        //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
+                        var allBox = $('#addProcessModal').find('select');
+                        for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                            var parBoxId = allBox[i].getAttribute('id');
+                            $('#' + parBoxId)[0].selectize.addOption({
+                                id: s.id,
+                                name: selParName,
+                                qualifier: selParQual,
+                                file_type: selParType
+                            });
+                        }
                     }
+                    //                $('#mParamListIn')[0].selectize.destroy();
+                    $('#parametermodal').modal('hide');
+                    refreshDataset()
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
                 }
-                //                $('#mParamListIn')[0].selectize.destroy();
-                $('#parametermodal').modal('hide');
-                refreshDataset()
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
+            });
         }
     });
     // process group modal 
@@ -1716,11 +1821,11 @@ $(document).ready(function () {
         var pipeline_id = $('#pipeline-title').attr('pipelineid');
         var rows_selected = projectTable.column(0).checkboxes.selected();
         if (rows_selected.length === 1 && pipeline_id !== '') {
-//            var data = [];
-//            var project_id = rows_selected[0];
-//            data.push({ name: "project_id", value: project_id });
-//            data.push({ name: "pipeline_id", value: pipeline_id });
-//            data.push({ name: "p", value: "saveProjectPipeline" });
+            //            var data = [];
+            //            var project_id = rows_selected[0];
+            //            data.push({ name: "project_id", value: project_id });
+            //            data.push({ name: "pipeline_id", value: pipeline_id });
+            //            data.push({ name: "p", value: "saveProjectPipeline" });
             $('#runNameModal').modal('show');
 
 
@@ -1740,8 +1845,8 @@ $(document).ready(function () {
         var pipeline_id = $('#pipeline-title').attr('pipelineid');
         var rows_selected = projectTable.column(0).checkboxes.selected();
         var run_name = $('#runName').val();
-        
-        if (rows_selected.length === 1 && pipeline_id !== '' && run_name !=='') {
+
+        if (rows_selected.length === 1 && pipeline_id !== '' && run_name !== '') {
             var data = [];
             var project_id = rows_selected[0];
             data.push({ name: "name", value: run_name });

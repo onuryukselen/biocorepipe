@@ -1450,6 +1450,8 @@
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", inputs[k].sname)
+	                  .attr("operator", inputs[k].operator)
+	                  .attr("closure", inputs[k].closure)
 	                  .attr("connect", "single")
 	                  .attr("status", "standard")
 	                  .attr("class", findType(inputs[k].parameter_id) + " input")
@@ -1471,6 +1473,8 @@
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", outputs[k].sname)
+	                  .attr("operator", outputs[k].operator)
+	                  .attr("closure", outputs[k].closure)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
 	                  .attr("class", findType(outputs[k].parameter_id) + " output")
@@ -1597,24 +1601,24 @@
 	      //	          fillForm('#execNextSettTable', 'input', exec_next_settings);
 	      //	      }
 	      //check executor_job if its local
-          if (pipeData[0].profile !== ""){
-	      var [allProSett, profileData] = getJobData("both");
+	      if (pipeData[0].profile !== "") {
+	          var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
-              if (executor_job === 'local') {
-	          $('#jobSettingsDiv').css('display', 'none');
-	      } else {
-	          $('#jobSettingsDiv').css('display', 'inline');
-	          //insert exec_all_settings data into allProcessSettTable table 
-	          if (IsJsonString(pipeData[0].exec_all_settings)) {
-                  console.log(pipeData);
-	              var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
-	              fillForm('#allProcessSettTable', 'input', exec_all_settings);
+	          if (executor_job === 'local') {
+	              $('#jobSettingsDiv').css('display', 'none');
+	          } else {
+	              $('#jobSettingsDiv').css('display', 'inline');
+	              //insert exec_all_settings data into allProcessSettTable table 
+	              if (IsJsonString(pipeData[0].exec_all_settings)) {
+	                  console.log(pipeData);
+	                  var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
+	                  fillForm('#allProcessSettTable', 'input', exec_all_settings);
+	              }
 	          }
-	      }
-          } else {
+	      } else {
 	          $('#jobSettingsDiv').css('display', 'none');
-          }
-	      
+	      }
+
 
 
 
@@ -1743,13 +1747,13 @@
 
 	  function configTextAllProcess(exec_all_settings) {
 	      for (var keyParam in exec_all_settings) {
-	          if (keyParam === 'time' || keyParam === 'job_time') {
+	          if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	              window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
-	          } else if (keyParam === 'cpu' || keyParam === 'job_cpu') {
+	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
 	              window.configTextRaw += 'process.' + 'cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
-	          } else if (keyParam === 'queue' || keyParam === 'job_queue') {
+	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
 	              window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
-	          } else if (keyParam === 'memory' || keyParam === 'job_memory') {
+	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
 	              window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
 	          }
 	      }
@@ -1799,22 +1803,25 @@
 	      //check executor_job if its local
 	      var [allProSett, profileData] = getJobData("both");
 	      var executor_job = profileData[0].executor_job;
-          configTextRaw += 'process.executor = \'' + executor_job + '\'\n';
-          
-	      //all process settings eg. process.queue = 'short'
-	      if ($('#exec_all').is(":checked") === true) {
-	          var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
-	          var exec_all_settings = formToJson(exec_all_settingsRaw);
-	          configTextAllProcess(exec_all_settings);
-	      } else {
-	          configTextAllProcess(allProSett);
-	      }
-	      //          if ($('#exec_each').is(":checked") === true) {
-	      //	      var exec_each_settingsRaw = $('#processTable').find('input');
-	      //	      var exec_each_settings = formToJson(exec_each_settingsRaw);
-	      //	      }
+	      configTextRaw += 'process.executor = \'' + executor_job + '\'\n';
+	      if (executor_job !== 'local') {
+	          //all process settings eg. process.queue = 'short'
+	          if ($('#exec_all').is(":checked") === true) {
+	              var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
+	              var exec_all_settings = formToJson(exec_all_settingsRaw);
+	              configTextAllProcess(exec_all_settings);
+	          } else {
+	              configTextAllProcess(allProSett);
+	          }
+	          //          if ($('#exec_each').is(":checked") === true) {
+	          //	      var exec_each_settingsRaw = $('#processTable').find('input');
+	          //	      var exec_each_settings = formToJson(exec_each_settingsRaw);
+	          //	      }
 
-	      //          process.$hello.queue = 'long'
+	          //          process.$hello.queue = 'long'
+
+	      }
+
 	      console.log(configTextRaw);
 	      var configText = encodeURIComponent(configTextRaw);
 	      //save nextflow text as nextflow.nf and start job
@@ -2047,6 +2054,7 @@
 	              success: function (s) {
 	                  checkReadytoRun()
 	                  refreshCreatorData(project_pipeline_id);
+	                  updateSideBarProPipe("", project_pipeline_id, run_name, "edit")
 	              },
 	              error: function (errorThrown) {
 	                  alert("Error: " + errorThrown);
@@ -2086,6 +2094,14 @@
 	          return [allProSett, profileData];
 	      }
 	  }
+
+	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
+	      if (type === "edit") {
+	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
+	      }
+	  }
+
+
 
 	  $(document).ready(function () {
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');

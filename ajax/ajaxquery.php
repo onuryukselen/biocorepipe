@@ -433,13 +433,15 @@ else if ($p=="saveProjectPipeline"){
 
 else if ($p=="saveProcessParameter"){
     $sname = htmlspecialchars(urldecode($_REQUEST['sname']), ENT_QUOTES);
+    $closure = htmlspecialchars(urldecode($_REQUEST['closure']), ENT_QUOTES);
+    $operator = $_REQUEST['operator'];
     $process_id = $_REQUEST['process_id'];
     $parameter_id = $_REQUEST['parameter_id'];
     $type = $_REQUEST['type'];
     if (!empty($id)) {
-        $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $ownerID);
+        $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID);
     } else {
-        $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $ownerID);
+        $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID);
     }
 }
 

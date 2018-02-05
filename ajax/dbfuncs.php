@@ -11,7 +11,7 @@ class dbfuncs {
 //    private $last_modified_user = LMUSER;
     private $run_path = RUNPATH;
     private $ssh_path = SSHPATH;
-    private $ssh_settings = SSHSETT;
+    private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -o ConnectTimeout=3";
     private $dolphin_path = DOLPHINPATH;
     private static $link;
 
@@ -56,12 +56,11 @@ class dbfuncs {
         {
             if ($row['script']){
             $row['script'] = htmlspecialchars_decode($row['script'], ENT_QUOTES);
-            } else  if ($row['sname']){
+            } else if ($row['sname']){
             $row['sname'] = htmlspecialchars_decode($row['sname'], ENT_QUOTES);
-            } else  if ($row['process_parameter_name']){
+            } else if ($row['process_parameter_name']){
             $row['process_parameter_name'] = htmlspecialchars_decode($row['process_parameter_name'], ENT_QUOTES);
-            }
-            
+            } 
             $data[]=$row;
         }
          
@@ -737,14 +736,14 @@ class dbfuncs {
 //    }
    
 
-    public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, owner_id, date_created, date_modified, last_modified_user, perms) 
-                VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID) {
+        $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, closure, operator, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$closure', '$operator', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
     
-    public function updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $ownerID) {
-        $sql = "UPDATE process_parameter SET sname='$sname', process_id='$process_id', parameter_id='$parameter_id', type='$type', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID) {
+        $sql = "UPDATE process_parameter SET sname='$sname', process_id='$process_id', parameter_id='$parameter_id', type='$type', closure='$closure', operator='$operator', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -846,7 +845,7 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
 	public function getInputsPP($id) {
-		$sql = "SELECT parameter_id, sname, id FROM process_parameter where process_id = '$id' and type = 'input'";
+		$sql = "SELECT parameter_id, sname, id, operator, closure FROM process_parameter where process_id = '$id' and type = 'input'";
 		return self::queryTable($sql);
 	}
 	public function checkPipeline($process_id,$process_name, $ownerID) {
@@ -885,7 +884,7 @@ class dbfuncs {
 		return self::queryTable($sql);
 	}
 	public function getOutputsPP($id) {
-		$sql = "SELECT parameter_id, sname, id FROM process_parameter where process_id = '$id' and type = 'output'";
+		$sql = "SELECT parameter_id, sname, id,operator, closure FROM process_parameter where process_id = '$id' and type = 'output'";
 		return self::queryTable($sql);
 	}
 	

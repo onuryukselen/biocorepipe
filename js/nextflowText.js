@@ -283,7 +283,15 @@ function IOandScriptForNf(id, currgid) {
         qual = parametersData.filter(function (el) {
             return el.id == inputIdSplit[3]
         })[0].qualifier
-        inputName = document.getElementById(Iid).getAttribute("name")
+        
+        inputName = document.getElementById(Iid).getAttribute("name");
+        var inputClosure = document.getElementById(Iid).getAttribute("closure");
+        var inputOperator = document.getElementById(Iid).getAttribute("operator");
+        inputClosure = decodeHtml(inputClosure);
+        var inputOperatorText = ''; 
+        if (inputOperator !== ''){
+            inputOperatorText = '.' + inputOperator + '(' + inputClosure + ')';
+        }
         find = false
         for (var e = 0; e < edges.length; e++) {
             if (edges[e].indexOf(Iid) > -1) { //if not exist -1, if at first position 0, if at second pos. 12
@@ -309,13 +317,7 @@ function IOandScriptForNf(id, currgid) {
                     })[0].name
                     channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
                 }
-                if (qual === "file") {
-                    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-                } else if (qual === "set") {
-                    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-                } else if (qual === "val") {
-                    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + "\n"
-                }
+                    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
             }
         }
         if (find == false) {
@@ -333,17 +335,20 @@ function IOandScriptForNf(id, currgid) {
         qual = parametersData.filter(function (el) {
             return el.id == outputIdSplit[3]
         })[0].qualifier
-        outputName = document.getElementById(Oid).getAttribute("name")
+        outputName = document.getElementById(Oid).getAttribute("name");
+        var outputClosure = document.getElementById(Oid).getAttribute("closure");
+        var outputOperator = document.getElementById(Oid).getAttribute("operator");
+        outputClosure = decodeHtml(outputClosure);
+        var outputOperatorText = ''; 
+        if (outputOperator !== ''){
+            outputOperatorText = '.' + outputOperator + '(' + outputClosure + ')';
+        }
         genParName = parametersData.filter(function (el) {
             return el.id == outputIdSplit[3]
         })[0].name
         channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
 
-        if (qual === "file") {
-            bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-        } else if (qual === "set") {
-            bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + "\n"
-        }
+            bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + outputOperatorText + "\n"
 
     }
     body = bodyInput + "\n" + bodyOutput + "\n" + script

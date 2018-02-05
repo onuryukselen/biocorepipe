@@ -66,7 +66,13 @@
         window.location.replace("index.php?np=2");
     }
 
-
+function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
+    if (type === 'add') {
+        $('#side-'+project_id).append('<li><a href="index.php?np=3&id=' + project_pipeline_id + '" class="projectItems" draggable="false" id="propipe-' + project_pipeline_id + '"><i class="fa fa-angle-double-right"></i>' + project_pipeline_name + '</a></li>');
+    } else if (type === "remove"){
+      $('#propipe-' + project_pipeline_id).parent().remove();
+    }
+}
 
     $(document).ready(function () {
         var project_id = $('#project-title').attr('projectid');
@@ -216,6 +222,7 @@
                         rowData.pip_id = pipelineDat[0].id;
                         rowData.id = project_pipeline_id;
                         runsTable.row.add(rowData).draw();
+                        updateSideBarProPipe(project_id, project_pipeline_id, run_name, 'add');
                     },
                     error: function (errorThrown) {
                         alert("Error: " + errorThrown);
@@ -231,7 +238,7 @@
 
             var clickedRow = $(this).closest('tr');
             var rowData = runsTable.row(clickedRow).data();
-            console.log(rowData.id);
+            console.log(rowData);
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
@@ -242,6 +249,8 @@
                 async: true,
                 success: function (s) {
                     runsTable.row(clickedRow).remove().draw();
+                        updateSideBarProPipe("", rowData.id, "", 'remove');
+                    
                 },
                 error: function (errorThrown) {
                     alert("Error: " + errorThrown);
