@@ -1,14 +1,16 @@
-//function updateSideBarProject(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal) {
-//
-//    document.getElementById(sMenuProIdFirst).setAttribute('id', sMenuProIdFinal);
-//    var PattMenu = /(.*)@(.*)/; //Map_Tophat2@11
-//    var nMenuProName = sMenuProIdFinal.replace(PattMenu, '$1');
-//    document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + nMenuProName;
-//    if (sMenuProGroupIdFirst !== sMenuProGroupIdFinal) {
-//        document.getElementById(sMenuProIdFinal).remove();
-//        $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + nMenuProName + '</a></li>');
-//    }
-//}
+function updateSideBarProject(project_id, project_name, type) {
+    if (type === 'add') {
+        $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + project_name +'</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + project_id + '" class="treeview-menu"></ul></li>');
+    }
+    else if (type === "edit"){
+      $('#side-' + project_id).parent().find('span').html(project_name);
+    } else if (type === "remove"){
+      $('#side-' + project_id).parent().remove();
+    }
+    
+}
+
+    
 
 $(document).ready(function () {
     var projectTable = $('#projecttable').DataTable({
@@ -59,6 +61,7 @@ $(document).ready(function () {
     $('#projectmodal').on('click', '#saveproject', function (event) {
         event.preventDefault();
         var formValues = $('#projectmodal').find('input');
+        if ($('#mProjectName').val() !== ''){
         var savetype = $('#mProjectID').val();
         var data = formValues.serializeArray(); // convert form to array
         data.push({ name: "p", value: "saveProject" });
@@ -89,6 +92,7 @@ $(document).ready(function () {
                             rowData.id = projectDat[0].id;
                             projectTable.row(clickedRow).remove().draw();
                             projectTable.row.add(rowData).draw();
+                            updateSideBarProject(projectDat[0].id, projectDat[0].name, 'edit');
 
                         },
                         error: function (errorThrown) {
@@ -115,6 +119,7 @@ $(document).ready(function () {
                             }
                             addData.id = projectDat[0].id;
                             projectTable.row.add(addData).draw();
+                            updateSideBarProject(projectDat[0].id, projectDat[0].name, 'add');
 
                         },
                         error: function (errorThrown) {
@@ -130,6 +135,7 @@ $(document).ready(function () {
                 alert("Error: " + errorThrown);
             }
         });
+    }
     });
 
     $('#projecttable').on('click', '#projectremove', function (e) {
@@ -137,6 +143,7 @@ $(document).ready(function () {
 
         var clickedRow = $(this).closest('tr');
         var rowData = projectTable.row(clickedRow).data();
+        console.log(rowData);
 
         $.ajax({
             type: "POST",
@@ -148,6 +155,7 @@ $(document).ready(function () {
             async: true,
             success: function (s) {
                 projectTable.row(clickedRow).remove().draw();
+                updateSideBarProject(rowData.id, rowData.name, 'remove');
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);

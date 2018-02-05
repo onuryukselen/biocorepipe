@@ -140,7 +140,7 @@
 
 <!-- Add Process Modal -->
 <div id="addProcessModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
-    <div class="modal-dialog" style="width:800px;" role="document">
+    <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
         <div class="modal-content">
             <span id="addHeader"></span>
             <div id="revModalHeader" class="modal-header">
@@ -165,27 +165,27 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="mName" class="col-sm-2 control-label">Name</label>
+                        <label for="mName" style="width:150px;" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mName" name="name">
                         </div>
                     </div>
                     <div id="versionGroup" class="form-group" style="display:none">
-                        <label for="mVersion" class="col-sm-2 control-label">Version</label>
+                        <label for="mVersion" style="width:150px;" class="col-sm-2 control-label" >Version</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mVersion" name="version">
                         </div>
                     </div>
                     <div id="describeGroup" class="form-group">
-                        <label for="mDescription" class="col-sm-2 control-label">Description</label>
+                        <label for="mDescription" style="width:150px;" class="col-sm-2 control-label">Description</label>
                         <div class="col-sm-10">
                             <textarea rows="3" class="form-control" id="mDescription" name="summary"></textarea>
                         </div>
                     </div>
                     <div id="proGroup" class="form-group">
-                        <label for="mProcessGroup" class="col-sm-2 control-label">Menu Group</label>
-                        <div class="col-sm-5">
-                            <select id="mProcessGroup" class="fbtn btn-default form-control" name="process_group_id"></select>
+                        <label for="mProcessGroup" style="width:150px;" class="col-sm-2 control-label">Menu Group</label>
+                        <div style="width:270px;" class="col-sm-3">
+                            <select id="mProcessGroup"  class="fbtn btn-default form-control" name="process_group_id"></select>
                         </div>
                         <div id="mProcessGroupAdd" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
                             <button type="button" class="btn btn-default form-control" id="groupAdd" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
@@ -199,11 +199,11 @@
                     </div>
                     <hr id="hrDiv">
                     <div id="mParameters" class="form-group">
-                        <label for="mParamAll" class="col-sm-2 control-label">Parameters</label>
+                        <label for="mParamAll" style="width:150px;" class="col-sm-2 control-label">Parameters</label>
                         <div id="mParamAll" class="col-sm-5">
                             <select id="mParamAllIn" class="fbtn btn-default form-control mParChange" name="ParamAll" style="display:none;"></select>
                         </div>
-                        <div id="mParamsAdd" class="col-sm-1" style=" width: auto; padding-right: 0;">
+                        <div id="mParamsAdd" class="col-sm-1" style=" width:auto; padding-right:0;">
                             <button type="button" class="btn btn-default form-control" id="mParamAdd" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
                         </div>
                         <div id="mParamsEdit" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
@@ -214,33 +214,160 @@
                         </div>
                     </div>
                     <div id="inputGroup" class="form-group">
-                        <label for="mInputs-1" class="col-sm-2 control-label">Inputs</label>
-                        <div id="mInputs" class="col-sm-5">
+                        <label for="mInputs-1" style="width:150px;" class="col-sm-2 control-label">Inputs</label>
+                        <div id="mInputs" class="col-sm-3" style="width:270px;">
                             <select id="mInputs-1" num="1" class="fbtn btn-default form-control mParChange" prev="-1" name="mInputs-1"></select>
                         </div>
-                        <div id="mInName" class="col-sm-4 " style="padding-left:0; padding-right:0;">
+                        <div id="mInName" class="col-sm-2 " style="width:200px; padding-left:0; padding-right:0;">
                             <input type="text" style="display:none; " placeholder="Enter name" class="form-control" ppID="" id="mInName-0" name="mInName-0">
                         </div>
-                        <div id="mInNamedel" class="col-sm-1" style="padding-left:0;">
+                        <div id="mInNamedel" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0;">
                             <button type="submit" style="display:none;" class="btn btn-default form-control" id="mInNamedel-0" name="mInNamedel-0"><i class="glyphicon glyphicon-remove"></i></button>
+                        </div>
+                        <div id="mInOptBut" class="col-sm-1" style="width:45px; padding-left:5px; padding-right:0;">
+                            <button type="submit" style="display:none;" class="btn btn-default form-control" id="mInOptBut-0" name="mInOptBut-0"><i class="fa fa-wrench"></i></button>
+                        </div>
+                        <div id="mInOpt" class="col-sm-3" style="width:200px; padding-left:5px; padding-right:0;">
+                            <select id="mInOpt-0" name="mInOpt-0" style="display:none;" class="form-control">
+                                    <option value="filter">filter</option>
+                                    <option value="unique">unique</option>
+                                    <option value="distinct">distinct</option>
+                                    <option value="first">first</option>
+                                    <option value="randomSample">randomSample</option>
+                                    <option value="take">take</option>
+                                    <option value="last">last</option>
+                                    <option value="map">map</option>
+                                    <option value="flatMap">flatMap</option>
+                                    <option value="reduce">reduce</option>
+                                    <option value="groupBy">groupBy</option>
+                                    <option value="groupTuple">groupTuple</option>
+                                    <option value="buffer">buffer</option>
+                                    <option value="collate">collate</option>
+                                    <option value="collect">collect</option>
+                                    <option value="flatten">flatten</option>
+                                    <option value="toList">toList</option>
+                                    <option value="toSortedList">toSortedList</option>
+                                    <option value="transpose">transpose</option>
+                                    <option value="splitCsv">splitCsv</option>
+                                    <option value="splitFasta">splitFasta</option>
+                                    <option value="splitFastq">splitFastq</option>
+                                    <option value="splitText">splitText</option>
+                                    <option value="into">into</option>
+                                    <option value="tap">tap</option>
+                                    <option value="join">join</option>
+                                    <option value="merge">merge</option>
+                                    <option value="mix">mix</option>
+                                    <option value="phase">phase</option>
+                                    <option value="cross">cross</option>
+                                    <option value="collectFile">collectFile</option>
+                                    <option value="combine">combine</option>
+                                    <option value="concat">concat</option>
+                                    <option value="spread">spread</option>
+                                    <option value="choice">choice</option>
+                                    <option value="separate">separate</option>
+                                    <option value="route">route</option>
+                                    <option value="count">count</option>
+                                    <option value="countBy">countBy</option>
+                                    <option value="min">min</option>
+                                    <option value="max">max</option>
+                                    <option value="sum">sum</option>
+                                    <option value="toInteger">toInteger</option>
+                                    <option value="dump">dump</option>
+                                    <option value="set">set</option>
+                                    <option value="ifEmpty">ifEmpty</option>
+                                    <option value="print">print</option>
+                                    <option value="println">println</option>
+                                    <option value="view">view</option>
+                                    <option value="close">close</option>
+                                    </select>
+                        </div>
+                        <div id="mInClosure" class="col-sm-2 " style="width:200px; padding-left:5px; padding-right:0;">
+                            <input type="text" style="display:none; " placeholder="Enter operator content" class="form-control" ppID="" id="mInClosure-0" name="mInClosure-0">
+                        </div>
+                        <div id="mInOptdel" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0;">
+                            <button type="submit" style="display:none;" class="btn btn-default form-control" id="mInOptdel-0" name="mInOptdel-0"><i class="glyphicon glyphicon-remove"></i></button>
                         </div>
                     </div>
 
                     <div id="outputGroup" class="form-group">
-                        <label for="mOutput-1" class="col-sm-2 control-label">Outputs</label>
-                        <div id="mOutputs" class="col-sm-5">
+                        <label for="mOutput-1" style="width:150px;" class="col-sm-2 control-label">Outputs</label>
+                        <div id="mOutputs" class="col-sm-3" style="width:270px;">
                             <select id="mOutputs-1" num="1" class="fbtn btn-default form-control mParChange" prev="-1" name="mOutputs-1"></select>
                         </div>
-                        <div id="mOutName" class="col-sm-4" style="padding-left:0; padding-right:0;">
+                        <div id="mOutName" class="col-sm-2" style="width:200px; padding-left:0; padding-right:0;">
                             <input type="text" style="display:none;" placeholder="Enter name" class="form-control" id="mOutName-0" name="mOutName-0">
                         </div>
-                        <div id="mOutNamedel" class="col-sm-1" style="padding-left: 0;">
+                        <div id="mOutNamedel" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0;">
                             <button type="submit" style="display:none;" class="btn btn-default form-control" id="mOutNamedel-0" name="mOutNamedel-0"><i class="glyphicon glyphicon-remove"></i></button>
+                        </div>
+                        <div id="mOutOptBut" class="col-sm-1" style="width:45px; padding-left:5px; padding-right:0;">
+                            <button type="submit" style="display:none;" class="btn btn-default form-control" id="mOutOptBut-0" name="mOutOptBut-0"><i class="fa fa-wrench"></i></button>
+                        </div>
+                        <div id="mOutOpt" class="col-sm-3" style="width:200px; padding-left:5px; padding-right:0;">
+                            <select id="mOutOpt-0" name="mOutOpt-0" style="display:none;" class="form-control">
+                                   <option value="Select Operator" disabled>Select Operator</option>
+                                    <option value="filter">filter</option>
+                                    <option value="unique">unique</option>
+                                    <option value="distinct">distinct</option>
+                                    <option value="first">first</option>
+                                    <option value="randomSample">randomSample</option>
+                                    <option value="take">take</option>
+                                    <option value="last">last</option>
+                                    <option value="map">map</option>
+                                    <option value="flatMap">flatMap</option>
+                                    <option value="reduce">reduce</option>
+                                    <option value="groupBy">groupBy</option>
+                                    <option value="groupTuple">groupTuple</option>
+                                    <option value="buffer">buffer</option>
+                                    <option value="collate">collate</option>
+                                    <option value="collect">collect</option>
+                                    <option value="flatten">flatten</option>
+                                    <option value="toList">toList</option>
+                                    <option value="toSortedList">toSortedList</option>
+                                    <option value="transpose">transpose</option>
+                                    <option value="splitCsv">splitCsv</option>
+                                    <option value="splitFasta">splitFasta</option>
+                                    <option value="splitFastq">splitFastq</option>
+                                    <option value="splitText">splitText</option>
+                                    <option value="into">into</option>
+                                    <option value="tap">tap</option>
+                                    <option value="join">join</option>
+                                    <option value="merge">merge</option>
+                                    <option value="mix">mix</option>
+                                    <option value="phase">phase</option>
+                                    <option value="cross">cross</option>
+                                    <option value="collectFile">collectFile</option>
+                                    <option value="combine">combine</option>
+                                    <option value="concat">concat</option>
+                                    <option value="spread">spread</option>
+                                    <option value="choice">choice</option>
+                                    <option value="separate">separate</option>
+                                    <option value="route">route</option>
+                                    <option value="count">count</option>
+                                    <option value="countBy">countBy</option>
+                                    <option value="min">min</option>
+                                    <option value="max">max</option>
+                                    <option value="sum">sum</option>
+                                    <option value="toInteger">toInteger</option>
+                                    <option value="dump">dump</option>
+                                    <option value="set">set</option>
+                                    <option value="ifEmpty">ifEmpty</option>
+                                    <option value="print">print</option>
+                                    <option value="println">println</option>
+                                    <option value="view">view</option>
+                                    <option value="close">close</option>
+                                    </select>
+                        </div>
+                        <div id="mOutClosure" class="col-sm-2 " style="width:200px; padding-left:5px; padding-right:0;">
+                            <input type="text" style="display:none; " placeholder="Enter operator content" class="form-control" ppID="" id="mOutClosure-0" name="mOutClosure-0">
+                        </div>
+                        <div id="mOutOptdel" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0;">
+                            <button type="submit" style="display:none;" class="btn btn-default form-control" id="mOutOptdel-0" name="mOutOptdel-0"><i class="glyphicon glyphicon-remove"></i></button>
                         </div>
                     </div>
                     <hr>
                     <div class="form-group">
-                        <label for="mScript" class="col-sm-2 control-label">Script</label>
+                        <label for="mScript" style="width:150px;" class="col-sm-2 control-label">Script</label>
                         <div id="editordiv" class="col-sm-10">
                             <div id="editor"></div>
                             <div class="row">

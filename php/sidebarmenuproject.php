@@ -100,7 +100,7 @@ function getSideMenuItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="index.php?np=3&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li><a href="index.php?np=3&id='.$item->{'id'}.'" class="projectItems"  draggable="false" id="propipe-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }

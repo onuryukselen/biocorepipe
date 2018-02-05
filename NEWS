@@ -1,3 +1,9 @@
+04.02.2018 Version 0.0.45
+sidebar for projects is integrated with pages(add/remove/edit features added).
+.salt replaced with .sec file and config.ini parse feature added.
+operator feature for each process_parameter is added in add process modal.
+bug in nextflow.config file is fixed for local runs. 
+
 03.02.2018 Version 0.0.44
 run pipeline bug fixed.
 sidebar for projects is added.
