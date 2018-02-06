@@ -1,4 +1,7 @@
-04.02.2018 Version 0.0.45
+05.02.2018 Version 0.0.46
+Singularity and docker run options added in run pipeline page.
+
+05.02.2018 Version 0.0.45
 sidebar for projects is integrated with pages(add/remove/edit features added).
 .salt replaced with .sec file and config.ini parse feature added.
 operator feature for each process_parameter is added in add process modal.

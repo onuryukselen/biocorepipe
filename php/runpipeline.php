@@ -2,6 +2,7 @@
     .nodisp {
         display: block
     }
+
 </style>
 
 <div class="box-header" style=" padding-top:0px;  font-size:large; ">
@@ -91,18 +92,41 @@
                     <div>
                         <input type="checkbox" id="docker_check" name="docker_check" data-toggle="collapse" data-target="#docker_imgDiv"> Use Docker Image</input>
                     </div>
-                    <div id="docker_imgDiv" class="collapse">
-                        <input type="text" class="form-control" style="width: 100%;" id="docker_img" name="docker_img" placeholder="Enter docker image">
                     </div>
+                    <div id="docker_imgDiv" class="collapse">
+                       <div class="form-group row">
+                            <label for="docker_img" class="col-sm-2 control-label">Image </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="docker_img" name="docker_img" placeholder="Enter docker image">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="docker_opt" class="col-sm-2 control-label"> RunOptions</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="docker_opt" name="docker_opt" placeholder="Enter docker runOptions">
+                            </div>
+                        </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <input type="checkbox" id="singu_check" name="singu_check" data-toggle="collapse" data-target="#singu_imgDiv"> Use Singularity Image</input>
-                    <div id="singu_imgDiv" class="collapse">
-                        <input type="text" class="form-control " style="width: 100%;" id="singu_img" name="singu_img" placeholder="Enter singularity image file path">
                     </div>
-                </div>
+                    <div id="singu_imgDiv" class="collapse">
+                        <div class="form-group row">
+                            <label for="singu_img" class="col-sm-2 control-label">Image Path</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="singu_img" name="singu_img" placeholder="Enter singularity image path">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="singu_opt" class="col-sm-2 control-label"> RunOptions</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="singu_opt" name="singu_opt" placeholder="Enter singularity runOptions">
+                            </div>
+                        </div>
+                    </div>
+                
             </div>
             <div class="col-md-12">
                 <div class="form-group">
