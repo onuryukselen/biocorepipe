@@ -1590,7 +1590,9 @@
 	      updateCheckBox('#docker_check', pipeData[0].docker_check);
 	      updateCheckBox('#singu_check', pipeData[0].singu_check);
 	      $('#docker_img').val(pipeData[0].docker_img);
+	      $('#docker_opt').val(pipeData[0].docker_opt);
 	      $('#singu_img').val(pipeData[0].singu_img);
+	      $('#singu_opt').val(pipeData[0].singu_opt);
 
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
@@ -1792,13 +1794,21 @@
 	      configTextRaw = '';
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
+	          var docker_opt = $('#docker_opt').val();
 	          configTextRaw += 'process.container = \'' + docker_img + '\'\n';
 	          configTextRaw += 'docker.enabled = true\n';
+              if (docker_opt !== ''){
+	           configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
+              }
 	      }
 	      if ($('#singu_check').is(":checked") === true) {
 	          var singu_img = $('#singu_img').val();
+	          var singu_opt = $('#singu_opt').val();
 	          configTextRaw += 'process.container = \'' + singu_img + '\'\n';
 	          configTextRaw += 'singularity.enabled = true\n';
+              if (singu_opt !== ''){
+	           configTextRaw += 'singularity.runOptions = \'' + singu_opt + '\'\n';
+              }
 	      }
 	      //check executor_job if its local
 	      var [allProSett, profileData] = getJobData("both");
@@ -2021,8 +2031,10 @@
 	      var exec_each_settings = formToJson(exec_each_settingsRaw, 'stringify');
 	      var docker_check = $('#docker_check').is(":checked").toString();
 	      var docker_img = $('#docker_img').val();
+	      var docker_opt = $('#docker_opt').val();
 	      var singu_check = $('#singu_check').is(":checked").toString();
 	      var singu_img = $('#singu_img').val();
+	      var singu_opt = $('#singu_opt').val();
 
 
 	      if (run_name !== '') {
@@ -2042,8 +2054,10 @@
 	          data.push({ name: "exec_each_settings", value: exec_each_settings });
 	          data.push({ name: "docker_check", value: docker_check });
 	          data.push({ name: "docker_img", value: docker_img });
+	          data.push({ name: "docker_opt", value: docker_opt });
 	          data.push({ name: "singu_check", value: singu_check });
 	          data.push({ name: "singu_img", value: singu_img });
+	          data.push({ name: "singu_opt", value: singu_opt });
 	          data.push({ name: "p", value: "saveProjectPipeline" });
 	          console.log(data);
 	          $.ajax({
