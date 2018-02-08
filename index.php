@@ -164,24 +164,28 @@
         }
 
         /*        public pipelines page*/
+
         .boxheader {
-            font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+            font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             padding: 1% 0;
             border-bottom: 2px solid #eee;
             height: 60px !important;
         }
+
         .widget-user-header {
             height: 100px !important;
         }
+
         .box-body {
-            font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+            font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             padding: 20px;
             padding-top: 5px;
         }
+
         .movebox {
             min-width: 220px;
             min-height: 250px;
-            margin-bottom:10px;
+            margin-bottom: 10px;
             border: 2px solid #dee2e8;
             position: relative;
             display: inline-block;
@@ -190,6 +194,7 @@
             box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.15);
             transition: all 0.3s ease-in-out;
         }
+
         .movebox::after {
             position: absolute;
             z-index: -1;
@@ -198,20 +203,25 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             transition: opacity 0.3s ease-in-out;
         }
+
         /* Scale up the box */
+
         .movebox:hover {
-             box-shadow: 0 0 20px rgba(33,33,33,.2); 
+            box-shadow: 0 0 20px rgba(33, 33, 33, .2);
         }
+
         /* Fade in the pseudo-element with the bigger shadow */
+
         .movebox:hover::after {
             opacity: 1;
         }
+
         /* In order to fix textarea width*/
+
         textarea {
-          resize: vertical;
+            resize: vertical;
         }
 
-        
     </style>
 
 </head>
@@ -244,9 +254,17 @@
                 </div>
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
+                        <li id="manageAmz" style="display:none">
+                            <a href="#amzModal" data-toggle="modal">Amazon
+<!--              <i class="fa fa-amazon"></i>-->
+              <small id="amzAmount" style="display:none" class="label pull-right bg-green"></small>
+            </a>
+                        </li>
                         <li><a href="index.php?np=4">Profiles </a></li>
-                        <li > <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
-<!--                        <li><a href="#"><i class="fa fa-gears"></i></a></li>-->
+                        <li> <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
+                        <!--                        <li><a href="#"><i class="fa fa-gears"></i></a></li>-->
+
+
                     </ul>
                 </div>
             </nav>
@@ -335,24 +353,106 @@
             <div class="control-sidebar-bg"></div>
         </div>
         <!-- ./wrapper -->
-<!--        feedback modal-->
+        <!--        feedback modal-->
         <div id="feedback">
-	<div id="feedback-form" style='display:none;' class="col-xs-4 col-md-4 panel panel-default">
-		<form method="POST" action="/feedback" class="form panel-body" role="form">
-			<div class="form-group">
-				<input class="form-control" name="email" autofocus placeholder="Your e-mail" type="email" />
-			</div>
-			<div class="form-group">
-				<textarea class="form-control" name="message" required placeholder="Please write your feedback here..." rows="5"></textarea>
-			</div>
-			<button class="btn btn-primary pull-right" type="submit">Send</button>
-		</form>
-	</div>
-	<div id="feedback-tab">Feedback</div>
-</div>
-<!--        feedback modal ends-->
-       
+            <div id="feedback-form" style='display:none;' class="col-xs-4 col-md-4 panel panel-default">
+                <form method="POST" action="/feedback" class="form panel-body" role="form">
+                    <div class="form-group">
+                        <input class="form-control" name="email" autofocus placeholder="Your e-mail" type="email" />
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" name="message" required placeholder="Please write your feedback here..." rows="5"></textarea>
+                    </div>
+                    <button class="btn btn-primary pull-right" type="submit">Send</button>
+                </form>
+            </div>
+            <div id="feedback-tab">Feedback</div>
+        </div>
+        <!--        feedback modal ends-->
+
+        <!-- Add Amazon Modal Starts-->
+        <div id="amzModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Amazon Management Console</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="panel panel-default">
+                                <div>
+                                    </br>
+                                    <table id="amzTable" class="table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Profile Name</th>
+                                                <th scope="col">Details</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add Amazon Modal Ends-->
         
+        <!-- Add Amazon Node Modal Starts-->
+        <div id="addAmzNodeModal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Configuration</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group" style="display:none">
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="profileID" name="id">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numNodes" class="col-sm-3 control-label">Nodes</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="numNodes" required name="nodes" placeholder="Enter the number of nodes">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" >Use Autoscale</label>
+                                <div class="col-sm-9">
+                                <input type="checkbox" id="autoscale_check" name="autoscale_check" data-toggle="collapse" data-target="#autoscaleDiv"> 
+                            </div>
+                            </div>
+                            <div id="autoscaleDiv" class="collapse">
+                                <div class="form-group row">
+                                    <label for="autoscale_maxIns" class="col-sm-3 control-label">Maximum instances <span><a data-toggle="tooltip" data-placement="bottom" title="Maximum number of instances on the cluster"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="autoscale_maxIns" name="autoscale_maxIns" placeholder="Enter the number of maximum instances">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="activateAmz" >Activate Cluster</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add Amazon Node Modal Ends-->
+
+
 
         <!--Google Platform Library on your web pages that integrate Google Sign-In-->
         <script src="https://apis.google.com/js/platform.js" async defer></script>
@@ -365,6 +465,7 @@
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
         <script>
             $.widget.bridge('uibutton', $.ui.button);
+
         </script>
         <!-- Bootstrap 3.3.7 -->
         <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -399,8 +500,8 @@
         <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
 
         <?php print getJS($np, $login, $id); ?>
-        
-        
+
+
 </body>
 
 </html>

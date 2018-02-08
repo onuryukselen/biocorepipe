@@ -53,18 +53,18 @@ $(document).ready(function () {
             function fillFixedCol(formValues,data){
                 $(formValues[0]).val(data[0].id);
                 $(formValues[1]).val(data[0].name);
-                $(formValues[13]).val(data[0].cmd);
-                $(formValues[14]).val(data[0].next_path);
-                $(formValues[15]).val(data[0].executor);
-                $(formValues[16]).val(data[0].next_queue);
-                $(formValues[17]).val(data[0].next_memory);
-                $(formValues[18]).val(data[0].next_cpu);
-                $(formValues[19]).val(data[0].next_time);
-                $(formValues[20]).val(data[0].executor_job);
-                $(formValues[21]).val(data[0].job_queue);
-                $(formValues[22]).val(data[0].job_memory);
-                $(formValues[23]).val(data[0].job_cpu);
-                $(formValues[24]).val(data[0].job_time);
+                $(formValues[16]).val(data[0].cmd);
+                $(formValues[17]).val(data[0].next_path);
+                $(formValues[18]).val(data[0].executor);
+                $(formValues[19]).val(data[0].next_queue);
+                $(formValues[20]).val(data[0].next_memory);
+                $(formValues[21]).val(data[0].next_cpu);
+                $(formValues[22]).val(data[0].next_time);
+                $(formValues[23]).val(data[0].executor_job);
+                $(formValues[24]).val(data[0].job_queue);
+                $(formValues[25]).val(data[0].job_memory);
+                $(formValues[26]).val(data[0].job_cpu);
+                $(formValues[27]).val(data[0].job_time);
             };
             console.log(formValues);
             if (proType === "local") {
@@ -85,11 +85,16 @@ $(document).ready(function () {
                 console.log(data);
                 $('#chooseEnv').val('amazon').trigger('change');
                 fillFixedCol(formValues,data);
+                $(formValues[6]).val(data[0].prikey_amz);
+                $(formValues[7]).val(data[0].pubkey_amz);
                 $(formValues[8]).val(data[0].default_region);
                 $(formValues[9]).val(data[0].access_key);
                 $(formValues[10]).val(data[0].secret_key);
                 $(formValues[11]).val(data[0].instance_type);
                 $(formValues[12]).val(data[0].image_id);
+                $(formValues[13]).val(data[0].subnet_id);
+                $(formValues[14]).val(data[0].shared_storage_id);
+                $(formValues[15]).val(data[0].shared_storage_mnt);
                 $('#mExec').trigger('change');
             }
                 $('#chooseEnv').attr('disabled', "disabled");
@@ -102,18 +107,18 @@ $(document).ready(function () {
             var noneList = [];
             var blockList = [];
             if (selEnvType === "local") {
-                var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "execJobSetDiv"];
+                var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
                 var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv"];
 //                if ($('#mExec > .hideClu').length === 0){
 //                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
 //                }
             } else if (selEnvType === "cluster") {
-                var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "execJobSetDiv"];
+                var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
                 var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv"];
 //                $('#mExec > .hideClu').remove();
             } else if (selEnvType === "amazon") {
                 var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv"];
-                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv", "execJobSetDiv"];
+                var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv","mExecJobDiv", "execJobSetDiv","mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
 //                if ($('#mExec > .hideClu').length === 0){
 //                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
 //                }
@@ -156,7 +161,7 @@ $(document).ready(function () {
 
     // Dismiss parameters modal 
     $('#profilemodal').on('hide.bs.modal', function (event) {
-        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv", "mExecJobDiv", "execJobSetDiv"];
+        var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv","execNextDiv", "mExecJobDiv", "execJobSetDiv","mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
         $.each(noneList, function (element) {
             $('#' + noneList[element]).css('display', 'none');
         });
@@ -183,8 +188,8 @@ $(document).ready(function () {
                 data[5].value = encodeURIComponent(data[5].value);
                 data.push({ name: "p", value: "saveProfileCluster" });
             } else if (selEnvType === "amazon") {
-                data[5].value = encodeURIComponent(data[6].value);
-                data[5].value = encodeURIComponent(data[7].value);
+                data[6].value = encodeURIComponent(data[6].value);
+                data[7].value = encodeURIComponent(data[7].value);
                 data.push({ name: "p", value: "saveProfileAmazon" });
             }
         console.log(data)
@@ -197,11 +202,11 @@ $(document).ready(function () {
                     if (savetype.length) { //edit
                         var clickedRowId = selEnvType + '-' +savetype;
                         if (selEnvType === "local") {
-                             updateLocalRow(data[0].value, data[1].value, data[14].value, data[15].value)
+                             updateLocalRow(data[0].value, data[1].value, data[17].value, data[18].value)
                         } else if (selEnvType === "cluster") {
-                            updateClusterRow(data[0].value, data[1].value, data[14].value, data[15].value, data[3].value, data[4].value)
+                            updateClusterRow(data[0].value, data[1].value, data[17].value, data[18].value, data[3].value, data[4].value)
                         } else if (selEnvType === "amazon") {
-                            updateAmazonRow(data[0].value, data[1].value, data[14].value, data[15].value, data[11].value, data[12].value); 
+                            updateAmazonRow(data[0].value, data[1].value, data[17].value, data[18].value, data[11].value, data[12].value); 
                         }
                         //                        var clickedRow = $('#saveproject').data('clickedrow');
                         //                        var getProjectData = [];
@@ -233,16 +238,18 @@ $(document).ready(function () {
                     } else { //insert
                         console.log(data);
                         if (selEnvType === "local") {
-                            addLocalRow(s.id, data[1].value, data[14].value, data[15].value);
+                            addLocalRow(s.id, data[1].value, data[17].value, data[18].value);
                         } else if (selEnvType === "cluster") {
-                            addClusterRow(s.id, data[1].value, data[14].value, data[15].value, data[3].value, data[4].value);
+                            addClusterRow(s.id, data[1].value, data[17].value, data[18].value, data[3].value, data[4].value);
                         } else if (selEnvType === "amazon") {
-                            addAmazonRow(s.id, data[1].value, data[14].value, data[15].value, data[11].value, data[12].value); 
+                            addAmazonRow(s.id, data[1].value, data[17].value, data[18].value, data[11].value, data[12].value); 
                         }
                         var numRows = $('#profilesTable > > tr').length;
                         if (numRows > 2) {
                             $('#noProfile').css('display', 'none');
                         }
+                        $('#manageAmz').css('display','inline');
+                        
 
                     }
 
@@ -282,6 +289,11 @@ $(document).ready(function () {
                 var numRows = $('#profilesTable > > tr').length;
                 if (numRows === 2) {
                     $('#noProfile').css('display', 'block');
+                }
+                // check the amazon profiles 
+                var proAmzData = getValues({ p: "getProfileAmazon" });
+                if (proAmzData.length < 1 ){
+                $('#manageAmz').css('display','none');
                 }
             },
             error: function (errorThrown) {

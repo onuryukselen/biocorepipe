@@ -1,3 +1,150 @@
+$(document).ready(function () {
+    // check the amazon profiles activity after each minute.
+    var proAmzData = getValues({ p: "getProfileAmazon" });
+    console.log(proAmzData);
+    if (proAmzData.length > 0) {
+        $('#manageAmz').css('display', 'inline');
+        //    checkAmazonTimer();
+
+    }
+
+    function checkAmazonTimer(proId) {
+        interval_amzStatus_ID = setInterval(function () {
+            status = checkAmazonStatus(proId)
+	          console.log(status)
+        }, 6000);
+    }
+    
+    function checkAmazonStatus(proId) {
+
+	      var checkAmazonStatus = getValues({ p: "checkAmazonStatus", profileId: proId });
+	      console.log(checkAmazonStatus);
+        if (checkAmazonStatus.cloudlist){
+            //still waiting
+            $('#status-' + proId).text('Waiting for reply');
+            if (checkAmazonStatus.sshText){
+                $('#status-' + proId).text('Running');
+            }
+        } else {
+            //check error 
+        }
+
+//	      if (proType === 'local') {
+//	          if (checkRunStatus === "running") {
+//	              var runLog = getNextflowLog(project_pipeline_id, proType);
+//	              $('#runLogArea').val(runLog);
+//	              return checkRunStatus;
+//	          } else if (checkRunStatus === "completed") {
+//	              var runLog = getNextflowLog(project_pipeline_id, proType);
+//	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
+//	              $('#runLogArea').val(runLog);
+//	              $('#runningProPipe').css('display', 'none');
+//	              $('#completeProPipe').css('display', 'inline');
+//	              clearInterval(interval_nextlog_ID);
+//	          }
+//	      } else if (proType === 'cluster') {
+//	          if (checkRunStatus === "running") {
+//	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
+//	              if (nextflowLog !== null) {
+//	                  $('#runLogArea').val(serverLog + nextflowLog);
+//	              }
+//	              return checkRunStatus;
+//	          } else if (checkRunStatus === "completed") {
+//	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
+//	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
+//	              $('#runLogArea').val(serverLog + nextflowLog);
+//	              if (updateRunPidComp) {
+//	                  $('#runningProPipe').css('display', 'none');
+//	                  $('#completeProPipe').css('display', 'inline');
+//	                  clearInterval(interval_nextlog_ID);
+//	              }
+//	          }
+//	      }
+	  }
+
+    function addAmzRow(id, name, default_region, executor, instance_type, image_id, subnet_id) {
+        $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Default Region: ' + default_region + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
+    }
+
+    $('#amzModal').on('show.bs.modal', function (event) {
+        $(this).find('form').trigger('reset');
+        var proAmzData = getValues({ p: "getProfileAmazon" });
+
+        $.each(proAmzData, function (el) {
+            addAmzRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].default_region, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id, proAmzData[el].subnet_id);
+        });
+
+    });
+
+    //close amzModal
+    $('#amzModal').on('hide.bs.modal', function (event) {
+        $('#amzTable td ').remove();
+    });
+
+    $('#amzModal').on('click', '#amzStart', function (e) {
+        e.preventDefault();
+        var clickedRowId = $(this).closest('tr').attr('id'); //local-20
+        var patt = /(.*)-(.*)/;
+        var proId = clickedRowId.replace(patt, '$2');
+
+        //enter amazon details modal
+        $('#addAmzNodeModal').off();
+        $('#addAmzNodeModal').on('show.bs.modal', function (event) {
+            $(this).find('form').trigger('reset');
+        });
+        //close addAmzNodeModal
+        $('#addAmzNodeModal').on('hide.bs.modal', function (event) {
+            $('#autoscaleDiv').attr('class', 'collapse');
+        });
+        $('#addAmzNodeModal').on('click', '#activateAmz', function (event) {
+            event.preventDefault();
+            var data = {};
+            var numNodes = $('#numNodes').val();
+            var autoscale_check = $('#autoscale_check').is(":checked").toString();
+            var autoscale_maxIns = $('#autoscale_maxIns').val();
+            if (numNodes !== '') {
+                data = {
+                    "id": proId,
+                    "nodes": numNodes,
+                    "autoscale_check": autoscale_check,
+                    "autoscale_maxIns": autoscale_maxIns,
+                    "p": "startProAmazon"
+                };
+
+                console.log(data)
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxquery.php",
+                    data: data,
+                    async: true,
+                    success: function (s) {
+                        if (s.start_cloud) {
+                        // check the amazon profiles activity each minute.
+                        checkAmazonTimer(proId);
+                        $('#status-' + proId).text('Waiting for reply');
+                        $('#' + clickedRowId + ' > > #amzStart').css('display', 'none');
+                        $('#addAmzNodeModal').modal('hide');
+                        }
+                    }
+                });
+            }
+        });
+        $('#addAmzNodeModal').modal('show');
+    });
+
+
+
+
+
+
+
+
+
+});
+
+
+
+
 var SELECT = 4; // 1
 var EDIT = 2; // 10
 var REMOVE = 1; // 100
@@ -275,77 +422,63 @@ $('.collapseIcon').on('click', function (e) {
 
 // fills the from with the object data. find is comma separated string: 'input, p'
 //eg.  fillForm('#execNextSettTable','input', exec_next_settings);
- 
+
 function fillForm(formId, find, data) {
     var formValues = $(formId).find(find);
 
     var keys = Object.keys(data);
     for (var i = 0; i < keys.length; i++) {
         $(formValues[i]).val(data[keys[i]]);
-    console.log(data);
-    console.log(keys[i]);
-    console.log(data[keys[i]]);
-        
+        console.log(data);
+        console.log(keys[i]);
+        console.log(data[keys[i]]);
+
     }
 }
 
 
 
-$(function() {
-	$("#feedback-tab").click(function() {
-		$("#feedback-form").toggle("slide right");
-	});
+$(function () {
+    $("#feedback-tab").click(function () {
+        $("#feedback-form").toggle("slide right");
+    });
 
-	$("#feedback-form form").on('submit', function(event) {
-		var $form = $(this);
+    $("#feedback-form form").on('submit', function (event) {
+        var $form = $(this);
         var data = $form.serializeArray();
-        data.push({name:"p" , value:"savefeedback"}) 
+        data.push({ name: "p", value: "savefeedback" })
         console.log(data);
-		$.ajax({
-			type: "POST",
-			url: "ajax/ajaxquery.php",
-			data: data,
-			success: function() {
-				$("#feedback-form").toggle("slide right").find("textarea").val('');
-			}
-		});
-		event.preventDefault();
-	});
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: data,
+            success: function () {
+                $("#feedback-form").toggle("slide right").find("textarea").val('');
+            }
+        });
+        event.preventDefault();
+    });
 });
 
 
-function escapeHtml(str)
-{
-    var map =
-    {
+function escapeHtml(str) {
+    var map = {
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
         "'": '&#039;'
     };
-    return str.replace(/[&<>"']/g, function(m) {return map[m];});
+    return str.replace(/[&<>"']/g, function (m) { return map[m]; });
 }
-function decodeHtml(str)
-{
-    var map =
-    {
+
+function decodeHtml(str) {
+    var map = {
         '&amp;': '&',
         '&lt;': '<',
         '&gt;': '>',
         '&quot;': '"',
         '&#039;': "'"
     };
-    return str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, function(m) {return map[m];});
+    return str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, function (m) { return map[m]; });
 }
-
-
-
-
-
-
-
-
-
-
-

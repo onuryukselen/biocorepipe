@@ -1612,7 +1612,6 @@
 	              $('#jobSettingsDiv').css('display', 'inline');
 	              //insert exec_all_settings data into allProcessSettTable table 
 	              if (IsJsonString(pipeData[0].exec_all_settings)) {
-	                  console.log(pipeData);
 	                  var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
 	                  fillForm('#allProcessSettTable', 'input', exec_all_settings);
 	              }
@@ -1795,20 +1794,32 @@
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
 	          var docker_opt = $('#docker_opt').val();
-	          configTextRaw += 'process.container = \'' + docker_img + '\'\n';
+	          configTextRaw += 'process.container = \'' + downDocker_img + '\'\n';
 	          configTextRaw += 'docker.enabled = true\n';
-              if (docker_opt !== ''){
-	           configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
-              }
+	          if (docker_opt !== '') {
+	              configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
+	          }
 	      }
 	      if ($('#singu_check').is(":checked") === true) {
 	          var singu_img = $('#singu_img').val();
+	          //var patt = /^docker:\/\/(.*)/g;
+//	          var patt = /^shub:\/\/(.*)/g;
+//	          var singuPath = singu_img.replace(patt, '$1');
+//              console.log('singuPath');
+//              console.log(singuPath);
+//	          if (patt.test(singu_img)) {
+//	              singuPath = singuPath.replace(/\//g, '-')
+//	              var downSingu_img = '~/.dolphinnext/singularity/' + singuPath+'.simg';
+//	          } else {
+	              var downSingu_img = singu_img;
+//	          }
+
 	          var singu_opt = $('#singu_opt').val();
-	          configTextRaw += 'process.container = \'' + singu_img + '\'\n';
+	          configTextRaw += 'process.container = \'' + downSingu_img + '\'\n';
 	          configTextRaw += 'singularity.enabled = true\n';
-              if (singu_opt !== ''){
-	           configTextRaw += 'singularity.runOptions = \'' + singu_opt + '\'\n';
-              }
+	          if (singu_opt !== '') {
+	              configTextRaw += 'singularity.runOptions = \'' + singu_opt + '\'\n';
+	          }
 	      }
 	      //check executor_job if its local
 	      var [allProSett, profileData] = getJobData("both");
@@ -2059,7 +2070,6 @@
 	          data.push({ name: "singu_img", value: singu_img });
 	          data.push({ name: "singu_opt", value: singu_opt });
 	          data.push({ name: "p", value: "saveProjectPipeline" });
-	          console.log(data);
 	          $.ajax({
 	              type: "POST",
 	              url: "ajax/ajaxquery.php",
