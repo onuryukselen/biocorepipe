@@ -87,6 +87,9 @@ else if ($p=="startProAmazon"){
     $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check,$autoscale_maxIns,$ownerID);
     $data = $db -> startProAmazon($id,$ownerID);
 }
+else if ($p=="stopProAmazon"){
+    $data = $db -> stopProAmazon($id,$ownerID);
+}
 else if ($p=="checkAmazonStatus"){
 	$profileId = $_REQUEST['profileId'];
     $data = $db -> checkAmazonStatus($profileId,$ownerID);
