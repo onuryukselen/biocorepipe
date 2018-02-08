@@ -38,7 +38,8 @@ define('DBHOST', $sec['DBHOST']);
 define('DBPORT', $sec['DBPORT']);
 define('SSHPATH', $sec['SSHPATH']);
 define('AMAZON', $sec['AMAZON']);
-define('LMUSER', $sec['LMUSER']);
+define('AMZPATH', $sec['AMZPATH']);
+//define('LMUSER', $sec['LMUSER']);
 
 //define('MASTER', $salt['MASTER']);
 //define('AMAZON', $salt['AMAZON']);

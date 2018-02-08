@@ -13,6 +13,8 @@ class dbfuncs {
     private $ssh_path = SSHPATH;
     private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -o ConnectTimeout=3";
     private $dolphin_path = DOLPHINPATH;
+    private $amz_path = AMZPATH;
+    private $amazon = AMAZON;
     private static $link;
 
     function __construct() {
@@ -86,6 +88,58 @@ class dbfuncs {
         fwrite($file, $text."\n");
         fclose($file);
     }
+    //$img: path of image
+    function imageCmd($img, $type, $profileType ){
+        if ($type == 'singularity'){
+            preg_match("/shub:\/\/(.*)/", $img, $matches);
+              if ($matches[1] != ''){
+                  $imageName = str_replace("/","-",$matches[1]);
+                  $image = '~/.dolphinnext/singularity/' + $imageName;
+                  if ($profileType == 'local' || $profileType == 'cluster'){
+                  $cmd = "mkdir -p ~/.dolphinnext/singularity && cd ~/.dolphinnext/singularity && singularity pull --name ".$imageName.".simg ".$img;
+                  return $cmd;
+                  }
+              }  
+        } else if ($type == 'docker'){
+            
+        }
+        
+    }
+    
+    //type:w creates new file
+    function createDirFile ($pathDir, $fileName, $type, $text){
+        if ($pathDir != ""){
+            mkdir("$pathDir", 0755, true);
+        }
+        if ($fileName != ""){
+            $file = fopen("$pathDir/$fileName", $type);
+            fwrite($file, $text);
+            fclose($file);
+            chmod("$pathDir/$fileName", 0755);
+        }
+    }
+    
+    //if logArray not exist than send empty ""
+    function runCommand ($cmd, $logName, $logArray) {
+        $pid_command = popen($cmd, 'r');
+        $pid = fread($pid_command, 2096);
+        pclose($pid_command);
+        if (empty($logArray)){
+        $log_array = array($logName => $pid);
+        } else {
+        $log_array[$logName] = $pid;    
+        }
+        return $log_array;
+    }
+    
+    //full path for file
+    function readFile($path){
+        $handle = fopen($path, 'r');
+        $content = fread($handle, filesize($path));
+        fclose($handle);
+        return $content;
+    }
+    
     
     function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
     {
@@ -102,6 +156,8 @@ class dbfuncs {
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
+
+            
             $run_path_real = "$outdir/run{$project_pipeline_id}";
             //check nextflow file
             $log_path_server = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -157,6 +213,12 @@ class dbfuncs {
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
             $proPipeCmd = $proPipeAll[0]->{'cmd'};
+            $singu_check = $proPipeAll[0]->{'singu_check'};
+            if ($singu_check == "true"){
+                $singu_img = $proPipeAll[0]->{'singu_img'};
+                $imageCmd =='';
+//                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
+            }
             //profile cmd before nextflow run
             $locData=$this->getProfileLocalbyID($profileId, $ownerID);
             $locDataArr=json_decode($locData,true);
@@ -177,6 +239,17 @@ class dbfuncs {
             } else {
                 $preCmd ="";
             }
+            //combine pre-run cmd with $imageCmd
+            if (!empty($preCmd) && !empty($imageCmd)){
+                $preCmd = $preCmd." && ".$imageCmd;
+            } else if (!empty($preCmd)){
+                $preCmd = $preCmd;
+            } else if (!empty($imageCmd)){
+                $preCmd = "&& ".$imageCmd;
+            } else {
+                $preCmd ="";
+            }
+            
             //eg. /project/umw_biocore/bin
             if (!empty($next_path)){
                 $next_path_real = "$next_path/nextflow";
@@ -192,10 +265,10 @@ class dbfuncs {
 //            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1  ';
             //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
             if ($executor == "local"){
-            $exec_next_all = "$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 ";
+            $exec_next_all = "cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 ";
             } else if ($executor == "lsf"){  
             $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-            $exec_next_all = "$exec_string \"$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 \">> $log_path_server/log.txt 2>&1";
+            $exec_next_all = "cd $run_path_real && $exec_string \"$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 \">> $log_path_server/log.txt 2>&1";
             } else if ($executor == "sge"){
             } else if ($executor == "slurm"){
             }
@@ -220,6 +293,13 @@ class dbfuncs {
             $outdir = $proPipeAll[0]->{'output_dir'};
             $proPipeCmd = $proPipeAll[0]->{'cmd'};
 //            $jobname = $proPipeAll[0]->{'pp_name'};
+            $singu_check = $proPipeAll[0]->{'singu_check'};
+            if ($singu_check == "true"){
+                $singu_img = $proPipeAll[0]->{'singu_img'};
+                $imageCmd =='';
+//                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
+            }
+ 
 
             //get username and hostname for connection
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
@@ -239,6 +319,16 @@ class dbfuncs {
                 $preCmd = "&& ".$profileCmd;
             } else if (!empty($proPipeCmd)){
                 $preCmd = "&& ".$proPipeCmd;
+            } else {
+                $preCmd ="";
+            }
+            //combine pre-run cmd with $imageCmd
+            if (!empty($preCmd) && !empty($imageCmd)){
+                $preCmd = $preCmd." && ".$imageCmd;
+            } else if (!empty($preCmd)){
+                $preCmd = $preCmd;
+            } else if (!empty($imageCmd)){
+                $preCmd = "&& ".$imageCmd;
             } else {
                 $preCmd ="";
             }
@@ -265,10 +355,10 @@ class dbfuncs {
             
             //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
             if ($executor == "local"){
-            $exec_next_all = "$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
             } else if ($executor == "lsf"){  
             $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-            $exec_next_all = "$exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"";
             } else if ($executor == "sge"){
             } else if ($executor == "slurm"){
             }
@@ -298,37 +388,114 @@ class dbfuncs {
     }
     
     
-    function insertPrikey_clu($id, $prikey_clu, $ownerID){
-        mkdir("../{$this->ssh_path}", 0755, true);
-        $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 'w');//creates new file
-        fwrite($file, $prikey_clu);
-        fclose($file);
-        chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
+    function insertKey($id, $key, $type, $ownerID){
+            mkdir("../{$this->ssh_path}", 0755, true);
+        if ($type == 'clu'){
+            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 'w');//creates new file
+            fwrite($file, $key);
+            fclose($file);
+            chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
+        } else if ($type == 'amz_pri'){
+            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            fwrite($file, $key);
+            fclose($file);
+            chmod("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
+        } else if ($type == 'amz_pub'){
+            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            fwrite($file, $key);
+            fclose($file);
+            chmod("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
+            
+        }
+
     }
-    function readPrikey_clu($id, $ownerID){
+    function readKey($id, $type, $ownerID){
+        
+        if ($type == 'clu'){
         $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        } else if ($type == 'amz_pub' || $type == 'amz_pri'){
+        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        }
         $handle = fopen($filename, 'r');//creates new file
         $content = fread($handle, filesize($filename));
         fclose($handle);
+        
         return $content;
     }
-    function delPrikey_clu($id, $ownerID){
+    function delKey($id, $type, $ownerID){
+        if ($type == 'clu'){
         $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        } else if ($type == 'amz_pub' || $type == 'amz_pri'){
+        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        }
         unlink($filename); 
     }
     
-        function amazonEncode($a_key){
-            $cmd = "cd ../scripts && python encode.py AMAZON $a_key";
-            $amazon_key = popen( $cmd, "r" );
-            $encrypted_a_key=fread($amazon_key, 2096);
-            return $encrypted_a_key;
-        }
-	   function amazonDecode($a_key){
-           $cmd = "cd ../scripts && python decode.py AMAZON $a_key";
-           $amazon_key = popen( $cmd, "r" );
-           $decrypted_a_key=fread($amazon_key, 2096);
-           return $decrypted_a_key;
-       }
+    function amazonEncode($a_key){
+        $encrypted_string=openssl_encrypt($a_key,"AES-128-ECB",$this->amazon);
+        return $encrypted_string;
+    }
+    function amazonDecode($a_key){
+        $decrypted_string=openssl_decrypt($a_key,"AES-128-ECB",$this->amazon);
+        return $decrypted_string;
+    }
+    
+    function startProAmazon($id,$ownerID){
+        $data = json_decode($this->getProfileAmazonbyID($id, $ownerID));
+        foreach($data as $d){
+            $access = $d->access_key;
+            $d->access_key = trim($this->amazonDecode($access));
+            $secret = $d->secret_key;
+            $d->secret_key = trim($this->amazonDecode($secret));
+	    }
+        $name = $data[0]->{'name'};
+        $image_id = $data[0]->{'image_id'};
+        $instance_type = $data[0]->{'instance_type'};
+        $subnet_id = $data[0]->{'subnet_id'};
+        $shared_storage_id = $data[0]->{'shared_storage_id'};
+        $shared_storage_mnt = $data[0]->{'shared_storage_mnt'};
+        $keyFile = "../../../{$this->ssh_path}/{$ownerID}_{$id}_amz_pub.pky";
+        $access_key = $data[0]->{'access_key'};
+        $secret_key = $data[0]->{'secret_key'};
+        $default_region = $data[0]->{'default_region'};
+        $nodes = $data[0]->{'nodes'};
+        $autoscale_check = $data[0]->{'autoscale_check'};
+        $autoscale_maxIns = $data[0]->{'autoscale_maxIns'};
+        
+        $text= "cloud { \n";
+        $text.= "   imageId = '$image_id'\n";
+        $text.= "   instanceType = '$instance_type'\n";
+        $text.= "   subnetId = '$subnet_id'\n";
+        $text.= "   sharedStorageId = '$shared_storage_id'\n";
+        $text.= "   sharedStorageMount = '$shared_storage_mnt'\n";
+        $text.= "   keyFile = '$keyFile'\n";
+        $text.= "}\n";
+        $text.= "aws{\n";
+        $text.= "   accessKey = '$access_key'\n";
+        $text.= "   secretKey = '$secret_key'\n";
+        $text.= "   region = '$default_region'\n";
+        $text.= "}\n";
+        $this->createDirFile ("../{$this->amz_path}/pro_{$id}", "nextflow.config", 'w', $text );
+        //start amazon cluster
+        $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} -c $nodes > logAmzStart.txt 2>&1 & echo $! &";
+        $pid_command = popen($cmd, 'r');//copy file
+        $pid = fread($pid_command, 2096);
+        $this->updateAmazonProStatus($id, "waiting", $ownerID);
+        pclose($pid_command);
+        $log_array = array('start_cloud' => $pid);
+        return json_encode($log_array);
+    }
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     
 //    ---------------  Users ---------------
@@ -368,11 +535,11 @@ class dbfuncs {
         return self::queryTable($sql);    
     }
     public function getProfileAmazon($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_amazon WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt,nodes, autoscale_check, autoscale_maxIns FROM profile_amazon WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazonbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt, nodes, autoscale_check, autoscale_maxIns FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     
@@ -395,12 +562,21 @@ class dbfuncs {
         $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
-        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertProfileAmazon($name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $subnet_id, $shared_storage_id, $shared_storage_mnt, $ownerID) {
+        $sql = "INSERT INTO profile_amazon(name, executor, next_path, default_region, access_key, secret_key, instance_type, image_id, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', '$ins_type', '$image_id', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$subnet_id','$shared_storage_id','$shared_storage_mnt','$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
-        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileAmazon($id, $name, $executor, $next_path, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ins_type, $image_id, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $subnet_id, $shared_storage_id, $shared_storage_mnt, $ownerID) {
+        $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', default_region='$amz_def_reg', access_key='$amz_acc_key', secret_key='$amz_suc_key', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', subnet_id='$subnet_id', shared_storage_id='$shared_storage_id', shared_storage_mnt='$shared_storage_mnt', last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function updateProfileAmazonNode($id, $nodes, $autoscale_check, $autoscale_maxIns, $ownerID) {
+        $sql = "UPDATE profile_amazon SET nodes='$nodes', autoscale_check='$autoscale_check', autoscale_maxIns='$autoscale_maxIns', last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    
+    public function updateAmazonProStatus($id, $status, $ownerID) {
+        $sql = "UPDATE profile_amazon SET status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -416,6 +592,8 @@ class dbfuncs {
         $sql = "DELETE FROM profile_amazon WHERE id = '$id'";
         return self::runSQL($sql);
     }
+    
+
     
 //    ------------- Parameters ------------
     
@@ -560,6 +738,48 @@ class dbfuncs {
     public function getRun($project_pipeline_id,$ownerID) {
         $sql = "SELECT * FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
 		return self::queryTable($sql);
+    }
+    public function getAmazonStatus($id,$ownerID) {
+        $sql = "SELECT status FROM profile_amazon WHERE id = '$id'";
+		return self::queryTable($sql);
+    }
+    
+    public function checkAmazonStatus($id,$ownerID) {
+        //check status of database
+        $amzStat = json_decode($this->getAmazonStatus($id,$ownerID)); 
+        $status = $amzStat[0]->{'status'};
+        if ($status == "waiting"){
+            //check cloud list
+            $cmd = "cd ../{$this->amz_path}/pro_$id && rm -logAmzCloudList.txt && nextflow cloud list cluster$id > logAmzCloudList.txt 2>&1 & echo $! &";
+            $log_array = $this->runCommand ($cmd, 'cloudlist', '');
+            //read logAmzCloudList.txt
+            $logPath ="../{$this->amz_path}/pro_{$id}/logAmzCloudList.txt";
+            $logAmzCloudList = $this->readFile($logPath);
+            $log_array['logAmzCloudList'] = $logAmzCloudList;
+            if (preg_match("/running/",$logAmzCloudList)){
+                $this->updateAmazonProStatus($id, "running", $ownerID);
+                //read logAmzStart.txt
+                $amzStartPath ="../{$this->amz_path}/pro_{$id}/logAmzStart.txt";
+                $amzStartLog = $this->readFile($amzStartPath);
+                $log_array['$amzStartLog'] = $amzStartLog;
+                if (preg_match("/ssh -i(.*)/",$amzStartLog)){
+                    preg_match("/ssh -i <(.*)> (.*)/",$amzStartLog, $match);
+                    $sshText = $match[2];
+                    $log_array['sshText'] = $sshText;
+//                $this->updateAmazonProSSH($id, $sshText, $ownerID);
+                    return json_encode($log_array);
+                } else {
+                    return json_encode($log_array);
+//                    die (json_encode("error: SSH path not found"));
+                }
+            } else {
+                //still waiting, come back later
+                    return json_encode($log_array);
+            }
+            
+        }
+        
+        
     }
     
     public function checkRunPid($pid,$profileType,$profileId,$ownerID) {

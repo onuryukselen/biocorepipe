@@ -6,7 +6,7 @@
             <div class="nav-tabs-custom">
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#runEnvDiv" data-toggle="tab" aria-expanded="true">Run Environments</a></li>
-                    <li class=""><a href="#settings" data-toggle="tab" aria-expanded="false">Settings</a></li>
+                    <li class=""><a href="#groups" data-toggle="tab" aria-expanded="false">Groups</a></li>
 
                 </ul>
                 <div class="tab-content">
@@ -42,7 +42,7 @@
                     <!-- /.tab-pane ends -->
 
                     <!-- /.tab-pane starts -->
-                    <div class="tab-pane" id="settings">
+                    <div class="tab-pane" id="groups">
 
                     </div>
                     <!-- /.tab-pane ends -->
@@ -176,12 +176,30 @@
                             <input type="text" class="form-control" id="mEnvImageId" name="image_id">
                         </div>
                     </div>
+                    <div id="mSubnetIdDiv" class="form-group" style="display:none">
+                        <label for="mSubnetId" class="col-sm-3 control-label">Subnet Id</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mSubnetId" name="subnet_id">
+                        </div>
+                    </div>
+                    <div id="mSharedStorageIdDiv" class="form-group" style="display:none">
+                        <label for="mSharedStorageId" class="col-sm-3 control-label">Shared Storage Id</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mSharedStorageId" name="shared_storage_id">
+                        </div>
+                    </div>
+                    <div id="mSharedStorageMountDiv" class="form-group" style="display:none">
+                        <label for="mSharedStorageMount" class="col-sm-3 control-label">Shared Storage Mount</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mSharedStorageMount" value="/mnt/efs" name="shared_storage_mnt">
+                        </div>
+                    </div>
                     <div id="mEnvCmdDiv" class="form-group" style="display:none">
                         <label for="mEnvCmd" class="col-sm-3 control-label">Run command
                         <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31)"><i class='glyphicon glyphicon-info-sign'></i></a></span>
                         </label>
                         <div class="col-sm-9">
-                            <textarea type="text" rows="3" class="form-control" id="mEnvCmd" name="cmd"></textarea>
+                            <textarea type="text" rows="2" class="form-control" id="mEnvCmd" name="cmd"></textarea>
                         </div>
                     </div>
                     <div id="mEnvNextPathDiv" class="form-group" style="display:none">

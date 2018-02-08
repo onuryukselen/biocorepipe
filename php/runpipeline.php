@@ -114,13 +114,13 @@
                     </div>
                     <div id="singu_imgDiv" class="collapse">
                         <div class="form-group row">
-                            <label for="singu_img" class="col-sm-2 control-label">Image Path</label>
+                            <label for="singu_img" class="col-sm-2 control-label">Image Path <span><a data-toggle="tooltip" data-placement="bottom" title="(eg. project/umw_biocore/singularity/ UMMS-Biocore-singularity-master.simg)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="singu_img" name="singu_img" placeholder="Enter singularity image path">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="singu_opt" class="col-sm-2 control-label"> RunOptions</label>
+                            <label for="singu_opt" class="col-sm-2 control-label"> RunOptions <span><a data-toggle="tooltip" data-placement="bottom" title="You can mount the directories by usig --bind command (eg. --bind /project:/project --bind /nl:/nl --bind /share:/share). It requires you to create the directories in the image beforehand. "><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="singu_opt" name="singu_opt" placeholder="Enter singularity runOptions">
                             </div>
@@ -145,7 +145,7 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>Run Command <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    <label>Run Command <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31 && module load singularity/singularity-2.4)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                     <textarea id="runCmd" rows="1" name="runCmd" placeholder="Enter commands here.." style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
                 </div>
             </div>
