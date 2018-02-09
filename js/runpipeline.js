@@ -1620,26 +1620,35 @@
 	          $('#jobSettingsDiv').css('display', 'none');
 	      }
 
-
-
-
 	      $('#ownUserNamePip').text(pipeData[0].username);
 	      $('#datecreatedPip').text(pipeData[0].date_created);
 	      $('.lasteditedPip').text(pipeData[0].date_modified);
 	  }
 
+	  function refreshEnv() {
+	      loadRunOptions();
+	  }
+
 	  function loadRunOptions() {
+	      $('#chooseEnv').find('option').not(':disabled').remove();
 	      //get profiles for user
 	      var proLocData = getValues({ p: "getProfileLocal" });
 	      var proCluData = getValues({ p: "getProfileCluster" });
-	      if (proLocData.length + proCluData.length !== 0) {
+	      var proAmzData = getValues({ p: "getProfileAmazon" });
+	      if (proLocData.length + proCluData.length + proAmzData.length !== 0) {
 	          $.each(proLocData, function (el) {
-	              var option = new Option(proLocData[el].name + ' (local)', 'local-' + proLocData[el].id);
+	              var option = new Option(proLocData[el].name + ' (Local)', 'local-' + proLocData[el].id);
 	              $("#chooseEnv").append(option);
 	          });
 	          $.each(proCluData, function (el) {
-	              var option = new Option(proCluData[el].name + ' (remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
+	              var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
 	              $("#chooseEnv").append(option);
+	          });
+	          $.each(proAmzData, function (el) {
+	              if (proAmzData[el].status === "running") {
+	                  var option = new Option(proAmzData[el].name + ' (Amazon: Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
+	                  $("#chooseEnv").append(option);
+	              }
 	          });
 	      }
 	  }
@@ -1724,8 +1733,15 @@
 	      $('#filePath-' + gNumParam).text(data[1].value);
 	      checkReadytoRun();
 	  }
-
+    //xxxxx
 	  function checkReadytoRun() {
+var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
+          if (runStatusGet[0]){
+	      runStatus = runStatusGet[0].run_status;
+          } else {
+              runStatus = '';
+          }
+          if (runStatus && runStatus === ""){
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
 	      var getProPipeInputs = getValues({
 	          p: "getProjectPipelineInputs",
@@ -1743,7 +1759,7 @@
 	              $('#statusProPipe').css('display', 'inline');
 	          }
 	      }
-
+          }
 	  }
 
 	  function configTextAllProcess(exec_all_settings) {
@@ -1760,21 +1776,17 @@
 	      }
 	  }
 
-	  //callbackfunction to first change the status of button to connecting
-	  //function doSomething(callback) {
-	  //    // ...
-	  //    // Call the callback
-	  //    callback('stuff', 'goes', 'here');
-	  //}
-	  //function foo(a, b, c) {
-	  //    // I'm the callback
-	  //    alert(a + " " + b + " " + c);
-	  //}
-	  //doSomething(foo);
 
+	  //	  callbackfunction to first change the status of button to connecting
+	  function runProjectPipe(runProPipeCall) {
+	      document.getElementById("runProPipe").style.display = "none";
+	      document.getElementById("connectingProPipe").style.display = "inline";
+	      // Call the callback
+	      setTimeout(function () { runProPipeCall(); }, 1000);
+	  }
 
-	  //click on run button
-	  function runProjectPipe() {
+	  //click on run button (callback function)
+	  function runProPipeCall() {
 	      saveRunIcon();
 	      nxf_runmode = true;
 	      var nextTextRaw = createNextflowFile("run");
@@ -1785,12 +1797,8 @@
 	      var patt = /(.*)-(.*)/;
 	      var proType = profileTypeId.replace(patt, '$1');
 	      var proId = profileTypeId.replace(patt, '$2');
-	      //xxx not working
-	      if (proType === 'cluster') {
-	          document.getElementById("runProPipe").style.display = "none";
-	          document.getElementById("connectingProPipe").style.display = "inline";
-	      }
 	      configTextRaw = '';
+
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
 	          var docker_opt = $('#docker_opt').val();
@@ -1803,16 +1811,16 @@
 	      if ($('#singu_check').is(":checked") === true) {
 	          var singu_img = $('#singu_img').val();
 	          //var patt = /^docker:\/\/(.*)/g;
-//	          var patt = /^shub:\/\/(.*)/g;
-//	          var singuPath = singu_img.replace(patt, '$1');
-//              console.log('singuPath');
-//              console.log(singuPath);
-//	          if (patt.test(singu_img)) {
-//	              singuPath = singuPath.replace(/\//g, '-')
-//	              var downSingu_img = '~/.dolphinnext/singularity/' + singuPath+'.simg';
-//	          } else {
-	              var downSingu_img = singu_img;
-//	          }
+	          //	          var patt = /^shub:\/\/(.*)/g;
+	          //	          var singuPath = singu_img.replace(patt, '$1');
+	          //              console.log('singuPath');
+	          //              console.log(singuPath);
+	          //	          if (patt.test(singu_img)) {
+	          //	              singuPath = singuPath.replace(/\//g, '-')
+	          //	              var downSingu_img = '~/.dolphinnext/singularity/' + singuPath+'.simg';
+	          //	          } else {
+	          var downSingu_img = singu_img;
+	          //	          }
 
 	          var singu_opt = $('#singu_opt').val();
 	          configTextRaw += 'process.container = \'' + downSingu_img + '\'\n';
@@ -1842,10 +1850,10 @@
 	          //          process.$hello.queue = 'long'
 
 	      }
-
 	      console.log(configTextRaw);
 	      var configText = encodeURIComponent(configTextRaw);
 	      //save nextflow text as nextflow.nf and start job
+	      serverLog = '';
 	      var serverLogGet = getValues({
 	          p: "saveRun",
 	          nextText: nextText,
@@ -1855,128 +1863,171 @@
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      console.log(serverLogGet);
-	      if (proType === 'local') {
-	          if (serverLogGet.next_submit_pid) {
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#runLogs').css('display', 'inline');
-	              $('#runProPipe').css('display', 'none');
-	              $('#runningProPipe').css('display', 'inline');
-	              checkServerLogTimer(proType, proId);
-	              //Error occured
-	          } else {
-	              $('#runLogs').css('display', 'inline');
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#errorProPipe').css('display', 'inline');
-	              $('#runLogArea').val(serverLogGet);
-	          }
-	      } else if (proType === 'cluster') {
-	          if (serverLogGet.next_submit_pid) {
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#runLogs').css('display', 'inline');
-	              $('#runProPipe').css('display', 'none');
-	              $('#runningProPipe').css('display', 'inline');
-	              checkServerLogTimer(proType, proId);
-
-	          } else {
-	              //error occured before job starts
-	              $('#runLogs').css('display', 'inline');
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#errorProPipe').css('display', 'inline');
-	              serverLog = getServerLog(project_pipeline_id);
-	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
-	          }
-	      }
+	      readNextflowLogTimer(proType, proId);
 	  }
 
-	  function checkServerLogTimer(proType, proId) {
-	      interval_serverlog_ID = setInterval(function () {
-	          status = checkServerLog(project_pipeline_id, proType, proId)
-	      }, 3000);
+//	  function checkServerLog(serverLogGet, proType, proId) {
+//	      if (proType === 'local') {
+//	          if (serverLogGet.next_submit_pid) {
+//	              $('#connectingProPipe').css('display', 'none');
+//	              $('#runLogs').css('display', 'inline');
+//	              $('#runProPipe').css('display', 'none');
+//	              $('#waitingProPipe').css('display', 'inline');
+//	              readNextflowLogTimer(proType, proId);
+//	          } else {
+//	              //Error occured
+//	              $('#runLogs').css('display', 'inline');
+//	              $('#connectingProPipe').css('display', 'none');
+//	              $('#errorProPipe').css('display', 'inline');
+//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+//	              $('#runLogArea').val(serverLogGet);
+//	          }
+//	      } else if (proType === 'cluster' || proType === 'amazon') {
+//	          serverLog = getServerLog(project_pipeline_id);
+//	          if (serverLogGet.next_submit_pid && !serverLog.match(/Error/)) {
+//	              $('#connectingProPipe').css('display', 'none');
+//	              $('#runLogs').css('display', 'inline');
+//	              $('#runProPipe').css('display', 'none');
+//	              $('#waitingProPipe').css('display', 'inline');
+//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Submit", project_pipeline_id: project_pipeline_id });
+//	              readNextflowLogTimer(proType, proId);
+//	          } else {
+//	              //error occured before job starts
+//	              $('#runLogs').css('display', 'inline');
+//	              $('#connectingProPipe').css('display', 'none');
+//	              $('#errorProPipe').css('display', 'inline');
+//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+//	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
+//	          }
+//	      }
+//	  }
+
+	  //	  function checkServerLogTimer(proType, proId) {
+	  //	      interval_serverlog_ID = setInterval(function () {
+	  //	          readNextflowLogTimer(proType, proId)
+	  //	      }, 10000);
+	  //	  }
+
+	  //######################read nextflow log file for status #########################################################
+	  //instead of read pid, read nextflow log file(alternative to checkNextflowLogTimer function)
+	  function readNextflowLogTimer(proType, proId) {
+	      //	      if (interval_serverlog_ID) {
+	      //	          clearInterval(interval_serverlog_ID);
+	      //	      }
+	      interval_readNextlog = setInterval(function () {
+	          readNextLog(proType, proId, "no_reload")
+	      }, 10000);
 	  }
 
-	  function checkServerLog(project_pipeline_id, proType, proId) {
-
-	      if (proType === 'local') {
-	          clearInterval(interval_serverlog_ID);
-	          checkNextflowLogTimer(proType, proId);
-	      }
-	      if (proType === 'cluster') {
-	          //xxx if executor of nextflow is lsf 
+    // type= reload for reload the page
+	  function readNextLog(proType, proId, type) {
+	      serverLog = '';
+	      if (proType === 'cluster' || proType === 'amazon') {
 	          serverLog = getServerLog(project_pipeline_id);
 	          $('#runLogArea').val(serverLog);
-	          var reg = /Job <(.*)> is submitted to queue/;
-	          var found = serverLog.match(reg);
-	          if (found && found.length > 0) {
-	              var runPid = found[1];
-	              //updateRunPid
-	              var updateRunPidSend = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
-	              if (updateRunPidSend) {
-	                  clearInterval(interval_serverlog_ID);
-	                  checkNextflowLogTimer(proType, proId);
-	              }
-	          } else {
-	              console.log("Error. Run not submitted");
-	              clearInterval(interval_serverlog_ID);
-	              $('#completeProPipe').css('display', 'inline');
-	              $('#runningProPipe').css('display', 'none');
-
-	          }
 	      }
-	  }
 
-	  function checkNextflowLogTimer(proType, proId) {
-	      var runPid = getRunPid(project_pipeline_id);
-	      var status = "";
-	      interval_nextlog_ID = setInterval(function () {
-	          status = checkRunPid(runPid, proType, proId)
-	          console.log(status)
-	      }, 3000);
-	  }
+	      var nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
+	      //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
+	      if (nextflowLog !== null) {
+	          $('#runLogArea').val(serverLog + nextflowLog);
+	          if (nextflowLog.match(/N E X T F L O W/)) {
+	              if (nextflowLog.match(/##Success: failed/)) {
+	                  // status completed with error 
+	                  if (type !== "reload") {
+	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
+	                      clearInterval(interval_readNextlog);
+	                  }
+	                  $('#statusProPipe').css('display', 'none');
+	                  $('#connectingProPipe').css('display', 'none');
+	                  $('#runProPipe').css('display', 'none');
+	                  $('#waitingProPipe').css('display', 'none');
+	                  $('#runningProPipe').css('display', 'none');
+	                  $('#errorProPipe').css('display', 'inline');
 
-
-	  function checkRunPid(runPid, proType, proId) {
-
-	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid, profileType: proType, profileId: proId });
-	      console.log(checkRunStatus);
-
-	      if (proType === 'local') {
-	          if (checkRunStatus === "running") {
-	              var runLog = getNextflowLog(project_pipeline_id, proType);
-	              $('#runLogArea').val(runLog);
-	              return checkRunStatus;
-	          } else if (checkRunStatus === "completed") {
-	              var runLog = getNextflowLog(project_pipeline_id, proType);
-	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
-	              $('#runLogArea').val(runLog);
-	              $('#runningProPipe').css('display', 'none');
-	              $('#completeProPipe').css('display', 'inline');
-	              clearInterval(interval_nextlog_ID);
-	          }
-	      } else if (proType === 'cluster') {
-	          if (checkRunStatus === "running") {
-	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	              if (nextflowLog !== null) {
-	                  $('#runLogArea').val(serverLog + nextflowLog);
-	              }
-	              return checkRunStatus;
-	          } else if (checkRunStatus === "completed") {
-	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
-	              $('#runLogArea').val(serverLog + nextflowLog);
-	              if (updateRunPidComp) {
+	              } else if (nextflowLog.match(/##Success: OK/)) {
+	                  // status completed with success   
+	                  if (type !== "reload") {
+	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id });
+	                      clearInterval(interval_readNextlog);
+	                  }
+	                  $('#statusProPipe').css('display', 'none');
+	                  $('#connectingProPipe').css('display', 'none');
+	                  $('#runProPipe').css('display', 'none');
+	                  $('#waitingProPipe').css('display', 'none');
 	                  $('#runningProPipe').css('display', 'none');
 	                  $('#completeProPipe').css('display', 'inline');
-	                  clearInterval(interval_nextlog_ID);
+
+	              } else {
+	                  //update status as running
+	                  if (type === "reload") {
+	                      readNextflowLogTimer(proType, proId);
+	                  }
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "NextRun", project_pipeline_id: project_pipeline_id });
+	                  $('#statusProPipe').css('display', 'none');
+	                  $('#connectingProPipe').css('display', 'none');
+	                  $('#waitingProPipe').css('display', 'none');
+	                  $('#runProPipe').css('display', 'none');
+	                  $('#runningProPipe').css('display', 'inline');
 	              }
+	          } else {
+	              //error occured
+	              console.log("Error.Nextflow not started")
+	              if (type !== "reload") {
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	                  clearInterval(interval_readNextlog);
+	              }
+	              $('#statusProPipe').css('display', 'none');
+	              $('#connectingProPipe').css('display', 'none');
+	              $('#runProPipe').css('display', 'none');
+	              $('#waitingProPipe').css('display', 'none');
+	              $('#runningProPipe').css('display', 'none');
+	              $('#errorProPipe').css('display', 'inline');
+
 	          }
+	      } else {
+	          if (serverLog.match(/error/gi)) {
+	              console.log("Error");
+	              if (type !== "reload") {
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	                  clearInterval(interval_readNextlog);
+	              }
+	              $('#statusProPipe').css('display', 'none');
+	              $('#connectingProPipe').css('display', 'none');
+	              $('#runProPipe').css('display', 'none');
+	              $('#waitingProPipe').css('display', 'none');
+	              $('#errorProPipe').css('display', 'inline');
+
+	          } else {
+	              console.log("Waiting");
+	              if (type === "reload") {
+	                  readNextflowLogTimer(proType, proId);
+	              }
+	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
+	              $('#statusProPipe').css('display', 'none');
+	              $('#connectingProPipe').css('display', 'none');
+	              $('#runProPipe').css('display', 'none');
+	              $('#waitingProPipe').css('display', 'inline');
+	          }
+
 	      }
 	  }
+
+	  //#################################################################################################
+
+
+
+
+
+
+
+
 
 	  function getNextflowLog(project_pipeline_id, proType, proId) {
 	      if (proType === "local") {
 	          var logText = getServerLog(project_pipeline_id);
 	          return logText;
-	      } else if (proType === "cluster") {
+	      } else if (proType === "cluster" || proType === "amazon") {
 	          var logText = getValues({
 	              p: "getNextflowLog",
 	              project_pipeline_id: project_pipeline_id,
@@ -1986,6 +2037,55 @@
 	          return logText;
 	      }
 	  }
+
+
+	  //	  function checkNextflowLogTimer(proType, proId) {
+	  //	      var runPid = getRunPid(project_pipeline_id);
+	  //	      var status = "";
+	  //	      interval_nextlog_ID = setInterval(function () {
+	  //	          status = checkRunPid(runPid, proType, proId)
+	  //	          console.log(status)
+	  //	      }, 10000);
+	  //	  }
+
+
+	  //	  function checkRunPid(runPid, proType, proId) {
+	  //
+	  //	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid, profileType: proType, profileId: proId });
+	  //	      console.log(checkRunStatus);
+	  //
+	  //	      if (proType === 'local') {
+	  //	          if (checkRunStatus === "running") {
+	  //	              var runLog = getNextflowLog(project_pipeline_id, proType, proId);
+	  //	              $('#runLogArea').val(runLog);
+	  //	              return checkRunStatus;
+	  //	          } else if (checkRunStatus === "completed") {
+	  //	              var runLog = getNextflowLog(project_pipeline_id, proType, proId);
+	  //	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
+	  //	              $('#runLogArea').val(runLog);
+	  //	              $('#runningProPipe').css('display', 'none');
+	  //	              $('#completeProPipe').css('display', 'inline');
+	  //	              clearInterval(interval_nextlog_ID);
+	  //	          }
+	  //	      } else if (proType === 'cluster') {
+	  //	          if (checkRunStatus === "running") {
+	  //	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
+	  //	              if (nextflowLog !== null) {
+	  //	                  $('#runLogArea').val(serverLog + nextflowLog);
+	  //	              }
+	  //	              return checkRunStatus;
+	  //	          } else if (checkRunStatus === "completed") {
+	  //	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
+	  //	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
+	  //	              $('#runLogArea').val(serverLog + nextflowLog);
+	  //	              if (updateRunPidComp) {
+	  //	                  $('#runningProPipe').css('display', 'none');
+	  //	                  $('#completeProPipe').css('display', 'inline');
+	  //	                  clearInterval(interval_nextlog_ID);
+	  //	              }
+	  //	          }
+	  //	      }
+	  //	  }
 
 
 	  function getServerLog(project_pipeline_id) {
@@ -2137,12 +2237,30 @@
 	          loadPipelineDetails(pipeline_id);
 	          loadProjectPipeline(pipeData);
 	      }
-	      //not allow to check both docker and singularity
-	      $('#docker_check').change(function () {
-	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
-	              $('#singu_check').trigger("click");
-	          }
-	      });
+	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
+          
+          //xxxx
+          if (runStatusGet[0]){
+	      runStatus = runStatusGet[0].run_status;
+          } else {
+              runStatus = '';
+          }
+          if (runStatus !== ""){
+              $('#runLogs').css('display', 'inline');
+          }
+	      //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
+          var profileTypeId = $('#chooseEnv').find(":selected").val(); //local-32
+	      var patt = /(.*)-(.*)/;
+	      var profileType = profileTypeId.replace(patt, '$1');
+	      var profileId = profileTypeId.replace(patt, '$2');
+	      readNextLog(profileType, profileId, "reload");
+
+	          //not allow to check both docker and singularity
+	          $('#docker_check').change(function () {
+	              if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
+	                  $('#singu_check').trigger("click");
+	              }
+	          });
 	      $('#singu_check').change(function () {
 	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
 	              $('#docker_check').trigger("click");

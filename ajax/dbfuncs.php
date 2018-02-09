@@ -156,7 +156,6 @@ class dbfuncs {
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
-
             
             $run_path_real = "$outdir/run{$project_pipeline_id}";
             //check nextflow file
@@ -171,8 +170,7 @@ class dbfuncs {
             $pid = fread($pid_command, 2096);
             pclose($pid_command);
             chmod("$run_path_real/nextflow.nf", 0755);
-        }
-        if ($profileType == "cluster") {
+        } else if ($profileType == "cluster") {
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
@@ -182,6 +180,30 @@ class dbfuncs {
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             //get userpky
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            //check $userpky file exist
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
+            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            if (!file_exists($run_path_real."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
+            if (!file_exists($run_path_real."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
+            //mkdir and copy nextflow file to run directory in cluster
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 && scp {$this->ssh_settings} -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1";
+            $mkdir_copynext_pid =shell_exec($cmd);
+            $this->writeLog($project_pipeline_id,$cmd,'a');
+//           command below not working without &
+//            if (!$mkdir_copynext_pid) die('Connection failed while creating new folder in the cluster');
+            $log_array = array('mkdir_copynext_pid' => $mkdir_copynext_pid);
+            return $log_array;
+        } else if ($profileType == "amazon") {
+            // get outputdir
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            // get username and hostname for connection
+            $amzData=$this->getProfileAmazonbyID($profileId, $ownerID);
+            $amzDataArr=json_decode($amzData,true);
+            $connect = $amzDataArr[0]["ssh"];
+            //get userpky
+            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
             //check $userpky file exist
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -340,6 +362,109 @@ class dbfuncs {
             }
             //get userpky
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
+            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
+            //check if files are exist
+            $next_exist_cmd= "ssh {$this->ssh_settings} -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
+            $next_exist = shell_exec($next_exist_cmd);
+            $this->writeLog($project_pipeline_id,$next_exist_cmd,'a');
+            preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
+            $log_array['next_exist'] = $next_exist;
+            // if $matches[2] == " ", it means nextflow file is exist 
+            if ($matches[2] == " ") {
+            //         ssh ak97w@ghpcc06.umassrc.org 'source /etc/bashrc && module load java/1.8.0_31 && bsub -q long -n 1  -W 3040 -R rusage[mem=32024] "/project/umw_biocore/bin/nextflow   ~/.dolphinnext/tmp/logs/run#/nextflow.nf >  ~/.dolphinnext/tmp/logs/run#/log.txt > 2&1”’
+            
+            //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
+            if ($executor == "local"){
+            $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            } else if ($executor == "lsf"){  
+            $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"";
+            } else if ($executor == "sge"){
+            } else if ($executor == "slurm"){
+            }
+            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect 'cd $dolphin_path_real $preCmd && $exec_next_all' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+            $this->writeLog($project_pipeline_id,$cmd,'a');
+            if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
+            $log_array['next_submit_pid'] = $next_submit_pid;
+            return json_encode($log_array);
+            
+            }else if ($matches[2] == " not "){
+                for( $i= 0 ; $i < 3 ; $i++ ){
+                     sleep(3);
+                     $next_exist = shell_exec($next_exist_cmd);
+                     preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
+                     $log_array['next_exist'] = $next_exist;
+                     if ($matches[2] == " ") {
+                         $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+                         if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
+                            $log_array['next_submit_pid'] = $next_submit_pid;
+                         return json_encode($log_array);
+                     }
+                }
+                die(json_encode('Connection failed. Nextflow file not exists in cluster'));
+            }
+        } else if ($profileType == "amazon") {
+            //get input parameters
+            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+            $next_inputs="";
+            foreach ($allinputs as $inputitem):
+                $next_inputs.="--".$inputitem->{'given_name'}." '\"'\"'".$inputitem->{'name'}."'\"'\"' ";
+            endforeach;
+            //get nextflow executor parameters
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            $proPipeCmd = $proPipeAll[0]->{'cmd'};
+//            $jobname = $proPipeAll[0]->{'pp_name'};
+            $singu_check = $proPipeAll[0]->{'singu_check'};
+            if ($singu_check == "true"){
+                $singu_img = $proPipeAll[0]->{'singu_img'};
+                $imageCmd =='';
+//                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
+            }
+ 
+
+            //get username and hostname for connection
+            $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["ssh"];
+            $next_path = $cluDataArr[0]["next_path"];
+            $profileCmd = $cluDataArr[0]["cmd"];
+            $executor = $cluDataArr[0]['executor'];
+            $next_time = $cluDataArr[0]['next_time'];
+            $next_queue = $cluDataArr[0]['next_queue'];
+            $next_memory = $cluDataArr[0]['next_memory'];
+            $next_cpu = $cluDataArr[0]['next_cpu']; 
+            //combine pre-run cmd
+            if (!empty($profileCmd) && !empty($proPipeCmd)){
+                $preCmd = "&& ".$profileCmd." && ".$proPipeCmd;
+            } else if (!empty($profileCmd)){
+                $preCmd = "&& ".$profileCmd;
+            } else if (!empty($proPipeCmd)){
+                $preCmd = "&& ".$proPipeCmd;
+            } else {
+                $preCmd ="";
+            }
+            //combine pre-run cmd with $imageCmd
+            if (!empty($preCmd) && !empty($imageCmd)){
+                $preCmd = $preCmd." && ".$imageCmd;
+            } else if (!empty($preCmd)){
+                $preCmd = $preCmd;
+            } else if (!empty($imageCmd)){
+                $preCmd = "&& ".$imageCmd;
+            } else {
+                $preCmd ="";
+            }
+            //eg. /project/umw_biocore/bin
+            if (!empty($next_path)){
+                $next_path_real = "$next_path/nextflow";
+            } else {
+                $next_path_real  = "nextflow";
+            }
+            //get userpky
+            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
@@ -555,11 +680,11 @@ class dbfuncs {
         return self::queryTable($sql);    
     }
     public function getProfileAmazon($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt,nodes, autoscale_check, autoscale_maxIns, status FROM profile_amazon WHERE owner_id = '$ownerID'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt,nodes, autoscale_check, autoscale_maxIns, status, ssh FROM profile_amazon WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
     public function getProfileAmazonbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt, nodes, autoscale_check, autoscale_maxIns, status FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt, nodes, autoscale_check, autoscale_maxIns, status, ssh FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
     
@@ -741,10 +866,14 @@ class dbfuncs {
     }
 
 //    ----------- Runs     ---------
-    public function insertRun($project_pipeline_id, $ownerID) {
-        $sql = "INSERT INTO run (project_pipeline_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$project_pipeline_id', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertRun($project_pipeline_id, $status, $ownerID) {
+        $sql = "INSERT INTO run (project_pipeline_id, run_status, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$project_pipeline_id', '$status', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
+    }
+    public function updateRunStatus($project_pipeline_id, $status, $ownerID) {
+        $sql = "UPDATE run SET run_status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
+        return self::runSQL($sql);
     }
     public function updateRunPid($project_pipeline_id, $pid, $ownerID) {
         $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
@@ -761,6 +890,10 @@ class dbfuncs {
     }
     public function getRun($project_pipeline_id,$ownerID) {
         $sql = "SELECT * FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
+		return self::queryTable($sql);
+    }
+    public function getRunStatus($project_pipeline_id,$ownerID) {
+        $sql = "SELECT run_status FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
 		return self::queryTable($sql);
     }
     public function getAmazonStatus($id,$ownerID) {
@@ -872,6 +1005,17 @@ class dbfuncs {
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            // get outputdir
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
+            $nextflow_log = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
+             return json_encode($nextflow_log);
+        } else if ($profileType == 'amazon'){
+            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
+            $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["ssh"];
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};

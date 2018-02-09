@@ -118,13 +118,22 @@ function createNextflowFile(nxf_runmode) {
             nextText = nextText + proText
         }
     });
-    var endText = '';
-    if (nxf_runmode === "run") {
-        var interdel = $('#intermeDel').is(":checked");
-        if (interdel && interdel === true) {
-            endText = "workflow.onComplete { file('work').deleteDir() } \n";
-        }
-    }
+    var endText = 'workflow.onComplete {\n';
+    endText += 'println "##Pipeline execution summary##"\n';
+    endText += 'println "---------------------------"\n';
+    endText += 'println "##Completed at: $workflow.complete"\n';
+    endText += 'println "##Duration: ${workflow.duration}"\n';
+    endText += 'println "##Success: ${workflow.success ? \'OK\' : \'failed\' }"\n';
+    endText += 'println "##Exit status: ${workflow.exitStatus}"\n';
+    endText += '}\n';
+    
+    
+//    if (nxf_runmode === "run") {
+//        var interdel = $('#intermeDel').is(":checked");
+//        if (interdel && interdel === true) {
+//            endText = "workflow.onComplete { file('work').deleteDir() } \n";
+//        }
+//    }
     return nextText + endText
 }
 

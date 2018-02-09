@@ -40,10 +40,21 @@ else if ($p=="saveRun"){
     $nextText = urldecode($nextTextRaw);
 	$configTextRaw = $_REQUEST['configText'];
     $configText = urldecode($configTextRaw);
-    //add run into run table
-    $db -> insertRun($project_pipeline_id, $ownerID);
+    $status = "init";
+    //create file and folders
     $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
+    //run the script
     $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID, $log_array);
+    //add run into run table
+    //check if $project_pipeline_id already exits
+    $checkRun = $db->getRun($project_pipeline_id,$ownerID);
+    $checkarray = json_decode($checkRun,true); 
+    $ppId = $checkarray[0]["project_pipeline_id"];
+    if (!empty($ppId)) {
+        $db->updateRunStatus($project_pipeline_id, $status, $ownerID);    
+    } else {
+        $db->insertRun($project_pipeline_id, $status, $ownerID);
+    }
 
 }
 else if ($p=="getServerLog"){
@@ -56,7 +67,7 @@ else if ($p=="getNextflowLog"){
 	$profileId = $_REQUEST['profileId'];
     if ($profileType == 'local') {
     $data = $db -> getNextflowLog($project_pipeline_id,$profileType,"","");
-    } else if ($profileType == 'cluster') {
+    } else if ($profileType == 'cluster' || $profileType == 'amazon') {
     $data = $db -> getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID);
     }
 }
@@ -79,6 +90,16 @@ else if ($p=="updateRunPid"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $data = $db -> updateRunPid($project_pipeline_id, $pid, $ownerID);
 }
+else if ($p=="updateRunStatus"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+	$run_status = $_REQUEST['run_status'];
+    $data = $db -> updateRunStatus($project_pipeline_id, $run_status, $ownerID);
+}
+else if ($p=="getRunStatus"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $data = $db -> getRunStatus($project_pipeline_id, $ownerID);
+}
+
 
 else if ($p=="startProAmazon"){
 	$nodes = $_REQUEST['nodes'];

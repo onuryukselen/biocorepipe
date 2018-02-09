@@ -1,7 +1,8 @@
 // check the amazon profiles activity each minute.
-checkAmzProfiles();
+checkAmzProfiles("timer");
 
-function checkAmzProfiles() {
+//to start timer, enter "timer" as input
+function checkAmzProfiles(timer) {
     var proAmzData = getValues({ p: "getProfileAmazon" });
     if (proAmzData.length > 0) {
         $('#manageAmz').css('display', 'inline');
@@ -10,7 +11,9 @@ function checkAmzProfiles() {
             if (proAmzData[k].status === "running" || proAmzData[k].status === "waiting" || proAmzData[k].status === "initiated") {
                 countActive++;
             }
+            if(timer === "timer"){
             checkAmazonTimer(proAmzData[k].id);
+            }
         }
         if (countActive > 0) {
             $('#amzAmount').css('display', 'inline');
@@ -23,30 +26,11 @@ function checkAmzProfiles() {
 }
 
 
-function upgradeActAmzAmount(type) {
-    var amountFirst = $('#amzAmount').text();
-    amountFirst = Number(amountFirst);
-    if (type === "increase") {
-        var amountLast = amountFirst + 1;
-    } else if (type === "decrease") {
-        var amountLast = amountFirst - 1;
-    }
-
-    if (amountLast > 0) {
-        $('#amzAmount').css('display', 'inline');
-        $('#amzAmount').text(amountLast);
-    } else {
-        $('#amzAmount').text(amountLast);
-        $('#amzAmount').css('display', 'none');
-    }
-
-}
-
 
 function checkAmazonTimer(proId) {
     window['interval_amzStatus_' + proId] = setInterval(function () {
         checkAmazonStatus(proId)
-    }, 30000);
+    }, 60000);
 }
 
 function checkAmazonStatus(proId) {
@@ -99,6 +83,7 @@ $(document).ready(function () {
     //close amzModal
     $('#amzModal').on('hide.bs.modal', function (event) {
         $('#amzTable td ').remove();
+        checkAmzProfiles("notimer");
     });
 
     $('#amzModal').on('click', '#amzStart', function (e) {
@@ -164,9 +149,14 @@ $(document).ready(function () {
             data: data,
             async: true,
             success: function (s) {
+                    console.log(s);
+                
                 if (s.stop_cloud) {
+                    console.log('step1');
                     // check the amazon profiles activity each minute.
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
+	                setTimeout(function () { checkAmazonStatus(proId); }, 1000);
+                    
                 }
             }
         });

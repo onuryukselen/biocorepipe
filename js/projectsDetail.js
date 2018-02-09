@@ -219,7 +219,7 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                             var key = keys[i].data;
                             rowData[key] = pipelineDat[0][key];
                         }
-                        rowData.pip_id = pipelineDat[0].id;
+                        rowData.pip_id = pipelineDat[0].pip_id;
                         rowData.id = project_pipeline_id;
                         runsTable.row.add(rowData).draw();
                         updateSideBarProPipe(project_id, project_pipeline_id, run_name, 'add');
