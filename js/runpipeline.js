@@ -1645,10 +1645,8 @@
 	              $("#chooseEnv").append(option);
 	          });
 	          $.each(proAmzData, function (el) {
-	              if (proAmzData[el].status === "running") {
-	                  var option = new Option(proAmzData[el].name + ' (Amazon: Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
-	                  $("#chooseEnv").append(option);
-	              }
+	              var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
+	              $("#chooseEnv").append(option);
 	          });
 	      }
 	  }
@@ -1733,33 +1731,43 @@
 	      $('#filePath-' + gNumParam).text(data[1].value);
 	      checkReadytoRun();
 	  }
-    //xxxxx
+
 	  function checkReadytoRun() {
-var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
-          if (runStatusGet[0]){
-	      runStatus = runStatusGet[0].run_status;
-          } else {
-              runStatus = '';
-          }
-          if (runStatus && runStatus === ""){
-	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
-	      var getProPipeInputs = getValues({
-	          p: "getProjectPipelineInputs",
-	          project_pipeline_id: project_pipeline_id,
-	      });
-	      var numInputRows = $('#inputsTable > tbody').find('tr').length;
-	      var profileNext = $('#chooseEnv').find(":selected").val();
-	      var output_dir = $('#rOut_dir').val();
-	      if ($('#statusProPipe').css('display') === 'inline-block' || $('#runProPipe').css('display') === 'inline-block') {
-	          if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
-	              $('#runProPipe').css('display', 'inline');
-	              $('#statusProPipe').css('display', 'none');
-	          } else {
-	              $('#runProPipe').css('display', 'none');
-	              $('#statusProPipe').css('display', 'inline');
+	      runStatus = getRunStatus(project_pipeline_id);
+	      if (runStatus === "") {
+	          project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	          var getProPipeInputs = getValues({
+	              p: "getProjectPipelineInputs",
+	              project_pipeline_id: project_pipeline_id,
+	          });
+	          var numInputRows = $('#inputsTable > tbody').find('tr').length;
+	          var profileNext = $('#chooseEnv').find(":selected").val();
+	          var profileNextText = $('#chooseEnv').find(":selected").html();
+	          if (profileNextText.match(/Amazon: Status:/)) {
+	              var patt = /(.*)Amazon: Status:(.*) Image(.*)/;
+	              var amzStatus = profileNextText.replace(patt, '$2');
+	          }
+	          var output_dir = $('#rOut_dir').val();
+	          if ($('#statusProPipe').css('display') === 'inline-block' || $('#runProPipe').css('display') === 'inline-block') {
+	              if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+	                  if (amzStatus) {
+	                      if (amzStatus === 'running') {
+	                          $('#runProPipe').css('display', 'inline');
+	                          $('#statusProPipe').css('display', 'none');
+	                      } else {
+	                          $('#runProPipe').css('display', 'none');
+	                          $('#statusProPipe').css('display', 'inline');
+	                      }
+	                  } else {
+	                      $('#runProPipe').css('display', 'inline');
+	                      $('#statusProPipe').css('display', 'none');
+	                  }
+	              } else {
+	                  $('#runProPipe').css('display', 'none');
+	                  $('#statusProPipe').css('display', 'inline');
+	              }
 	          }
 	      }
-          }
 	  }
 
 	  function configTextAllProcess(exec_all_settings) {
@@ -1776,11 +1784,18 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	      }
 	  }
 
+	  function displayButton(idButton) {
+	      var buttonList = ['runProPipe', 'errorProPipe', 'completeProPipe', 'runningProPipe', 'waitingProPipe', 'statusProPipe', 'connectingProPipe'];
+	      for (var i = 0; i < buttonList.length; i++) {
+	          document.getElementById(buttonList[i]).style.display = "none";
+	      }
+	      document.getElementById(idButton).style.display = "inline";
+	  }
+
 
 	  //	  callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall) {
-	      document.getElementById("runProPipe").style.display = "none";
-	      document.getElementById("connectingProPipe").style.display = "inline";
+	      displayButton('connectingProPipe');
 	      // Call the callback
 	      setTimeout(function () { runProPipeCall(); }, 1000);
 	  }
@@ -1864,43 +1879,45 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	      });
 	      console.log(serverLogGet);
 	      readNextflowLogTimer(proType, proId);
+	      $('#runLogs').css('display', 'inline');
+
 	  }
 
-//	  function checkServerLog(serverLogGet, proType, proId) {
-//	      if (proType === 'local') {
-//	          if (serverLogGet.next_submit_pid) {
-//	              $('#connectingProPipe').css('display', 'none');
-//	              $('#runLogs').css('display', 'inline');
-//	              $('#runProPipe').css('display', 'none');
-//	              $('#waitingProPipe').css('display', 'inline');
-//	              readNextflowLogTimer(proType, proId);
-//	          } else {
-//	              //Error occured
-//	              $('#runLogs').css('display', 'inline');
-//	              $('#connectingProPipe').css('display', 'none');
-//	              $('#errorProPipe').css('display', 'inline');
-//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-//	              $('#runLogArea').val(serverLogGet);
-//	          }
-//	      } else if (proType === 'cluster' || proType === 'amazon') {
-//	          serverLog = getServerLog(project_pipeline_id);
-//	          if (serverLogGet.next_submit_pid && !serverLog.match(/Error/)) {
-//	              $('#connectingProPipe').css('display', 'none');
-//	              $('#runLogs').css('display', 'inline');
-//	              $('#runProPipe').css('display', 'none');
-//	              $('#waitingProPipe').css('display', 'inline');
-//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Submit", project_pipeline_id: project_pipeline_id });
-//	              readNextflowLogTimer(proType, proId);
-//	          } else {
-//	              //error occured before job starts
-//	              $('#runLogs').css('display', 'inline');
-//	              $('#connectingProPipe').css('display', 'none');
-//	              $('#errorProPipe').css('display', 'inline');
-//	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-//	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
-//	          }
-//	      }
-//	  }
+	  //	  function checkServerLog(serverLogGet, proType, proId) {
+	  //	      if (proType === 'local') {
+	  //	          if (serverLogGet.next_submit_pid) {
+	  //	              $('#connectingProPipe').css('display', 'none');
+	  //	              $('#runLogs').css('display', 'inline');
+	  //	              $('#runProPipe').css('display', 'none');
+	  //	              $('#waitingProPipe').css('display', 'inline');
+	  //	              readNextflowLogTimer(proType, proId);
+	  //	          } else {
+	  //	              //Error occured
+	  //	              $('#runLogs').css('display', 'inline');
+	  //	              $('#connectingProPipe').css('display', 'none');
+	  //	              $('#errorProPipe').css('display', 'inline');
+	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	  //	              $('#runLogArea').val(serverLogGet);
+	  //	          }
+	  //	      } else if (proType === 'cluster' || proType === 'amazon') {
+	  //	          serverLog = getServerLog(project_pipeline_id);
+	  //	          if (serverLogGet.next_submit_pid && !serverLog.match(/Error/)) {
+	  //	              $('#connectingProPipe').css('display', 'none');
+	  //	              $('#runLogs').css('display', 'inline');
+	  //	              $('#runProPipe').css('display', 'none');
+	  //	              $('#waitingProPipe').css('display', 'inline');
+	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Submit", project_pipeline_id: project_pipeline_id });
+	  //	              readNextflowLogTimer(proType, proId);
+	  //	          } else {
+	  //	              //error occured before job starts
+	  //	              $('#runLogs').css('display', 'inline');
+	  //	              $('#connectingProPipe').css('display', 'none');
+	  //	              $('#errorProPipe').css('display', 'inline');
+	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	  //	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
+	  //	          }
+	  //	      }
+	  //	  }
 
 	  //	  function checkServerLogTimer(proType, proId) {
 	  //	      interval_serverlog_ID = setInterval(function () {
@@ -1919,7 +1936,7 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	      }, 10000);
 	  }
 
-    // type= reload for reload the page
+	  // type= reload for reload the page
 	  function readNextLog(proType, proId, type) {
 	      serverLog = '';
 	      if (proType === 'cluster' || proType === 'amazon') {
@@ -1934,29 +1951,21 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	          if (nextflowLog.match(/N E X T F L O W/)) {
 	              if (nextflowLog.match(/##Success: failed/)) {
 	                  // status completed with error 
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
+
 	                  if (type !== "reload") {
-	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
 	                      clearInterval(interval_readNextlog);
 	                  }
-	                  $('#statusProPipe').css('display', 'none');
-	                  $('#connectingProPipe').css('display', 'none');
-	                  $('#runProPipe').css('display', 'none');
-	                  $('#waitingProPipe').css('display', 'none');
-	                  $('#runningProPipe').css('display', 'none');
-	                  $('#errorProPipe').css('display', 'inline');
+	                  displayButton('errorProPipe');
 
 	              } else if (nextflowLog.match(/##Success: OK/)) {
-	                  // status completed with success   
+	                  // status completed with success 
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id });
+
 	                  if (type !== "reload") {
-	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id });
 	                      clearInterval(interval_readNextlog);
 	                  }
-	                  $('#statusProPipe').css('display', 'none');
-	                  $('#connectingProPipe').css('display', 'none');
-	                  $('#runProPipe').css('display', 'none');
-	                  $('#waitingProPipe').css('display', 'none');
-	                  $('#runningProPipe').css('display', 'none');
-	                  $('#completeProPipe').css('display', 'inline');
+	                  displayButton('completeProPipe');
 
 	              } else {
 	                  //update status as running
@@ -1964,39 +1973,28 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	                      readNextflowLogTimer(proType, proId);
 	                  }
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "NextRun", project_pipeline_id: project_pipeline_id });
-	                  $('#statusProPipe').css('display', 'none');
-	                  $('#connectingProPipe').css('display', 'none');
-	                  $('#waitingProPipe').css('display', 'none');
-	                  $('#runProPipe').css('display', 'none');
-	                  $('#runningProPipe').css('display', 'inline');
+	                  displayButton('runningProPipe');
 	              }
 	          } else {
 	              //error occured
 	              console.log("Error.Nextflow not started")
+	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+
 	              if (type !== "reload") {
-	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
 	                  clearInterval(interval_readNextlog);
 	              }
-	              $('#statusProPipe').css('display', 'none');
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#runProPipe').css('display', 'none');
-	              $('#waitingProPipe').css('display', 'none');
-	              $('#runningProPipe').css('display', 'none');
-	              $('#errorProPipe').css('display', 'inline');
+	              displayButton('errorProPipe');
 
 	          }
 	      } else {
 	          if (serverLog.match(/error/gi)) {
 	              console.log("Error");
+	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+
 	              if (type !== "reload") {
-	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
 	                  clearInterval(interval_readNextlog);
 	              }
-	              $('#statusProPipe').css('display', 'none');
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#runProPipe').css('display', 'none');
-	              $('#waitingProPipe').css('display', 'none');
-	              $('#errorProPipe').css('display', 'inline');
+	              displayButton('errorProPipe');
 
 	          } else {
 	              console.log("Waiting");
@@ -2004,10 +2002,7 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	                  readNextflowLogTimer(proType, proId);
 	              }
 	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
-	              $('#statusProPipe').css('display', 'none');
-	              $('#connectingProPipe').css('display', 'none');
-	              $('#runProPipe').css('display', 'none');
-	              $('#waitingProPipe').css('display', 'inline');
+	              displayButton('waitingProPipe');
 	          }
 
 	      }
@@ -2225,6 +2220,15 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	      }
 	  }
 
+	  function getRunStatus(project_pipeline_id) {
+	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
+	      if (runStatusGet[0]) {
+	          runStatus = runStatusGet[0].run_status;
+	      } else {
+	          runStatus = '';
+	      }
+	      return runStatus;
+	  }
 
 
 	  $(document).ready(function () {
@@ -2236,31 +2240,26 @@ var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_p
 	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
 	          loadProjectPipeline(pipeData);
+	          runStatus = getRunStatus(project_pipeline_id);
 	      }
-	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
-          
-          //xxxx
-          if (runStatusGet[0]){
-	      runStatus = runStatusGet[0].run_status;
-          } else {
-              runStatus = '';
-          }
-          if (runStatus !== ""){
-              $('#runLogs').css('display', 'inline');
-          }
-	      //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
-          var profileTypeId = $('#chooseEnv').find(":selected").val(); //local-32
-	      var patt = /(.*)-(.*)/;
-	      var profileType = profileTypeId.replace(patt, '$1');
-	      var profileId = profileTypeId.replace(patt, '$2');
-	      readNextLog(profileType, profileId, "reload");
 
-	          //not allow to check both docker and singularity
-	          $('#docker_check').change(function () {
-	              if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
-	                  $('#singu_check').trigger("click");
-	              }
-	          });
+	      if (runStatus !== "") {
+	          $('#runLogs').css('display', 'inline');
+	          //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
+	          var profileTypeId = $('#chooseEnv').find(":selected").val(); //local-32
+	          var patt = /(.*)-(.*)/;
+	          var profileType = profileTypeId.replace(patt, '$1');
+	          var profileId = profileTypeId.replace(patt, '$2');
+              setTimeout(function () { readNextLog(profileType, profileId, "reload"); }, 100);
+	      }
+
+
+	      //not allow to check both docker and singularity
+	      $('#docker_check').change(function () {
+	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
+	              $('#singu_check').trigger("click");
+	          }
+	      });
 	      $('#singu_check').change(function () {
 	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
 	              $('#docker_check').trigger("click");

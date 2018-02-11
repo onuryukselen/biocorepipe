@@ -127,8 +127,28 @@ else if ($p=="savefeedback"){
 else if ($p=="getAllProcesses"){
     $data = $db -> getAllProcesses();
 }
+else if ($p=="getAllGroups"){
+    $data = $db -> getAllGroups();
+}
+else if ($p=="getJoinGroups"){
+    $data = $db -> getJoinGroups($ownerID);
+}
+else if ($p=="viewGroupMembers"){
+	$g_id = $_REQUEST['g_id'];
+    $data = $db -> viewGroupMembers($g_id);
+}
+else if ($p=="getMemberAdd"){
+	$g_id = $_REQUEST['g_id'];
+    $data = $db -> getMemberAdd($g_id);
+}
 else if ($p=="getProjects"){
     $data = $db -> getProjects($id,$ownerID);
+}
+else if ($p=="getGroups"){
+    $data = $db -> getGroups($id,$ownerID);
+}
+else if ($p=="getUserGroups"){
+    $data = $db -> getUserGroups($ownerID);
 }
 else if ($p=="getProjectPipelines"){
     $project_id = $_REQUEST['project_id'];
@@ -186,6 +206,10 @@ else if ($p=="removeProcess"){
 else if ($p=="removeProject"){   
     $db -> removeProjectPipelinebyProjectID($id);
     $data = $db -> removeProject($id);
+}
+else if ($p=="removeGroup"){   
+    $db -> removeUserGroup($id);
+    $data = $db -> removeGroup($id);
 }
 else if ($p=="removeProjectPipeline"){  
     $db -> removeProjectPipelineInputByPipe($id);
@@ -446,6 +470,20 @@ else if ($p=="saveProject"){
         $data = $db->insertProject($name, $summary, $ownerID);
     }
 }
+else if ($p=="saveGroup"){
+    $name = $_REQUEST['name'];
+    $data = $db->insertGroup($name, $ownerID);
+    $idArray = json_decode($data,true);
+    $g_id = $idArray["id"];
+    $db->insertUserGroup($g_id, $ownerID, $ownerID);
+
+}
+else if ($p=="saveUserGroup"){
+    $u_id = $_REQUEST['u_id'];
+    $g_id = $_REQUEST['g_id'];
+    $data = $db->insertUserGroup($g_id, $u_id, $ownerID);
+}
+
 else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_id = $_REQUEST['project_id'];

@@ -1,3 +1,8 @@
+11.02.2018 Version 0.0.50
+Minor bug fixed when page reloads.
+Groups section added to profile page.
+Nextflow log based job control completed.
+
 09.02.2018 Version 0.0.49
 Amazon run submission completed.
 update page accordingly when page reloads completed. (minor bug remains) 

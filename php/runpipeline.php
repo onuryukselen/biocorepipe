@@ -34,13 +34,30 @@
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;">
-            <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>
-            <button class="btn btn-success" type="submit" id="completeProPipe" style="display:none; vertical-align:middle;">Completed</button>
+<!--            <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>-->
+            <div id="errorProPipe" style="display:none; float:right; " class="btn-group">
+                <button class="btn btn-danger" type="button" id="errorProPipeBut">Run Error</button>
+                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                </ul>
+            </div>
+            <div id="completeProPipe" style="display:none; float:right; " class="btn-group">
+                <button class="btn btn-success" type="button" id="completeProPipeBut">Completed</button>
+                <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                </ul>
+            </div>
             <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>
             <button class="btn btn-info" type="submit" id="waitingProPipe" style="display:none; vertical-align:middle;">Waiting</button>
             <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>
-            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall)" return false; title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
-            <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters and selection of environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
+            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;"  title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
+            <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters, output directory and selection of active environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>
 </div>
@@ -83,9 +100,9 @@
                 </div>
                 <div class="form-group">
                     <label>Run Environment </label>
-                    <button type="button"  class="btn" data-backdrop="false" onclick="refreshEnv()" style = "padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Environments"><i class="fa fa-refresh" style="font-size: 14px;"></i></a></button>
-                    
-                    
+                    <button type="button" class="btn" data-backdrop="false" onclick="refreshEnv()" style="padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Environments"><i class="fa fa-refresh" style="font-size: 14px;"></i></a></button>
+
+
                     <select id="chooseEnv" style="width: 100%;" class="fbtn btn-default form-control" name="runEnv">
                           <option value="" disabled selected>Choose environment </option>
                     </select>
@@ -96,41 +113,41 @@
                     <div>
                         <input type="checkbox" id="docker_check" name="docker_check" data-toggle="collapse" data-target="#docker_imgDiv"> Use Docker Image</input>
                     </div>
+                </div>
+                <div id="docker_imgDiv" class="collapse">
+                    <div class="form-group row">
+                        <label for="docker_img" class="col-sm-2 control-label">Image </label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="docker_img" name="docker_img" placeholder="Enter docker image">
+                        </div>
                     </div>
-                    <div id="docker_imgDiv" class="collapse">
-                       <div class="form-group row">
-                            <label for="docker_img" class="col-sm-2 control-label">Image </label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="docker_img" name="docker_img" placeholder="Enter docker image">
-                            </div>
+                    <div class="form-group row">
+                        <label for="docker_opt" class="col-sm-2 control-label"> RunOptions</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="docker_opt" name="docker_opt" placeholder="Enter docker runOptions">
                         </div>
-                        <div class="form-group row">
-                            <label for="docker_opt" class="col-sm-2 control-label"> RunOptions</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="docker_opt" name="docker_opt" placeholder="Enter docker runOptions">
-                            </div>
-                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <input type="checkbox" id="singu_check" name="singu_check" data-toggle="collapse" data-target="#singu_imgDiv"> Use Singularity Image</input>
-                    </div>
-                    <div id="singu_imgDiv" class="collapse">
-                        <div class="form-group row">
-                            <label for="singu_img" class="col-sm-2 control-label">Image Path <span><a data-toggle="tooltip" data-placement="bottom" title="(eg. project/umw_biocore/singularity/ UMMS-Biocore-singularity-master.simg)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="singu_img" name="singu_img" placeholder="Enter singularity image path">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label for="singu_opt" class="col-sm-2 control-label"> RunOptions <span><a data-toggle="tooltip" data-placement="bottom" title="You can mount the directories by usig --bind command (eg. --bind /project:/project --bind /nl:/nl --bind /share:/share). It requires you to create the directories in the image beforehand. "><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="singu_opt" name="singu_opt" placeholder="Enter singularity runOptions">
-                            </div>
+                </div>
+                <div id="singu_imgDiv" class="collapse">
+                    <div class="form-group row">
+                        <label for="singu_img" class="col-sm-2 control-label">Image Path <span><a data-toggle="tooltip" data-placement="bottom" title="(eg. project/umw_biocore/singularity/ UMMS-Biocore-singularity-master.simg)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="singu_img" name="singu_img" placeholder="Enter singularity image path">
                         </div>
                     </div>
-                
+                    <div class="form-group row">
+                        <label for="singu_opt" class="col-sm-2 control-label"> RunOptions <span><a data-toggle="tooltip" data-placement="bottom" title="You can mount the directories by usig --bind command (eg. --bind /project:/project --bind /nl:/nl --bind /share:/share). It requires you to create the directories in the image beforehand. "><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="singu_opt" name="singu_opt" placeholder="Enter singularity runOptions">
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="col-md-12">
                 <div class="form-group">
