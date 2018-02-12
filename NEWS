@@ -1,3 +1,7 @@
+12.02.2018 Version 0.0.51
+Add run data to run_logs table(duration, status, start and end date)
+add output files to input and project_input table after run starts
+
 11.02.2018 Version 0.0.50
 Minor bug fixed when page reloads.
 Groups section added to profile page.
