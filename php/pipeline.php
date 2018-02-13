@@ -2,11 +2,13 @@
     #editor {
         height: 300px;
     }
+
 </style>
 <style>
     .nodisp {
         display: block
     }
+
 </style>
 
 <div class="box-header" style=" padding-top:0px; font-size:large; ">
@@ -36,16 +38,16 @@
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="btn-group">
-            <button class="btn btn-success"  type="button" id="pipeRun" data-toggle="modal" href="#mRun" style="vertical-align:middle;">Run</button>
+            <button class="btn btn-success" type="button" id="pipeRun" data-toggle="modal" href="#mRun" style="vertical-align:middle;">Run</button>
             <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <span class="caret"></span>
                     <span class="sr-only">Toggle Dropdown</span>
                   </button>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a href="#">Existing Runs</a></li>
-                  </ul>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="#">Existing Runs</a></li>
+            </ul>
         </div>
- 
+
 
         <div id="pipeRevSpan" style="margin-right:5px; width:110px; float:right;">
             <select id="pipeRev" class="fbtn btn-default form-control mPipeChange" prev="-1" name="pipeline_rev_id"></select>
@@ -63,6 +65,7 @@
         <h6><b>Description</b></h6>
     </div>
     <div class="row"><textarea id="pipelineSum" placeholder="Enter pipeline description here.." rows="3" style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea></div>
+
 
 </div>
 
@@ -138,6 +141,37 @@
 
 </div>
 
+<div class="row">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label>Advanced Options</label>
+            <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-left:5px;" data-toggle="collapse" data-target="#advOpt"></a></i>
+        </div>
+    </div>
+</div>
+
+<!-- collapsed settings-->
+<div id="advOpt" class="row collapse">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Permissions to View</label>
+            <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
+                              <option value="3" selected="">Only me </option>
+                              <option value="15">Only my group</option>
+                              <option value="63">Everyone </option>
+                        </select>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label>Group Selection</label>
+            <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
+                          <option value="" disabled selected>Choose group </option>
+                        </select>
+        </div>
+    </div>
+</div>
+
 <!-- Add Process Modal -->
 <div id="addProcessModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
@@ -171,7 +205,7 @@
                         </div>
                     </div>
                     <div id="versionGroup" class="form-group" style="display:none">
-                        <label for="mVersion" style="width:150px;" class="col-sm-2 control-label" >Version</label>
+                        <label for="mVersion" style="width:150px;" class="col-sm-2 control-label">Version</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="mVersion" name="version">
                         </div>
@@ -185,7 +219,7 @@
                     <div id="proGroup" class="form-group">
                         <label for="mProcessGroup" style="width:150px;" class="col-sm-2 control-label">Menu Group</label>
                         <div style="width:270px;" class="col-sm-3">
-                            <select id="mProcessGroup"  class="fbtn btn-default form-control" name="process_group_id"></select>
+                            <select id="mProcessGroup" class="fbtn btn-default form-control" name="process_group_id"></select>
                         </div>
                         <div id="mProcessGroupAdd" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
                             <button type="button" class="btn btn-default form-control" id="groupAdd" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
@@ -194,7 +228,7 @@
                             <button type="button" class="btn btn-default form-control" id="groupEdit" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="fa fa-pencil-square-o"></i></button>
                         </div>
                         <div id="mProcessGroupDel" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="submit" class="btn btn-default form-control" id="groupDel"><i class="fa fa-trash-o"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="groupDel" data-toggle="modal" data-target="#delprocessGrmodal" data-backdrop="false"><i class="fa fa-trash-o"></i></button>
                         </div>
                     </div>
                     <hr id="hrDiv">
@@ -470,7 +504,7 @@
                 <form class="form-horizontal">
                     <div class="form-group">
                         <label for="mParamList" class="col-sm-2 control-label">Parameters</label>
-                        <div id="mParamListDelDiv" class="col-sm-10" style=" ">
+                        <div id="mParamListDelDiv" class="col-sm-10" >
                             <select id="mParamListDel" class="fbtn btn-default form-control" name="ParamAllIn"></select>
                         </div>
                     </div>
@@ -496,14 +530,20 @@
             <div class="modal-body">
                 <form class="form-horizontal">
                     <div class="form-group" style="display:none">
-                        <label for="mIdProGroup" class="col-sm-2 control-label">ID</label>
-                        <div class="col-sm-10">
+                        <label for="mIdProGroup" class="col-sm-3 control-label">ID</label>
+                        <div class="col-sm-7">
                             <input type="text" class="form-control" id="mIdProGroup" name="id">
                         </div>
                     </div>
+                    <div id="mGroupListForm" class="form-group" style="display:none">
+                        <label for="mGroupListDiv" class="col-sm-3 control-label">Menu Group</label>
+                        <div  id="mGroupListDiv" class="col-sm-7" >
+                            <select id="mMenuGroupList" class="fbtn btn-default form-control" name="group_name"></select>
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <label for="mProGroupName" class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-10">
+                        <label for="mProGroupName" class="col-sm-3 control-label"> New Name</label>
+                        <div class="col-sm-7">
                             <input type="text" class="form-control" id="mGroName" name="group_name">
                         </div>
                     </div>
@@ -517,6 +557,33 @@
     </div>
 </div>
 <!-- Process Group Modal Ends-->
+
+<!-- Delete Process Group Modal Starts-->
+<div id="delprocessGrmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Delete Process Group</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" >
+                        <label for="mGroupListDelDiv" class="col-sm-3 control-label">Menu Group</label>
+                        <div  class="col-sm-7" >
+                            <select id="mMenuGroupListDel" class="fbtn btn-default form-control" name="group_name"></select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="delproGroup">Delete Process Group</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Delete Process Group Modal Ends-->
 
 <!-- Rename Modal Starts-->
 <div id="renameModal" class="modal fade" tabindex="-1" role="dialog">

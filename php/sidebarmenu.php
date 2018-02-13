@@ -15,14 +15,21 @@
                   </span>
               </a>
             </button>
+<?php
+  session_start(); 
+  $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+                    if ($ownerID != ''){
+                    echo '<button type="button" class="btn btn-primary dropdown-toggle" style="float:right; margin-right:10px;" data-toggle="dropdown"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Filter"><span class="glyphicon glyphicon-filter" style="color:white;"></span> </a><span class="caret"></span></button>
+    <ul id="filterMenu" class="dropdown-menu dropdown-menu-right filterM">
+    </ul>"';
+                    } 
+ ?>
 </div>
-
 
 <?php
 require_once("config/config.php");
-
-    session_start();
-$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+//    session_start();
+//$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
 
 class dbfuncs {
 
@@ -80,7 +87,10 @@ class dbfuncs {
       public function getParentSideBar($ownerID)
    {
       if ($ownerID != ''){
-        $sql= "SELECT DISTINCT group_name name, id FROM process_group where owner_id='$ownerID' OR perms = 63";
+        $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
+        FROM process_group pg
+        LEFT JOIN user_group ug ON  pg.group_id=ug.g_id
+        where pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15) ";
       } else {
         $sql= "SELECT DISTINCT group_name name, id FROM process_group where perms = 63";
       }
@@ -90,12 +100,13 @@ class dbfuncs {
      public function getPipelineSideBar($ownerID)
    {
       if ($ownerID != ''){
-        $where_b = "(b.owner_id='$ownerID' OR b.perms = 63)";
+        $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
       } else {
         $where_b = "b.perms = 63";
        }     
-        $sql= "SELECT pip.id, pip.name
+        $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id
                FROM biocorepipe_save pip
+               LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
                INNER JOIN (
                 SELECT name, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
                 FROM biocorepipe_save 
@@ -108,14 +119,15 @@ class dbfuncs {
    function getSubMenuFromSideBar($parent, $ownerID)
    {
        if ($ownerID != ''){
-           $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63)";
-           $where_b = "(b.owner_id='$ownerID' OR b.perms = 63)";
+           $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15))";
+           $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
            } else {
            $where_pg = "pg.perms = 63";
            $where_b = "b.perms = 63";
            }
-       $sql="SELECT p.id, p.name, p.owner_id, p.perms
+       $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
              FROM process p
+             LEFT JOIN user_group ug ON  p.group_id=ug.g_id
              INNER JOIN process_group pg 
              ON p.process_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
@@ -132,7 +144,7 @@ function getSideMenuItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }
@@ -141,7 +153,7 @@ function getSideMenuPipelineItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+        $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
 endforeach;
 return $html;
 }
@@ -150,7 +162,7 @@ return $html;
 $query = new dbfuncs();
 
 $parentMenus = json_decode($query->getParentSideBar($ownerID));
-$pipelinesMenu = json_decode($query->getPipelineSideBar($ownerID));
+//$pipelinesMenu = json_decode($query->getPipelineSideBar($ownerID));
 
 
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
@@ -173,7 +185,7 @@ foreach ($parentMenus as $parentitem):
 
     $menuhtml.='<li class="treeview">';
 
-    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>'.$parentitem->{'name'}.'</span>';
+    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span p="'.$parentitem->{'perms'}.'" g="'.$parentitem->{'group_id'}.'" >'.$parentitem->{'name'}.'</span>';
     
     $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'name'}, $ownerID));
 
@@ -188,4 +200,4 @@ $menuhtml.='                    <ul>';
 echo $menuhtml;
 
 ?>
-    <!-- /.sidebar -->
+        <!-- /.sidebar -->

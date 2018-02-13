@@ -1596,7 +1596,13 @@
 	      $('#docker_opt').val(pipeData[0].docker_opt);
 	      $('#singu_img').val(pipeData[0].singu_img);
 	      $('#singu_opt').val(pipeData[0].singu_opt);
-
+            //load user groups
+            var allUserGrp = getValues({ p: "getUserGroups" });
+            for (var i = 0; i < allUserGrp.length; i++) {
+                var param = allUserGrp[i];
+                var optionGroup = new Option(param.name, param.id);
+                $("#groupSel").append(optionGroup);
+            }
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
 	      }

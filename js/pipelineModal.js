@@ -209,23 +209,23 @@ function loadSelectedProcess(selProcessId) {
         $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
         $('#mInName-' + numForm).val(inputs[i].sname);
         $('#mInName-' + numForm).attr('ppID', inputs[i].id);
-        var closureText=decodeHtml(inputs[i].closure);
+        var closureText = decodeHtml(inputs[i].closure);
         $('#mInClosure-' + numForm).val(closureText);
-        if (inputs[i].operator !== ''){
-        $('#mInOpt-' + numForm).val(inputs[i].operator);
+        if (inputs[i].operator !== '') {
+            $('#mInOpt-' + numForm).val(inputs[i].operator);
             $('#mInOptBut-' + numForm).trigger('click');
         }
-        
+
     }
     for (var i = 0; i < outputs.length; i++) {
         var numForm = i + 1;
         $('#mOutputs-' + numForm)[0].selectize.setValue(outputs[i].parameter_id, false);
         $('#mOutName-' + numForm).val(outputs[i].sname);
         $('#mOutName-' + numForm).attr('ppID', outputs[i].id);
-        var closureText=decodeHtml(outputs[i].closure);
+        var closureText = decodeHtml(outputs[i].closure);
         $('#mOutClosure-' + numForm).val(closureText);
-        if (outputs[i].operator !== ''){
-        $('#mOutOpt-' + numForm).val(outputs[i].operator);
+        if (outputs[i].operator !== '') {
+            $('#mOutOpt-' + numForm).val(outputs[i].operator);
             $('#mOutOptBut-' + numForm).trigger('click');
         }
     }
@@ -316,8 +316,7 @@ function addProParatoDB(data, startPoint, process_id) {
                 for (var n = startPoint; n < data.length; n++) {
                     if (data[n].name === 'mInOpt-' + matchSPart) {
                         dataToProcessParam.push({ name: "operator", value: data[n].value });
-                    } 
-                    else if (data[n].name === 'mInClosure-' + matchSPart) {
+                    } else if (data[n].name === 'mInClosure-' + matchSPart) {
                         dataToProcessParam.push({ name: "closure", value: encodeURIComponent(data[n].value) });
                     }
                 }
@@ -339,13 +338,12 @@ function addProParatoDB(data, startPoint, process_id) {
                 }
             }
         } else if (matchFPart === 'mOutputs' && matchVal !== '') {
-                      //first check if closures are visible
+            //first check if closures are visible
             if ($("#mOutClosure-" + matchSPart).css('visibility') === 'visible') {
                 for (var n = startPoint; n < data.length; n++) {
                     if (data[n].name === 'mOutOpt-' + matchSPart) {
                         dataToProcessParam.push({ name: "operator", value: data[n].value });
-                    } 
-                    else if (data[n].name === 'mOutClosure-' + matchSPart) {
+                    } else if (data[n].name === 'mOutClosure-' + matchSPart) {
                         dataToProcessParam.push({ name: "closure", value: encodeURIComponent(data[n].value) });
                     }
                 }
@@ -689,6 +687,18 @@ function loadPipelineDetails(pipeline_id) {
             $('#pipeline-title').changeVal(s[0].name);
             $('#ownUserNamePip').text(s[0].username);
             $('#pipelineSum').val(s[0].summary);
+            //load user groups
+            var allUserGrp = getValues({ p: "getUserGroups" });
+            for (var i = 0; i < allUserGrp.length; i++) {
+                var param = allUserGrp[i];
+                var optionGroup = new Option(param.name, param.id);
+                $("#groupSel").append(optionGroup);
+            }
+            if (s[0].group_id !== "0") {
+                $('#groupSel').val(s[0].group_id);
+            }
+
+            $('#perms').val(s[0].perms);
             $('#datecreatedPip').text(s[0].date_created);
             $('.lasteditedPip').text(s[0].date_modified);
             openPipeline(pipeline_id);
@@ -1393,36 +1403,56 @@ $(document).ready(function () {
         $('#mFileTypeDiv').css('display', 'block');
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
-        //ajax for parameters
-        $.ajax({
-            type: "GET",
-            url: "ajax/ajaxquery.php",
-            data: {
-                p: "getAllParameters"
-            },
-            async: false,
-            success: function (s) {
-                $("#mParamListIn").empty();
-                var firstOptionSelect = new Option("Available Parameters...", '');
-                $("#mParamListIn").append(firstOptionSelect);
-                for (var i = 0; i < s.length; i++) {
-                    var param = s[i];
-                    var optionAll = new Option(param.name, param.id);
-                    $("#mParamListIn").append(optionAll);
-                }
-                $('#mParamListIn').selectize({});
-            }
-        });
 
         if (button.attr('id') === 'mParamAdd') {
             $('#parametermodaltitle').html('Add New Parameter');
             $('#mParamsDynamic').css('display', "inline");
             $('#mParamList').css('display', "none");
+            //ajax for parameters
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    p: "getAllParameters"
+                },
+                async: false,
+                success: function (s) {
+                    $("#mParamListIn").empty();
+                    var firstOptionSelect = new Option("Available Parameters...", '');
+                    $("#mParamListIn").append(firstOptionSelect);
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionAll = new Option(param.name, param.id);
+                        $("#mParamListIn").append(optionAll);
+                    }
+                    $('#mParamListIn').selectize({});
+                }
+            });
 
         } else if (button.attr('id') === 'mParamEdit') {
             $('#parametermodaltitle').html('Edit Parameter');
             $('#mParamsDynamic').css('display', "none");
             $('#mParamList').css('display', "inline");
+            //ajax for parameters
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    p: "getEditDelParameters"
+                },
+                async: false,
+                success: function (s) {
+                    $("#mParamListIn").empty();
+                    var firstOptionSelect = new Option("Editable Parameters...", '');
+                    $("#mParamListIn").append(firstOptionSelect);
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionAll = new Option(param.name, param.id);
+                        $("#mParamListIn").append(optionAll);
+                    }
+                    $('#mParamListIn').selectize({});
+                }
+            });
 
 
             var formValues = $('#addProcessModal').find('input, select, textarea');
@@ -1437,7 +1467,7 @@ $(document).ready(function () {
                 type: "GET",
                 url: "ajax/ajaxquery.php",
                 data: {
-                    p: "getAllParameters"
+                    p: "getEditDelParameters"
                 },
                 async: false,
                 success: function (s) {
@@ -1473,7 +1503,7 @@ $(document).ready(function () {
             type: "GET",
             url: "ajax/ajaxquery.php",
             data: {
-                p: "getAllParameters"
+                p: "getEditDelParameters"
             },
             async: false,
             success: function (s) {
@@ -1488,7 +1518,6 @@ $(document).ready(function () {
                 $('#mParamListDel').selectize({});
             }
         });
-
     });
 
     //parameter delete button in Delparametermodal
@@ -1506,8 +1535,8 @@ $(document).ready(function () {
             },
             async: false,
             success: function (s) {
-                var allBox = $('#addProcessModal').find('select');
-                for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                var allBox = $('#addProcessModal').find('select').filter(function () { return this.id.match(/mInputs(.*)|mOutputs(.*)/); });
+                for (var i = 0; i < allBox.length; i++) {
                     var parBoxId = allBox[i].getAttribute('id');
                     $('#' + parBoxId)[0].selectize.removeOption(selectParam);
                 }
@@ -1581,7 +1610,6 @@ $(document).ready(function () {
         var selParName = data[1].value;
         var selParQual = data[2].value;
         var selParType = data[3].value;
-        console.log(data);
         if (selParQual === 'val') {
             data[3].value = selParName;
             selParType = selParName;
@@ -1598,9 +1626,8 @@ $(document).ready(function () {
                 async: false,
                 success: function (s) {
                     if (savetype.length) { //Edit Parameter
-                        //$('#mParamAllIn')[0].selectize.updateOption(selParID, {value: selParID, text: selParName } );           
-                        var allBox = $('#addProcessModal').find('select');
-                        for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                        var allBox = $('#addProcessModal').find('select').filter(function () { return this.id.match(/mInputs(.*)|mOutputs(.*)/); });
+                        for (var i = 0; i < allBox.length; i++) {
                             var parBoxId = allBox[i].getAttribute('id');
                             $('#' + parBoxId)[0].selectize.updateOption(selParID, {
                                 id: selParID,
@@ -1612,8 +1639,8 @@ $(document).ready(function () {
 
                     } else { //Add Parameter
                         //$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
-                        var allBox = $('#addProcessModal').find('select');
-                        for (var i = 3; i < allBox.length - 1; i++) { //mProRev, processGroup paramAllin are skipped at i=0,1,2  language mode skipped at allBox.length
+                        var allBox = $('#addProcessModal').find('select').filter(function () { return this.id.match(/mInputs(.*)|mOutputs(.*)/); });
+                        for (var i = 0; i < allBox.length; i++) {
                             var parBoxId = allBox[i].getAttribute('id');
                             $('#' + parBoxId)[0].selectize.addOption({
                                 id: s.id,
@@ -1664,10 +1691,13 @@ $(document).ready(function () {
     $('#processGroupModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
+        $(this).find('option').remove();
+
         if (button.attr('id') === 'groupAdd') {
             $('#processGroupmodaltitle').html('Add Menu Group');
         } else if (button.attr('id') === 'groupEdit') {
             $('#processGroupmodaltitle').html('Edit Menu Group');
+            $('#mGroupListForm').css('display', "block");
             var formValues = $('#proGroup').find('select');
             var selGroupId = "";
             var selGroupId = formValues.serializeArray()[0].value; // convert form to array
@@ -1675,21 +1705,15 @@ $(document).ready(function () {
                 type: "GET",
                 url: "ajax/ajaxquery.php",
                 data: {
-                    p: "getAllProcessGroups"
+                    p: "getEditDelProcessGroups"
                 },
                 async: false,
                 success: function (s) {
-                    var showGroup = {};
-                    s.forEach(function (element) {
-                        if (element.id === selGroupId) {
-                            showGroup = element;
-                        }
-                    });
-                    //insert data into form
-                    var formValues = $('#processGroupModal').find('input');
-                    var keys = Object.keys(showGroup);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValues[i]).val(showGroup[keys[i]]);
+                    $("#mMenuGroupList").append('<option  value="">Select menu groups to edit..</option>');
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionGroup = new Option(param.group_name, param.id);
+                        $("#mMenuGroupList").append(optionGroup);
                     }
                 },
                 error: function (errorThrown) {
@@ -1702,77 +1726,109 @@ $(document).ready(function () {
     //process group modal save button
     $('#processGroupModal').on('click', '#saveProcessGroup', function (event) {
         event.preventDefault();
-        var selProGroupName = '';
-        var selProGroupID = '';
         var formValues = $('#processGroupModal').find('input');
-        var savetype = $('#mIdProGroup').val();
+        var savetype = 'add';
         var data = formValues.serializeArray(); // convert form to array
-        var selProGroupID = data[0].value;
+        var selProGroupID = $("#mMenuGroupList").val();
+        if ($('#processGroupmodaltitle').html() === 'Edit Menu Group') {
+            data[0].value = selProGroupID;
+            savetype = "edit";
+        }
         var selProGroupName = data[1].value;
-        data.push({
-            name: "p",
-            value: "saveProcessGroup"
-        });
+        data.push({ name: "p", value: "saveProcessGroup" });
+        if ((savetype === "edit" && selProGroupID !== '' && selProGroupName !== '') || (savetype === "add" && selProGroupName !== '')) {
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: data,
+                async: false,
+                success: function (s) {
+                    if (savetype === 'edit') { //Edit Process Group
+                        var allProBox = $('#proGroup').find('select');
+                        var proGroBoxId = allProBox[0].getAttribute('id');
+                        $('#' + proGroBoxId)[0].selectize.updateOption(selProGroupID, {
+                            value: selProGroupID,
+                            text: selProGroupName
+                        });
+                        $('#side-' + selProGroupID).parent().find('span').html(selProGroupName);
+                    } else { //Add process group
+                        var allProBox = $('#proGroup').find('select');
+                        var proGroBoxId = allProBox[0].getAttribute('id');
+                        selProGroupID = s.id;
+                        $('#' + proGroBoxId)[0].selectize.addOption({
+                            value: selProGroupID,
+                            text: selProGroupName
+                        });
+                        $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + selProGroupName + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + selProGroupID + '" class="treeview-menu"></ul></li>');
+                    }
+                    $('#mProcessGroup')[0].selectize.setValue(selProGroupID, false);
+                    $('#processGroupModal').modal('hide');
+
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+    });
+
+    //close process group modal 
+    $('#processGroupModal').on('hide.bs.modal', function (event) {
+        $('#mGroupListForm').css('display', "none");
+    });
+
+    //process group remove button
+    $('#delprocessGrmodal').on('show.bs.modal', function (event) {
         $.ajax({
-            type: "POST",
+            type: "GET",
             url: "ajax/ajaxquery.php",
-            data: data,
+            data: {
+                p: "getEditDelProcessGroups"
+            },
             async: false,
             success: function (s) {
-                if (savetype.length) { //Edit Process Group
-                    var allProBox = $('#proGroup').find('select');
-                    var proGroBoxId = allProBox[0].getAttribute('id');
-                    $('#' + proGroBoxId)[0].selectize.updateOption(selProGroupID, {
-                        value: selProGroupID,
-                        text: selProGroupName
-                    });
-                    $('#side-' + selProGroupID).parent().find('span').html(selProGroupName);
-                } else { //Add process group
-                    var allProBox = $('#proGroup').find('select');
-                    var proGroBoxId = allProBox[0].getAttribute('id');
-                    selProGroupID = s.id;
-                    $('#' + proGroBoxId)[0].selectize.addOption({
-                        value: selProGroupID,
-                        text: selProGroupName
-                    });
-                    $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + selProGroupName + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + selProGroupID + '" class="treeview-menu"></ul></li>');
+                $("#mMenuGroupListDel").empty();
+                var firstOptionSelect = new Option("Select Menu Group to Delete...", '');
+                $("#mMenuGroupListDel").append(firstOptionSelect);
+                for (var i = 0; i < s.length; i++) {
+                    var param = s[i];
+                    var optionAll = new Option(param.group_name, param.id);
+                    $("#mMenuGroupListDel").append(optionAll);
                 }
-                $('#mProcessGroup')[0].selectize.setValue(selProGroupID, false);
-                $('#processGroupModal').modal('hide');
-
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
             }
         });
     });
 
-    //process group remove button
-    $('#addProcessModal').on('click', '#groupDel', function (e) {
-        e.preventDefault();
-        var selectProGro = '';
-        var formValues = $('#addProcessModal').find('#mProcessGroup');
-        var data = formValues.serializeArray();
-        selectProGro = data[0].value;
-        $.ajax({
-            type: "POST",
-            url: "ajax/ajaxquery.php",
-            data: {
-                id: selectProGro,
-                p: "removeProcessGroup"
-            },
-            async: false,
-            success: function (s) {
-                var allProBox = $('#proGroup').find('select');
-                var proGroBoxId = allProBox[0].getAttribute('id');
-                $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
 
-                $('#side-' + selectProGro).parent().remove()
-            },
-            error: function (errorThrown) {
-                alert("Error: " + errorThrown);
-            }
-        });
+
+    //process group remove button
+    $('#delprocessGrmodal').on('click', '#delproGroup', function (e) {
+        e.preventDefault();
+        var selectProGro = $("#mMenuGroupListDel").val();
+        if (selectProGro !== '') {
+
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    id: selectProGro,
+                    p: "removeProcessGroup"
+                },
+                async: false,
+                success: function (s) {
+                    var allProBox = $('#proGroup').find('select');
+                    var proGroBoxId = allProBox[0].getAttribute('id');
+                    $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
+                    $('#side-' + selectProGro).parent().remove();
+                    $('#delprocessGrmodal').modal('hide');
+                    
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+
     });
 
 

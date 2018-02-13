@@ -11,8 +11,8 @@ function checkAmzProfiles(timer) {
             if (proAmzData[k].status === "running" || proAmzData[k].status === "waiting" || proAmzData[k].status === "initiated") {
                 countActive++;
             }
-            if(timer === "timer"){
-            checkAmazonTimer(proAmzData[k].id);
+            if (timer === "timer") {
+                checkAmazonTimer(proAmzData[k].id);
             }
         }
         if (countActive > 0) {
@@ -149,32 +149,135 @@ $(document).ready(function () {
             data: data,
             async: true,
             success: function (s) {
-                    console.log(s);
-                
+                console.log(s);
+
                 if (s.stop_cloud) {
                     console.log('step1');
                     // check the amazon profiles activity each minute.
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
-	                setTimeout(function () { checkAmazonStatus(proId); }, 1000);
-                    
+                    setTimeout(function () { checkAmazonStatus(proId); }, 1000);
+
                 }
             }
         });
     });
 
+});
 
 
+//load filter sidebar menu options
+var allUserGrp = getValues({ p: "getUserGroups" });
+$("#filterMenu").append('<li><a href="#" data-value="3" tabIndex="-1"><input type="checkbox"/>&nbsp;Private</a></li>');
+$("#filterMenu").append('<li><a href="#" data-value="63" tabIndex="-1"><input type="checkbox"/>&nbsp;Public</a></li>');
+for (var i = 0; i < allUserGrp.length; i++) {
+    var param = allUserGrp[i];
+    $("#filterMenu").append('<li><a href="#" data-value="group-' + param.id + '" tabIndex="-1"><input type="checkbox"/>&nbsp;' + param.name + '</a></li>');
+}
 
+//filter sidebar menu (multiple selection feature)
+var optionsFilter = [];
+$('.filterM a').on('click', function (event) {
+    $('#tags').val("");
+    var $target = $(event.currentTarget),
+        val = $target.attr('data-value'),
+        $inp = $target.find('input'),
+        idx;
+    if ((idx = optionsFilter.indexOf(val)) > -1) {
+        optionsFilter.splice(idx, 1);
+        setTimeout(function () { $inp.prop('checked', false) }, 0);
+    } else {
+        optionsFilter.push(val);
+        setTimeout(function () { $inp.prop('checked', true) }, 0);
+    }
+    $(event.target).blur();
+    //filter based on options array
+    filterSideBar(optionsFilter)
+    return false;
+});
 
+function filterSideBar(options) {
+    var tagElems = $('#autocompletes1').children()
+    if (options.length) {
+        $(tagElems).hide();
+        var selOptArr = [];
+        var group_idArr = [];
+        for (var i = 0; i < options.length; i++) {
+            if (options[i] === '3' || options[i] === '63') {
+                var selOpt = options[i];
+                selOptArr.push(selOpt);
+            } else if (options[i].match(/group-(.*)/)) {
+                var group_id = options[i].match(/group-(.*)/)[1];
+                var selOpt = "15";
+                selOptArr.push(selOpt);
+                group_idArr.push(group_id);
+            }
+        }
 
+        for (var i = 0; i < tagElems.length; i++) {
+            var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
+            $(tagElems2).hide()
+            for (var j = 0; j < tagElems2.length; j++) {
+                var checkPerm = $.inArray($(tagElems2).eq(j).attr('p'), selOptArr) >= 0;
+                var checkGroup = $.inArray($(tagElems2).eq(j).attr('g'), group_idArr) >= 0;
+                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') !== "15" && checkPerm)) {
+                    $(tagElems).eq(i).show()
+                    if (selOpt !== "") {} else {
+                        $(tagElems).show()
+                    }
+                    $(tagElems2).eq(j).show()
+                }
+            }
+        }
+    } else {
+        //if nothing is selected show everything
+        $(tagElems).show()
+        for (var i = 0; i < tagElems.length; i++) {
+            var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
+            $(tagElems2).show()
+        }
+    }
+    $('#inputs').show();
+    $('#outputs').show();
+    $('.header').show();
+    $('#Pipelines').show();
+}
 
+//SideBar menu Search Function
+//$('#tags').on('keyup',function(e){
+$('.main-sidebar').on('keyup', '#tags', function (e) {
+      $('.filterM a >').prop('checked', false);
+    
+    var tagElems = $('#autocompletes1').children()
+    $(tagElems).hide()
+    for (var i = 0; i < tagElems.length; i++) {
+        var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
 
+        $(tagElems2).hide()
+        $(tagElems).eq(i).closest('li').children('ul.treeview-menu').hide()
+        for (var j = 0; j < tagElems2.length; j++) {
+            if (($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) === 0) {
+                $(tagElems).eq(i).show()
+                if ($(this).val().toLowerCase() !== "") {
+                    $(tagElems).eq(i).closest('li').addClass('menu-open')
+                    $(tagElems).eq(i).closest('li').children('ul.treeview-menu').show()
+                } else {
+                    $(tagElems).eq(i).closest('li').removeClass('menu-open')
+                    $(tagElems).show()
+                }
+                $(tagElems2).eq(j).show()
+            }
+        }
+    }
+    $('#inputs').show();
+    $('#outputs').show();
+    $('.header').show();
+    $('#Pipelines').show();
 
 });
 
 
 
-
+//table buttons:
 var SELECT = 4; // 1
 var EDIT = 2; // 10
 var REMOVE = 1; // 100
@@ -229,39 +332,6 @@ function getIconButton(name, buttons, icon) {
 }
 
 
-
-//SideBar menu Search Function
-//$('#tags').on('keyup',function(e){
-$('.main-sidebar').on('keyup', '#tags', function (e) {
-    var tagElems = $('#autocompletes1').children()
-    $(tagElems).hide()
-    for (var i = 0; i < tagElems.length; i++) {
-        var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
-
-        $(tagElems2).hide()
-        $(tagElems).eq(i).closest('li').children('ul.treeview-menu').hide()
-        for (var j = 0; j < tagElems2.length; j++) {
-            if (($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) === 0) {
-                $(tagElems).eq(i).show()
-                if ($(this).val().toLowerCase() !== "") {
-                    $(tagElems).eq(i).closest('li').addClass('menu-open')
-                    $(tagElems).eq(i).closest('li').children('ul.treeview-menu').show()
-                } else {
-                    $(tagElems).eq(i).closest('li').removeClass('menu-open')
-                    $(tagElems).show()
-
-                }
-
-                $(tagElems2).eq(j).show()
-            }
-        }
-    }
-    $('#inputs').show();
-    $('#outputs').show();
-    $('.header').show();
-    $('#Pipelines').show();
-
-});
 
 
 //checklogin

@@ -113,6 +113,12 @@
 	  $('#pipelineSum').keyup(function () {
 	      autosave();
 	  });
+      $('#groupSel').click(function () {
+	      autosave();
+	  });
+        $('#perms').click(function () {
+	      autosave();
+	  });
 	  $("#pipeline-title").keyup(function () { //Click outside of the field or enter
 	      autosave();
 	  });
@@ -1309,6 +1315,8 @@
 	      Mainz = Maint.scale[0]
 	      sName = document.getElementById("pipeline-title").value;
 	      var pipelineSummary = $('#pipelineSum').val();
+          var group_id = $('#groupSel').val();
+          var perms = $('#perms').val();
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
 	          id = $("#pipeline-title").attr('pipelineid');
@@ -1328,6 +1336,10 @@
 	          "edges": edges
 	      }, {
 	          "summary": pipelineSummary
+	      },{
+	          "group_id": group_id
+	      },{
+	          "perms": perms
 	      }];
 	      //A. Add new pipeline
 	      if (sName !== "" && id === '') {

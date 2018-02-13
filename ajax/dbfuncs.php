@@ -753,6 +753,13 @@ class dbfuncs {
         $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = '$ownerID' OR perms = 63";
         return self::queryTable($sql);
     }
+    public function getEditDelParameters($ownerID) {
+        if ($ownerID == ""){
+            $ownerID ="''";
+        }
+        $sql = "SELECT id, name, qualifier, file_type FROM parameter WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);
+    }
 
     public function insertParameter($name, $qualifier, $file_type, $ownerID) {
         $sql = "INSERT INTO parameter(name, qualifier, file_type, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
@@ -796,6 +803,10 @@ class dbfuncs {
 
     public function getAllProcessGroups($ownerID) {
         $sql = "SELECT id, group_name FROM process_group WHERE owner_id = '$ownerID' OR perms = 63";
+        return self::queryTable($sql);
+    }
+    public function getEditDelProcessGroups($ownerID) {
+        $sql = "SELECT id, group_name FROM process_group WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);
     }
     
@@ -1329,11 +1340,14 @@ class dbfuncs {
         if ($ownerID == ""){
             $ownerID ="''";
         }
-		$where = " where owner_id = '$ownerID' OR perms = 63"; 
+		$where = " where p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)"; 
 		if ($id != ""){
-			$where = " where id = '$id' AND (owner_id = '$ownerID' OR perms = 63)";
+			$where = " where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		}
-		$sql = "SELECT id, process_group_id, name, version, summary, script, rev_id FROM process $where";
+		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.version, p.summary, p.script, p.rev_id 
+        FROM process p
+        LEFT JOIN user_group ug ON p.group_id=ug.g_id
+        $where";
 		return self::queryTable($sql);
 	}
     
@@ -1414,15 +1428,17 @@ class dbfuncs {
 		$mainG = "{\'mainG\':".json_encode($obj[3]->{"mainG"})."}";
 		$edges = "{\'edges\':".json_encode($obj[4]->{"edges"})."}";
         $summary = $obj[5]->{"summary"};
-        $pipeline_gid = $obj[6]->{"pipeline_gid"};
-        $rev_comment = $obj[7]->{"rev_comment"};
-        $rev_id = $obj[8]->{"rev_id"};
+        $group_id = $obj[6]->{"group_id"};
+        $perms = $obj[7]->{"perms"};
+        $pipeline_gid = $obj[8]->{"pipeline_gid"};
+        $rev_comment = $obj[9]->{"rev_comment"};
+        $rev_id = $obj[10]->{"rev_id"};
         
 	
 	    if ($id > 0){
-            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), last_modified_user = '$ownerID' where id = '$id'";
+            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', last_modified_user = '$ownerID' where id = '$id'";
 		}else{
-            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', 3)";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms')";
 		}
   		return self::insTable($sql);
 	}
