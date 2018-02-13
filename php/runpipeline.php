@@ -37,8 +37,9 @@
             <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>
             <button class="btn btn-success" type="submit" id="completeProPipe" style="display:none; vertical-align:middle;">Completed</button>
             <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>
+            <button class="btn btn-info" type="submit" id="waitingProPipe" style="display:none; vertical-align:middle;">Waiting</button>
             <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>
-            <button class="btn btn-success" type="submit" id="runProPipe" onclick="runProjectPipe()" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
+            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall)" return false; title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
             <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters and selection of environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>
@@ -81,7 +82,10 @@
                     <input type="text" class="form-control" style="width: 100%;" id="rOut_dir" name="output_dir" placeholder="Enter output directory">
                 </div>
                 <div class="form-group">
-                    <label>Run Environment</label>
+                    <label>Run Environment </label>
+                    <button type="button"  class="btn" data-backdrop="false" onclick="refreshEnv()" style = "padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Environments"><i class="fa fa-refresh" style="font-size: 14px;"></i></a></button>
+                    
+                    
                     <select id="chooseEnv" style="width: 100%;" class="fbtn btn-default form-control" name="runEnv">
                           <option value="" disabled selected>Choose environment </option>
                     </select>
