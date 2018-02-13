@@ -43,6 +43,30 @@
 
                     <!-- /.tab-pane starts -->
                     <div class="tab-pane" id="groups">
+                        <div class="panel panel-default" id="grouptablepanel">
+                            <div class="panel-heading clearfix">
+                                <div class="pull-right">
+<!--                                    <button type="button" class="btn btn-primary btn-sm" id="joingroup" data-toggle="modal" data-target="#joinmodal">Join a Group</button>-->
+                                    <button type="button" class="btn btn-primary btn-sm" id="addgroup" data-toggle="modal" data-target="#groupmodal">Create a Group</button>
+                                </div>
+                                <div class="pull-left">
+                                    <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> Groups</h5>
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <table id="grouptable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Group Name</th>
+                                            <th>Owner</th>
+                                            <th>Created on</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
 
                     </div>
                     <!-- /.tab-pane ends -->
@@ -306,3 +330,65 @@
     </div>
 </div>
 <!-- profilemodal Ends-->
+
+<!-- group modal starts-->
+
+<div id="groupmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="groupmodaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mGroupID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mGroupID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mGroupName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mGroupName" name="name">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="savegroup" data-clickedrow="">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- group modal ends-->
+
+<!---- join Modal-->
+<div id="joinmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <h4 class="modal-title" id="joinmodallabel">Join a group</h4>
+            </div>
+            <form role="form" method="post">
+                <div class="modal-body" style="overflow:scroll">
+                    <fieldset>
+                        <label id="groupLabel">Select a group to join</label>
+                        <div id="groupListDiv" class="form-group">
+                            <select id="mGroupList" class="form-control" size="25"></select></div>
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirmGroupButton" class="btn btn-primary" data-dismiss="">Join</button>
+                    <button type="button" class="btn btn-default" id="cancelGroupButton" data-dismiss="modal" onclick="">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!---- join Modal ends-->

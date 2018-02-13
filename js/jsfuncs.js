@@ -198,6 +198,10 @@ function getTableButtons(name, buttons) {
 
     return selectButton + editButton + removeButton
 }
+
+
+
+
 // eg. name:run buttons:select
 function getButtonsModal(name, buttons) {
     var buttonId = buttons.split(' ')[0];

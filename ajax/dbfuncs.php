@@ -11,7 +11,7 @@ class dbfuncs {
 //    private $last_modified_user = LMUSER;
     private $run_path = RUNPATH;
     private $ssh_path = SSHPATH;
-    private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -o ConnectTimeout=3";
+    private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -oConnectTimeout=3";
     private $dolphin_path = DOLPHINPATH;
     private $amz_path = AMZPATH;
     private $amazon = AMAZON;
@@ -817,6 +817,14 @@ class dbfuncs {
         $sql = "DELETE FROM project WHERE id = '$id'";
         return self::runSQL($sql);
     }
+    public function removeGroup($id) {
+        $sql = "DELETE FROM groups WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function removeUserGroup($id) {
+        $sql = "DELETE FROM user_group WHERE g_id = '$id'";
+        return self::runSQL($sql);
+    }
     public function removeProjectPipeline($id) {
         $sql = "DELETE FROM project_pipeline WHERE id = '$id'";
         return self::runSQL($sql);
@@ -844,6 +852,71 @@ class dbfuncs {
     
     public function removeProcessByProcessGroupID($process_group_id) {
         $sql = "DELETE FROM process WHERE process_group_id = '$process_group_id'";
+        return self::runSQL($sql);
+    }
+//    ------ Groups -------
+    public function getAllGroups() {
+        $sql = "SELECT id, name FROM groups";
+        return self::queryTable($sql);
+    }
+    public function getGroups($id,$ownerID) {
+        $where = ""; 
+		if ($id != ""){
+			$where = " where g.id = '$id'";
+		}
+		$sql = "SELECT g.id, g.name, g.date_created, u.username, g.date_modified 
+                FROM groups g 
+                INNER JOIN users u ON g.owner_id = u.id $where";
+		return self::queryTable($sql);
+    }
+    
+    public function getJoinGroups($ownerID) {
+        $sql = "SELECT id, name FROM groups WHERE id NOT IN (
+		SELECT g_id
+		FROM user_group
+		WHERE u_id = '$ownerID')";
+        return self::queryTable($sql);
+    }
+    
+    public function viewGroupMembers($g_id) {
+        $sql = "SELECT id, username
+	           FROM users
+	           WHERE id in (
+		          SELECT u_id
+		          FROM user_group
+		          WHERE g_id = '$g_id')";
+        return self::queryTable($sql);
+    }
+    
+    public function getMemberAdd($g_id) {
+        $sql = "SELECT id, username
+	           FROM users
+	           WHERE id NOT IN (
+		          SELECT u_id
+		          FROM user_group
+		          WHERE g_id = '$g_id')";
+        return self::queryTable($sql);
+    }
+    
+    public function getUserGroups($ownerID) {
+		$sql = "SELECT g.id, g.name, g.date_created, u.username, g.owner_id, ug.u_id
+                FROM groups g 
+                INNER JOIN user_group ug ON  ug.g_id =g.id 
+                INNER JOIN users u ON u.id = g.owner_id 
+                where ug.u_id = '$ownerID'";
+		return self::queryTable($sql);
+    }
+    public function insertGroup($name, $ownerID) {
+        $sql = "INSERT INTO groups(name, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$ownerID', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
+    public function insertUserGroup($g_id, $u_id, $ownerID) {
+        $sql = "INSERT INTO user_group (g_id, u_id, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$g_id', '$u_id', '$ownerID', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
+
+    public function updateGroup($id, $name, $ownerID) {
+        $sql = "UPDATE groups SET name= '$name', owner_id='$ownerID', last_modified_user = '$ownerID', date_modified = now() WHERE id = '$id'";
         return self::runSQL($sql);
     }
 //    ----------- Projects   ---------
@@ -990,7 +1063,7 @@ class dbfuncs {
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
-            $check_run = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'bjobs' 2>&1 &");
+            $check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'bjobs' 2>&1 &");
             if (preg_match("/$pid/",$check_run)){
             return json_encode('running');
             } else {
@@ -1009,7 +1082,7 @@ class dbfuncs {
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
-            $nextflow_log = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
+            $nextflow_log = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
              return json_encode($nextflow_log);
         } else if ($profileType == 'amazon'){
             $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
@@ -1020,7 +1093,7 @@ class dbfuncs {
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
-            $nextflow_log = shell_exec("ssh -oStrictHostKeyChecking=no -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
+            $nextflow_log = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
              return json_encode($nextflow_log);
         }
     }

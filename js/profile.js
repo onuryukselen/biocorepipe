@@ -310,6 +310,303 @@ $(document).ready(function () {
         });
     });
 
+    //------------   groups section-------------
+    function getGroupTableOptions(owner_id, u_id) {
+        if (owner_id === u_id) {
+            //if user is the owner of the group
+            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#joinmodal" data-toggle="modal" class="viewGroupMembers">View Group Members</a></li><li class="divider"></li><li><a href="#joinmodal" data-toggle="modal" class="addUsers">Add Users</a></li><li class="divider"></li><li><a href="#" class="deleteGroup">Delete Group</a></li></ul></div>';
+        } else {
+            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#joinmodal" data-toggle="modal" class="viewGroupMembers">View Group Members</a></li></ul></div>';
+        }
+        return button;
+    }
+    
+    var groupTable = $('#grouptable').DataTable({
+        "ajax": {
+            url: "ajax/ajaxquery.php",
+            data: { "p": "getUserGroups" },
+            "dataSrc": ""
+        },
+        "columns": [{
+            "data": "name"
+            }, {
+            "data": "username"
+            }, {
+            "data": "date_created"
+            }, {
+            data: null,
+            className: "center",
+            fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                $(nTd).html(getGroupTableOptions(oData.owner_id, oData.u_id));
+            }
+            }]
+    });
+
+
+
+
+    $('#groupmodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'addgroup') {
+            $('#groupmodaltitle').html('Create a New Group');
+        } else {
+            $('#groupmodaltitle').html('Edit Group Name');
+            var clickedRow = button.closest('tr');
+            var rowData = groupTable.row(clickedRow).data();
+            $('#savegroup').data('clickedrow', clickedRow);
+            var formValues = $('#groupmodal').find('input');
+            $(formValues[0]).val(rowData.id);
+            $(formValues[1]).val(rowData.name);
+
+        }
+    });
+
+    $('#groupmodal').on('click', '#savegroup', function (event) {
+        event.preventDefault();
+        var formValues = $('#groupmodal').find('input');
+        if ($('#mProjectName').val() !== '') {
+            var savetype = $('#mGroupID').val();
+            var data = formValues.serializeArray(); // convert form to array
+            data.push({ name: "p", value: "saveGroup" });
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: data,
+                async: true,
+                success: function (s) {
+                    if (savetype.length) { //edit
+                        //                        var clickedRow = $('#savegroup').data('clickedrow');
+                        //                        var getGroupData = [];
+                        //                        getGroupData.push({ name: "id", value: savetype });
+                        //                        getGroupData.push({ name: "p", value: 'getGroups' });
+                        //                        $.ajax({
+                        //                            type: "POST",
+                        //                            url: "ajax/ajaxquery.php",
+                        //                            data: getGroupData,
+                        //                            async: true,
+                        //                            success: function (sc) {
+                        //                                var groupDat = sc;
+                        //                                var rowData = {};
+                        //                                var keys = groupTable.settings().init().columns;
+                        //                                for (var i = 0; i < keys.length; i++) {
+                        //                                    var key = keys[i].data;
+                        //                                    rowData[key] = groupDat[0][key];
+                        //                                }
+                        //                                rowData.id = groupDat[0].id;
+                        //                                groupTable.row(clickedRow).remove().draw();
+                        //                                groupTable.row.add(rowData).draw();
+                        //
+                        //                            },
+                        //                            error: function (errorThrown) {
+                        //                                alert("Error: " + errorThrown);
+                        //                            }
+                        //                        });
+
+                    } else { //insert
+                        var getGroupData = [];
+                        getGroupData.push({ name: "id", value: s.id });
+                        getGroupData.push({ name: "p", value: 'getGroups' });
+                        console.log(getGroupData);
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: getGroupData,
+                            async: true,
+                            success: function (sc) {
+                                console.log(sc);
+                                var groupDat = sc;
+                                var addData = {};
+                                var keys = groupTable.settings().init().columns;
+                                for (var i = 0; i < keys.length; i++) {
+                                    var key = keys[i].data;
+                                    addData[key] = groupDat[0][key];
+                                }
+                                addData.id = groupDat[0].id;
+                                groupTable.row.add(addData).draw();
+
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+
+                    $('#groupmodal').modal('hide');
+
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+    });
+
+
+
+    $('#joinmodal').on('show.bs.modal', function (event) {
+        $('#confirmGroupButton').css('display', 'inline');
+        var button = $(event.relatedTarget);
+        $(this).find('option').remove();
+        if (button.attr('id') === 'joingroup') {
+            $('#joinmodallabel').html('Join a Group');
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    p: "getJoinGroups"
+                },
+                async: false,
+                success: function (s) {
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionGroup = new Option(param.name, param.id);
+                        $("#mGroupList").append(optionGroup);
+                    }
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        } else if (button.attr('class') === 'viewGroupMembers') {
+            $('#joinmodallabel').html('View Group Members');
+            $('#groupLabel').html('Group Members');
+            $('#confirmGroupButton').css('display', 'none');
+            $('#cancelGroupButton').html('OK');
+            var clickedRow = button.closest('tr');
+            var rowData = groupTable.row(clickedRow).data();
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    g_id: rowData.id,
+                    p: "viewGroupMembers"
+                },
+                async: false,
+                success: function (s) {
+                    console.log(s);
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionGroup = new Option(param.username, param.id);
+                        $("#mGroupList").append(optionGroup);
+                    }
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+        } else if (button.attr('class') === 'addUsers') {
+            $('#joinmodallabel').html('List of All Users');
+            $('#groupLabel').html('Select a user to add to this group');
+            $('#confirmGroupButton').html('Add to group');
+            $('#cancelGroupButton').html('Cancel');
+            var clickedRow = button.closest('tr');
+            var rowData = groupTable.row(clickedRow).data();
+            $('#joinmodallabel').attr('clickedrow', rowData.id);
+
+            $.ajax({
+                type: "GET",
+                url: "ajax/ajaxquery.php",
+                data: {
+                    g_id: rowData.id,
+                    p: "getMemberAdd"
+                },
+                async: false,
+                success: function (s) {
+                    console.log(s);
+                    for (var i = 0; i < s.length; i++) {
+                        var param = s[i];
+                        var optionGroup = new Option(param.username, param.id);
+                        $("#mGroupList").append(optionGroup);
+                    }
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+        }
+    });
+
+    $('#joinmodal').on('click', '#confirmGroupButton', function (event) {
+        event.preventDefault();
+        var label = $('#joinmodallabel').html();
+        if (label === 'Join a Group') {
+            var selGroup = $('#mGroupList').val();
+            if (selGroup !== '') {
+                var joinGro = getValues({ p: "saveUserGroup", g_id: selGroup });
+                if (joinGro) {
+                    var getGroupData = [];
+                    getGroupData.push({ name: "id", value: selGroup });
+                    getGroupData.push({ name: "p", value: 'getGroups' });
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: getGroupData,
+                        async: true,
+                        success: function (sc) {
+                            var groupDat = sc;
+                            var addData = {};
+                            var keys = groupTable.settings().init().columns;
+                            for (var i = 0; i < keys.length; i++) {
+                                var key = keys[i].data;
+                                addData[key] = groupDat[0][key];
+                            }
+                            addData.id = groupDat[0].id;
+                            groupTable.row.add(addData).draw();
+                            $('#joinmodal').modal('hide');
+
+
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
+
+                }
+            }
+        } else if (label === 'List of All Users') {
+            var clickedrow = $('#joinmodallabel').attr('clickedrow');
+            var selGroup = $('#mGroupList').val();
+            console.log(selGroup);
+            console.log(clickedrow);
+            if (selGroup !== '') {
+                var joinGro = getValues({ p: "saveUserGroup", u_id: selGroup, g_id: clickedrow });
+                if (joinGro) {
+                    $('#joinmodal').modal('hide');
+                }
+            }
+        }
+
+    });
+
+    $('#grouptable').on('click', '.deleteGroup', function (e) {
+        e.preventDefault();
+        var clickedRow = $(this).closest('tr');
+        var rowData = groupTable.row(clickedRow).data();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: {
+                id: rowData.id,
+                p: "removeGroup"
+            },
+            async: true,
+            success: function (s) {
+                groupTable.row(clickedRow).remove().draw();
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
+
+    // groups section ends
+
+
+
 
 
 
