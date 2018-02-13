@@ -52,8 +52,11 @@ else if ($p=="saveRun"){
     $ppId = $checkarray[0]["project_pipeline_id"];
     if (!empty($ppId)) {
         $db->updateRunStatus($project_pipeline_id, $status, $ownerID);    
+        $db->insertRunLog($project_pipeline_id, $status, $ownerID);
+        
     } else {
         $db->insertRun($project_pipeline_id, $status, $ownerID);
+        $db->insertRunLog($project_pipeline_id, $status, $ownerID);
     }
 
 }
@@ -93,6 +96,8 @@ else if ($p=="updateRunPid"){
 else if ($p=="updateRunStatus"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
 	$run_status = $_REQUEST['run_status'];
+	$duration = $_REQUEST['duration'];
+    $db -> updateRunLog($project_pipeline_id, $run_status, $duration, $ownerID);
     $data = $db -> updateRunStatus($project_pipeline_id, $run_status, $ownerID);
 }
 else if ($p=="getRunStatus"){

@@ -944,6 +944,16 @@ class dbfuncs {
 			('$project_pipeline_id', '$status', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
+    public function insertRunLog($project_pipeline_id, $status, $ownerID) {
+        $sql = "INSERT INTO run_log (project_pipeline_id, run_status, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$project_pipeline_id', '$status', '$ownerID', 3, now(), now(), '$ownerID')";
+        return self::insTable($sql);
+    }
+    //get maximum of $project_pipeline_id
+    public function updateRunLog($project_pipeline_id, $status, $duration, $ownerID) {
+         $sql = "UPDATE run_log SET run_status='$status', duration='$duration', date_ended= now(), date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id' ORDER BY id DESC LIMIT 1";
+        return self::runSQL($sql);
+    }
     public function updateRunStatus($project_pipeline_id, $status, $ownerID) {
         $sql = "UPDATE run SET run_status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
         return self::runSQL($sql);

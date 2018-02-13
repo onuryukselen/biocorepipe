@@ -21,58 +21,58 @@ function sortProcessList(processList) {
         }
     }
     var sortGnum = [];
-    if (mainEdges.length > 0){
-    for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
-        var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
-        var outGnum = '';
-        var inGnum = '';
-        var outGnum = mainEdges[e].replace(patt, '$5');
-        var inGnum = mainEdges[e].replace(patt, '$10');
-        //for first raw insert both values
-        //first can be added by push but other should be splice
-        if (!sortGnum.includes(outGnum)) {
-            //if output of input is exist in the array, insert before it.
-            if (sortGnum.includes(inGnum)) {
-                var index = sortGnum.indexOf(inGnum);
-                sortGnum.splice(index, 0, outGnum);
-                var index = sortGnum.indexOf(outGnum);
-            } else {
-                sortGnum.push(outGnum);
-                var index = sortGnum.indexOf(outGnum);
-            }
-        } else {
-            //check if the position of outGnum if inGnum is also exist in array
-            if (sortGnum.includes(inGnum) && sortGnum.includes(outGnum)) {
-                var indexIn = sortGnum.indexOf(inGnum);
-                var indexOut = sortGnum.indexOf(outGnum);
-                if (indexOut > indexIn){
-                    sortGnum.splice(indexOut,1);
-                    sortGnum.splice(indexIn, 0, outGnum);
+    if (mainEdges.length > 0) {
+        for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
+            var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
+            var outGnum = '';
+            var inGnum = '';
+            var outGnum = mainEdges[e].replace(patt, '$5');
+            var inGnum = mainEdges[e].replace(patt, '$10');
+            //for first raw insert both values
+            //first can be added by push but other should be splice
+            if (!sortGnum.includes(outGnum)) {
+                //if output of input is exist in the array, insert before it.
+                if (sortGnum.includes(inGnum)) {
+                    var index = sortGnum.indexOf(inGnum);
+                    sortGnum.splice(index, 0, outGnum);
+                    var index = sortGnum.indexOf(outGnum);
+                } else {
+                    sortGnum.push(outGnum);
+                    var index = sortGnum.indexOf(outGnum);
                 }
+            } else {
+                //check if the position of outGnum if inGnum is also exist in array
+                if (sortGnum.includes(inGnum) && sortGnum.includes(outGnum)) {
+                    var indexIn = sortGnum.indexOf(inGnum);
+                    var indexOut = sortGnum.indexOf(outGnum);
+                    if (indexOut > indexIn) {
+                        sortGnum.splice(indexOut, 1);
+                        sortGnum.splice(indexIn, 0, outGnum);
+                    }
+                }
+                var index = sortGnum.indexOf(outGnum);
             }
-            var index = sortGnum.indexOf(outGnum);
-        }
-        if (!sortGnum.includes(inGnum)) {
-            sortGnum.splice(index + 1, 0, inGnum);
-            var index = sortGnum.indexOf(inGnum); //last index after insertion
-        } else {
-            var index = sortGnum.indexOf(inGnum);
-        }
-        //stop for final edge
-        if (e + 1 < mainEdges.length) {
-            for (var k = e + 1; k < mainEdges.length; k++) {
-                var outGnum2 = '';
-                var inGnum2 = '';
-                var outGnum2 = mainEdges[k].replace(patt, '$5');
-                var inGnum2 = mainEdges[k].replace(patt, '$10');
-                if (inGnum === outGnum2) {
-                    if (!sortGnum.includes(inGnum2)) {
-                        sortGnum.splice(index + 1, 0, inGnum2);
+            if (!sortGnum.includes(inGnum)) {
+                sortGnum.splice(index + 1, 0, inGnum);
+                var index = sortGnum.indexOf(inGnum); //last index after insertion
+            } else {
+                var index = sortGnum.indexOf(inGnum);
+            }
+            //stop for final edge
+            if (e + 1 < mainEdges.length) {
+                for (var k = e + 1; k < mainEdges.length; k++) {
+                    var outGnum2 = '';
+                    var inGnum2 = '';
+                    var outGnum2 = mainEdges[k].replace(patt, '$5');
+                    var inGnum2 = mainEdges[k].replace(patt, '$10');
+                    if (inGnum === outGnum2) {
+                        if (!sortGnum.includes(inGnum2)) {
+                            sortGnum.splice(index + 1, 0, inGnum2);
+                        }
                     }
                 }
             }
         }
-    }
     }
     var sortProcessList = [];
     $.each(sortGnum, function (el) {
@@ -101,7 +101,7 @@ function createNextflowFile(nxf_runmode) {
     //sortProcessList
     var sortedProcessList = sortProcessList(processList);
     //initial input data added
-    sortedProcessList.forEach(function(key) {
+    sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1];
         iniText = InputParameters(mainProcessId, key);
@@ -110,11 +110,11 @@ function createNextflowFile(nxf_runmode) {
     });
     nextText = nextText + "\n" + iniTextSecond + "\n"
 
-    sortedProcessList.forEach(function(key) {
+    sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-            proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}" + "\n\n"
+            proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}\n" + outputFileName(mainProcessId, key) + "\n\n"
             nextText = nextText + proText
         }
     });
@@ -126,17 +126,41 @@ function createNextflowFile(nxf_runmode) {
     endText += 'println "##Success: ${workflow.success ? \'OK\' : \'failed\' }"\n';
     endText += 'println "##Exit status: ${workflow.exitStatus}"\n';
     endText += '}\n';
-    
-    
-//    if (nxf_runmode === "run") {
-//        var interdel = $('#intermeDel').is(":checked");
-//        if (interdel && interdel === true) {
-//            endText = "workflow.onComplete { file('work').deleteDir() } \n";
-//        }
-//    }
+
+
+    //    if (nxf_runmode === "run") {
+    //        var interdel = $('#intermeDel').is(":checked");
+    //        if (interdel && interdel === true) {
+    //            endText = "workflow.onComplete { file('work').deleteDir() } \n";
+    //        }
+    //    }
     return nextText + endText
 }
 
+//g_1_genome_index.subscribe {println "##Output:'genome.index*'## ${it.name}"}
+function outputFileName(id, currgid) {
+    outFileName = "";
+    OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0];
+    for (var o = 0; o < OList.length; o++) {
+        Oid = OList[o].id
+        outputIdSplit = Oid.split("-")
+        //        qual = parametersData.filter(function (el) {
+        //            return el.id == outputIdSplit[3]
+        //        })[0].qualifier
+        outputName = document.getElementById(Oid).getAttribute("name");
+        outputName = outputName.replace(/\"/g, '');
+        outputName = outputName.replace(/\'/g, '');
+        outputName = outputName.replace(/\?/g, '')
+        outputName = outputName.replace(/\${(.*)}/g, '*');
+        genParName = parametersData.filter(function (el) {
+            return el.id == outputIdSplit[3]
+        })[0].name
+        channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
+        
+        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
+    }
+    return outFileName;
+} 
 
 //Input parameters and channels with file paths
 function InputParameters(id, currgid) {
@@ -262,6 +286,8 @@ function OutputParameters(id, currgid) {
     return oText
 }
 
+
+
 function IOandScriptForNf(id, currgid) {
     var processData = getValues({
         p: "getProcessData",
@@ -292,13 +318,13 @@ function IOandScriptForNf(id, currgid) {
         qual = parametersData.filter(function (el) {
             return el.id == inputIdSplit[3]
         })[0].qualifier
-        
+
         inputName = document.getElementById(Iid).getAttribute("name");
         var inputClosure = document.getElementById(Iid).getAttribute("closure");
         var inputOperator = document.getElementById(Iid).getAttribute("operator");
         inputClosure = decodeHtml(inputClosure);
-        var inputOperatorText = ''; 
-        if (inputOperator !== ''){
+        var inputOperatorText = '';
+        if (inputOperator !== '') {
             inputOperatorText = '.' + inputOperator + '(' + inputClosure + ')';
         }
         find = false
@@ -326,7 +352,7 @@ function IOandScriptForNf(id, currgid) {
                     })[0].name
                     channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
                 }
-                    bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
+                bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
             }
         }
         if (find == false) {
@@ -348,8 +374,8 @@ function IOandScriptForNf(id, currgid) {
         var outputClosure = document.getElementById(Oid).getAttribute("closure");
         var outputOperator = document.getElementById(Oid).getAttribute("operator");
         outputClosure = decodeHtml(outputClosure);
-        var outputOperatorText = ''; 
-        if (outputOperator !== ''){
+        var outputOperatorText = '';
+        if (outputOperator !== '') {
             outputOperatorText = '.' + outputOperator + '(' + outputClosure + ')';
         }
         genParName = parametersData.filter(function (el) {
@@ -357,7 +383,7 @@ function IOandScriptForNf(id, currgid) {
         })[0].name
         channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
 
-            bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + outputOperatorText + "\n"
+        bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelName + outputOperatorText + "\n"
 
     }
     body = bodyInput + "\n" + bodyOutput + "\n" + script
