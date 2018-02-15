@@ -1613,7 +1613,9 @@
 	      //	          fillForm('#execNextSettTable', 'input', exec_next_settings);
 	      //	      }
 	      //check executor_job if its local
-	      if (pipeData[0].profile !== "") {
+	      var chooseEnv = $('#chooseEnv option:selected').val();
+
+	      if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
 	          var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
 	          if (executor_job === 'local') {
@@ -2193,9 +2195,15 @@
 
 	  function saveRunIcon() {
 	      var data = [];
-	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
 	      var runSummary = $('#runSum').val();
 	      var run_name = $('#run-title').val();
+	      if (dupliProPipe === false) {
+	          project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+	      } else if (dupliProPipe === true) {
+	          old_project_pipeline_id = project_pipeline_id;
+	          project_pipeline_id = '';
+	          run_name = run_name + '-copy'
+	      }
 	      var output_dir = $('#rOut_dir').val();
 	      var profile = $('#chooseEnv').val();
 	      var perms = $('#perms').val();
@@ -2221,6 +2229,8 @@
 	      if (run_name !== '') {
 	          data.push({ name: "id", value: project_pipeline_id });
 	          data.push({ name: "name", value: run_name });
+	          data.push({ name: "project_id", value: project_id });
+	          data.push({ name: "pipeline_id", value: pipeline_id });
 	          data.push({ name: "summary", value: runSummary });
 	          data.push({ name: "output_dir", value: output_dir });
 	          data.push({ name: "profile", value: profile });
@@ -2246,9 +2256,18 @@
 	              data: data,
 	              async: true,
 	              success: function (s) {
-	                  checkReadytoRun()
-	                  refreshCreatorData(project_pipeline_id);
-	                  updateSideBarProPipe("", project_pipeline_id, run_name, "edit")
+	                  if (dupliProPipe === false) {
+	                      checkReadytoRun();
+	                      refreshCreatorData(project_pipeline_id);
+	                      updateSideBarProPipe("", project_pipeline_id, run_name, "edit")
+	                  } else if (dupliProPipe === true) {
+	                      console.log(s.id);
+	                      var duplicateProPipeIn = getValues({ p: "duplicateProjectPipelineInput", new_id: s.id, old_id: old_project_pipeline_id });
+	                      if (duplicateProPipeIn) {
+	                          setTimeout(function () { window.location.replace("index.php?np=3&id=" + s.id); }, 0);
+	                      }
+	                      dupliProPipe = false;
+	                  }
 	              },
 	              error: function (errorThrown) {
 	                  alert("Error: " + errorThrown);
@@ -2273,20 +2292,23 @@
 
 	  function getJobData(getType) {
 	      var chooseEnv = $('#chooseEnv option:selected').val();
-	      var patt = /(.*)-(.*)/;
-	      var proType = chooseEnv.replace(patt, '$1');
-	      var proId = chooseEnv.replace(patt, '$2');
-	      var profileData = getProfileData(proType, proId);
-	      var allProSett = {};
-	      allProSett.job_queue = profileData[0].job_queue;
-	      allProSett.job_memory = profileData[0].job_memory;
-	      allProSett.job_cpu = profileData[0].job_cpu;
-	      allProSett.job_time = profileData[0].job_time;
-	      if (getType === "job") {
-	          return profileData;
-	      } else if (getType === "both") {
-	          return [allProSett, profileData];
+	      if (chooseEnv) {
+	          var patt = /(.*)-(.*)/;
+	          var proType = chooseEnv.replace(patt, '$1');
+	          var proId = chooseEnv.replace(patt, '$2');
+	          var profileData = getProfileData(proType, proId);
+	          var allProSett = {};
+	          allProSett.job_queue = profileData[0].job_queue;
+	          allProSett.job_memory = profileData[0].job_memory;
+	          allProSett.job_cpu = profileData[0].job_cpu;
+	          allProSett.job_time = profileData[0].job_time;
+	          if (getType === "job") {
+	              return profileData;
+	          } else if (getType === "both") {
+	              return [allProSett, profileData];
+	          }
 	      }
+
 	  }
 
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
@@ -2303,6 +2325,11 @@
 	          runStatus = '';
 	      }
 	      return runStatus;
+	  }
+        dupliProPipe = false;
+	  function duplicateProPipe() {
+	      dupliProPipe = true;
+	      saveRunIcon();
 	  }
 
 
@@ -2323,7 +2350,10 @@
 	      if (project_pipeline_id !== '' && pipeline_id !== '') {
 	          loadPipelineDetails(pipeline_id);
 	          loadProjectPipeline(pipeData);
-	          runStatus = getRunStatus(project_pipeline_id);
+	          runStatus = "";
+	          if (projectpipelineOwn === "1") {
+	              runStatus = getRunStatus(project_pipeline_id);
+	          }
 	      }
 
 	      if (runStatus !== "") {

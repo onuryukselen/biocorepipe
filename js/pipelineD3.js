@@ -124,9 +124,9 @@
 	  });
 
 	  var timeoutId = 0;
-
+      pipelineOwn = '';
 	  function autosave() {
-	      if (pipelineOwn === "1") {
+	      if (pipelineOwn=== '' || pipelineOwn === "1") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');

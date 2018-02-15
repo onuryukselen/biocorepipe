@@ -23,6 +23,9 @@
         <button type="submit" id="saveRunIcon" class="btn" name="button" data-backdrop="false" onclick="saveRunIcon()" style=" margin:0px; padding:0px;  ">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Run">
                         <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
+        <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile(&quot;run&quot;))" data-backdrop="false" style=" margin:0px; padding:0px;">
+                    <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
+                        <i class="glyphicon glyphicon-save"></i></a></button>
         <button type="button" id="delRun" class="btn" name="button" data-backdrop="false" data-toggle="modal" href="#confirmModal" style=" margin:0px; padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Delete Run">
                         <i class="glyphicon glyphicon-trash"></i></a></button>
         <!--        Save and delete icons ends-->

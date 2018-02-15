@@ -156,11 +156,11 @@ function outputFileName(id, currgid) {
             return el.id == outputIdSplit[3]
         })[0].name
         channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
-        
+
         outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
     }
     return outFileName;
-} 
+}
 
 //Input parameters and channels with file paths
 function InputParameters(id, currgid) {
@@ -250,6 +250,7 @@ function OutputParameters(id, currgid) {
                     outputName = outputName.replace(/\?/g, '')
                     outputName = outputName.replace(/\'/g, '')
                     outputName = outputName.replace(/\"/g, '')
+
                     //outPro node : get userEntryId and userEntryText
                     parId = fNode.split("-")[4]
                     userEntryId = "text-" + fNode.split("-")[4]
@@ -260,7 +261,6 @@ function OutputParameters(id, currgid) {
                     tempText = "\tif \(filename =~ /" + outputName + "/\) filename\n"
                     // if (filename =~ /^path.8.fastq$/) filename 
                     oText = oText + tempText
-                    //break
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = outputName.replace(/\*/g, '')
@@ -280,9 +280,13 @@ function OutputParameters(id, currgid) {
         }
     }
     if (closePar === true) {
-        oText = oText + "}\n\n"
+        oText = oText + "}\n\n";
+        if (outputName === '') {
+            oText = "publishDir params.outdir, mode: 'move'\n";
+        }
         closePar = false
     }
+
     return oText
 }
 
