@@ -494,7 +494,7 @@ else if ($p=="saveUserGroup"){
     $g_id = $_REQUEST['g_id'];
     $data = $db->insertUserGroup($g_id, $u_id, $ownerID);
 }
-
+//xxxxxxx
 else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_id = $_REQUEST['project_id'];
@@ -519,6 +519,13 @@ else if ($p=="saveProjectPipeline"){
     $singu_opt = $_REQUEST['singu_opt'];
         if (!empty($id)) {
         $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
+            $db->updateProjectGroupPerm($id, $group_id, $perms, $ownerID);
+            $db->updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID);
+            $db->updateProjectPipelineInputGroupPerm($id, $group_id, $perms, $ownerID);
+            $db->updateInputGroupPerm($id, $group_id, $perms, $ownerID);
+            $db->updatePipelineGroupPerm($id, $group_id, $perms, $ownerID);
+//            $db->updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID);
+            
     } else {
         $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $ownerID);
     }
@@ -538,14 +545,6 @@ else if ($p=="saveProcessParameter"){
     }
 }
 
-//else if ($p=="savePipelineProcessParameterDefault") //(2)  savePipelineProcessParameter yerine savePipelineProcessParameterDefault yazildi.
-//{
-//    $pipeline_id = $_REQUEST['pipeline_id'];
-//    $process_id = $_REQUEST['process_id'];
-//    $name = $_REQUEST['name'];
-//    
-//    $data = $db->insertPipelineProcessParameterDefault($name, $pipeline_id, $process_id);
-//}
 else if ($p=="getProcessData")
 {
 	$id = $_REQUEST['process_id'];
@@ -557,7 +556,7 @@ else if ($p=="getProcessRevision")
     $process_gidAr =$db->getProcessGID($id);
     $checkarray = json_decode($process_gidAr,true); 
     $process_gid = $checkarray[0]["process_gid"];
-    $data = $db->getProcessRevision($process_gid);
+    $data = $db->getProcessRevision($process_gid,$ownerID);
 }
 else if ($p=="getPipelineRevision")
 {
@@ -565,7 +564,7 @@ else if ($p=="getPipelineRevision")
     $pipeline_gidAr =$db->getPipelineGID($id);
     $checkarray = json_decode($pipeline_gidAr,true); 
     $pipeline_gid = $checkarray[0]["pipeline_gid"];
-    $data = $db->getPipelineRevision($pipeline_gid);
+    $data = $db->getPipelineRevision($pipeline_gid,$ownerID);
 }
 else if ($p=="checkPipeline")
 {
@@ -578,7 +577,15 @@ else if ($p=="checkProject")
 	$pipeline_id = $_REQUEST['pipeline_id'];
     $data = $db->checkProject($pipeline_id, $ownerID);
 }
-
+else if ($p=="checkParameter")
+{
+	$parameter_id = $_REQUEST['parameter_id'];
+    $data = $db->checkParameter($parameter_id, $ownerID);
+}
+else if ($p=="checkMenuGr")
+{
+    $data = $db->checkMenuGr($id, $ownerID);
+}
 else if ($p=="getMaxProcess_gid")
 {
     $data = $db->getMaxProcess_gid();
@@ -617,10 +624,10 @@ else if ($p=="getOutputsPP")
 	$process_id = $_REQUEST['process_id'];
     $data = $db->getOutputsPP($process_id);
 }
-else if ($p=="getParametersData")
-{
-    $data = $db->getParametersData($ownerID);
-}
+//else if ($p=="getParametersData")
+//{
+//    $data = $db->getParametersData($ownerID);
+//}
 else if ($p=="saveAllPipeline")
 {
 	$dat = $_REQUEST['dat'];
@@ -642,7 +649,7 @@ else if ($p=="getSavedPipelines")
 else if ($p=="loadPipeline")
 {
 	$id = $_REQUEST['id'];
-    $data = $db->loadPipeline($id);
+    $data = $db->loadPipeline($id,$ownerID);
 }
 
 header('Cache-Control: no-cache, must-revalidate');

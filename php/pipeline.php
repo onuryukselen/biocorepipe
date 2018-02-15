@@ -19,7 +19,7 @@
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Save Pipeline">
                         <i class="fa fa-save" style="font-size: 17px;"></i></a></button>
         <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
-                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Duplicate Pipeline">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Copy Pipeline">
                         <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
         <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile(&quot;pipeline&quot;))" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
@@ -35,6 +35,7 @@
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
                 <li><a id="deletePipeRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
+                        <li><a id="duplicaPipeline" onclick="duplicatePipeline()">Copy Pipeline</a></li>
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="btn-group">
@@ -141,7 +142,7 @@
 
 </div>
 
-<div class="row">
+<div id="advOptDiv"  class="row">
     <div class="col-md-12">
         <div class="form-group">
             <label>Advanced Options</label>

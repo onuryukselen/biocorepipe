@@ -67,7 +67,7 @@
 	          p: "getSavedPipelines"
 	      })
 	      parametersData = getValues({
-	          p: "getParametersData"
+	          p: "getAllParameters"
 	      })
 
 	  }
