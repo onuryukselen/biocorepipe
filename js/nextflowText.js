@@ -157,7 +157,8 @@ function outputFileName(id, currgid) {
         })[0].name
         channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
 
-        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
+//        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
+//        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + "## ${it.name}\"}" + "\n"
     }
     return outFileName;
 }
@@ -329,7 +330,7 @@ function IOandScriptForNf(id, currgid) {
         inputClosure = decodeHtml(inputClosure);
         var inputOperatorText = '';
         if (inputOperator !== '') {
-            inputOperatorText = '.' + inputOperator + '(' + inputClosure + ')';
+            inputOperatorText = '.' + inputOperator + inputClosure;
         }
         find = false
         for (var e = 0; e < edges.length; e++) {
@@ -379,9 +380,15 @@ function IOandScriptForNf(id, currgid) {
         var outputOperator = document.getElementById(Oid).getAttribute("operator");
         outputClosure = decodeHtml(outputClosure);
         var outputOperatorText = '';
-        if (outputOperator !== '') {
-            outputOperatorText = '.' + outputOperator + '(' + outputClosure + ')';
-        }
+        if (outputOperator === 'mode flatten') {
+            outputOperatorText = ' ' + outputOperator + outputClosure;
+        } else if (outputOperator !== '') {
+            if (outputClosure !== ''){
+            outputOperatorText = '.' + outputOperator + outputClosure;
+            } else if (outputClosure === ''){
+            outputOperatorText = '.' + outputOperator + "()";
+            }
+        } 
         genParName = parametersData.filter(function (el) {
             return el.id == outputIdSplit[3]
         })[0].name

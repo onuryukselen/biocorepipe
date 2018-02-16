@@ -124,9 +124,10 @@
 	  });
 
 	  var timeoutId = 0;
-      pipelineOwn = '';
+	  pipelineOwn = '';
+
 	  function autosave() {
-	      if (pipelineOwn=== '' || pipelineOwn === "1") {
+	      if (pipelineOwn === '' || pipelineOwn === "1") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');
@@ -147,6 +148,7 @@
 	      dupliPipe = true
 	      save()
 	  }
+
 
 	  function delPipeline() {
 	      var pipeID = $('#pipeline-title').attr('pipelineid');
@@ -363,6 +365,7 @@
 	          x = (xpos - t.translate[0])
 	      y = (ypos - t.translate[1])
 	      z = t.scale[0]
+          
 
 
 	      //var process_id = processData[index].id;
@@ -1428,7 +1431,6 @@
 	                      savedList.push({ "rev_id": newPipRev_id });
 	                      sl = JSON.stringify(savedList);
 	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	                      console.log(ret);
 	                      $('#confirmRevision').modal('hide');
 	                      $('#autosave').text('Changes saved on new revision');
 	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);

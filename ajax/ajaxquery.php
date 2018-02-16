@@ -158,6 +158,10 @@ else if ($p=="getGroups"){
 else if ($p=="getUserGroups"){
     $data = $db -> getUserGroups($ownerID);
 }
+else if ($p=="getExistProjectPipelines"){
+    $pipeline_id = $_REQUEST['pipeline_id'];
+    $data = $db -> getExistProjectPipelines($pipeline_id,$ownerID);
+}
 else if ($p=="getProjectPipelines"){
     $project_id = $_REQUEST['project_id'];
     $data = $db -> getProjectPipelines($id,$project_id,$ownerID);
@@ -211,7 +215,6 @@ else if ($p=="removePipelineById"){
 
 else if ($p=="removeProcess"){   
     $db->removeProcessParameterByProcessID($id);
-//    $db->removePipelineProcessByProcessID($id);
 	$data = $db -> removeProcess($id);
 }
 else if ($p=="removeProject"){   
@@ -498,6 +501,15 @@ else if ($p=="duplicateProjectPipelineInput"){
     $new_id = $_REQUEST['new_id'];
     $old_id = $_REQUEST['old_id'];
     $data = $db->duplicateProjectPipelineInput($new_id, $old_id, $ownerID);
+}
+else if ($p=="duplicateProcess"){
+    $new_process_gid = $_REQUEST['process_gid'];
+    $new_name = $_REQUEST['name'];
+    $old_id = $_REQUEST['id'];
+    $data = $db->duplicateProcess($new_process_gid, $new_name, $old_id, $ownerID);
+    $idArray = json_decode($data,true);
+    $new_pro_id = $idArray["id"];
+    $db->duplicateProcessParameter($new_pro_id, $old_id, $ownerID);
 }
 else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];

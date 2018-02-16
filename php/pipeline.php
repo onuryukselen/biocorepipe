@@ -45,7 +45,7 @@
                     <span class="sr-only">Toggle Dropdown</span>
                   </button>
             <ul class="dropdown-menu" role="menu">
-                <li><a href="#">Existing Runs</a></li>
+                <li><a href="#mExistRun" data-toggle="modal">Existing Runs</a></li>
             </ul>
         </div>
 
@@ -184,6 +184,8 @@
                     <button class="btn btn-default dropdown-toggle" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li><a id="deleteRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
+                        <li><a id="duplicaProRev" onclick="duplicateProcessRev()">Copy Process</a></li>
+                        
                     </ul>
                 </div>
                 <span id="mProRevSpan" style="margin-right:5px; width:130px; float:right; display:none;">
@@ -293,6 +295,7 @@
                                     <option value="merge">merge</option>
                                     <option value="min">min</option>
                                     <option value="mix">mix</option>
+                                    <option value="mode flatten">mode flatten</option>
                                     <option value="phase">phase</option>
                                     <option value="print">print</option>
                                     <option value="println">println</option>
@@ -370,6 +373,7 @@
                                     <option value="merge">merge</option>
                                     <option value="min">min</option>
                                     <option value="mix">mix</option>
+                                    <option value="mode flatten">mode flatten</option>
                                     <option value="phase">phase</option>
                                     <option value="print">print</option>
                                     <option value="println">println</option>
@@ -732,7 +736,7 @@
                                     <th>Check</th>
                                     <th>Project Name</th>
                                     <th>Owner</th>
-                                    <th>Created on</th>
+                                    <th>Modified on</th>
                                 </tr>
                             </thead>
                         </table>
@@ -742,6 +746,46 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="selectProject" data-clickedrow="">Select Project</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--ExistRuns Modal-->
+
+<div id="mExistRun" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" > Go to Existing Runs</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel panel-default" >
+                    <div class="panel-heading clearfix">
+                        <div class="pull-left">
+                            <h5><i class="fa fa-calendar-o " style="margin-left:0px; margin-right:0px;"></i> Select Run</h5>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <table id="existRunTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Check</th>
+                                    <th>Run Name</th>
+                                    <th>Project Name</th>
+                                    <th>Owner</th>
+                                    <th>Modified on</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectExistRun" data-clickedrow="">Go to Run</button>
             </div>
         </div>
     </div>
