@@ -1,3 +1,8 @@
+13.02.2018 Version 0.0.52
+Permission and group data options added in pipeline and run pipeline pages.
+Filter (permission and group) feature added to sidebar menu.
+process menu group edit/delete modal added.
+
 12.02.2018 Version 0.0.51
 Add run data to run_logs table(duration, status, start and end date)
 add output files to input and project_input table after run starts

@@ -123,6 +123,9 @@ else if ($p=="checkAmazonStatus"){
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);
 }
+else if ($p=="getEditDelParameters"){
+    $data = $db -> getEditDelParameters($ownerID);
+}
 else if ($p=="savefeedback"){
 	$email = $_REQUEST['email'];
 	$message = $_REQUEST['message'];
@@ -184,6 +187,9 @@ else if ($p=="getInputs"){
 }
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
+}
+else if ($p=="getEditDelProcessGroups"){
+    $data = $db -> getEditDelProcessGroups($ownerID);
 }
 //else if ($p=="getAllProcessParameters"){
 //   $process_id = $_REQUEST["process_id"];
