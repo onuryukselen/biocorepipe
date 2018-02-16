@@ -30,7 +30,8 @@
         <div id="pipeActionsDiv" style="float:right;  margin-right:5px;" class="dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
-                <li><a id="deleteRun" data-toggle="modal" href="#confirmModal">Delete Run</a></li>
+                <li><a id="deleteRun" data-toggle="modal" href="#confirmModal">Delete Run</a>
+                <li><a id="duplicaRun" onclick="duplicateProPipe()">Copy Run</a></li></li>
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;">

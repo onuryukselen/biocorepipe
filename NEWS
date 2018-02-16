@@ -1,7 +1,14 @@
+14.02.2018 Version 0.0.53
+Database check feature added when edit/delete parameter.(will not allow to change if its used in process)
+Database check feature added when delete process menu group.(will not allow to delete if their process's are in use)
+Only owner able to delete/edit parameter, process, pipeline, menu group, run.
+Process info modal upgraded for operators.
+Projects Run section updated(options loaded based on ownership)
+
 13.02.2018 Version 0.0.52
 Permission and group data options added in pipeline and run pipeline pages.
 Filter (permission and group) feature added to sidebar menu.
-process menu group edit/delete modal added.
+Process menu group edit/delete modal added.
 
 12.02.2018 Version 0.0.51
 Add run data to run_logs table(duration, status, start and end date)

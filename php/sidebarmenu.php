@@ -108,9 +108,11 @@ class dbfuncs {
                FROM biocorepipe_save pip
                LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
                INNER JOIN (
-                SELECT name, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
-                FROM biocorepipe_save 
-                GROUP BY pipeline_gid
+                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, MAX(p.rev_id) rev_id
+                FROM biocorepipe_save p
+                LEFT JOIN user_group ug ON p.group_id=ug.g_id where (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
+                GROUP BY p. pipeline_gid
+                
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and $where_b ";
          
      return self::queryTable($sql);
@@ -131,9 +133,10 @@ class dbfuncs {
              INNER JOIN process_group pg 
              ON p.process_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
-                SELECT name, process_gid, owner_id, perms, MAX(rev_id) rev_id
-                FROM process 
-                GROUP BY process_gid
+                SELECT pr.name, pr.process_gid, pr.owner_id, pr.perms, MAX(pr.rev_id) rev_id
+                FROM process pr
+                LEFT JOIN user_group ug ON pr.group_id=ug.g_id where (pr.owner_id='$ownerID' OR pr.perms = 63 OR (ug.u_id ='$ownerID' and pr.perms = 15))
+                GROUP BY pr.process_gid
                 ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and $where_b ";
 
       return self::queryTable($sql);

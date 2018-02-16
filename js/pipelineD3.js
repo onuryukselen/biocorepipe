@@ -52,7 +52,7 @@
 	      })
 	      addOption2LoadSelect()
 	      parametersData = getValues({
-	          p: "getParametersData"
+	          p: "getAllParameters"
 	      })
 
 	  }
@@ -113,10 +113,10 @@
 	  $('#pipelineSum').keyup(function () {
 	      autosave();
 	  });
-      $('#groupSel').click(function () {
+	  $('#groupSel').click(function () {
 	      autosave();
 	  });
-        $('#perms').click(function () {
+	  $('#perms').click(function () {
 	      autosave();
 	  });
 	  $("#pipeline-title").keyup(function () { //Click outside of the field or enter
@@ -126,11 +126,13 @@
 	  var timeoutId = 0;
 
 	  function autosave() {
-	      var pipName = $('#pipeline-title').val()
-	      if (pipName !== '') {
-	          $('#autosave').text('Saving...');
-	          if (timeoutId) clearTimeout(timeoutId);
-	          timeoutId = setTimeout(function () { save() }, 2000);
+	      if (pipelineOwn === "1") {
+	          var pipName = $('#pipeline-title').val()
+	          if (pipName !== '') {
+	              $('#autosave').text('Saving...');
+	              if (timeoutId) clearTimeout(timeoutId);
+	              timeoutId = setTimeout(function () { save() }, 2000);
+	          }
 	      }
 	  }
 
@@ -322,11 +324,11 @@
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName) {
-          if (paraQualifier !== "val"){
-	        return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
-          } else {
-            return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + '-' + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'    
-          }
+	      if (paraQualifier !== "val") {
+	          return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+	      } else {
+	          return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + '-' + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td></tr>'
+	      }
 	  }
 
 	  function insertProRowTable(process_id, procName, procDesc, procRev) {
@@ -540,7 +542,7 @@
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", outputs[k].sname)
-                  	  .attr("operator", outputs[k].operator)
+	                  .attr("operator", outputs[k].operator)
 	                  .attr("closure", outputs[k].closure)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")
@@ -809,11 +811,11 @@
 	              var paraFileType = paraData[0].file_type
 	              var paraQualifier = paraData[0].qualifier
 	              var paraName = paraData[0].name
-                  if (paraQualifier !== 'val'){
-	                   tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
-                  } else {
-	                   tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
-                  }
+	              if (paraQualifier !== 'val') {
+	                  tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+	              } else {
+	                  tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+	              }
 	          }
 	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
 	          d3.selectAll("#" + this.id).attr("status", "mouseon")
@@ -1315,8 +1317,8 @@
 	      Mainz = Maint.scale[0]
 	      sName = document.getElementById("pipeline-title").value;
 	      var pipelineSummary = $('#pipelineSum').val();
-          var group_id = $('#groupSel').val();
-          var perms = $('#perms').val();
+	      var group_id = $('#groupSel').val();
+	      var perms = $('#perms').val();
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
 	          id = $("#pipeline-title").attr('pipelineid');
@@ -1336,9 +1338,9 @@
 	          "edges": edges
 	      }, {
 	          "summary": pipelineSummary
-	      },{
+	      }, {
 	          "group_id": group_id
-	      },{
+	      }, {
 	          "perms": perms
 	      }];
 	      //A. Add new pipeline
@@ -1352,7 +1354,8 @@
 	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
 	          if (dupliPipe === true) {
-	              $("#pipeline-title").changeVal(sName);
+	              //	              $("#pipeline-title").changeVal(sName);
+	              setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 0);
 	              dupliPipe = false;
 	          }
 	          $('#autosave').text('All changes saved');
@@ -1403,7 +1406,7 @@
 	                  if (numRev === 1) { //sidebar name change
 	                      document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
 	                  }
-                      saveOnExist = true;
+	                  saveOnExist = true;
 	                  $('#autosave').text('All changes saved');
 	                  $('#confirmRevision').modal('hide');
 
@@ -1629,7 +1632,7 @@
 	                  .attr("kind", "input")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", inputs[k].sname)
-                      .attr("operator", inputs[k].operator)
+	                  .attr("operator", inputs[k].operator)
 	                  .attr("closure", inputs[k].closure)
 	                  .attr("connect", "single")
 	                  .attr("status", "standard")
@@ -1652,7 +1655,7 @@
 	                  .attr("kind", "output")
 	                  .attr("parentG", "g-" + gNum)
 	                  .attr("name", outputs[k].sname)
-                      .attr("operator", outputs[k].operator)
+	                  .attr("operator", outputs[k].operator)
 	                  .attr("closure", outputs[k].closure)
 	                  .attr("status", "standard")
 	                  .attr("connect", "single")

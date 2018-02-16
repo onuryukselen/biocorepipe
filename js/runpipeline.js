@@ -33,7 +33,7 @@
 	      })
 	      addOption2LoadSelect()
 	      parametersData = getValues({
-	          p: "getParametersData"
+	          p: "getAllParameters"
 	      })
 
 	  }
@@ -1538,6 +1538,7 @@
 	              $('#pipelineSum').val(s[0].summary);
 	              openPipeline(pipeline_id);
 	              $('#pipelineSum').attr('disabled', "disabled");
+
 	          },
 	          error: function (errorThrown) {
 	              alert("Error: " + errorThrown);
@@ -1596,13 +1597,13 @@
 	      $('#docker_opt').val(pipeData[0].docker_opt);
 	      $('#singu_img').val(pipeData[0].singu_img);
 	      $('#singu_opt').val(pipeData[0].singu_opt);
-            //load user groups
-            var allUserGrp = getValues({ p: "getUserGroups" });
-            for (var i = 0; i < allUserGrp.length; i++) {
-                var param = allUserGrp[i];
-                var optionGroup = new Option(param.name, param.id);
-                $("#groupSel").append(optionGroup);
-            }
+	      //load user groups
+	      var allUserGrp = getValues({ p: "getUserGroups" });
+	      for (var i = 0; i < allUserGrp.length; i++) {
+	          var param = allUserGrp[i];
+	          var optionGroup = new Option(param.name, param.id);
+	          $("#groupSel").append(optionGroup);
+	      }
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
 	      }
@@ -1974,9 +1975,9 @@
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
-                          //Save output file paths to input and project_input database
-                          addOutFileDb();
-                          
+	                      //Save output file paths to input and project_input database
+	                      addOutFileDb();
+
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -2057,13 +2058,13 @@
 	  function addOutFileDb() {
 	      var rowIdAll = $('#outputsTable > tbody').find('tr');
 	      for (var i = 0; i < rowIdAll.length; i++) {
-              var data = [];
+	          var data = [];
 	          var rowID = $(rowIdAll[i]).attr('id');
 	          var outTableRow = $('#' + rowID + ' >:last-child').find('span');
 	          var filePath = $(outTableRow[0]).text();
-//	          var gNumParam = rowID.split('-')[1];
-//	          var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
-//	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
+	          //	          var gNumParam = rowID.split('-')[1];
+	          //	          var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	          //	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
 	          data.push({ name: "id", value: "" });
 	          data.push({ name: "name", value: filePath });
 	          data.push({ name: "p", value: "saveInput" });
@@ -2072,18 +2073,18 @@
 	          var input_id = inputGet.id;
 	          //insert into project_input table
 	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-//	          var projectInputID = proInputGet.id;
-//	          //insert into project_pipeline_input table
-//	          var propipeInputGet = getValues({
-//	              "p": "saveProPipeInput",
-//	              "input_id": input_id,
-//	              "project_id": project_id,
-//	              "pipeline_id": pipeline_id,
-//	              "project_pipeline_id": project_pipeline_id,
-//	              "g_num": gNumParam,
-//	              "given_name": given_name,
-//	              "qualifier": qualifier
-//	          });
+	          //	          var projectInputID = proInputGet.id;
+	          //	          //insert into project_pipeline_input table
+	          //	          var propipeInputGet = getValues({
+	          //	              "p": "saveProPipeInput",
+	          //	              "input_id": input_id,
+	          //	              "project_id": project_id,
+	          //	              "pipeline_id": pipeline_id,
+	          //	              "project_pipeline_id": project_pipeline_id,
+	          //	              "g_num": gNumParam,
+	          //	              "given_name": given_name,
+	          //	              "qualifier": qualifier
+	          //	          });
 	      }
 	  }
 
@@ -2308,6 +2309,14 @@
 	  $(document).ready(function () {
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
 	      pipeData = getValues({ p: "getProjectPipelines", id: project_pipeline_id });
+	      projectpipelineOwn = pipeData[0].own;
+	      // if user not own it, cannot change or delete run
+	      if (projectpipelineOwn === "0") {
+	          $('#deleteRun').remove();
+	          $('#delRun').remove();
+	          $('#saveRunIcon').remove();
+	          $('#pipeRunDiv').remove();
+	      }
 	      pipeline_id = pipeData[0].pipeline_id;
 	      project_id = pipeData[0].project_id;
 	      $('#pipeline-title').attr('pipeline_id', pipeline_id);

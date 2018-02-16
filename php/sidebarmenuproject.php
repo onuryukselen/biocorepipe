@@ -79,18 +79,21 @@ class dbfuncs {
    }
       public function getParentSideBar($ownerID)
    {
-        $sql= "SELECT DISTINCT name, id FROM project where owner_id='$ownerID' OR perms = 63";
+        $sql= "SELECT DISTINCT pp.name, pp.id 
+        FROM project pp
+        LEFT JOIN user_group ug ON pp.group_id=ug.g_id
+        where pp.owner_id = '$ownerID' OR pp.perms = 63 OR (ug.u_id ='$ownerID' and pp.perms = 15)";
      return self::queryTable($sql);
    }
     
    
    function getSubMenuFromSideBar($parent, $ownerID)
    {
-           $where = "(pj.owner_id='$ownerID' and pp.project_id='$parent' )";
-       $sql="SELECT pp.id, pp.name, pj.owner_id, pp.project_id
+           $where = "(pp.project_id='$parent' AND (pp.owner_id = '$ownerID' OR pp.perms = 63 OR (ug.u_id ='$ownerID' and pp.perms = 15)))";
+       $sql="SELECT DISTINCT pp.id, pp.name, pj.owner_id, pp.project_id
              FROM project_pipeline pp
-             INNER JOIN project pj 
-             ON pp.project_id = pj.id and $where ";
+             LEFT JOIN user_group ug ON pp.group_id=ug.g_id
+             INNER JOIN project pj ON pp.project_id = pj.id and $where ";
 
       return self::queryTable($sql);
    }
