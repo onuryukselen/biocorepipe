@@ -178,10 +178,10 @@ else if ($p=="getProjectPipelineInputs"){
     $data = $db->getProjectPipelineInputs($g_num, $project_pipeline_id,$ownerID);
     }
 }
-else if ($p=="getAllProjectPipelineInputs"){
-    $project_pipeline_id = $_REQUEST['project_pipeline_id'];
-       $data = $db->getAllProjectPipelineInputs($project_pipeline_id,$ownerID);
-}
+//else if ($p=="getAllProjectPipelineInputs"){
+//    $project_pipeline_id = $_REQUEST['project_pipeline_id'];
+//       $data = $db->getAllProjectPipelineInputs($project_pipeline_id,$ownerID);
+//}
 else if ($p=="getInputs"){
     $data = $db -> getInputs($id,$ownerID);
 }
@@ -494,7 +494,11 @@ else if ($p=="saveUserGroup"){
     $g_id = $_REQUEST['g_id'];
     $data = $db->insertUserGroup($g_id, $u_id, $ownerID);
 }
-//xxxxxxx
+else if ($p=="duplicateProjectPipelineInput"){
+    $new_id = $_REQUEST['new_id'];
+    $old_id = $_REQUEST['old_id'];
+    $data = $db->duplicateProjectPipelineInput($new_id, $old_id, $ownerID);
+}
 else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_id = $_REQUEST['project_id'];
@@ -524,10 +528,10 @@ else if ($p=="saveProjectPipeline"){
             $db->updateProjectPipelineInputGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateInputGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updatePipelineGroupPerm($id, $group_id, $perms, $ownerID);
-//            $db->updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID);
+            $db->updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID);
             
     } else {
-        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $ownerID);
+        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
     }
 }
 

@@ -1,3 +1,8 @@
+15.02.2018 Version 0.0.54
+Duplicate project run added.
+Projects, project details section updated(options loaded based on ownership)
+If pipeline/run is copied from other owner, keep properties from original owner. if user change process/pipeline, then new pipeline will be assigned as a new owner and defined as first revision of new owner.
+
 14.02.2018 Version 0.0.53
 Database check feature added when edit/delete parameter.(will not allow to change if its used in process)
 Database check feature added when delete process menu group.(will not allow to delete if their process's are in use)
