@@ -1213,6 +1213,16 @@ class dbfuncs {
         }
 		return self::queryTable($sql);
     }
+    public function getExistProjectPipelines($pipeline_id,$ownerID) {
+			$where = " where pp.pipeline_id = '$pipeline_id' AND (pp.owner_id = '$ownerID' OR pp.perms = 63 OR (ug.u_id ='$ownerID' and pp.perms = 15))";
+            $sql = "SELECT DISTINCT pp.id, pp.name as pp_name, u.username, pp.date_modified, p.name as project_name
+                    FROM project_pipeline pp 
+                    INNER JOIN users u ON pp.owner_id = u.id 
+                    INNER JOIN project p ON pp.project_id = p.id
+                    LEFT JOIN user_group ug ON pp.group_id=ug.g_id
+                    $where";    
+		return self::queryTable($sql);
+    }
     
      // ------- Project Pipeline Inputs  ------
     public function insertProPipeInput($project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name, $qualifier, $ownerID) {
@@ -1229,6 +1239,21 @@ class dbfuncs {
                 SELECT input_id, project_id, pipeline_id, g_num, given_name, qualifier, '$new_id', '$ownerID', '3', now(), now(),'$ownerID'
                 FROM project_pipeline_input
                 WHERE project_pipeline_id='$old_id'";
+        return self::insTable($sql);
+    }
+    
+    public function duplicateProcess($new_process_gid, $new_name, $old_id, $ownerID) {
+        $sql = "INSERT INTO process(process_group_id, name, summary, script, owner_id, perms, date_created, date_modified, last_modified_user, rev_id, process_gid) 
+                SELECT process_group_id, '$new_name', summary, script, '$ownerID', '3', now(), now(),'$ownerID', '0', $new_process_gid
+                FROM process
+                WHERE id='$old_id'";
+        return self::insTable($sql);
+    }
+    public function duplicateProcessParameter($new_pro_id, $old_id, $ownerID){
+        $sql = "INSERT INTO process_parameter(process_id, parameter_id, type, sname, operator, closure, owner_id, perms, date_created, date_modified, last_modified_user) 
+                SELECT '$new_pro_id', parameter_id, type, sname, operator, closure, '$ownerID', '3', now(), now(),'$ownerID'
+                FROM process_parameter
+                WHERE process_id='$old_id'";
         return self::insTable($sql);
     }
     

@@ -694,7 +694,7 @@ function disableProModal(selProcessId) {
         $('#mInOpt-' + numFormIn).attr('disabled', "disabled");
         $('#mInOptBut-' + numFormIn).css("pointer-events", "none");
         $('#mInOptdel-' + numFormIn).remove();
-        
+
     }
     //
     var delNumIn = numFormIn + 1;
@@ -744,11 +744,11 @@ function loadPipelineDetails(pipeline_id) {
             $('#pipelineSum').val(s[0].summary);
             pipelineOwn = s[0].own;
             // if user not own it, cannot change or delete pipeline
-            if (pipelineOwn === "0"){
-            $('#deletePipeRevision').remove();
-            $('#delPipeline').remove();
-            $('#savePipeline').remove();
-            $('#advOptDiv').remove();
+            if (pipelineOwn === "0") {
+                $('#deletePipeRevision').remove();
+                $('#delPipeline').remove();
+                $('#savePipeline').remove();
+                $('#advOptDiv').remove();
             }
             //load user groups
             var allUserGrp = getValues({ p: "getUserGroups" });
@@ -800,6 +800,30 @@ function loadPipelineDetails(pipeline_id) {
     });
 
 };
+
+
+function duplicateProcessRev() {
+    var processID = $('#mIdPro').val();
+    if (processID !== '') {
+        var proName = $('#mName').val() + "-copy";
+        var proGroId = $('#mProcessGroup').val();
+        var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
+        var newProcess_gid = parseInt(maxProcess_gid) + 1;
+        var s = getValues({
+            p: "duplicateProcess",
+            'process_gid': newProcess_gid,
+            'name': proName,
+            'id': processID
+        });
+        if (s) {
+            var process_id = s.id;
+            //add process link into sidebar menu
+            $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+            refreshDataset();
+            $('#addProcessModal').modal('hide');
+        }
+    }
+}
 
 $(document).ready(function () {
     var pipeline_id = $('#pipeline-title').attr('pipelineid');
@@ -871,8 +895,12 @@ $(document).ready(function () {
         if (lastProID && lastProID !== firstProID) {
             var processDat = pName + '@' + lastProID;
             remove('del-' + gNumInfo);
-            var xCor = $('#selectProcess').attr("xCoor") - 50;
-            var yCor = $('#selectProcess').attr("yCoor") - 70;
+            var d3main = d3.transform(d3.select('#' + "mainG").attr("transform"));
+            var scale = d3main.scale[0];
+            var translateX = d3main.translate[0];
+            var translateY = d3main.translate[1];
+            var xCor = $('#selectProcess').attr("xCoor") * scale + 30 - r - ior + translateX;
+            var yCor = $('#selectProcess').attr("yCoor") * scale + 10 - r - ior + translateY;
             addProcess(processDat, xCor, yCor);
         }
         autosave();
@@ -982,8 +1010,8 @@ $(document).ready(function () {
             loadModalRevision(selProcessId);
             var processOwn = loadSelectedProcess(selProcessId);
             // if user is the owner of the process (processOwn=1) allowed for edit and delete.
-            if (processOwn === "0"){
-	          setTimeout(function () { prepareInfoModal(); }, 0);
+            if (processOwn === "0") {
+                setTimeout(function () { prepareInfoModal(); }, 0);
                 var pName = $('#mName').val();
                 $('#selectProcess').attr("pName", pName);
                 disableProModal(selProcessId);
@@ -1024,7 +1052,7 @@ $(document).ready(function () {
         var button = $(event.relatedTarget);
         if (button.attr('id') === 'deleteRevision') {
             $('#deleteBtn').attr('class', 'btn btn-primary delprocess');
-            $('#confirmModalText').html('Are you sure you want to delete this process?');
+            $('#confirmModalText').html('Are you sure you want to delete this process revision?');
         } else if (button.attr('id') === 'deletePipeRevision' || button.attr('id') === 'delPipeline') {
             $('#deleteBtn').attr('class', 'btn btn-primary delpipeline');
             $('#confirmModalText').html('Are you sure you want to delete this pipeline?');
@@ -1114,6 +1142,7 @@ $(document).ready(function () {
             var revisions = getValues({ p: "getProcessRevision", "process_id": processIdDel });
             var removedRev = [];
             if (revisions.length === 1) {
+                var delProce = getValues({ p: "removeProcess", "id": processIdDel });
                 var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
                 delSideMenuNode.parentNode.removeChild(delSideMenuNode);
                 delProMenuID = '';
@@ -1168,12 +1197,12 @@ $(document).ready(function () {
             var formValues = $('#addProcessModal').find('input, select, textarea');
             var data = formValues.serializeArray();
             var dataToProcess = []; //dataToProcess to save in process table
-            var proID = data[0].value;
             var proName = data[1].value;
             var proGroId = data[4].value;
             for (var i = 0; i < 5; i++) {
                 dataToProcess.push(data[i]);
             }
+
             var scripteditor = JSON.stringify(editor.getValue());
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
@@ -1184,6 +1213,7 @@ $(document).ready(function () {
                 dataToProcess = [];
             }
             if (dataToProcess.length > 0) {
+                console.log(dataToProcess);
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -1955,12 +1985,12 @@ $(document).ready(function () {
             }, {
                 "data": "username"
             }, {
-                "data": "date_created"
+                "data": "date_modified"
             }],
         'select': {
             'style': 'single'
         },
-        'order': [[1, 'asc']]
+        'order': [[3, 'desc']]
     });
 
     $('#mRun').on('show.bs.modal', function (event) {
@@ -2080,10 +2110,59 @@ $(document).ready(function () {
             }
         });
     });
-
-
-
     //   ---- Run modal ends ---
+
+    //   ---- Run Exist modal starts ---
+    var projectTable = $('#existRunTable').DataTable({
+        "ajax": {
+            url: "ajax/ajaxquery.php",
+            data: { "p": "getExistProjectPipelines", pipeline_id: pipeline_id },
+            "dataSrc": ""
+        },
+        "columns": [
+            {
+                "data": "id",
+                "checkboxes": {
+                    'targets': 0,
+                    'selectRow': true
+                }
+            }, {
+                "data": "pp_name"
+            }, {
+                "data": "project_name"
+            }, {
+                "data": "username"
+            }, {
+                "data": "date_modified"
+            }],
+        'select': {
+            'style': 'single'
+        },
+        'order': [[4, 'desc']]
+    });
+
+    $('#mExistRun').on('show.bs.modal', function (event) {
+        projectTable.column(0).checkboxes.deselect();
+        if (pipeline_id === '') {
+            event.preventDefault();
+        }
+    });
+
+
+    $('#mExistRun').on('click', '#selectExistRun', function (event) {
+        event.preventDefault();
+        var rows_selected = projectTable.column(0).checkboxes.selected();
+        if (rows_selected.length === 1 && pipeline_id !== '') {
+            var project_pipeline_id = rows_selected[0];
+            $('#mExistRun').modal('hide');
+            setTimeout(function () { window.location.replace("index.php?np=3&id=" + project_pipeline_id); }, 700);
+        }
+    });
+    //   ---- Run Exist modal ends ---
+
+
+
+
 
 
 

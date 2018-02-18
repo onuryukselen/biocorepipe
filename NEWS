@@ -1,3 +1,11 @@
+16.02.2018 Version 0.0.55
+Single Cell pipeline (4 steps: rsync_basespace, bxltofastq, extractValidReads, split added to local server)
+Duplicate process feature added.
+Go to existing runs button added in pipeline page.
+Bug fixed while saving operators in process revision. 
+Bug fixed while deleting process revision. 
+Process circle shift when process revision change by info modal resolved.
+
 15.02.2018 Version 0.0.54
 Duplicate project run added.
 Projects, project details section updated(options loaded based on ownership)

@@ -171,7 +171,7 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
             'select': {
                 'style': 'single'
             },
-            'order': [[1, 'asc']]
+            'order': [[5, 'desc']]
         });
 
 
