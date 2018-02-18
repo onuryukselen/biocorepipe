@@ -1,3 +1,11 @@
+17.02.2018 Version 0.0.56
+first output/input connection is now unidirectional.
+output param resets after disconnection.
+Blocking/warning added when parameter filetype/name start with digits.
+fixed bug when save on current revision for process
+Save on existing process feature added.
+truncate menu name for sidebarmenu process/pipeline/project
+
 16.02.2018 Version 0.0.55
 Single Cell pipeline (4 steps: rsync_basespace, bxltofastq, extractValidReads, split added to local server)
 Duplicate process feature added.

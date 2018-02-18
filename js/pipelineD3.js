@@ -365,7 +365,7 @@
 	          x = (xpos - t.translate[0])
 	      y = (ypos - t.translate[1])
 	      z = t.scale[0]
-          
+
 
 
 	      //var process_id = processData[index].id;
@@ -760,7 +760,7 @@
 	      .style("position", "absolute")
 	      .style("max-width", "400px")
 	      .style("max-height", "100px")
-	      .style("opacity", .9)
+	      .style("opacity", .75)
 	      .style("z-index", "10")
 	      .style("visibility", "hidden")
 	      .text("Something")
@@ -776,18 +776,22 @@
 	      } else {
 	          className = document.getElementById(this.id).className.baseVal.split(" ")
 	          cand = searchedType(className[1])
+	          candParam = searchedTypeParam(className[1]);
 	          parentg = d3.select("#" + this.id).attr("parentG")
 	          givenNamePP = document.getElementById(this.id).getAttribute("name")
 
 
 	          d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate") //I/O olanları noncandia
 	          if (className[0] === "connect_to_input") {
+	              //before first connection of inputparam
 	              conToInput()
 	              tooltip.html('Connect to input')
 	          } else if (className[0] === "connect_to_output") {
+	              //before first connection of outputparam
 	              conToOutput()
 	              tooltip.html('Connect to output')
 	          } else if (givenNamePP === 'inputparam') {
+	              //after first connection of inputparam
 	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
 	              var paraData = parametersData.filter(function (el) {
@@ -796,6 +800,7 @@
 	              var paraFileType = paraData[0].file_type
 	              tooltip.html('Input parameter<br/>File Type: <em>' + paraFileType + '</em>')
 	          } else if (givenNamePP === 'outputparam') {
+	              //after first connection of outputparam
 	              //Since outputparam is connected, it is not allowed to connect more parameters
 	              //              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
@@ -805,7 +810,10 @@
 	              var paraFileType = paraData[0].file_type
 	              tooltip.html('Output parameter<br/>File Type: <em>' + paraFileType + '</em>')
 	          } else {
+	              //for process nodes:
 	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              d3.selectAll("." + candParam).attr("status", "candidate")
+
 	              var givenNamePP = document.getElementById(this.id).getAttribute("name")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
 	              var paraData = parametersData.filter(function (el) {
@@ -859,41 +867,37 @@
 	      selectedIO = this.id //first click
 	      className = document.getElementById(selectedIO).className.baseVal.split(" ")
 	      cand = searchedType(className[1])
+	      candParam = searchedTypeParam(className[1]);
 	      var givenNamePP = document.getElementById(this.id).getAttribute("name")
 	      if (givenNamePP === 'outputparam' && className[0] !== 'connect_to_output') {
 	          //If output parameter already connected , do nothing
 	      } else {
 	          if (binding) {
-	              stopBinding(className, cand, selectedIO)
+	              stopBinding(className, cand, candParam, selectedIO)
 	          } else {
-	              startBinding(className, cand, selectedIO)
+	              startBinding(className, cand, candParam, selectedIO)
 	          }
-
 	      }
-
-
-
 	  }
 
 	  function conToInput() {
-	      d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available inputs for inputparam circles
+          d3.selectAll("circle.input:not([id*=i-outPro])").attr("status", "candidate");
 	  }
 
 	  function conToOutput() {
-	      d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available outputs for outputparam circles
+	       d3.selectAll("circle.output:not([id*=o-inPro])").attr("status", "candidate");
 	  }
 
-	  function startBinding(clasNames, cand, selectedIO) {
+	  function startBinding(className, cand, candParam, selectedIO) {
 	      parentg = d3.select("#" + selectedIO).attr("parentG")
-
 	      d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate")
-
 	      if (className[0] === "connect_to_input") {
 	          conToInput()
 	      } else if (className[0] === "connect_to_output") {
 	          conToOutput()
 	      } else {
 	          d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	          d3.selectAll("." + candParam).attr("status", "candidate")
 	      }
 
 	      d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
@@ -913,12 +917,13 @@
 	  }
 
 	  //second click selectedIO
-	  function stopBinding() {
+	  function stopBinding(className, cand, candParam, selectedIO) {
 	      firstid = d3.select("circle[status ='selected']")[0][0].id
 	      d3.selectAll("line").attr("status", "standard")
 	      if (selectedIO === firstid) {
 	          firstid = d3.select("#" + firstid).attr("status", "mouseon")
 	          d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	          d3.selectAll("." + candParam).attr("status", "candidate")
 	          d3.select("#del-" + selectedIO.split("-")[4]).style("opacity", 1)
 	      } else {
 	          secondid = d3.select("circle[status ='posCandidate']")[0][0].id
@@ -955,6 +960,14 @@
 	          return "output"
 	      } else {
 	          return "input"
+	      }
+	  }
+
+	  function searchedTypeParam(type) {
+	      if (type == "input") {
+	          return "connect_to_input"
+	      } else {
+	          return "connect_to_output"
 	      }
 	  }
 
@@ -1140,10 +1153,7 @@
 	      var delsecGnum = secondParamId.split("-")[4] //gNum
 	      var delGnum = firstParamId.split("-")[4] //gNum
 
-
-
-
-	      //input/output param has still edge/edges
+          //input/output param has still edge/edges
 	      //remove process name from pipeline details table
 	      if (edges.searchFor(firstParamId)) {
 	          if (paramType === 'inPro') {
@@ -1173,6 +1183,13 @@
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
 	      //	      cancelRemove()
+          //return back to original state for outputparam:
+          if (paramType === 'outPro'){
+              var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "outPara" + '-$5')
+	          d3.selectAll("#" + firstParamId).attr("id", originalID);
+	          d3.selectAll("#" + originalID).attr("class", "connect_to_output input");
+          } 
 	  }
 
 	  function delMouseOver() {
@@ -1395,6 +1412,9 @@
 	                  if (numOfProject === 1) {
 	                      $('#saveOnExist').css('display', 'inline');
 	                  }
+	              });
+                  $('#confirmRevision').on('hide.bs.modal', function (event) {
+	                      $('#saveOnExist').css('display', 'none');
 	              });
 
 	              $('#confirmRevision').on('click', '.cancelRev', function (event) {

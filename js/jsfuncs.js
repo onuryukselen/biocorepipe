@@ -1,3 +1,9 @@
+
+//initialize all tooltips on a page (eg.$('#mFileTypeTool').tooltip("show"))
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 // check the amazon profiles activity each minute.
 checkAmzProfiles("timer");
 
@@ -149,10 +155,8 @@ $(document).ready(function () {
             data: data,
             async: true,
             success: function (s) {
-                console.log(s);
 
                 if (s.stop_cloud) {
-                    console.log('step1');
                     // check the amazon profiles activity each minute.
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
                     setTimeout(function () { checkAmazonStatus(proId); }, 1000);

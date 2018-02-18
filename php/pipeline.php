@@ -449,30 +449,30 @@
             <div class="modal-body">
                 <form class="form-horizontal">
                     <div class="form-group" style="display:none">
-                        <label for="mIdPar" class="col-sm-2 control-label">ID</label>
-                        <div class="col-sm-10">
+                        <label for="mIdPar" class="col-sm-3 control-label">ID</label>
+                        <div class="col-sm-9">
                             <input type="text" class="form-control" id="mIdPar" name="id">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="mParamList" class="col-sm-2 control-label">Parameters</label>
+                        <label for="mParamList" class="col-sm-3 control-label">Parameters</label>
                         <div id="mParamsDynamic" class="col-sm-1" style=" display:none; width: auto;  ">
                             <button type="button" class="btn btn-default form-control" id="mParamOpen"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Show Parameters"><i class="fa fa-eye" ></i></a></button>
                         </div>
-                        <div id="mParamList" class="col-sm-10" style=" ">
+                        <div id="mParamList" class="col-sm-9" style=" ">
                             <select id="mParamListIn" class="fbtn btn-default form-control" name="ParamAllIn"></select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="mName" class="col-sm-2 control-label">Identifier</label>
-                        <div class="col-sm-10">
+                        <label for="mName" class="col-sm-3 control-label">Identifier <span><a id="mNameTool" data-toggle="tooltip" data-placement="bottom" title="Must begin with a letter ([A-Za-z]) and may be followed by letters, digits or underscores (&quot;_&quot;)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                        <div class="col-sm-9">
                             <input type="text" class="form-control" id="modalName" name="name">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="mQualifier" class="col-sm-2 control-label">Qualifier</label>
-                        <div class="col-sm-10">
+                        <label for="mQualifier" class="col-sm-3 control-label">Qualifier</label>
+                        <div class="col-sm-9">
                             <select class="form-control" id="modalQualifier" name="qualifier">
                                             <option value="file">file</option>
                                             <option value="set">set</option>
@@ -481,8 +481,8 @@
                         </div>
                     </div>
                     <div class="form-group" id="mFileTypeDiv">
-                        <label for="mFileType" class="col-sm-2 control-label">File Type</label>
-                        <div class="col-sm-10">
+                        <label for="mFileType" class="col-sm-3 control-label">File Type <span><a id="mFileTypeTool" data-toggle="tooltip" data-placement="bottom" title="Must begin with a letter ([A-Za-z]) and may be followed by letters, digits or underscores (&quot;_&quot;)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                        <div class="col-sm-9">
                             <input type="text" class="form-control" id="mFileType" name="file_type">
                         </div>
                     </div>
