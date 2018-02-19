@@ -2075,7 +2075,7 @@ $(document).ready(function () {
     //   ---- Run modal ends ---
 
     //   ---- Run Exist modal starts ---
-    var projectTable = $('#existRunTable').DataTable({
+    var existProjectTable = $('#existRunTable').DataTable({
         "ajax": {
             url: "ajax/ajaxquery.php",
             data: { "p": "getExistProjectPipelines", pipeline_id: pipeline_id },
@@ -2104,7 +2104,7 @@ $(document).ready(function () {
     });
 
     $('#mExistRun').on('show.bs.modal', function (event) {
-        projectTable.column(0).checkboxes.deselect();
+        existProjectTable.column(0).checkboxes.deselect();
         if (pipeline_id === '') {
             event.preventDefault();
         }
@@ -2113,7 +2113,7 @@ $(document).ready(function () {
 
     $('#mExistRun').on('click', '#selectExistRun', function (event) {
         event.preventDefault();
-        var rows_selected = projectTable.column(0).checkboxes.selected();
+        var rows_selected = existProjectTable.column(0).checkboxes.selected();
         if (rows_selected.length === 1 && pipeline_id !== '') {
             var project_pipeline_id = rows_selected[0];
             $('#mExistRun').modal('hide');
