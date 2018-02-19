@@ -103,7 +103,8 @@ function getSideMenuItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li><a href="index.php?np=3&id='.$item->{'id'}.'" class="projectItems"  draggable="false" id="propipe-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+    $nameSub = substr($item->{'name'}, 0, 20);
+        $html.='<li><a href="index.php?np=3&id='.$item->{'id'}.'" class="projectItems"  draggable="false" id="propipe-'.$item->{'id'}.'"><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
 endforeach;
 return $html;
 }
@@ -117,10 +118,10 @@ $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
 $menuhtml.='<li class="header">PROJECTS</li>';
 
 foreach ($parentMenus as $parentitem):
-
+    $nameSub = substr($parentitem->{'name'}, 0, 15);
     $menuhtml.='<li class="treeview">';
 
-    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>'.$parentitem->{'name'}.'</span>';
+    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>'.$nameSub.'</span>';
     
     $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'id'}, $ownerID));
 

@@ -607,7 +607,8 @@ function checkRevisionProc(data, proID, proName) {
     if (checkResult === false) {
         //has edited process ever used in other pipelines?
         var checkPipe = checkPipeline(proID, proName);
-        if (checkPipe.length > 0) {
+        var numOfProcess = checkPipe.length;
+        if (numOfProcess > 1) {
             warnUser = true;
             infoText = infoText + 'It is not allowed to save on current revision since process parameters are changed and edited process exists in pipelines.</br></br>In order to save on current revision, you may remove the process from following pipelines: '
             $.each(checkPipe, function (element) {
@@ -617,9 +618,13 @@ function checkRevisionProc(data, proID, proName) {
                 infoText = infoText + '"' + checkPipe[element].name + '"';
             });
             infoText = infoText + '</br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.</br>'
+        } else if (numOfProcess === 1) {
+            warnUser = true;
+            infoText = infoText + 'This revision of process already used in one pipeline (' + checkPipe[0].name + ').';
+            infoText = infoText + '</br></br>Your changes may effect the current pipeline. If you still want to save on existing revision, please click on "save on existing" button. </br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.'
         }
     }
-    return [warnUser, infoText];
+    return [warnUser, infoText, numOfProcess];
 }
 
 function prepareProParam(data, startPoint, typeInOut) {
@@ -670,7 +675,6 @@ function updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, s
 
 function disableProModal(selProcessId) {
     var formValues = $('#addProcessModal').find('input, select, textarea');
-    console.log(formValues);
     $('#mName').attr('disabled', "disabled");
     $('#mDescription').attr('disabled', "disabled");
     $('#modeAce').attr('disabled', "disabled");
@@ -936,7 +940,6 @@ $(document).ready(function () {
         }
     };
 
-
     renderRev = {
         option: function (data, escape) {
             return '<div class="option">' +
@@ -1069,36 +1072,6 @@ $(document).ready(function () {
             //A. If it is allowed to delete    
             if (warnUserPipe === false) {
                 delPipeline();
-                //            var revsPipeline = getValues({ p: "getPipelineRevision", "process_id": pipeline_id });
-                //            var removedRev = [];
-                //            if (revisions.length === 1) {
-                //                var delSideMenuNode = document.getElementById(delProMenuID).parentNode;
-                //                delSideMenuNode.parentNode.removeChild(delSideMenuNode);
-                //                delProMenuID = '';
-                //            } else if (revisions.length > 1) {
-                //                //remove the selected revision from list
-                //                for (var k = 0; k < revisions.length; k++) {
-                //                    if (revisions[k].id !== processIdDel) {
-                //                        removedRev.push(revisions[k]);
-                //                    }
-                //                }
-                //                //find  the maximum rev_id in the list
-                //                let max = removedRev[0].rev_id;
-                //                for (let i = 1, len = removedRev.length; i < len; i++) {
-                //                    let v = removedRev[i].rev_id;
-                //                    max = (v > max) ? v : max;
-                //                }
-                //                //find the id of the process which has the maximum rev_id
-                //                for (var k = 0; k < removedRev.length; k++) {
-                //                    if (removedRev[k].rev_id === max) {
-                //                        var revMaxId = removedRev[k].id
-                //                    }
-                //                }
-                //                var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
-                //                var delProName = delProMenuID.replace(PattPro, '$1');
-                //                var newMenuID = delProName + '@' + revMaxId;
-                //                var delProce = getValues({ p: "removeProcess", "id": processIdDel });
-                //                document.getElementById(delProMenuID).id = newMenuID;
             }
             //B. If it is not allowed to delete
             else if (warnUserPipe === true) {
@@ -1111,7 +1084,6 @@ $(document).ready(function () {
             $('#confirmModal').modal('hide');
         }
     })
-
 
     $('#confirmModal').on('click', '.delprocess', function (event) {
         var processIdDel = $('#mIdPro').val();
@@ -1173,21 +1145,12 @@ $(document).ready(function () {
             }
             $('#addProcessModal').modal('hide');
         }
-
-
-
     });
-
-
-
     //Add new parameter modal
     $('#parametermodal').on('click', '#mParamOpen', function (event) {
         $('#mParamsDynamic').css('display', "none");
         $('#mParamList').css('display', "inline");
     });
-
-
-
     // Add process modal to database
     $('#addProcessModal').on('click', '#saveprocess', function (event) {
         event.preventDefault();
@@ -1196,24 +1159,24 @@ $(document).ready(function () {
         if (!savetype.length) {
             var formValues = $('#addProcessModal').find('input, select, textarea');
             var data = formValues.serializeArray();
+            data[1].value = data[1].value.replace(/ /g, "_");
             var dataToProcess = []; //dataToProcess to save in process table
             var proName = data[1].value;
             var proGroId = data[4].value;
             for (var i = 0; i < 5; i++) {
                 dataToProcess.push(data[i]);
             }
-
             var scripteditor = JSON.stringify(editor.getValue());
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
             dataToProcess.push({ name: "process_gid", value: newProcess_gid });
             dataToProcess.push({ name: "script", value: scripteditor });
             dataToProcess.push({ name: "p", value: "saveProcess" });
+            console.log(dataToProcess)
             if (proName === '' || proGroId === '') {
                 dataToProcess = [];
             }
             if (dataToProcess.length > 0) {
-                console.log(dataToProcess);
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -1241,13 +1204,15 @@ $(document).ready(function () {
             $('#mName').removeAttr('disabled'); //temporary remove disabled attribute for serializeArray().
             var formValues = $('#addProcessModal').find('input, select, textarea');
             var data = formValues.serializeArray();
+            data[2].value = data[2].value.replace(/ /g, "_");
             $('#mName').attr('disabled', "disabled");
 
             var proID = data[1].value;
-            var proName = data[2].value;
+            var proName = data[2].value
             var warnUser = false;
             var infoText = '';
-            [warnUser, infoText] = checkRevisionProc(data, proID, proName);
+            var numOfProcess = '';
+            [warnUser, infoText, numOfProcess] = checkRevisionProc(data, proID, proName);
             //B.1)Save on current process
             if (warnUser === false) {
                 var proGroId = data[5].value;
@@ -1296,7 +1261,58 @@ $(document).ready(function () {
                 $('#confirmRevision').on('show.bs.modal', function (event) {
                     $(this).find('form').trigger('reset');
                     $('#confirmYesNoText').html(infoText);
+                    if (numOfProcess === 1) {
+                        $('#saveOnExist').css('display', 'inline');
+                    }
                 });
+                $('#confirmRevision').on('hide.bs.modal', function (event) {
+                    $('#saveOnExist').css('display', 'none');
+                });
+                $('#confirmRevision').on('click', '#saveOnExist', function (event) {
+                    var proGroId = data[5].value;
+                var sMenuProIdFinal = proName + '@' + proID;
+                var sMenuProGroupIdFinal = proGroId;
+                var dataToProcess = []; //dataToProcess to save in process table
+                for (var i = 1; i < 6; i++) {
+                    dataToProcess.push(data[i]);
+                }
+                var scripteditor = JSON.stringify(editor.getValue());
+                var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
+                dataToProcess.push({ name: "process_gid", value: process_gid });
+                dataToProcess.push({ name: "script", value: scripteditor });
+                dataToProcess.push({ name: "p", value: "saveProcess" });
+                if (proName === '' || proGroId === '') {
+                    dataToProcess = [];
+                }
+                if (dataToProcess.length > 0) {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: dataToProcess,
+                        async: true,
+                        success: function (s) {
+                            //update process link into sidebar menu
+                            updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
+                            var startPoint = 6; //first object in data array where inputparameters starts.
+                            var ppIDinputList;
+                            var ppIDoutputList;
+                            var inputsBefore = getValues({ p: "getInputsPP", "process_id": proID });
+                            var outputsBefore = getValues({ p: "getOutputsPP", "process_id": proID });
+                            [ppIDinputList, ppIDoutputList] = addProParatoDB(data, startPoint, proID);
+                            updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
+                            refreshDataset();
+                        $('#confirmRevision').modal('hide');
+                            $('#addProcessModal').modal('hide');
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
+                }
+                    
+
+                });
+
                 $('#confirmRevision').on('click', '#saveRev', function (event) {
                     var confirmformValues = $('#confirmRevision').find('input');
                     var revCommentData = confirmformValues.serializeArray();
@@ -1353,7 +1369,6 @@ $(document).ready(function () {
             }
         }
         // B) Edit Process Ends----
-
     });
 
     //insert dropdown, textbox and 'remove button' for each parameters
@@ -1548,41 +1563,6 @@ $(document).ready(function () {
                     $('#mParamListIn').selectize({});
                 }
             });
-
-
-            var formValues = $('#addProcessModal').find('input, select, textarea');
-            var selParamId = "";
-            var data = formValues.serializeArray(); // convert form to array
-            data.forEach(function (element) {
-                if (element.name === 'ParamAll') {
-                    selParamId = element.value;
-                }
-            });
-            $.ajax({
-                type: "GET",
-                url: "ajax/ajaxquery.php",
-                data: {
-                    p: "getEditDelParameters"
-                },
-                async: false,
-                success: function (s) {
-                    var showParam = {};
-                    s.forEach(function (element) {
-                        if (element.id === selParamId) {
-                            showParam = element;
-                        }
-                    });
-                    //insert data into form
-                    var formValues = $('#parametermodal').find('input, select');
-                    var keys = Object.keys(showParam);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValues[i]).val(showParam[keys[i]]);
-                    }
-                },
-                error: function (errorThrown) {
-                    alert("Error: " + errorThrown);
-                }
-            });
         }
     });
     // Dismiss parameters modal 
@@ -1682,13 +1662,11 @@ $(document).ready(function () {
                         }
                     });
                     //insert data into form
-                    var formValuesModal = $('#parametermodal').find('input, select');
-                    formValuesModal.splice(1, 2); //Remove select and input "ParamAllIn"
-                    var keys = Object.keys(showParam);
-                    for (var i = 0; i < keys.length; i++) {
-                        $(formValuesModal[i]).val(showParam[keys[i]]);
-                        $('#modalQualifier').trigger("change");
-                    }
+                    $('#mIdPar').val(showParam.id);
+                    $('#mFileType').val(showParam.file_type);
+                    $('#modalName').val(showParam.name);
+                    $('#modalQualifier').val(showParam.qualifier);
+                    $('#modalQualifier').trigger("change");
                 }
             });
             var modaltit = $('#parametermodaltitle').html();
@@ -1700,10 +1678,6 @@ $(document).ready(function () {
         })
     });
 
-
-
-
-
     //parameter modal save button
     $('#parametermodal').on('click', '#saveparameter', function (event) {
         event.preventDefault();
@@ -1713,9 +1687,9 @@ $(document).ready(function () {
         var data = formValues.serializeArray(); // convert form to array
         data.splice(1, 1); //Remove "ParamAllIn"
         var selParID = data[0].value;
-        var selParName = data[1].value;
+        var selParName = $.trim(data[1].value);
         var selParQual = data[2].value;
-        var selParType = data[3].value;
+        var selParType = $.trim(data[3].value);
         if (selParQual === 'val') {
             data[3].value = selParName;
             selParType = selParName;
@@ -1731,7 +1705,17 @@ $(document).ready(function () {
             $('#warnDelete').modal('show');
 
         } else if (warnUser === false) {
-            if (selParName !== '' && selParQual !== '' && selParType !== '') {
+            if (selParName === '' || selParQual === '' || selParType === '') {
+
+            }
+            //check if it starts with letter
+            else if (!selParName[0].match(/[a-z]/i)) {
+                $('#mNameTool').tooltip("show");
+                setTimeout(function () { $('#mNameTool').tooltip("hide"); }, 5000);
+            } else if (!selParType[0].match(/[a-z]/i)) {
+                $('#mFileTypeTool').tooltip("show");
+                setTimeout(function () { $('#mFileTypeTool').tooltip("hide"); }, 5000);
+            } else {
                 data.push({
                     name: "p",
                     value: "saveParameter"
@@ -1951,7 +1935,6 @@ $(document).ready(function () {
                         $('#' + proGroBoxId)[0].selectize.removeOption(selectProGro);
                         $('#side-' + selectProGro).parent().remove();
                         $('#delprocessGrmodal').modal('hide');
-
                     },
                     error: function (errorThrown) {
                         alert("Error: " + errorThrown);
@@ -1959,13 +1942,9 @@ $(document).ready(function () {
                 });
             }
         }
-
     });
 
-
     //   ---- Run modal starts ---
-
-
     var projectTable = $('#projecttable').DataTable({
         "ajax": {
             url: "ajax/ajaxquery.php",
@@ -1999,23 +1978,14 @@ $(document).ready(function () {
         if (pipeline_id === '') {
             event.preventDefault();
         }
-
     });
-
 
     $('#mRun').on('click', '#selectProject', function (event) {
         event.preventDefault();
         var pipeline_id = $('#pipeline-title').attr('pipelineid');
         var rows_selected = projectTable.column(0).checkboxes.selected();
         if (rows_selected.length === 1 && pipeline_id !== '') {
-            //            var data = [];
-            //            var project_id = rows_selected[0];
-            //            data.push({ name: "project_id", value: project_id });
-            //            data.push({ name: "pipeline_id", value: pipeline_id });
-            //            data.push({ name: "p", value: "saveProjectPipeline" });
             $('#runNameModal').modal('show');
-
-
         }
     });
     //enter run name modal
@@ -2047,11 +2017,6 @@ $(document).ready(function () {
             setTimeout(function () { window.location.replace("index.php?np=3&id=" + projectPipelineID); }, 700);
         }
     });
-
-
-
-
-
 
     $('#projectmodal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
@@ -2094,16 +2059,13 @@ $(document).ready(function () {
                             }
                             addData.id = projectDat[0].id;
                             projectTable.row.add(addData).draw();
-
                         },
                         error: function (errorThrown) {
                             alert("Error: " + errorThrown);
                         }
                     });
                 }
-
                 $('#projectmodal').modal('hide');
-
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);

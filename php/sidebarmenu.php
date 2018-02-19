@@ -147,7 +147,8 @@ function getSideMenuItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+    $nameSub = substr($item->{'name'}, 0, 20);
+    $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
 endforeach;
 return $html;
 }
@@ -156,7 +157,8 @@ function getSideMenuPipelineItem($obj)
 {
 $html="";
 foreach ($obj as $item):
-        $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$item->{'name'}.'</a></li>';
+    $nameSub = substr($item->{'name'}, 0, 20);
+    $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
 endforeach;
 return $html;
 }
@@ -185,10 +187,10 @@ $menuhtml.='<li class="header">PROCESSES</li>';
 
 
 foreach ($parentMenus as $parentitem):
+    $nameSub = substr($parentitem->{'name'}, 0, 15);
 
     $menuhtml.='<li class="treeview">';
-
-    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span p="'.$parentitem->{'perms'}.'" g="'.$parentitem->{'group_id'}.'" >'.$parentitem->{'name'}.'</span>';
+    $menuhtml.='<a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span p="'.$parentitem->{'perms'}.'" g="'.$parentitem->{'group_id'}.'" >'.$nameSub.'</span>';
     
     $items = json_decode($query->getSubMenuFromSideBar($parentitem->{'name'}, $ownerID));
 
