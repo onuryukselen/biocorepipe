@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Dolphin ENCODE Submission Guide &mdash; dolphin 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="dolphin 1.0 documentation" href="../index.html"/>
+        <link rel="up" title="Dolphin-UI" href="DolphinNext.html"/>
+        <link rel="next" title="DEBrowser Access Guide" href="debrowser.html"/>
+        <link rel="prev" title="Dolphin Profile Guide" href="profile.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dolphin
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="DolphinNext.html">Dolphin-UI</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Dolphin Quick-start Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="excelimport.html">Excel Import Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fastlane.html">Fastlane Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsbrowser.html">NGS Browser Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="excelexport.html">Excel Export Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngspipeline.html">NGS Pipeline Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsstatus.html">NGS Status Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsreports.html">NGS Reports Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ngsplots.html">NGS Plots Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tablecreator.html">Table Creator Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profile.html">Dolphin Profile Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Dolphin ENCODE Submission Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata-collection-input">Metadata Collection/Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encode-submission-process">ENCODE Submission Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specific-linkages">Specific Linkages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#metadata-objects">Metadata Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-objects">File Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-submission-process">The Submission Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reading-the-output">Reading the Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#encode-submissions-page">ENCODE Submissions Page</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="debrowser.html">DEBrowser Access Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="devnotes.html">Developer Implementation</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dolphin</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="DolphinNext.html">Dolphin-UI</a> &raquo;</li>
+        
+      <li>Dolphin ENCODE Submission Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/dolphinNext/encode.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="dolphin-encode-submission-guide">
+<h1>Dolphin ENCODE Submission Guide<a class="headerlink" href="#dolphin-encode-submission-guide" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>Not everyone can submit to ENCODE, you must first have contact with the ENCODE Consortium before considering to design,
+create, and analyze a project that you are willing to submit to ENCODE.  Please visit the <a class="reference external" href="https://www.encodeproject.org/">ENCODE website</a> for more details
+on ENCODE.  Not all that apply will be able to submit to ENCODE.</p>
+</div>
+<div class="section" id="metadata-collection-input">
+<h2>Metadata Collection/Input<a class="headerlink" href="#metadata-collection-input" title="Permalink to this headline">¶</a></h2>
+<p>Assuming you are to submit to ENCODE, you are going to want to collect a various amount of metadata that surrounds your project.
+This is a crucial step in submitting to encode and without the proper metadata for submission submission will not be possible.</p>
+<p>As a curator for your experiment, you are going to want to collect metadata from all stages of the experiment.  This includes:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Protocol information within the wet lab</li>
+<li>Sequencer and sequencing information</li>
+<li>Analysis programs and versions used</li>
+<li>Outline/Goal of your analysis process</li>
+</ul>
+</div></blockquote>
+<p>These bullet points encompass a large amount of information, however if you keep proper track of all of this information, this will make
+submission to ENCODE a smooth process.</p>
+<p>More information about which fields are required and which fields you should consider keeping track of can be found at the ENCODE website listed
+above.  Additional information can be found by contacting someone from ENCODE directly, or by keeping in contact with your assigned data wrangler.</p>
+</div>
+<div class="section" id="encode-submission-process">
+<h2>ENCODE Submission Process<a class="headerlink" href="#encode-submission-process" title="Permalink to this headline">¶</a></h2>
+<p><em>The Breakdown</em></p>
+<p>In order for ENCODE to retain the metadata you wish to send them, it must be passed to their servers using JSON objects.  A JSON object
+is a form of organizing data that is easy to read and to create.  Encode stores information passed by users within linked json objects using aliases,
+uuids, and accession numbers.</p>
+<p>You will be passing JSON objects created from the metadata you have gathered and input into the Dolphin system in order to represent your experiment and
+the files you will be sending to encode.  For more information on what a JSON object is, you can visit <cite>this link</cite> for more information.</p>
+<p><em>The Detailed Version</em></p>
+<p>There are 2 major submission phases that include multiple sub-steps along the way.  The first phase we shall call the ‘overall metadata submission’ step.
+For this phase, you will be submitting metadata that encompasses your overall experiment.  For this, we submit 7 specific JSON objects in a specific order:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Donor JSON</li>
+<li>Experiment JSON</li>
+<li>Treatment JSON</li>
+<li>Biosample JSON</li>
+<li>Library JSON</li>
+<li>Antibody JSON</li>
+<li>Replicate JSON</li>
+</ul>
+</div></blockquote>
+<p>We submit these JSON objects from top to bottom due to the fact that some of the JSONs require the accession number or alias of a previous step.  Without this
+unique identifier, the JSONs cannot be properly linked and will thus not be correct.</p>
+<p>Once the overall metadata step has completed successfully, you can then enter the ‘file data’ submission phase.  During this phase you will be submitting file
+metadata, followed by the actual file, given that the file metadata has been successfully submitted.  So for each possible file you want to submit you will send:</p>
+<blockquote>
+<div><ul class="simple">
+<li>File JSON</li>
+<li>The actual file</li>
+</ul>
+</div></blockquote>
+<p>Once you have completed all of these phases successfully, your submission to ENCODE will be complete and the next step would be to have your data wrangler
+look over your submission for validation.</p>
+</div>
+<div class="section" id="specific-linkages">
+<h2>Specific Linkages<a class="headerlink" href="#specific-linkages" title="Permalink to this headline">¶</a></h2>
+<p>Many objects will have more than one direct link to other various objects within your submission.  For instance, some samples will come from the same donor and time point, however one could be an ATAC-Seq
+analysis while the other could be RNA-Seq analysis.  These samples would be sharing the same biosample and need to use the same biosample accession number when submitting experiments for them.
+Biological replicates will also have to share the same experiment accession number when reporting to ENCODE.  Dolphin has a way to link specific biosamples and experiments before submission,
+which will be discussed further in this guide.</p>
+<p>It’s important to note that the structure of submission differs between human and non-human samples.  For one, the donor for humans refers to the specific human donor, while for other organisms
+it refers to the strain of the organism.  Biosamples from specific time points will also have to reference a parent biosample using the ‘derived_from’ key, thus needing the accession number of that
+parent biosample for proper submission.</p>
+</div>
+<div class="section" id="metadata-objects">
+<h2>Metadata Objects<a class="headerlink" href="#metadata-objects" title="Permalink to this headline">¶</a></h2>
+<p>Diving deeper into each metadata object being passed, specific metadata will be used to create each JSON.  Listing each JSON in order, we include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt><strong>Donors</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with experiment series</em></dt>
+<dd><ul class="first last">
+<li>“award”:’grant’</li>
+<li>“lab”:’lab’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with samples</em></dt>
+<dd><ul class="first last">
+<li>“organism”:’organism’</li>
+<li>“life_stage”:’life_stage’</li>
+<li>“age”:’age’</li>
+<li>“sex”:’sex’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Experiments</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with experiment series</em></dt>
+<dd><ul class="first last">
+<li>“award”:’grant’</li>
+<li>“lab”:’lab’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with protocols</em></dt>
+<dd><ul class="first last">
+<li>“assay_term_name”:’assay_term_name’</li>
+<li>“assay_term_id”:’assay_term_id’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with samples</em></dt>
+<dd><ul class="first last">
+<li>“biosample_term_name”:’biosample_term_name’</li>
+<li>“biosample_term_id”:’biosample_term_id’</li>
+<li>“biosample_type”:’biosample_type’</li>
+<li>“description”:’description’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Treatments</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with treatments</em></dt>
+<dd><ul class="first last">
+<li>“treatment_term_name”:’treatment_term_name’</li>
+<li>“treatment_term_id”:’treatment_term_id’</li>
+<li>“treatment_type”:’treatment_type’</li>
+<li>“amount”:’concentration’</li>
+<li>“amount_units”:’concentration_units’</li>
+<li>“duration”:’duration’</li>
+<li>“duration_units”:’duration_units’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Biosamples</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with experiment series</em></dt>
+<dd><ul class="first last">
+<li>“award”:’grant’</li>
+<li>“lab”:’lab’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with protocols</em></dt>
+<dd><ul class="first last">
+<li>“starting_amount”:’starting_amount’</li>
+<li>“starting_amount_units”:’starting_amount_units’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with samples</em></dt>
+<dd><ul class="first last">
+<li>“biosample_term_name”:’biosample_term_name’</li>
+<li>“biosample_term_id”:’biosample_term_id’</li>
+<li>“biosample_type”:’biosample_type’</li>
+<li>“organism”:’organism’</li>
+<li>“derived_from”:’biosample_derived_from’</li>
+<li>“source”:’source’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with lanes</em></dt>
+<dd><ul class="first last">
+<li>“date_obtained”:’date_received’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Libraries</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with experiment series</em></dt>
+<dd><ul class="first last">
+<li>“award”:’grant’</li>
+<li>“lab”:’lab’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with samples</em></dt>
+<dd><ul class="first last">
+<li>“spike-ins”:’spike_ins’</li>
+<li>“size_range”:’avg_insert_size’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with protocols</em></dt>
+<dd><ul class="first last">
+<li>“nucleic_acid_term_name”:’nucleic_acid_term_name’</li>
+<li>“nucleic_acid_term_id”:’nucleic_acid_term_id’</li>
+<li>“extraction_method”:’extraction_method’</li>
+<li>“crosslinking_method”:’crosslinking_method’</li>
+<li>“fragmentation_method”:’fragmentation_method’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Antibodies</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with experiment series</em></dt>
+<dd><ul class="first last">
+<li>“award”:’grant’</li>
+<li>“lab”:’lab’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><em>Information gathered with Antibodies</em></dt>
+<dd><ul class="first last">
+<li>“source”:’source’</li>
+<li>“product_id”:’product_id’</li>
+<li>“lot_id”:’lot_id’</li>
+<li>“host_organism”:’host_organism’</li>
+<li>“targets”:’targets’</li>
+<li>“clonality”:’clonality’</li>
+<li>“isotype”:’isotype’</li>
+<li>“purifications”:’purifications’,</li>
+<li>“url”:’url’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>Replicates</strong></dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><em>Information gathered with samples</em></dt>
+<dd><ul class="first last">
+<li>“biological_replicate_number”:’biological_replica’</li>
+<li>“technical_replicate_number”:’technical_replica’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>To better understand these lists, Let us break them down into how you should be reading them.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>First Layer</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Second Layer</dt>
+<dd><ul class="first last">
+<li>Third Layer</li>
+<li>Third Layer</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Second Layer</dt>
+<dd><ul class="first last">
+<li>Third Layer</li>
+<li>Third Layer</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>The first layer describes which JSON object we are currently creating.  The second layer describes which major table from the database
+that the information will be gathered from.  The third layer explains two things, first the JSON field that will act as the key to the
+object and the second is the field from the database we are gathering to insert as the actual metadata.</p>
+</div>
+<div class="section" id="file-objects">
+<h2>File Objects<a class="headerlink" href="#file-objects" title="Permalink to this headline">¶</a></h2>
+<p>File metadata submission will have some similar fields and some different.  The JSON fields are all dependent on the file type that is being submitted.
+The JSON object passed for each file type will have the following fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt><strong>Fastq files</strong></dt>
+<dd><ul class="first last">
+<li>“file_format”:”fastq”</li>
+<li>“run_type”:’run_type’</li>
+<li>“step_run”:’step_run’</li>
+<li>“paired_end”: ‘1’ OR ‘2’</li>
+<li>“output_type”:”reads”</li>
+<li>“read_length”:’read_length’</li>
+<li>“paired_with”:&lt;paired-end alias&gt;</li>
+<li>“derived_from”:&lt;alias of derived file&gt; AND/OR ‘additional_derived_from’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>BAM files</strong></dt>
+<dd><ul class="first last">
+<li>“file_format”:”bam”</li>
+<li>“run_type”:’run_type’</li>
+<li>“step_run”:’step_run’</li>
+<li>“output_type”:”alignments”</li>
+<li>“assembly”:’genome’</li>
+<li>“derived_from”:&lt;aliases of derived files&gt; AND/OR ‘additional_derived_from’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>TSV files</strong></dt>
+<dd><ul class="first last">
+<li>“file_format”:”TSV”</li>
+<li>“run_type”:’run_type’</li>
+<li>“step_run”:’step_run’</li>
+<li>“output_type”:”gene quantifications” OR “transcript quantifications”</li>
+<li>“assembly”:’genome’</li>
+<li>“derived_from”:&lt;aliases of derived files&gt; AND/OR ‘additional_derived_from’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>bigWig files</strong></dt>
+<dd><ul class="first last">
+<li>“file_format”:”bigWig”</li>
+<li>“run_type”:’run_type’</li>
+<li>“step_run”:’step_run’</li>
+<li>“output_type”:”signal of all reads”</li>
+<li>“assembly”:’genome’</li>
+<li>“derived_from”:&lt;aliases of derived files&gt; AND/OR ‘additional_derived_from’</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>bed files</strong></dt>
+<dd><ul class="first last">
+<li>“file_format”:”bed”</li>
+<li>“run_type”:’run_type’</li>
+<li>“step_run”:’step_run’</li>
+<li>“output_type”:”peaks”</li>
+<li>“assembly”:’genome’</li>
+<li>“file_format_type”:”narrowPeak”</li>
+<li>“derived_from”:&lt;aliases of derived files&gt; AND/OR ‘additional_derived_from’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>As a reference to the above list, every left field will be the actual key to the JSON and the right field will be the value associated to that key.  Values
+wrapped in double quotes are preset string values, such as file_format’s value being “fastq” for a fastq file, while values wrapped in single quotes are values gathered
+from the database under that field name.  Values defined with the “&lt;&gt;” markers are referencing aliases created using the samplename, lab, step, and file format.</p>
+<p>In addition to those fields, each JSON passed will additionall contain these fields:</p>
+<blockquote>
+<div><ul class="simple">
+<li>“dataset”:’experiment_acc’</li>
+<li>“replicate”:’replicate_uuid</li>
+<li>“file_size”:&lt;byte size of file&gt;</li>
+<li>“md5sum”:&lt;md5sum of file&gt;</li>
+<li>“platform”:’platform’</li>
+<li>“submitted_file_name”:&lt;name of file&gt;</li>
+<li>“lab”:’lab’</li>
+<li>“award“‘grant’</li>
+<li><dl class="first docutils">
+<dt>“flowcell_details”:</dt>
+<dd><ul class="first last">
+<li>“machine”:’machine_name</li>
+<li>flowcell”:’flowcell’</li>
+<li>“lane”:’lane’</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>In this case, any value field marked with the “&lt;&gt;” markers are defined based on the file you are submitting.  Dolphin creates files based on samplename, so manual entry is
+not required.</p>
+<p>Upon successfully submitting file metadata, ENCODE will pass back a JSON response with amazon credentials.  These credentials are then used to upload the specific file
+to their secure amazon databank.</p>
+</div>
+<div class="section" id="the-submission-process">
+<h2>The Submission Process<a class="headerlink" href="#the-submission-process" title="Permalink to this headline">¶</a></h2>
+<p>As stated above, submitting to ENCODE through Dolphin is easy as long as you have all the proper metadata.  You don’t have to worry if you didn’t input all of the information needed
+during the import since you will be able to edit all of the fields before submission.</p>
+<img alt="../_images/send_to_encode.png" class="align-center" src="../_images/send_to_encode.png" />
+<p>In order to start the ENCODE submission process, you are going to want to select the samples you wish to submit within the NGS Browser section of Dolphin.  Once you’ve selected your samples
+you then can click the ‘Data Selection Options’ button at the top of the page and select the ‘Send to ENCODE’ option.  This will take you to the ENCODE submission page.</p>
+<img alt="../_images/encode_tables.png" class="align-center" src="../_images/encode_tables.png" />
+<p>Loading in, you will see a variety of tabs and tables.  Each tab represents submission of a specific JSON object and each contains a table with information loaded based on the samples
+that you have selected.  The ‘Sample Selection’ tab allows you to view the samples you have selected in the top table and add more samples from the bottom table.  You can also remove samples
+by clicking the red ‘X’ button in the top table for each sample, or manually deselecting the sample from the bottom table.  You can also edit specific metadata within each table shown by
+simply clicking the field you wish to edit and pressing enter when you are finished.  It should be noted that not all fields are editable.  In addition to editing samples, you can also
+edit all of your selected samples for that field at once or on a selection basis.  Simply click on the field you wish to edit, edit that field, and click the ‘Change All’ button to change all
+of your samples for that field at once.  You can select specific samples on the right and then click the ‘Change Selected’ in order to change multiple samples at a time.</p>
+<img alt="../_images/encode_edit_cell.png" class="align-center" src="../_images/encode_edit_cell.png" />
+<img alt="../_images/encode_multiple_select.png" class="align-center" src="../_images/encode_multiple_select.png" />
+<p>If no treatments are linked to your samples you can create them within the ENCODE submission page on the ‘Treatments’ tab.  To create a treatment click on the ‘Add Treatment’ button and a dialog box
+will pop up.  In this dialog box you will select which samples will have this treatment, as well as the name of the treatment.  Once you are finished you can click the ‘Add’ button to add the treatment
+link for your samples and start editing the treatment metadata as you see fit.  This same adding and editing strategy applied to the ‘Antibodies’ tab as well.</p>
+<img alt="../_images/encode_treatment.png" class="align-center" src="../_images/encode_treatment.png" />
+<p>As stated above, you can also link biosamples and experiments together via samples in the ‘Biosamples’ or ‘Experiments’ tabs.  Simply click on the ‘Link Biosamples’ or “Link Experiments’ tab to
+bring up a dialog box displaying all of the samples you have selected.  From there, select the samples you wish to link together, and then select which accession number you wish to link them under.
+If no accession number is present, you can select ‘* New Accession*’ to link the samples together without an accession number present.</p>
+<img alt="../_images/encode_experiment.png" class="align-center" src="../_images/encode_experiment.png" />
+<p>The ‘Files’ tab will be the last tab to be filled out before submitting your metadata and files.  If you have filled out all of your metadata within the tables, you can go ahead and send
+the overall metadata without the file metadata and files by selecting the ‘Submit Meta-data’ button in the bottom left.
+Within the ‘Files’ tab there are 4 major components: run selection, file selection, submission order, and previous files submissions.</p>
+<img alt="../_images/encode_file_tables.png" class="align-center" src="../_images/encode_file_tables.png" />
+<p>The run selection section should be looked at first.  For each sample you need to determine which dolphin run for each sample has the analysis files you wish to use.  Once you’ve selected all the
+proper run information, the file selection section will be next.  Here you will be able to select multiple file types to submit to ENCODE.  Only files produced between all selected runs will
+be able to be selected.  After file type selection, we then can determine the order and the hierarchy of all the files being submitted as well as any other additional information that may need to
+be provided.  Step run and additional derived from parameters should be supplied by your data wrangler once they have created your analysis pipeline objects within the ENCODE system.</p>
+<p>The last table, previous file submissions, simply displays previous submissions from the samples that have been selected.</p>
+<p>Once all the appropriate information has been filled out, you’re ready to submit to ENCODE.  Press the submit button which you desire on the bottom left of the screen and confirm the submission to
+send the data!</p>
+</div>
+<div class="section" id="reading-the-output">
+<h2>Reading the Output<a class="headerlink" href="#reading-the-output" title="Permalink to this headline">¶</a></h2>
+<p>Output for the submission process will take place in a few different locations.  For one, you’ll be able to view your output if you have access to editing ENCODE information on the main site
+using the accession numbers given back to the user.  However, through dolphin there are two main location as of currently where you will be able to view the output.  The submission dialog box will
+report a condensed version of the JSON submission output to the user and the raw JSON output for the file as well.  Additional logs are kept within the dolphin system in the tmp/encode directory
+via your user name and the time you submitted to ENCODE.</p>
+<img alt="../_images/encode_sub_response.png" class="align-center" src="../_images/encode_sub_response.png" />
+</div>
+<div class="section" id="encode-submissions-page">
+<h2>ENCODE Submissions Page<a class="headerlink" href="#encode-submissions-page" title="Permalink to this headline">¶</a></h2>
+<p>If you click on the bottom right button labeled ‘View Encode Submissions’, you will be taken to a new page with some information about your previous submissions.</p>
+<img alt="../_images/encode_batch_subs.png" class="align-center" src="../_images/encode_batch_subs.png" />
+<img alt="../_images/encode_sample_subs.png" class="align-center" src="../_images/encode_sample_subs.png" />
+<p>There are two tables present on this page, the ‘Encode Batch Submissions’ table and the ‘Encode Sample Submissions’ table.  The first table, the encode batch submissions table, displays all of the
+group submissions and the sample numbers that were submitted together.  The submission status column denotes whether or not metadata from all samples is still up to date; green denoting that the
+metadata is up to date and red showing that it has changed since that submission.  In addition the data log’s name is displayed for an admin to view until other options have been implemented.  You can also
+choose a sample selection to re-submit which will select all the samples from that submission and send you to the ENCODE submission pipeline.  The bottom table shows the exact same information as the
+top table except it is on a per-sample scale.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="debrowser.html" class="btn btn-neutral float-right" title="DEBrowser Access Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="profile.html" class="btn btn-neutral" title="Dolphin Profile Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alper Kucukural, Onur Yukselen.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
