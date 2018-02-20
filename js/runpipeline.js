@@ -1808,6 +1808,7 @@
 	  //	  callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall) {
 	      displayButton('connectingProPipe');
+          $('#runLogArea').val("");
 	      // Call the callback
 	      setTimeout(function () { runProPipeCall(); }, 1000);
 	  }
@@ -2438,6 +2439,7 @@
 	                  var data = formValues.serializeArray(); // convert form to array
 	                  // check if name is entered 
 	                  if (data[1].value !== '') {
+                          data[1].value = $.trim(data[1].value);
 	                      saveFileSetValModal(data, 'file');
 	                      $('#inputFilemodal').modal('hide');
 	                  }
@@ -2447,6 +2449,7 @@
 	              var data = formValues.serializeArray(); // convert form to array
 	              // check if file_path is entered //xx?
 	              if (data[1].value !== '') {
+                      data[1].value = $.trim(data[1].value);
 	                  editFileSetValModal(data, 'file');
 	                  $('#inputFilemodal').modal('hide');
 	              }

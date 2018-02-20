@@ -11,17 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   quickstart
-   excelimport
-   fastlane
-   ngsbrowser
-   excelexport
-   ngspipeline
-   ngsstatus
-   ngsreports
-   ngsplots
-   tablecreator
+   process
+   pipeline
+   project
+   run
    profile
-   encode
-   debrowser
-   devnotes
+   amazon
+   example
+   
