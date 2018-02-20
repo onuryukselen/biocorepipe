@@ -45,9 +45,14 @@ function checkAmazonStatus(proId) {
     if (checkAmazonStatus.status === "waiting") {
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
-        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
-
-    } else if (checkAmazonStatus.status === "initiated") {
+        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled', 'disabled');
+    }
+//    else if (checkAmazonStatus.status === "waitingTerm") {
+//        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
+//        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
+//        $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
+//    } 
+    else if (checkAmazonStatus.status === "initiated") {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Initializing..');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
@@ -94,6 +99,7 @@ $(document).ready(function () {
 
     $('#amzModal').on('click', '#amzStart', function (e) {
         e.preventDefault();
+        
         var clickedRowId = $(this).closest('tr').attr('id'); //local-20
         var patt = /(.*)-(.*)/;
         var proId = clickedRowId.replace(patt, '$2');
@@ -132,7 +138,7 @@ $(document).ready(function () {
                             // check the amazon profiles activity each minute.
                             $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
                             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
-                            $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
+                            $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled', 'disabled');
                             $('#addAmzNodeModal').modal('hide');
                             //                            checkAmazonTimer(proId);
                         }
