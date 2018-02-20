@@ -1,3 +1,8 @@
+20.02.2018 Version 0.0.58
+username is defined in the amazon cloud.
+if mate is used in the process, first input channel is defined by using fromFilePairs, otherwise fromPath method is used.
+Using a channel in two process feature is added.
+
 19.02.2018 Version 0.0.57
 Fixed error in pipeline page while selection of project.
 

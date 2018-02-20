@@ -574,6 +574,7 @@ class dbfuncs {
             $d->secret_key = trim($this->amazonDecode($secret));
 	    }
         $name = $data[0]->{'name'};
+        $username = $data[0]->{'username'};
         $image_id = $data[0]->{'image_id'};
         $instance_type = $data[0]->{'instance_type'};
         $subnet_id = $data[0]->{'subnet_id'};
@@ -588,6 +589,7 @@ class dbfuncs {
         $autoscale_maxIns = $data[0]->{'autoscale_maxIns'};
         
         $text= "cloud { \n";
+        $text.= "   userName = '$username'\n";
         $text.= "   imageId = '$image_id'\n";
         $text.= "   instanceType = '$instance_type'\n";
         $text.= "   subnetId = '$subnet_id'\n";
@@ -621,6 +623,7 @@ class dbfuncs {
         //stop amazon cluster
         $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud shutdown cluster{$id} > logAmzStop.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'stop_cloud', '');
+//        $this->updateAmazonProStatus($id, "waitingTerm", $ownerID);
         return json_encode($log_array);
     }
     
@@ -684,7 +687,10 @@ class dbfuncs {
         return self::queryTable($sql);    
     }
     public function getProfileAmazonbyID($id, $ownerID) {
-        $sql = "SELECT id, name, executor, next_path, default_region, instance_type, image_id, secret_key, access_key, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, subnet_id, shared_storage_id, shared_storage_mnt, nodes, autoscale_check, autoscale_maxIns, status, ssh FROM profile_amazon WHERE owner_id = '$ownerID' and id = '$id'";
+        $sql = "SELECT p.id, p.name, p.executor, p.next_path, p.default_region, p.instance_type, p.image_id, p.secret_key, p.access_key, p.cmd, p.next_time, p.next_queue, p.next_memory, p.next_cpu, p.executor_job, p.job_memory, p.job_queue, p.job_time, p.job_cpu, p.subnet_id, p.shared_storage_id, p.shared_storage_mnt, p.nodes, p.autoscale_check, p.autoscale_maxIns, p.status, p.ssh, u.username 
+        FROM profile_amazon p
+        INNER JOIN users u ON p.owner_id = u.id
+        WHERE p.owner_id = '$ownerID' and p.id = '$id'";
         return self::queryTable($sql);    
     }
     
@@ -1019,7 +1025,7 @@ class dbfuncs {
                 $this->updateAmazonProStatus($id, "initiated", $ownerID);
                 $log_array['status'] = "initiated";
                 return json_encode($log_array);
-            } else if (!preg_match("/STATUS/", $log_array['logAmzCloudList']) && (preg_match("/Missing/", $log_array['logAmzCloudList']) || preg_match("/ERROR/", $log_array['logAmzCloudList']))){
+            } else if (!preg_match("/STATUS/", $log_array['logAmzCloudList']) && (preg_match("/Missing/i", $log_array['logAmzCloudList']) || preg_match("/denied/i", $log_array['logAmzCloudList']) || preg_match("/ERROR/i", $log_array['logAmzCloudList']))){
                 $this->updateAmazonProStatus($id, "terminated", $ownerID);
                 $log_array['status'] = "terminated";
                 return json_encode($log_array);
@@ -1072,7 +1078,23 @@ class dbfuncs {
                 $log_array['status'] = "retry";
                 return json_encode($log_array);
             }
-        } else if ($status == "terminated"){
+        } 
+//        else if ($status == "waitingTerm"){
+//            //check cloud list
+//            $log_array = $this->runAmzCloudList($id);
+//            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+//                $log_array['status'] = "running";
+//                return json_encode($log_array);
+//            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+//                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+//                $log_array['status'] = "terminated";
+//                return json_encode($log_array);
+//            } else {
+//                $log_array['status'] = "retry";
+//                return json_encode($log_array);
+//            }
+//        }
+        else if ($status == "terminated"){
                 $log_array = array('status' => 'terminated');
                 return json_encode($log_array);
         } else if ($status == ""){
