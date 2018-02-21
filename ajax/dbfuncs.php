@@ -864,6 +864,10 @@ class dbfuncs {
         $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id'";
         return self::runSQL($sql);
     }
+    public function removeProjectPipelineInputByGnum($id, $g_num) {
+        $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id' AND g_num = '$g_num'";
+        return self::runSQL($sql);
+    }
     public function removeProjectInput($id) {
         $sql = "DELETE FROM project_input WHERE id = '$id'";
         return self::runSQL($sql);
@@ -1285,7 +1289,7 @@ class dbfuncs {
         if ($g_num != ""){
 			 $where = " where ppi.g_num= '$g_num' AND ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63 OR (ug.u_id ='$ownerID' and ppi.perms = 15))" ; 
 		}
-		$sql = "SELECT DISTINCT ppi.id, i.id as input_id, i.name, ppi.given_name
+		$sql = "SELECT DISTINCT ppi.id, i.id as input_id, i.name, ppi.given_name, ppi.g_num
                 FROM project_pipeline_input ppi
                 INNER JOIN input i ON i.id = ppi.input_id
                 LEFT JOIN user_group ug ON ppi.group_id=ug.g_id
@@ -1398,9 +1402,9 @@ class dbfuncs {
 	
     //------- feedback ------
     
-        public function savefeedback($email,$message) {
-        $sql = "INSERT INTO feedback(email, message, date_created) VALUES 
-			('$email', '$message', now())";
+        public function savefeedback($email,$message,$url) {
+        $sql = "INSERT INTO feedback(email, message, url, date_created) VALUES 
+			('$email', '$message','$url', now())";
         return self::insTable($sql);
         }
 	
@@ -1448,8 +1452,8 @@ class dbfuncs {
 		$sql = "SELECT parameter_id, sname, id, operator, closure FROM process_parameter where process_id = '$id' and type = 'input'";
 		return self::queryTable($sql);
 	}
-	public function checkPipeline($process_id,$process_name, $ownerID) {
-		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = '$ownerID') AND nodes LIKE '%\"$process_id\",\"$process_name\"%'";
+	public function checkPipeline($process_id, $ownerID) {
+		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = '$ownerID') AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
     public function checkParameter($parameter_id, $ownerID) {

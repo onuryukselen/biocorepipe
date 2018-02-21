@@ -263,8 +263,8 @@ function arraysEqual(a, b) {
 }
 
 //Check if process is ever used in pipelines 
-function checkPipeline(proid, proName) {
-    var checkPipe = getValues({ p: "checkPipeline", "process_id": proid, "process_name": proName });
+function checkPipeline(proid) {
+    var checkPipe = getValues({ p: "checkPipeline", "process_id": proid });
     return checkPipe
 }
 
@@ -302,7 +302,6 @@ function checkProParameters(inputProParams, outputProParams, proID) {
     });
     checkEqIn = arraysEqual(pro1inputs, pro2inputs);
     checkEqOut = arraysEqual(pro1outputs, pro2outputs);
-
     return checkEqIn && checkEqOut //both should be true to be equal
 }
 
@@ -487,12 +486,12 @@ function updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputLis
     }
 };
 
-function checkDeletion(proID, proName) {
+function checkDeletion(proID) {
     var warnUser = false;
     var infoText = '';
     var startPoint = 6;
     //has selected process ever used in other pipelines?
-    var checkPipe = checkPipeline(proID, proName);
+    var checkPipe = checkPipeline(proID);
     if (checkPipe.length > 0) {
         warnUser = true;
         infoText = infoText + 'It is not allowed to remove this revision, since this revision of process exists in the following pipelines: '
@@ -594,7 +593,7 @@ function checkRevisionPipe(pipeline_id) {
     return [warnUserPipe, warnPipeText, numOfProject];
 }
 
-function checkRevisionProc(data, proID, proName) {
+function checkRevisionProc(data, proID) {
     var warnUser = false;
     var infoText = '';
     var startPoint = 6;
@@ -606,8 +605,10 @@ function checkRevisionProc(data, proID, proName) {
     var checkResult = checkProParameters(inputProParams, outputProParams, proID);
     if (checkResult === false) {
         //has edited process ever used in other pipelines?
-        var checkPipe = checkPipeline(proID, proName);
+        var checkPipe = checkPipeline(proID);
+        console.log(checkPipe);
         var numOfProcess = checkPipe.length;
+        console.log(numOfProcess)
         if (numOfProcess > 1) {
             warnUser = true;
             infoText = infoText + 'It is not allowed to save on current revision since process parameters are changed and edited process exists in pipelines.</br></br>In order to save on current revision, you may remove the process from following pipelines: '
@@ -1102,7 +1103,7 @@ $(document).ready(function () {
         var proName = data[2].value;
         var warnUser = false;
         var infoText = '';
-        [warnUser, infoText] = checkDeletion(proID, proName);
+        [warnUser, infoText] = checkDeletion(proID);
         if (warnUser === true) {
             $('#warnDelete').off();
             $('#warnDelete').on('show.bs.modal', function (event) {
@@ -1208,11 +1209,14 @@ $(document).ready(function () {
             $('#mName').attr('disabled', "disabled");
 
             var proID = data[1].value;
-            var proName = data[2].value
+            var proName = data[2].value;
             var warnUser = false;
             var infoText = '';
             var numOfProcess = '';
-            [warnUser, infoText, numOfProcess] = checkRevisionProc(data, proID, proName);
+            [warnUser, infoText, numOfProcess] = checkRevisionProc(data, proID);
+            console.log(warnUser)
+            console.log(infoText)
+            console.log(numOfProcess)
             //B.1)Save on current process
             if (warnUser === false) {
                 var proGroId = data[5].value;

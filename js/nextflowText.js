@@ -357,8 +357,14 @@ function IOandScriptForNf(id, currgid) {
         var inputOperator = document.getElementById(Iid).getAttribute("operator");
         inputClosure = decodeHtml(inputClosure);
         var inputOperatorText = '';
-        if (inputOperator !== '') {
-            inputOperatorText = '.' + inputOperator + inputClosure;
+        if (inputOperator === 'mode flatten') {
+            inputOperatorText = ' ' + inputOperator + inputClosure;
+        } else if (inputOperator !== '') {
+            if (inputClosure !== '') {
+                inputOperatorText = '.' + inputOperator + inputClosure;
+            } else if (inputClosure === '') {
+                inputOperatorText = '.' + inputOperator + "()";
+            }
         }
         find = false
         for (var e = 0; e < edges.length; e++) {
