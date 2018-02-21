@@ -57,9 +57,46 @@
                     <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
                 </ul>
             </div>
-            <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>
-            <button class="btn btn-info" type="submit" id="waitingProPipe" style="display:none; vertical-align:middle;">Waiting</button>
-            <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>
+            <div id="runningProPipe" style="display:none; float:right; " class="btn-group">
+            <button class="btn btn-info" type="button" id="runningProPipeBut">Running</button>
+                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="terminateProjectPipe();return false;">Terminate</a></li>
+                </ul>
+            </div>
+            <div id="waitingProPipe" style="display:none; float:right; " class="btn-group">
+            <button class="btn btn-info" type="button" id="waitingProPipeBut">Waiting</button>
+                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="terminateProjectPipe();return false;">Terminate</a></li>
+                </ul>
+            </div>
+             <div id="connectingProPipe" style="display:none; float:right; " class="btn-group">
+            <button class="btn btn-info" type="button" id="connectingProPipeBut">Connecting..</button>
+                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="terminateProjectPipe();return false;">Terminate</a></li>
+                </ul>
+            </div>
+            <div id="terminatedProPipe" style="display:none; float:right; " class="btn-group">
+                <button class="btn btn-danger" type="button" id="terminatedProPipeBut">Terminated</button>
+                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                </ul>
+            </div>
+            
+<!--            <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>-->
+<!--            <button class="btn btn-info" type="submit" id="waitingProPipe" style="display:none; vertical-align:middle;">Waiting</button>-->
+<!--            <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>-->
             <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;"  title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
             <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters, output directory and selection of active environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>

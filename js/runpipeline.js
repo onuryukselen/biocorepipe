@@ -1797,18 +1797,26 @@
 	  }
 
 	  function displayButton(idButton) {
-	      var buttonList = ['runProPipe', 'errorProPipe', 'completeProPipe', 'runningProPipe', 'waitingProPipe', 'statusProPipe', 'connectingProPipe'];
+	      var buttonList = ['runProPipe', 'errorProPipe', 'completeProPipe', 'runningProPipe', 'waitingProPipe', 'statusProPipe', 'connectingProPipe', 'terminatedProPipe'];
 	      for (var i = 0; i < buttonList.length; i++) {
 	          document.getElementById(buttonList[i]).style.display = "none";
 	      }
 	      document.getElementById(idButton).style.display = "inline";
 	  }
+	  //xxx
+	  function terminateProjectPipe() {
+	      var setStatus = getValues({ p: "updateRunStatus", run_status: "Terminated", project_pipeline_id: project_pipeline_id });
+	      if (setStatus) {
+	          clearInterval(interval_readNextlog);
+	          displayButton('terminatedProPipe');
+	      }
 
+	  }
 
 	  //	  callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall) {
 	      displayButton('connectingProPipe');
-          $('#runLogArea').val("");
+	      $('#runLogArea').val("");
 	      // Call the callback
 	      setTimeout(function () { runProPipeCall(); }, 1000);
 	  }
@@ -1958,13 +1966,18 @@
 	      }
 
 	      nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	      //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
-	      if (nextflowLog !== null) {
+	      //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init,Terminated
+	      if (runStatus === "Terminated") {
+              if (nextflowLog !== null) {
+	          $('#runLogArea').val(serverLog + nextflowLog);
+              }
+	          displayButton('terminatedProPipe');
+	      } else if (nextflowLog !== null) {
 	          $('#runLogArea').val(serverLog + nextflowLog);
 	          if (nextflowLog.match(/N E X T F L O W/)) {
 	              if (nextflowLog.match(/##Success: failed/)) {
 	                  // status completed with error 
-	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id, duration: duration });
 	                  }
@@ -1975,7 +1988,7 @@
 
 	              } else if (nextflowLog.match(/##Success: OK/)) {
 	                  // status completed with success 
-	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
 	                      //Save output file paths to input and project_input database
@@ -1990,7 +2003,7 @@
 
 	              } else if (nextflowLog.match(/error/gi)) {
 	                  // status completed with success 
-	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
 	                  }
 	                  if (type !== "reload") {
@@ -2003,7 +2016,7 @@
 	                  if (type === "reload") {
 	                      readNextflowLogTimer(proType, proId);
 	                  }
-	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextRun", project_pipeline_id: project_pipeline_id });
 	                  }
 	                  displayButton('runningProPipe');
@@ -2011,7 +2024,7 @@
 	          } else {
 	              //error occured
 	              console.log("Error.Nextflow not started");
-	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
 	              }
 	              if (type !== "reload") {
@@ -2023,7 +2036,7 @@
 	      } else {
 	          if (serverLog.match(/error/gi)) {
 	              console.log("Error");
-	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error") {
+	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
 	              }
 	              if (type !== "reload") {
@@ -2327,7 +2340,8 @@
 	      }
 	      return runStatus;
 	  }
-        dupliProPipe = false;
+	  dupliProPipe = false;
+
 	  function duplicateProPipe() {
 	      dupliProPipe = true;
 	      saveRunIcon();
@@ -2439,7 +2453,7 @@
 	                  var data = formValues.serializeArray(); // convert form to array
 	                  // check if name is entered 
 	                  if (data[1].value !== '') {
-                          data[1].value = $.trim(data[1].value);
+	                      data[1].value = $.trim(data[1].value);
 	                      saveFileSetValModal(data, 'file');
 	                      $('#inputFilemodal').modal('hide');
 	                  }
@@ -2449,7 +2463,7 @@
 	              var data = formValues.serializeArray(); // convert form to array
 	              // check if file_path is entered //xx?
 	              if (data[1].value !== '') {
-                      data[1].value = $.trim(data[1].value);
+	                  data[1].value = $.trim(data[1].value);
 	                  editFileSetValModal(data, 'file');
 	                  $('#inputFilemodal').modal('hide');
 	              }

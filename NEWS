@@ -1,7 +1,9 @@
+21.02.2018 Version 0.0.61
+Terminate button added to run pipeline page.(kill pid feature is missing)
+
 21.02.2018 Version 0.0.60
 url of the page is added in feedback modal.
 remove project pipeline inputs after input parameters get deleted when save on exist is selected.
-
 
 20.02.2018 Version 0.0.59
 File paths are trimmed while adding on run pipeline page.
