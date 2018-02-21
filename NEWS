@@ -1,3 +1,8 @@
+21.02.2018 Version 0.0.62
+Single Cell pipeline (2 more steps: Map_Tophat2_SCell, MergeSortIndex added to local server)
+Automatic permission change problem of Pipeline and project is fixed.
+"'"'" is replaced with \"
+
 21.02.2018 Version 0.0.61
 Terminate button added to run pipeline page.(kill pid feature is missing)
 
