@@ -308,7 +308,7 @@ class dbfuncs {
             $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
             $next_inputs="";
             foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." '\"'\"'".$inputitem->{'name'}."'\"'\"' ";
+                $next_inputs.="--".$inputitem->{'given_name'}." \"".$inputitem->{'name'}."\" ";
             endforeach;
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
@@ -411,7 +411,7 @@ class dbfuncs {
             $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
             $next_inputs="";
             foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." '\"'\"'".$inputitem->{'name'}."'\"'\"' ";
+                $next_inputs.="--".$inputitem->{'given_name'}." \"".$inputitem->{'name'}."\" ";
             endforeach;
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
@@ -1587,7 +1587,7 @@ class dbfuncs {
         $rev_comment = $obj[9]->{"rev_comment"};
         $rev_id = $obj[10]->{"rev_id"};
         foreach ($obj[2]->{"nodes"} as $item):
-            if ($item[2] !== "inPro" && $item[2] !== "outPro"){
+            if ($item[2] !== "inPro" && $item[2] !== "outPro" && $perms !== "3"){
                 $proId = $item[2];
                 $this->updateParameterGroupPerm($proId, $group_id, $perms, $ownerID);
                 $this->updateProcessGroupPerm($proId, $group_id, $perms, $ownerID);

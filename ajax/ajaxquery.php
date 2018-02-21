@@ -541,12 +541,14 @@ else if ($p=="saveProjectPipeline"){
     $singu_opt = $_REQUEST['singu_opt'];
         if (!empty($id)) {
         $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
+            if ($perms !== "3"){
             $db->updateProjectGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateProjectPipelineInputGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateInputGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updatePipelineGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID);
+            }
             
     } else {
         $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
