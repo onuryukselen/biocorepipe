@@ -557,6 +557,9 @@ $(function () {
     $("#feedback-form form").on('submit', function (event) {
         var $form = $(this);
         var data = $form.serializeArray();
+        var url = window.location.href;
+        console.log(url);
+        data.push({ name: "url", value: url })
         data.push({ name: "p", value: "savefeedback" })
         $.ajax({
             type: "POST",

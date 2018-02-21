@@ -129,7 +129,8 @@ else if ($p=="getEditDelParameters"){
 else if ($p=="savefeedback"){
 	$email = $_REQUEST['email'];
 	$message = $_REQUEST['message'];
-    $data = $db -> savefeedback($email,$message);
+	$url = $_REQUEST['url'];
+    $data = $db -> savefeedback($email,$message,$url);
 }
 
 else if ($p=="getAllProcesses"){
@@ -229,6 +230,11 @@ else if ($p=="removeProjectPipeline"){
     $db -> removeProjectPipelineInputByPipe($id);
     $data = $db -> removeProjectPipeline($id);
 }
+else if ($p=="removeProjectPipelineInputByGnum"){  
+    $g_num = $_REQUEST['g_num'];
+    $data = $db -> removeProjectPipelineInputByGnum($id,$g_num);
+}
+
 else if ($p=="removeProjectInput"){   
     $input_id = $_REQUEST['input_id'];
     $db -> removeProjectInput($id);
@@ -585,8 +591,7 @@ else if ($p=="getPipelineRevision")
 else if ($p=="checkPipeline")
 {
 	$process_id = $_REQUEST['process_id'];
-	$process_name = $_REQUEST['process_name'];
-    $data = $db->checkPipeline($process_id,$process_name, $ownerID);
+    $data = $db->checkPipeline($process_id, $ownerID);
 }
 else if ($p=="checkProject")
 {

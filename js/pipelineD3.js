@@ -881,11 +881,11 @@
 	  }
 
 	  function conToInput() {
-          d3.selectAll("circle.input:not([id*=i-outPro])").attr("status", "candidate");
+	      d3.selectAll("circle.input:not([id*=i-outPro])").attr("status", "candidate");
 	  }
 
 	  function conToOutput() {
-	       d3.selectAll("circle.output:not([id*=o-inPro])").attr("status", "candidate");
+	      d3.selectAll("circle.output:not([id*=o-inPro])").attr("status", "candidate");
 	  }
 
 	  function startBinding(className, cand, candParam, selectedIO) {
@@ -1153,7 +1153,7 @@
 	      var delsecGnum = secondParamId.split("-")[4] //gNum
 	      var delGnum = firstParamId.split("-")[4] //gNum
 
-          //input/output param has still edge/edges
+	      //input/output param has still edge/edges
 	      //remove process name from pipeline details table
 	      if (edges.searchFor(firstParamId)) {
 	          if (paramType === 'inPro') {
@@ -1183,13 +1183,13 @@
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
 	      //	      cancelRemove()
-          //return back to original state for outputparam:
-          if (paramType === 'outPro'){
-              var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+	      //return back to original state for outputparam:
+	      if (paramType === 'outPro') {
+	          var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
 	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "outPara" + '-$5')
 	          d3.selectAll("#" + firstParamId).attr("id", originalID);
 	          d3.selectAll("#" + originalID).attr("class", "connect_to_output input");
-          } 
+	      }
 	  }
 
 	  function delMouseOver() {
@@ -1318,7 +1318,36 @@
 
 	  }
 
-	  //xxx
+    // delete project_pipeline_input if its deleted when saveExistPipeline is active
+	  function checkDelInputParam(pipeline_id) {
+	      var existProPipe = getValues({ p: "getExistProjectPipelines", pipeline_id: pipeline_id });
+	      if (existProPipe.length) {
+	          var newGnumListElems = d3.selectAll("circle.sc-inPro")[0];
+	          var newGnumList = [];
+	          for (var el = 0; el < newGnumListElems.length; el++) {
+	              var newGnumId = newGnumListElems[el].id
+	              var newGnum = newGnumId.replace(/(.*)-(.*)/, '$2');
+	              newGnumList.push(newGnum);
+	          };
+	          $.each(existProPipe, function (element) {
+	              var project_pipeline_id = existProPipe[element].id;
+	              var existProPipeInputs = getValues({ p: "getProjectPipelineInputs", project_pipeline_id: project_pipeline_id });
+	              var oldGnumList = [];
+	              $.each(existProPipeInputs, function (element) {
+	                  oldGnumList.push(existProPipeInputs[element].g_num);
+	              });
+	              //check if any item deleted from oldGnumList
+	              for (var e = 0; e < oldGnumList.length; e++) {
+	                  if ($.inArray(oldGnumList[e], newGnumList) === -1) {
+	                      var existProPipeInputs = getValues({ p: "removeProjectPipelineInputByGnum", id: project_pipeline_id, g_num: oldGnumList[e] });
+	                  }
+	              }
+
+	          });
+	      }
+	  }
+
+	  //Save pipeline
 	  function save() {
 	      saveNodes = {}
 	      saveMainG = {}
@@ -1392,6 +1421,9 @@
 	          if (warnUserPipe === false || saveOnExist === true) {
 	              sl = JSON.stringify(savedList);
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
+                  if (saveOnExist === true){
+	              checkDelInputParam(id);
+                  }
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
 	              var numRev = $("#pipeRev option").length;
@@ -1413,8 +1445,8 @@
 	                      $('#saveOnExist').css('display', 'inline');
 	                  }
 	              });
-                  $('#confirmRevision').on('hide.bs.modal', function (event) {
-	                      $('#saveOnExist').css('display', 'none');
+	              $('#confirmRevision').on('hide.bs.modal', function (event) {
+	                  $('#saveOnExist').css('display', 'none');
 	              });
 
 	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
@@ -1423,6 +1455,7 @@
 	              $('#confirmRevision').on('click', '#saveOnExist', function (event) {
 	                  sl = JSON.stringify(savedList);
 	                  var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	                  checkDelInputParam(id);
 	                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	                  refreshCreatorData(pipeline_id);
 	                  var numRev = $("#pipeRev option").length;
