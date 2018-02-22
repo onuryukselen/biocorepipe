@@ -243,10 +243,10 @@
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
                                   <option value="slurm">SLURM</option>
+                                  <option value="ignite">Ignite</option>
 <!--                                  <option value="pbs">PBS/Torque</option>-->
 <!--                                  <option value="nqsii">NQSII</option>-->
 <!--                                  <option value="condor">HTCondor</option>-->
-<!--                                  <option value="ignite">Ignite</option>-->
 <!--                                  <option value="k8s">Kubernetes</option>-->
 <!--                                  <option value="awsbatch">AWS Batch</option>-->
                                 </select>
@@ -286,10 +286,10 @@
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
                                   <option value="slurm">SLURM</option>
+                                  <option value="ignite">Ignite</option>
 <!--                                  <option value="pbs">PBS/Torque</option>-->
 <!--                                  <option value="nqsii">NQSII</option>-->
 <!--                                  <option value="condor">HTCondor</option>-->
-<!--                                  <option value="ignite">Ignite</option>-->
 <!--                                  <option value="k8s">Kubernetes</option>-->
 <!--                                  <option value="awsbatch">AWS Batch</option>-->
                                 </select>
