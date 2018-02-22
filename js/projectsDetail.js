@@ -57,13 +57,13 @@
             },
             async: true,
             success: function (s) {
+        window.location.replace("index.php?np=2");
 
             },
             error: function (errorThrown) {
                 alert("Error: " + errorThrown);
             }
         });
-        window.location.replace("index.php?np=2");
     }
 
 function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {

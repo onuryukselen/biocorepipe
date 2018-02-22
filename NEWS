@@ -1,3 +1,8 @@
+22.02.2018 Version 0.0.64
+Ignite job submission is added for amazon.
+start/stop button added for amazon profile section.
+Bug fixed while deleting project.
+
 21.02.2018 Version 0.0.63
 Copy pipeline icon is added in run pipeline page.
 " is replaced with \" in run command.

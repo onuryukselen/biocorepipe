@@ -256,6 +256,20 @@ function InputParameters(id, currgid) {
     return iText
 }
 
+//
+function getPublishDirRegex(outputName) {
+    //if name contains path and separated by '/' then take the last part
+    if (outputName.match(/\//)){
+        var outArr = outputName.split("/");
+        outputName = outArr[outArr.length-1];
+        }
+    
+    outputName = outputName.replace(/\*/g, '')
+    outputName = outputName.replace(/\?/g, '')
+    outputName = outputName.replace(/\'/g, '')
+    outputName = outputName.replace(/\"/g, '')
+    return outputName;
+}
 
 function OutputParameters(id, currgid) {
     oText = ""
@@ -270,15 +284,14 @@ function OutputParameters(id, currgid) {
                 fNode = nodes[0] //outPro node : get userEntryId and userEntryText and parameterID
                 sNode = nodes[1] //connected node
 
+                //publishDir Section
                 if (fNode.split("-")[1] === "outPro" && closePar === false) {
                     closePar = true
                     oText = "publishDir params.outdir, mode: 'move',\n\tsaveAs: {filename ->\n"
 
                     outputName = document.getElementById(oId).getAttribute("name")
-                    outputName = outputName.replace(/\*/g, '')
-                    outputName = outputName.replace(/\?/g, '')
-                    outputName = outputName.replace(/\'/g, '')
-                    outputName = outputName.replace(/\"/g, '')
+                    outputName = getPublishDirRegex(outputName);
+
 
                     //outPro node : get userEntryId and userEntryText
                     parId = fNode.split("-")[4]
@@ -292,11 +305,7 @@ function OutputParameters(id, currgid) {
                     oText = oText + tempText
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
                     outputName = document.getElementById(oId).getAttribute("name")
-                    outputName = outputName.replace(/\*/g, '')
-                    outputName = outputName.replace(/\?/g, '')
-                    outputName = outputName.replace(/\'/g, '')
-                    outputName = outputName.replace(/\"/g, '')
-
+                    outputName = getPublishDirRegex(outputName);
                     parFile = parametersData.filter(function (el) {
                         return el.id == fNode.split("-")[3]
                     })[0].file_type
@@ -373,7 +382,6 @@ function IOandScriptForNf(id, currgid) {
                 var nodes = edges[e].split("_")
                 var fNode = nodes[0];
                 var sNode = nodes[1];
-                console.log(edges[e]);
 
                 //output node clicked first
                 if (fNode[0] === 'o') {
@@ -440,25 +448,23 @@ function IOandScriptForNf(id, currgid) {
         if (qual === "set") {
             var channelNameAll = "";
             for (var c = 0; c < edges.length; c++) {
-                console.log(edges[c].indexOf(Oid))
                 if (edges[c].indexOf(Oid) == 0) {
                     var secNode = edges[c].split("_")[1];
                     var secProType = secNode.split("-")[1];
                     if (secProType !== "outPro") {
-                    if (channelNameAll === "") {
-                        channelNameAll = channelNameAll  + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                    } else {
-                        channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                    }
+                        if (channelNameAll === "") {
+                            channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+                        } else {
+                            channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+                        }
                     }
 
                 } else if (edges[c].indexOf(Oid) > 0) {
                     var fstNode = edges[c].split("_")[0];
                     var fstProType = fstNode.split("-")[1];
-                    console.log(fstProType);
                     if (fstProType !== "outPro") {
                         if (channelNameAll === "") {
-                            channelNameAll = channelNameAll  + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
+                            channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
                         } else {
                             channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
                         }
@@ -468,7 +474,7 @@ function IOandScriptForNf(id, currgid) {
             // if output node is not connected to input node.
             if (channelNameAll === '') {
                 channelNameAll = channelName;
-            } 
+            }
         } else if (qual !== "set") {
             channelNameAll = channelName;
 
