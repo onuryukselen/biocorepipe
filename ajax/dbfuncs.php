@@ -308,7 +308,7 @@ class dbfuncs {
             $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
             $next_inputs="";
             foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." \"".$inputitem->{'name'}."\" ";
+                $next_inputs.="--".$inputitem->{'given_name'}." \\\"".$inputitem->{'name'}."\\\" ";
             endforeach;
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
@@ -411,7 +411,7 @@ class dbfuncs {
             $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
             $next_inputs="";
             foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." \"".$inputitem->{'name'}."\" ";
+                $next_inputs.="--".$inputitem->{'given_name'}." \\\"".$inputitem->{'name'}."\\\" ";
             endforeach;
             //get nextflow executor parameters
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
