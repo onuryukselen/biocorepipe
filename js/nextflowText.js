@@ -116,7 +116,7 @@ function createNextflowFile(nxf_runmode) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-            proText = "process " + processList[key] + " {\n\n" + OutputParameters(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}\n" + outputFileName(mainProcessId, key) + "\n\n"
+            proText = "process " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + IOandScriptForNf(mainProcessId, key) + "\n\n}\n" + outputFileName(mainProcessId, key) + "\n\n"
             nextText = nextText + proText
         }
     });
@@ -130,12 +130,12 @@ function createNextflowFile(nxf_runmode) {
     endText += '}\n';
 
 
-    //    if (nxf_runmode === "run") {
-    //        var interdel = $('#intermeDel').is(":checked");
-    //        if (interdel && interdel === true) {
-    //            endText = "workflow.onComplete { file('work').deleteDir() } \n";
-    //        }
-    //    }
+        if (nxf_runmode === "run") {
+            var interdel = $('#intermeDel').is(":checked");
+            if (interdel && interdel === true) {
+                endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
+            }
+        }
     return nextText + endText
 }
 
@@ -256,8 +256,17 @@ function InputParameters(id, currgid) {
     return iText
 }
 
+function getParamOutdir(outParUserEntry){
+    return '"${params.outdir}/'+outParUserEntry+'"';
+}
+
 //
 function getPublishDirRegex(outputName) {
+    //eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
+    if (outputName.match(/file\((.*)\)/)){
+        var outputName = outputName.match(/file\((.*)\)/)[1];
+        console.log(outputName);
+    }
     //if name contains path and separated by '/' then take the last part
     if (outputName.match(/\//)){
         var outArr = outputName.split("/");
@@ -271,45 +280,38 @@ function getPublishDirRegex(outputName) {
     return outputName;
 }
 
-function OutputParameters(id, currgid) {
+function publishDir(id, currgid) {
     oText = ""
     var closePar = false
     oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-    for (var i = 0; i < oList.length; i++) { //search through each output node
+    for (var i = 0; i < oList.length; i++) { 
         oId = oList[i].id
         for (var e = 0; e < edges.length; e++) {
-            if (edges[e].indexOf(oId) !== -1) { //if not exist -1, if at first position 0, if at second pos. 12
+            if (edges[e].indexOf(oId) !== -1) { //if not exist -1, 
                 nodes = edges[e].split("_")
-                //edgeLocF = nodes[0].indexOf("i-inPro") //-1: inputparam not exist //0: first click is done on inputparam
-                fNode = nodes[0] //outPro node : get userEntryId and userEntryText and parameterID
-                sNode = nodes[1] //connected node
-
+                fNode = nodes[0] 
+                sNode = nodes[1] 
                 //publishDir Section
                 if (fNode.split("-")[1] === "outPro" && closePar === false) {
                     closePar = true
-                    oText = "publishDir params.outdir, mode: 'move',\n\tsaveAs: {filename ->\n"
-
+                    //outPro node : get userEntryId and userEntryText
+                    var parId = fNode.split("-")[4]
+                    var userEntryId = "text-" + fNode.split("-")[4]
+                    var outParUserEntry = document.getElementById(userEntryId).getAttribute('name') 
+                    oText = "publishDir "+  getParamOutdir(outParUserEntry) +", mode: 'move',\n\tsaveAs: {filename ->\n"
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = getPublishDirRegex(outputName);
 
-
-                    //outPro node : get userEntryId and userEntryText
-                    parId = fNode.split("-")[4]
-                    userEntryId = "text-" + fNode.split("-")[4]
-                    outputParamName = document.getElementById(userEntryId).getAttribute('name') //user entered output parameter name
-                    parFile = parametersData.filter(function (el) {
-                        return el.id == fNode.split("-")[3]
-                    })[0].file_type
+                    
+//                    parFile = parametersData.filter(function (el) {
+//                        return el.id == fNode.split("-")[3]
+//                    })[0].file_type
                     tempText = "\tif \(filename =~ /" + outputName + "/\) filename\n"
                     // if (filename =~ /^path.8.fastq$/) filename 
                     oText = oText + tempText
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
-                    outputName = document.getElementById(oId).getAttribute("name")
+                    outputName = document.getElementById(oId).getAttribute("name");
                     outputName = getPublishDirRegex(outputName);
-                    parFile = parametersData.filter(function (el) {
-                        return el.id == fNode.split("-")[3]
-                    })[0].file_type
-
                     tempText = "\telse if \(filename =~ /" + outputName + "/\) filename\n"
                     oText = oText + tempText
 

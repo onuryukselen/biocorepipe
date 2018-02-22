@@ -1,7 +1,6 @@
-
 //initialize all tooltips on a page (eg.$('#mFileTypeTool').tooltip("show"))
 $(function () {
-  $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 // check the amazon profiles activity each minute.
@@ -47,25 +46,44 @@ function checkAmazonStatus(proId) {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled', 'disabled');
     }
-//    else if (checkAmazonStatus.status === "waitingTerm") {
-//        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
-//        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
-//        $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
-//    } 
+    //    else if (checkAmazonStatus.status === "waitingTerm") {
+    //        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
+    //        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
+    //        $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
+    //    } 
     else if (checkAmazonStatus.status === "initiated") {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Initializing..');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
 
     } else if (checkAmazonStatus.status === "running") {
-        $('#status-' + proId).text('Running');
+        if (checkAmazonStatus.sshText) {
+            var sshText = "(" + checkAmazonStatus.sshText + ")";
+        } else {
+            var sshText = "";
+        }
+        $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
+        $('#status-' + proId).html('Running <br/>' + sshText);
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
 
     } else if (checkAmazonStatus.status === "inactive") {
         $('#status-' + proId).text('Inactive');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
     } else if (checkAmazonStatus.status === "terminated") {
-        $('#status-' + proId).text('Terminated');
+        if (checkAmazonStatus.logAmzCloudList) {
+            var logText = checkAmazonStatus.logAmzCloudList;
+            if (logText.match(/INSTANCE ID ADDRESS STATUS ROLE(.*)/)) {
+                var errorText = logText.match(/INSTANCE ID ADDRESS STATUS ROLE(.*)/)[1];
+                if (errorText !== ""){
+                errorText = "(" + errorText + ")";
+                } 
+            } else {
+                errorText = "(" + logText + ")";
+            }
+        } else {
+            var errorText = "";
+        }
+        $('#status-' + proId).html('Terminated <br/>' + errorText);
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'inline');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
     } else {
@@ -99,7 +117,7 @@ $(document).ready(function () {
 
     $('#amzModal').on('click', '#amzStart', function (e) {
         e.preventDefault();
-        
+
         var clickedRowId = $(this).closest('tr').attr('id'); //local-20
         var patt = /(.*)-(.*)/;
         var proId = clickedRowId.replace(patt, '$2');
@@ -255,8 +273,8 @@ function filterSideBar(options) {
 //SideBar menu Search Function
 //$('#tags').on('keyup',function(e){
 $('.main-sidebar').on('keyup', '#tags', function (e) {
-      $('.filterM a >').prop('checked', false);
-    
+    $('.filterM a >').prop('checked', false);
+
     var tagElems = $('#autocompletes1').children()
     $(tagElems).hide()
     for (var i = 0; i < tagElems.length; i++) {
