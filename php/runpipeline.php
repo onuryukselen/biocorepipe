@@ -125,7 +125,7 @@
     </div>
     <div>
         <div>
-            <textarea disabled id="runLogArea" rows="10" style="overflow-y: scroll; min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
+            <textarea readonly id="runLogArea" rows="10" style="overflow-y: scroll; min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
         </div>
     </div>
     </br>

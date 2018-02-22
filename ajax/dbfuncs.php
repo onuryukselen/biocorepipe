@@ -751,6 +751,10 @@ class dbfuncs {
         $sql = "UPDATE profile_amazon SET ssh='$sshText', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
 		return self::runSQL($sql);
     }
+    public function getAmazonProSSH($id, $ownerID) {
+        $sql = "SELECT ssh FROM profile_amazon WHERE id = '$id' AND owner_id = '$ownerID'";
+		return self::queryTable($sql);
+    }
     
     public function removeProLocal($id) {
         $sql = "DELETE FROM profile_local WHERE id = '$id'";
@@ -1086,6 +1090,7 @@ class dbfuncs {
                     $log_array['status'] = "running";
                     $this->updateAmazonProStatus($id, "running", $ownerID);
                     $this->updateAmazonProSSH($id, $sshText, $ownerID);
+                    
                 return json_encode($log_array);
                 } else {
                     $log_array['status'] = "initiated";
@@ -1106,6 +1111,9 @@ class dbfuncs {
             $log_array = $this->runAmzCloudList($id);
             if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 $log_array['status'] = "running";
+                $sshTextArr = json_decode($this->getAmazonProSSH($id, $ownerID));
+                $sshText = $sshTextArr[0]->{'ssh'};
+                $log_array['sshText'] = $sshText;
                 return json_encode($log_array);
             } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 $this->updateAmazonProStatus($id, "terminated", $ownerID);
@@ -1132,7 +1140,8 @@ class dbfuncs {
 //            }
 //        }
         else if ($status == "terminated"){
-                $log_array = array('status' => 'terminated');
+                $log_array = $this->runAmzCloudList($id);
+                $log_array['status'] = "terminated";
                 return json_encode($log_array);
         } else if ($status == ""){
                 $log_array = array('status' => 'inactive');

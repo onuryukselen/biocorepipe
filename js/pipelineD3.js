@@ -1139,6 +1139,21 @@
 
 	  }
 
+	  //resets input/output parameters to original state
+	  //paramType:outPro or inPro
+	  function resetOriginal(paramType, firstParamId) {
+	          var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+	      if (paramType === 'outPro') {
+	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "outPara" + '-$5')
+	          d3.selectAll("#" + firstParamId).attr("id", originalID);
+	          d3.selectAll("#" + originalID).attr("class", "connect_to_output input");
+	      } else if (paramType === 'inPro') {
+	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "inPara" + '-$5')
+	          d3.selectAll("#" + firstParamId).attr("id", originalID);
+	          d3.selectAll("#" + originalID).attr("class", "connect_to_input output");
+	      }
+	  }
+
 	  function removeEdge(delID) {
 	      if (delID !== undefined) {
 	          deleteID = delID;
@@ -1174,22 +1189,18 @@
 	          //remove row from pipeline details table
 	          if (paramType === 'inPro') {
 	              $('#inputTa-' + delGnum).remove() //gNum
+	              resetOriginal(paramType, firstParamId); //
 	          } else if (paramType === 'outPro') {
 	              $('#outputTa-' + delGnum).remove() //gNum
+	              resetOriginal(paramType, firstParamId);
 	          }
 	      }
 	      //process has no edge any more
 	      if (!edges.searchFor(secondParamId)) {
 	          d3.selectAll("#" + secondParamId).attr("connect", 'single')
 	      }
-	      //	      cancelRemove()
-	      //return back to original state for outputparam:
-	      if (paramType === 'outPro') {
-	          var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
-	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "outPara" + '-$5')
-	          d3.selectAll("#" + firstParamId).attr("id", originalID);
-	          d3.selectAll("#" + originalID).attr("class", "connect_to_output input");
-	      }
+
+
 	  }
 
 	  function delMouseOver() {
@@ -1318,7 +1329,7 @@
 
 	  }
 
-    // delete project_pipeline_input if its deleted when saveExistPipeline is active
+	  // delete project_pipeline_input if its deleted when saveExistPipeline is active
 	  function checkDelInputParam(pipeline_id) {
 	      var existProPipe = getValues({ p: "getExistProjectPipelines", pipeline_id: pipeline_id });
 	      if (existProPipe.length) {
@@ -1421,9 +1432,9 @@
 	          if (warnUserPipe === false || saveOnExist === true) {
 	              sl = JSON.stringify(savedList);
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
-                  if (saveOnExist === true){
-	              checkDelInputParam(id);
-                  }
+	              if (saveOnExist === true) {
+	                  checkDelInputParam(id);
+	              }
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	              refreshCreatorData(pipeline_id);
 	              var numRev = $("#pipeRev option").length;
