@@ -219,7 +219,9 @@ else if ($p=="removeProcess"){
 	$data = $db -> removeProcess($id);
 }
 else if ($p=="removeProject"){   
+    $db -> removeProjectPipelineInputbyProjectID($id);
     $db -> removeProjectPipelinebyProjectID($id);
+    $db -> removeProjectInputbyProjectID($id);
     $data = $db -> removeProject($id);
 }
 else if ($p=="removeGroup"){   
@@ -237,6 +239,7 @@ else if ($p=="removeProjectPipelineInputByGnum"){
 
 else if ($p=="removeProjectInput"){   
     $input_id = $_REQUEST['input_id'];
+    $db -> removeProjectPipelineInputbyInputId($input_id);
     $db -> removeProjectInput($id);
     $data = $db -> removeInput($input_id);
 }
@@ -257,9 +260,6 @@ else if ($p=="removeProAmazon"){
 }
 else if ($p=="removeProjectPipelineInput"){   
     $data = $db -> removeProjectPipelineInput($id);
-}
-else if ($p=="removeProjectPipelinebyProjectID"){   
-    $data = $db -> removeProjectPipelinebyProjectID($id);
 }
 else if ($p=="removeProcessParameter"){   
 	$data = $db -> removeProcessParameter($id);

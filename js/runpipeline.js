@@ -2021,7 +2021,11 @@
 	                  }
 	                  displayButton('runningProPipe');
 	              }
-	          } else {
+	          } else if (nextflowLog.match(/downloading/i)){
+                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
+	              displayButton('waitingProPipe');
+                  
+              }else {
 	              //error occured
 	              console.log("Error.Nextflow not started");
 	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {

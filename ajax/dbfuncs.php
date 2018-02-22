@@ -187,7 +187,7 @@ class dbfuncs {
             if (!file_exists($run_path_real."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //mkdir and copy nextflow file to run directory in cluster
-            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 && scp {$this->ssh_settings} -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1";
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mkdir -p $dolphin_path_real\" > $run_path_real/log.txt 2>&1 && scp {$this->ssh_settings} -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1";
             $mkdir_copynext_pid =shell_exec($cmd);
             $this->writeLog($project_pipeline_id,$cmd,'a');
 //           command below not working without &
@@ -211,7 +211,7 @@ class dbfuncs {
             if (!file_exists($run_path_real."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             //mkdir and copy nextflow file to run directory in cluster
-            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect 'mkdir -p $dolphin_path_real' > $run_path_real/log.txt 2>&1 && scp {$this->ssh_settings} -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1";
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mkdir -p $dolphin_path_real\" > $run_path_real/log.txt 2>&1 && scp {$this->ssh_settings} -i $userpky $run_path_real/nextflow.nf $run_path_real/nextflow.config $connect:$dolphin_path_real >> $run_path_real/log.txt 2>&1";
             $mkdir_copynext_pid =shell_exec($cmd);
             $this->writeLog($project_pipeline_id,$cmd,'a');
 //           command below not working without &
@@ -384,7 +384,7 @@ class dbfuncs {
             } else if ($executor == "sge"){
             } else if ($executor == "slurm"){
             }
-            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect 'cd $dolphin_path_real $preCmd && $exec_next_all' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             $this->writeLog($project_pipeline_id,$cmd,'a');
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
@@ -486,8 +486,10 @@ class dbfuncs {
             $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \"";
             } else if ($executor == "sge"){
             } else if ($executor == "slurm"){
+            } else if ($executor == "ignite"){
+            $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs -with-trace > $dolphin_path_real/log.txt ";
             }
-            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect 'cd $dolphin_path_real $preCmd && $exec_next_all' >> $run_path_real/log.txt 2>&1 & echo $! &";
+            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             $this->writeLog($project_pipeline_id,$cmd,'a');
             if (!$next_submit_pid) die(json_encode('Connection failed while running nextflow in the cluster'));
@@ -615,15 +617,26 @@ class dbfuncs {
         //start amazon cluster
         $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} -c $nodes > logAmzStart.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'start_cloud', '');
+        //xxx save pid of nextflow cloud create cluster job
+        if (preg_match("/([0-9]+)(.*)/", $log_array['start_cloud'])){
+//            preg_match("/([0-9]+)(.*)/",$log_array['start_cloud'], $match);
+//            $pid = $match[1];
+//        $this->updateAmazonProPid($id, $pid, $ownerID);
         $this->updateAmazonProStatus($id, "waiting", $ownerID);
+        }else {
+        $this->updateAmazonProStatus($id, "terminated", $ownerID);
+        }
         return json_encode($log_array);
     }
     
     function stopProAmazon($id,$ownerID){
+//        $amzPid = json_decode($this->getAmazonPid($id, $ownerID));
+//        $pid = $amzPid[0]->{'pid'};
         //stop amazon cluster
         $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud shutdown cluster{$id} > logAmzStop.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'stop_cloud', '');
-//        $this->updateAmazonProStatus($id, "waitingTerm", $ownerID);
+        //check if it is active then assign to zero
+//        $this->updateAmazonProPid($id, "0", $ownerID);
         return json_encode($log_array);
     }
     
@@ -728,6 +741,10 @@ class dbfuncs {
     
     public function updateAmazonProStatus($id, $status, $ownerID) {
         $sql = "UPDATE profile_amazon SET status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function updateAmazonProPid($id, $pid, $ownerID) {
+        $sql = "UPDATE profile_amazon SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function updateAmazonProSSH($id, $sshText, $ownerID) {
@@ -868,12 +885,24 @@ class dbfuncs {
         $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id' AND g_num = '$g_num'";
         return self::runSQL($sql);
     }
+    public function removeProjectPipelineInputbyInputId($id) {
+        $sql = "DELETE FROM project_pipeline_input WHERE input_id = '$id'";
+        return self::runSQL($sql);
+    }
     public function removeProjectInput($id) {
         $sql = "DELETE FROM project_input WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelinebyProjectID($id) {
         $sql = "DELETE FROM project_pipeline WHERE project_id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function removeProjectPipelineInputbyProjectID($id) {
+        $sql = "DELETE FROM project_pipeline_input WHERE project_id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function removeProjectInputbyProjectID($id) {
+        $sql = "DELETE FROM project_input WHERE project_id = '$id'";
         return self::runSQL($sql);
     }
     
@@ -1013,6 +1042,10 @@ class dbfuncs {
     }
     public function getAmazonStatus($id,$ownerID) {
         $sql = "SELECT status FROM profile_amazon WHERE id = '$id'";
+		return self::queryTable($sql);
+    }
+    public function getAmazonPid($id,$ownerID) {
+        $sql = "SELECT pid FROM profile_amazon WHERE id = '$id'";
 		return self::queryTable($sql);
     }
 
