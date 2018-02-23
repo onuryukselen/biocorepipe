@@ -48,7 +48,7 @@
                     <span class="caret"></span>
                   </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                    <li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
                 </ul>
             </div>
             <div id="completeProPipe" style="display:none; float:right; " class="btn-group">
@@ -57,7 +57,7 @@
                     <span class="caret"></span>
                   </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                    <li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
                 </ul>
             </div>
             <div id="runningProPipe" style="display:none; float:right; " class="btn-group">
@@ -93,7 +93,7 @@
                     <span class="caret"></span>
                   </button>
                 <ul class="dropdown-menu" role="menu">
-                    <li><a href="#" onclick="runProjectPipe(runProPipeCall);return false;">ReRun</a></li>
+                    <li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
                 </ul>
             </div>
             

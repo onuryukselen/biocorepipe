@@ -75,8 +75,8 @@ function getPublicPipeDiv($obj)
 {
 $html="";
 foreach ($obj as $item):
-    $html.='<div style="padding-right:30px; padding-bottom:25px;" class="col-md-4">
-        <div style="height:25%" class="movebox widget-user-2">
+    $html.='<div style="min-width:25%; padding-right:30px; padding-bottom:25px;" class="col-md-4">
+        <div style=" height:300px;" class="movebox widget-user-2">
             <div style="height:100px" class="widget-user-header ">
                 <div class="boxheader">
                     <i style="font-size:30px; float:left; color:orange; padding:5px;" class="fa fa-spinner"></i>
@@ -84,7 +84,7 @@ foreach ($obj as $item):
                 </div>
             </div>
             <div class="box-body">
-                <p style="max-height:110px; overflow:hidden;">'.$item->{'summary'}.'</p>
+                <p style="height:110px; overflow:hidden;">'.$item->{'summary'}.'</p>
                 <div style="padding-top:10px;" class="pull-right">
                     <a href="index.php?np=1&id='.$item->{'id'}.'" style="background-color:#508CB8;" class="btn btn-primary btn-sm ad-click-event">LEARN MORE</a>
                 </div>

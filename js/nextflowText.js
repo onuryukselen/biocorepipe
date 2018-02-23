@@ -257,7 +257,8 @@ function InputParameters(id, currgid) {
 }
 
 function getParamOutdir(outParUserEntry){
-    return '"${params.outdir}/'+outParUserEntry+'"';
+    return '"'+outParUserEntry+'/$filename"';
+    "paired/$filename"
 }
 
 //
@@ -297,8 +298,8 @@ function publishDir(id, currgid) {
                     //outPro node : get userEntryId and userEntryText
                     var parId = fNode.split("-")[4]
                     var userEntryId = "text-" + fNode.split("-")[4]
-                    var outParUserEntry = document.getElementById(userEntryId).getAttribute('name') 
-                    oText = "publishDir "+  getParamOutdir(outParUserEntry) +", mode: 'move',\n\tsaveAs: {filename ->\n"
+                    outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
+                    oText = "publishDir params.outdir, mode: 'move',\n\tsaveAs: {filename ->\n"
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = getPublishDirRegex(outputName);
 
@@ -306,13 +307,16 @@ function publishDir(id, currgid) {
 //                    parFile = parametersData.filter(function (el) {
 //                        return el.id == fNode.split("-")[3]
 //                    })[0].file_type
-                    tempText = "\tif \(filename =~ /" + outputName + "/\) filename\n"
+                    tempText = "\tif \(filename =~ /" + outputName + "/\) "+ getParamOutdir(outParUserEntry)+"\n"
                     // if (filename =~ /^path.8.fastq$/) filename 
                     oText = oText + tempText
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
                     outputName = document.getElementById(oId).getAttribute("name");
                     outputName = getPublishDirRegex(outputName);
-                    tempText = "\telse if \(filename =~ /" + outputName + "/\) filename\n"
+                    var parId = fNode.split("-")[4]
+                    var userEntryId = "text-" + fNode.split("-")[4]
+                    outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
+                    tempText = "\telse if \(filename =~ /" + outputName + "/\) "+ getParamOutdir(outParUserEntry)+"\n"
                     oText = oText + tempText
 
                 }
@@ -322,7 +326,7 @@ function publishDir(id, currgid) {
     if (closePar === true) {
         oText = oText + "}\n\n";
         if (outputName === '') {
-            oText = "publishDir params.outdir, mode: 'move'\n";
+            oText = "publishDir params.outdir, mode: 'move'\n\n";
         }
         closePar = false
     }
