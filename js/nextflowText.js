@@ -299,7 +299,7 @@ function publishDir(id, currgid) {
                     var parId = fNode.split("-")[4]
                     var userEntryId = "text-" + fNode.split("-")[4]
                     outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
-                    oText = "publishDir params.outdir, mode: 'move',\n\tsaveAs: {filename ->\n"
+                    oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = getPublishDirRegex(outputName);
 
@@ -326,7 +326,7 @@ function publishDir(id, currgid) {
     if (closePar === true) {
         oText = oText + "}\n\n";
         if (outputName === '') {
-            oText = "publishDir params.outdir, mode: 'move'\n\n";
+            oText = "publishDir \"${params.outdir}/"+ outParUserEntry+"\", mode: 'copy'\n\n";
         }
         closePar = false
     }

@@ -179,7 +179,7 @@ class dbfuncs {
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             //get userpky
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             //check $userpky file exist
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -203,7 +203,7 @@ class dbfuncs {
             $amzDataArr=json_decode($amzData,true);
             $connect = $amzDataArr[0]["ssh"];
             //get userpky
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
             //check $userpky file exist
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -361,7 +361,7 @@ class dbfuncs {
                 $next_path_real  = "nextflow";
             }
             //get userpky
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
@@ -464,7 +464,7 @@ class dbfuncs {
                 $next_path_real  = "nextflow";
             }
             //get userpky
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
             if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
@@ -516,22 +516,22 @@ class dbfuncs {
     
     
     function insertKey($id, $key, $type, $ownerID){
-            mkdir("../{$this->ssh_path}", 0755, true);
+            mkdir("{$this->ssh_path}", 0700, true);
         if ($type == 'clu'){
-            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 'w');//creates new file
+            $file = fopen("{$this->ssh_path}/{$ownerID}_{$id}.pky", 'w');//creates new file
             fwrite($file, $key);
             fclose($file);
-            chmod("../{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
+            chmod("{$this->ssh_path}/{$ownerID}_{$id}.pky", 0600); 
         } else if ($type == 'amz_pri'){
-            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            $file = fopen("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
             fwrite($file, $key);
             fclose($file);
-            chmod("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
+            chmod("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
         } else if ($type == 'amz_pub'){
-            $file = fopen("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            $file = fopen("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
             fwrite($file, $key);
             fclose($file);
-            chmod("../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
+            chmod("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
             
         }
 
@@ -539,9 +539,9 @@ class dbfuncs {
     function readKey($id, $type, $ownerID){
         
         if ($type == 'clu'){
-        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}.pky";
         } else if ($type == 'amz_pub' || $type == 'amz_pri'){
-        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
         }
         $handle = fopen($filename, 'r');//creates new file
         $content = fread($handle, filesize($filename));
@@ -551,9 +551,9 @@ class dbfuncs {
     }
     function delKey($id, $type, $ownerID){
         if ($type == 'clu'){
-        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}.pky";
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}.pky";
         } else if ($type == 'amz_pub' || $type == 'amz_pri'){
-        $filename = "../{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
         }
         unlink($filename); 
     }
@@ -582,7 +582,7 @@ class dbfuncs {
         $subnet_id = $data[0]->{'subnet_id'};
         $shared_storage_id = $data[0]->{'shared_storage_id'};
         $shared_storage_mnt = $data[0]->{'shared_storage_mnt'};
-        $keyFile = "../../../{$this->ssh_path}/{$ownerID}_{$id}_amz_pub.pky";
+        $keyFile = "{$this->ssh_path}/{$ownerID}_{$id}_amz_pub.pky";
         $access_key = $data[0]->{'access_key'};
         $secret_key = $data[0]->{'secret_key'};
         $default_region = $data[0]->{'default_region'};
@@ -613,9 +613,9 @@ class dbfuncs {
         $text.= "   secretKey = '$secret_key'\n";
         $text.= "   region = '$default_region'\n";
         $text.= "}\n";
-        $this->createDirFile ("../{$this->amz_path}/pro_{$id}", "nextflow.config", 'w', $text );
+        $this->createDirFile ("{$this->amz_path}/pro_{$id}", "nextflow.config", 'w', $text );
         //start amazon cluster
-        $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} -c $nodes > logAmzStart.txt 2>&1 & echo $! &";
+        $cmd = "cd {$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} -c $nodes > logAmzStart.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'start_cloud', '');
         //xxx save pid of nextflow cloud create cluster job
         if (preg_match("/([0-9]+)(.*)/", $log_array['start_cloud'])){
@@ -633,19 +633,31 @@ class dbfuncs {
 //        $amzPid = json_decode($this->getAmazonPid($id, $ownerID));
 //        $pid = $amzPid[0]->{'pid'};
         //stop amazon cluster
-        $cmd = "cd ../{$this->amz_path}/pro_{$id} && yes | nextflow cloud shutdown cluster{$id} > logAmzStop.txt 2>&1 & echo $! &";
+        $cmd = "cd {$this->amz_path}/pro_{$id} && yes | nextflow cloud shutdown cluster{$id} > logAmzStop.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'stop_cloud', '');
+        //read logAmzStop.txt
+//        $logPath ="{$this->amz_path}/pro_{$id}/logAmzStop.txt";
+//        $logAmzStop = $this->readFile($logPath);
+//        $log_array['logAmzStop'] = $logAmzStop;
         //check if it is active then assign to zero
 //        $this->updateAmazonProPid($id, "0", $ownerID);
         return json_encode($log_array);
     }
     
+     function checkAmzStopLog($id,$ownerID){
+        //read logAmzStop.txt
+        $logPath ="{$this->amz_path}/pro_{$id}/logAmzStop.txt";
+        $logAmzStop = $this->readFile($logPath);
+        $log_array = array('logAmzStop' => $logAmzStop);
+        return json_encode($log_array);
+    }
+    
         function runAmzCloudList($id){
         //check cloud list
-        $cmd = "cd ../{$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1";
+        $cmd = "cd {$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1";
         $log_array = $this->runCommand ($cmd, 'cloudlist', '');
         //read logAmzCloudList.txt
-        $logPath ="../{$this->amz_path}/pro_{$id}/logAmzCloudList.txt";
+        $logPath ="{$this->amz_path}/pro_{$id}/logAmzCloudList.txt";
         $logAmzCloudList = $this->readFile($logPath);
         $log_array['logAmzCloudList'] = $logAmzCloudList;
         return $log_array;
@@ -966,6 +978,12 @@ class dbfuncs {
                 where ug.u_id = '$ownerID'";
 		return self::queryTable($sql);
     }
+    public function getUserRole($ownerID) {
+		$sql = "SELECT role 
+                FROM users  
+                where id = '$ownerID'";
+		return self::queryTable($sql);
+    }
     public function insertGroup($name, $ownerID) {
         $sql = "INSERT INTO groups(name, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
@@ -1080,7 +1098,7 @@ class dbfuncs {
             $log_array = $this->runAmzCloudList($id);
             if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 //read logAmzStart.txt
-                $amzStartPath ="../{$this->amz_path}/pro_{$id}/logAmzStart.txt";
+                $amzStartPath ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
                 $amzStartLog = $this->readFile($amzStartPath);
                 $log_array['$amzStartLog'] = $amzStartLog;
                 if (preg_match("/ssh -i(.*)/",$amzStartLog)){
@@ -1159,7 +1177,7 @@ class dbfuncs {
             return json_encode("completed");  
             }
         } else if ($profileType == 'cluster'){
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
@@ -1174,7 +1192,7 @@ class dbfuncs {
     
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
          if ($profileType == 'cluster'){
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
@@ -1185,7 +1203,7 @@ class dbfuncs {
             $nextflow_log = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'cat $dolphin_path_real/log.txt' 2>&1 &");
              return json_encode($nextflow_log);
         } else if ($profileType == 'amazon'){
-            $userpky = "../{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}_amz_pri.pky";
             $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["ssh"];
@@ -1625,9 +1643,11 @@ class dbfuncs {
         $summary = $obj[5]->{"summary"};
         $group_id = $obj[6]->{"group_id"};
         $perms = $obj[7]->{"perms"};
-        $pipeline_gid = $obj[8]->{"pipeline_gid"};
-        $rev_comment = $obj[9]->{"rev_comment"};
-        $rev_id = $obj[10]->{"rev_id"};
+        $pin = $obj[8]->{"pin"};
+        $pin_order = $obj[9]->{"pin_order"};
+        $pipeline_gid = $obj[10]->{"pipeline_gid"};
+        $rev_comment = $obj[11]->{"rev_comment"};
+        $rev_id = $obj[12]->{"rev_id"};
         foreach ($obj[2]->{"nodes"} as $item):
             if ($item[2] !== "inPro" && $item[2] !== "outPro" && $perms !== "3"){
                 $proId = $item[2];
@@ -1641,9 +1661,9 @@ class dbfuncs {
         
 	
 	    if ($id > 0){
-            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', last_modified_user = '$ownerID' where id = '$id'";
+            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
 		}else{
-            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms')";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order' )";
 		}
   		return self::insTable($sql);
 	}

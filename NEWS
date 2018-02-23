@@ -1,3 +1,6 @@
+25.02.2018 Version 0.0.67
+ssh and amz path is changed for security reasons.
+
 24.02.2018 Version 0.0.66
 Error fixed when status stays 'ready to run' when pipeline input parameters are deleted (using save existing pipeline)
 main page pipeline box width and height fixed

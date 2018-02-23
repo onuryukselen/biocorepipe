@@ -116,6 +116,9 @@ else if ($p=="startProAmazon"){
 else if ($p=="stopProAmazon"){
     $data = $db -> stopProAmazon($id,$ownerID);
 }
+else if ($p=="checkAmzStopLog"){
+    $data = $db -> checkAmzStopLog($id,$ownerID);
+}
 else if ($p=="checkAmazonStatus"){
 	$profileId = $_REQUEST['profileId'];
     $data = $db -> checkAmazonStatus($profileId,$ownerID);
@@ -158,6 +161,9 @@ else if ($p=="getGroups"){
 }
 else if ($p=="getUserGroups"){
     $data = $db -> getUserGroups($ownerID);
+}
+else if ($p=="getUserRole"){
+    $data = $db -> getUserRole($ownerID);
 }
 else if ($p=="getExistProjectPipelines"){
     $pipeline_id = $_REQUEST['pipeline_id'];
@@ -313,6 +319,11 @@ else if ($p=="getProfileAmazon")
     } else {
     $data = $db->getProfileAmazon($ownerID);
     }
+}
+
+else if ($p=="updateAmazonProStatus"){
+    $status = $_REQUEST['status'];
+    $data = $db->updateAmazonProStatus($id, $status, $ownerID);
 }
 
 else if ($p=="saveProfileLocal"){

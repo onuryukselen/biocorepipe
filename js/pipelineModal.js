@@ -767,6 +767,14 @@ function loadPipelineDetails(pipeline_id) {
             }
 
             $('#perms').val(s[0].perms);
+            if (s[0].pin === 'true'){
+            $('#pin').attr('checked',true);
+            }  else if (s[0].pin === "false") {
+	          $('#pin').removeAttr('checked');
+            }
+            if (s[0].pin_order !== "0") {
+            $('#pin_order').val(s[0].pin_order);
+            }
             $('#datecreatedPip').text(s[0].date_created);
             $('.lasteditedPip').text(s[0].date_modified);
             openPipeline(pipeline_id);
@@ -831,6 +839,12 @@ function duplicateProcessRev() {
 }
 
 $(document).ready(function () {
+    var userRole = getValues({ p: "getUserRole" });
+    if (userRole && userRole[0].role !== null){
+        if (userRole[0].role === "admin") {
+            $('#pinMainPage').css("display", "inline");
+        }
+    }
     var pipeline_id = $('#pipeline-title').attr('pipelineid');
     if (pipeline_id !== '') {
         loadPipelineDetails(pipeline_id);
