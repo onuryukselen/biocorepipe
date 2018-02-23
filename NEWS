@@ -1,3 +1,7 @@
+24.02.2018 Version 0.0.66
+Error fixed when status stays 'ready to run' when pipeline input parameters are deleted (using save existing pipeline)
+main page pipeline box width and height fixed
+
 23.02.2018 Version 0.0.65
 outparameter name added to publishdir path. 
 input param resets after disconnection.

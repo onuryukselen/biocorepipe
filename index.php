@@ -183,8 +183,8 @@
         }
 
         .movebox {
-            min-width: 220px;
-            min-height: 250px;
+            min-width: 100%;
+            min-height: 100%;
             margin-bottom: 10px;
             border: 2px solid #dee2e8;
             position: relative;
