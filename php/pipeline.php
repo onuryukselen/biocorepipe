@@ -35,7 +35,7 @@
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
                 <li><a id="deletePipeRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
-                        <li><a id="duplicaPipeline" onclick="duplicatePipeline()">Copy Pipeline</a></li>
+                <li><a id="duplicaPipeline" onclick="duplicatePipeline()">Copy Pipeline</a></li>
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="btn-group">
@@ -142,7 +142,7 @@
 
 </div>
 
-<div id="advOptDiv"  class="row">
+<div id="advOptDiv" class="row">
     <div class="col-md-12">
         <div class="form-group">
             <label>Advanced Options</label>
@@ -171,7 +171,16 @@
                         </select>
         </div>
     </div>
+    <div id="pinMainPage" style="display:none;"; class="col-md-6">
+        <div class="form-group">
+            <label>Pin to Main Page </label>
+            <input id="pin" type="checkbox" >
+            <label> Order </label>
+            <input id="pin_order" >
+        </div>
+    </div>
 </div>
+
 
 <!-- Add Process Modal -->
 <div id="addProcessModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
@@ -185,7 +194,7 @@
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li><a id="deleteRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
                         <li><a id="duplicaProRev" onclick="duplicateProcessRev()">Copy Process</a></li>
-                        
+
                     </ul>
                 </div>
                 <span id="mProRevSpan" style="margin-right:5px; width:130px; float:right; display:none;">
@@ -509,7 +518,7 @@
                 <form class="form-horizontal">
                     <div class="form-group">
                         <label for="mParamList" class="col-sm-2 control-label">Parameters</label>
-                        <div id="mParamListDelDiv" class="col-sm-10" >
+                        <div id="mParamListDelDiv" class="col-sm-10">
                             <select id="mParamListDel" class="fbtn btn-default form-control" name="ParamAllIn"></select>
                         </div>
                     </div>
@@ -542,7 +551,7 @@
                     </div>
                     <div id="mGroupListForm" class="form-group" style="display:none">
                         <label for="mGroupListDiv" class="col-sm-3 control-label">Menu Group</label>
-                        <div  id="mGroupListDiv" class="col-sm-7" >
+                        <div id="mGroupListDiv" class="col-sm-7">
                             <select id="mMenuGroupList" class="fbtn btn-default form-control" name="group_name"></select>
                         </div>
                     </div>
@@ -573,9 +582,9 @@
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
-                    <div class="form-group" >
+                    <div class="form-group">
                         <label for="mGroupListDelDiv" class="col-sm-3 control-label">Menu Group</label>
-                        <div  class="col-sm-7" >
+                        <div class="col-sm-7">
                             <select id="mMenuGroupListDel" class="fbtn btn-default form-control" name="group_name"></select>
                         </div>
                     </div>
@@ -758,10 +767,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" > Go to Existing Runs</h4>
+                <h4 class="modal-title"> Go to Existing Runs</h4>
             </div>
             <div class="modal-body">
-                <div class="panel panel-default" >
+                <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         <div class="pull-left">
                             <h5><i class="fa fa-calendar-o " style="margin-left:0px; margin-right:0px;"></i> Select Run</h5>

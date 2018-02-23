@@ -1379,6 +1379,8 @@
 	      var pipelineSummary = $('#pipelineSum').val();
 	      var group_id = $('#groupSel').val();
 	      var perms = $('#perms').val();
+	      var pin = $('#pin').is(":checked").toString();
+	      var pin_order = $('#pin_order').val();
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
 	          id = $("#pipeline-title").attr('pipelineid');
@@ -1402,7 +1404,12 @@
 	          "group_id": group_id
 	      }, {
 	          "perms": perms
+	      }, {
+	          "pin": pin
+	      }, {
+	          "pin_order": pin_order
 	      }];
+          console.log(savedList);
 	      //A. Add new pipeline
 	      if (sName !== "" && id === '') {
 	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
