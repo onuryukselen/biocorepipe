@@ -601,6 +601,10 @@ else if ($p=="getPipelineRevision")
     $pipeline_gid = $checkarray[0]["pipeline_gid"];
     $data = $db->getPipelineRevision($pipeline_gid,$ownerID);
 }
+else if ($p=="getPublicPipelines")
+{
+    $data = $db->getPublicPipelines($ownerID);
+}
 else if ($p=="checkPipeline")
 {
 	$process_id = $_REQUEST['process_id'];
@@ -666,6 +670,15 @@ else if ($p=="saveAllPipeline")
 {
 	$dat = $_REQUEST['dat'];
     $data = $db->saveAllPipeline($dat,$ownerID);
+}
+else if ($p=="savePipelineDetails")
+{
+	$summary = $_REQUEST['summary'];
+	$group_id = $_REQUEST['group_id'];
+	$perms = $_REQUEST['perms'];
+	$pin = $_REQUEST['pin'];
+	$pin_order = $_REQUEST['pin_order'];
+    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$ownerID);
 }
 else if ($p=="savePipelineName"){
     $name = $_REQUEST['name'];

@@ -619,12 +619,9 @@ class dbfuncs {
         $log_array = $this->runCommand ($cmd, 'start_cloud', '');
         //xxx save pid of nextflow cloud create cluster job
         if (preg_match("/([0-9]+)(.*)/", $log_array['start_cloud'])){
-//            preg_match("/([0-9]+)(.*)/",$log_array['start_cloud'], $match);
-//            $pid = $match[1];
-//        $this->updateAmazonProPid($id, $pid, $ownerID);
-        $this->updateAmazonProStatus($id, "waiting", $ownerID);
+            $this->updateAmazonProStatus($id, "waiting", $ownerID);
         }else {
-        $this->updateAmazonProStatus($id, "terminated", $ownerID);
+            $this->updateAmazonProStatus($id, "terminated", $ownerID);
         }
         return json_encode($log_array);
     }
@@ -635,10 +632,13 @@ class dbfuncs {
         //stop amazon cluster
         $cmd = "cd {$this->amz_path}/pro_{$id} && yes | nextflow cloud shutdown cluster{$id} > logAmzStop.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'stop_cloud', '');
-        //read logAmzStop.txt
+//        read logAmzStop.txt
 //        $logPath ="{$this->amz_path}/pro_{$id}/logAmzStop.txt";
 //        $logAmzStop = $this->readFile($logPath);
 //        $log_array['logAmzStop'] = $logAmzStop;
+//        //asagidaki patter varsa waiting statusu waitTerminate
+        //Please confirm you really want to shutdown cluster
+        
         //check if it is active then assign to zero
 //        $this->updateAmazonProPid($id, "0", $ownerID);
         return json_encode($log_array);
@@ -651,7 +651,7 @@ class dbfuncs {
         $log_array = array('logAmzStop' => $logAmzStop);
         return json_encode($log_array);
     }
-    
+        //check both start and list files
         function runAmzCloudList($id){
         //check cloud list
         $cmd = "cd {$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1";
@@ -660,11 +660,111 @@ class dbfuncs {
         $logPath ="{$this->amz_path}/pro_{$id}/logAmzCloudList.txt";
         $logAmzCloudList = $this->readFile($logPath);
         $log_array['logAmzCloudList'] = $logAmzCloudList;
+        //read logAmzStart.txt
+        $logPathStart ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
+        $logAmzStart = $this->readFile($logPathStart);
+        $log_array['logAmzStart'] = $logAmzStart;
         return $log_array;
         
     }
-
     
+    public function checkAmazonStatus($id,$ownerID) {
+        //check status 
+        $amzStat = json_decode($this->getAmazonStatus($id,$ownerID)); 
+        $status = $amzStat[0]->{'status'};
+        if ($status == "waiting"){
+            //check cloud list
+            $log_array = $this->runAmzCloudList($id);
+            if (preg_match("/running/", $log_array['logAmzCloudList'])){
+                $this->updateAmazonProStatus($id, "initiated", $ownerID);
+                $log_array['status'] = "initiated";
+                return json_encode($log_array);
+            } else if (!preg_match("/STATUS/", $log_array['logAmzCloudList']) && (preg_match("/Missing/i", $log_array['logAmzCloudList']) || preg_match("/denied/i", $log_array['logAmzCloudList']) || preg_match("/ERROR/i", $log_array['logAmzCloudList']))){
+                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+                $log_array['status'] = "terminated";
+                return json_encode($log_array);
+            }else if (preg_match("/Missing/i", $log_array['logAmzStart']) || preg_match("/denied/i", $log_array['logAmzStart']) || preg_match("/ERROR/i", $log_array['logAmzStart'])  || preg_match("/couldn't/i", $log_array['logAmzStart'])  || preg_match("/help/i", $log_array['logAmzStart']) || preg_match("/wrong/i", $log_array['logAmzStart'])){
+                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+                $log_array['status'] = "terminated";
+                return json_encode($log_array);
+            }else {
+                //error
+                $log_array['status'] = "waiting";
+                return json_encode($log_array);
+            }
+        } else if ($status == "initiated"){
+            //check cloud list
+            $log_array = $this->runAmzCloudList($id);
+            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+                //read logAmzStart.txt
+                $amzStartPath ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
+                $amzStartLog = $this->readFile($amzStartPath);
+                $log_array['$amzStartLog'] = $amzStartLog;
+                if (preg_match("/ssh -i(.*)/",$amzStartLog)){
+                    preg_match("/ssh -i <(.*)> (.*)/",$amzStartLog, $match);
+                    $sshText = $match[2];
+                    $log_array['sshText'] = $sshText;
+                    $log_array['status'] = "running";
+                    $this->updateAmazonProStatus($id, "running", $ownerID);
+                    $this->updateAmazonProSSH($id, $sshText, $ownerID);
+                    
+                return json_encode($log_array);
+                } else {
+                    $log_array['status'] = "initiated";
+                return json_encode($log_array);
+                }
+            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+                $log_array['status'] = "terminated";
+                return json_encode($log_array);
+            } else {
+                $log_array['status'] = "retry";
+                return json_encode($log_array);
+            }
+            
+            
+        } else if ($status == "running"){
+            //check cloud list
+            $log_array = $this->runAmzCloudList($id);
+            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+                $log_array['status'] = "running";
+                $sshTextArr = json_decode($this->getAmazonProSSH($id, $ownerID));
+                $sshText = $sshTextArr[0]->{'ssh'};
+                $log_array['sshText'] = $sshText;
+                return json_encode($log_array);
+            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+                $log_array['status'] = "terminated";
+                return json_encode($log_array);
+            } else {
+                $log_array['status'] = "retry";
+                return json_encode($log_array);
+            }
+        } 
+//        else if ($status == "waitingTerm"){
+//            //check cloud list
+//            $log_array = $this->runAmzCloudList($id);
+//            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+//                $log_array['status'] = "running";
+//                return json_encode($log_array);
+//            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
+//                $this->updateAmazonProStatus($id, "terminated", $ownerID);
+//                $log_array['status'] = "terminated";
+//                return json_encode($log_array);
+//            } else {
+//                $log_array['status'] = "retry";
+//                return json_encode($log_array);
+//            }
+//        }
+        else if ($status == "terminated"){
+                $log_array = $this->runAmzCloudList($id);
+                $log_array['status'] = "terminated";
+                return json_encode($log_array);
+        } else if ($status == ""){
+                $log_array = array('status' => 'inactive');
+                return json_encode($log_array);
+        }
+    }
     
     
     
@@ -1071,101 +1171,6 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
 
-
-    
-    public function checkAmazonStatus($id,$ownerID) {
-        //check status of database
-        $amzStat = json_decode($this->getAmazonStatus($id,$ownerID)); 
-        $status = $amzStat[0]->{'status'};
-        if ($status == "waiting"){
-            //check cloud list
-            $log_array = $this->runAmzCloudList($id);
-            if (preg_match("/running/", $log_array['logAmzCloudList'])){
-                $this->updateAmazonProStatus($id, "initiated", $ownerID);
-                $log_array['status'] = "initiated";
-                return json_encode($log_array);
-            } else if (!preg_match("/STATUS/", $log_array['logAmzCloudList']) && (preg_match("/Missing/i", $log_array['logAmzCloudList']) || preg_match("/denied/i", $log_array['logAmzCloudList']) || preg_match("/ERROR/i", $log_array['logAmzCloudList']))){
-                $this->updateAmazonProStatus($id, "terminated", $ownerID);
-                $log_array['status'] = "terminated";
-                return json_encode($log_array);
-            }else {
-                //error
-                $log_array['status'] = "waiting";
-                return json_encode($log_array);
-            }
-        } else if ($status == "initiated"){
-            //check cloud list
-            $log_array = $this->runAmzCloudList($id);
-            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-                //read logAmzStart.txt
-                $amzStartPath ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
-                $amzStartLog = $this->readFile($amzStartPath);
-                $log_array['$amzStartLog'] = $amzStartLog;
-                if (preg_match("/ssh -i(.*)/",$amzStartLog)){
-                    preg_match("/ssh -i <(.*)> (.*)/",$amzStartLog, $match);
-                    $sshText = $match[2];
-                    $log_array['sshText'] = $sshText;
-                    $log_array['status'] = "running";
-                    $this->updateAmazonProStatus($id, "running", $ownerID);
-                    $this->updateAmazonProSSH($id, $sshText, $ownerID);
-                    
-                return json_encode($log_array);
-                } else {
-                    $log_array['status'] = "initiated";
-                return json_encode($log_array);
-                }
-            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-                $this->updateAmazonProStatus($id, "terminated", $ownerID);
-                $log_array['status'] = "terminated";
-                return json_encode($log_array);
-            } else {
-                $log_array['status'] = "retry";
-                return json_encode($log_array);
-            }
-            
-            
-        } else if ($status == "running"){
-            //check cloud list
-            $log_array = $this->runAmzCloudList($id);
-            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-                $log_array['status'] = "running";
-                $sshTextArr = json_decode($this->getAmazonProSSH($id, $ownerID));
-                $sshText = $sshTextArr[0]->{'ssh'};
-                $log_array['sshText'] = $sshText;
-                return json_encode($log_array);
-            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-                $this->updateAmazonProStatus($id, "terminated", $ownerID);
-                $log_array['status'] = "terminated";
-                return json_encode($log_array);
-            } else {
-                $log_array['status'] = "retry";
-                return json_encode($log_array);
-            }
-        } 
-//        else if ($status == "waitingTerm"){
-//            //check cloud list
-//            $log_array = $this->runAmzCloudList($id);
-//            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-//                $log_array['status'] = "running";
-//                return json_encode($log_array);
-//            } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
-//                $this->updateAmazonProStatus($id, "terminated", $ownerID);
-//                $log_array['status'] = "terminated";
-//                return json_encode($log_array);
-//            } else {
-//                $log_array['status'] = "retry";
-//                return json_encode($log_array);
-//            }
-//        }
-        else if ($status == "terminated"){
-                $log_array = $this->runAmzCloudList($id);
-                $log_array['status'] = "terminated";
-                return json_encode($log_array);
-        } else if ($status == ""){
-                $log_array = array('status' => 'inactive');
-                return json_encode($log_array);
-        }
-    }
         
         
     
@@ -1469,6 +1474,17 @@ class dbfuncs {
         }
 	
 // --------- New Pipeline -----------
+   public function getPublicPipelines($ownerID) {
+        $sql= "SELECT pip.id, pip.name, pip.summary, pip.pin, pip.pin_order
+               FROM biocorepipe_save pip
+               INNER JOIN (
+                SELECT name, summary, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
+                FROM biocorepipe_save 
+                WHERE pin = 'true' and perms = 63
+                GROUP BY pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 and pip.pin = 'true' ";
+     return self::queryTable($sql);
+   }
 
 	public function getProcessData($id, $ownerID) {
         if ($ownerID == ""){
@@ -1697,6 +1713,10 @@ class dbfuncs {
 	}
     public function updatePipelineName($id, $name) {
         $sql = "UPDATE biocorepipe_save SET name='$name'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function savePipelineDetails($id, $summary,$group_id, $perms, $pin, $pin_order, $ownerID) {
+        $sql = "UPDATE biocorepipe_save SET summary='$summary', group_id='$group_id', perms='$perms', pin='$pin', pin_order='$pin_order', last_modified_user = '$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     

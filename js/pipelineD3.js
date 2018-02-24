@@ -111,14 +111,20 @@
 	  }
 
 	  $('#pipelineSum').keyup(function () {
-	      autosave();
+	      autosaveDetails();
 	  });
 	  $('#groupSel').click(function () {
-	      autosave();
+	      autosaveDetails();
 	  });
 	  $('#perms').click(function () {
-	      autosave();
+	      autosaveDetails();
 	  });
+      $('#pin').click(function () {
+	      autosaveDetails();
+	  });
+      $('#pin_order').keyup(function () {
+	      autosaveDetails();
+	  });  
 	  $("#pipeline-title").keyup(function () { //Click outside of the field or enter
 	      autosave();
 	  });
@@ -133,6 +139,17 @@
 	              $('#autosave').text('Saving...');
 	              if (timeoutId) clearTimeout(timeoutId);
 	              timeoutId = setTimeout(function () { save() }, 2000);
+	          }
+	      }
+	  }
+
+	  function autosaveDetails() {
+	      if (pipelineOwn === '' || pipelineOwn === "1") {
+	          var pipName = $('#pipeline-title').val()
+	          if (pipName !== '') {
+	              $('#autosave').text('Saving...');
+	              if (timeoutId) clearTimeout(timeoutId);
+	              timeoutId = setTimeout(function () { saveDetails() }, 2000);
 	          }
 	      }
 	  }
@@ -1142,7 +1159,7 @@
 	  //resets input/output parameters to original state
 	  //paramType:outPro or inPro
 	  function resetOriginal(paramType, firstParamId) {
-	          var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+	      var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
 	      if (paramType === 'outPro') {
 	          var originalID = firstParamId.replace(patt, '$1-$2-$3-' + "outPara" + '-$5')
 	          d3.selectAll("#" + firstParamId).attr("id", originalID);
@@ -1357,7 +1374,32 @@
 	          });
 	      }
 	  }
+	  //Revision is not required for advanced options, description
+	  function saveDetails() {
+	      var id = $("#pipeline-title").attr('pipelineid');
+	      var summary = $('#pipelineSum').val();
+	      var group_id = $('#groupSel').val();
+	      var perms = $('#perms').val();
+	      var pin = $('#pin').is(":checked").toString();
+	      var pin_order = $('#pin_order').val();
+          var data= {
+	              p: "savePipelineDetails",
+	              id: id,
+	              summary: summary,
+	              group_id: group_id,
+	              perms: perms,
+	              pin: pin,
+	              pin_order: pin_order
+	          };
+	      if (id !== '') {
+	          var saveDetails = getValues(data);
+              if (saveDetails){
+                  $('#autosave').text('Details are saved');
+              }
+	      }
 
+
+	  }
 	  //Save pipeline
 	  function save() {
 	      saveNodes = {}
@@ -1409,7 +1451,7 @@
 	      }, {
 	          "pin_order": pin_order
 	      }];
-          console.log(savedList);
+	      console.log(savedList);
 	      //A. Add new pipeline
 	      if (sName !== "" && id === '') {
 	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
