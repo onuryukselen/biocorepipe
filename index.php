@@ -10,7 +10,7 @@
     <!--   app’s client ID prodcued in the Google Developers Console-->
     <meta name="google-signin-client_id" content="1051324819082-6mjdouf9dhmhv9ov5vvdkdknqrb8tont.apps.googleusercontent.com">
     <!--    google icon-->
-    <link rel="icon" type="image/png" href="http://www.w3.org/2000/svg">
+    <link rel="icon" type="image/png" href="https://www.w3.org/2000/svg">
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->

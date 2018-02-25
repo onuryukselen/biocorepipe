@@ -1850,7 +1850,8 @@
 	          data: getPipelineD,
 	          async: true,
 	          success: function (s) {
-	              $('#pipeline-title').text(s[0].name);
+                  if (s[0]){
+                  $('#pipeline-title').text(s[0].name);
 	              $('#pipelineSum').val(s[0].summary);
 	              $('#creatorInfoPip').css('display', "block");
 	              $('#ownUserNamePip').text(s[0].username);
@@ -1858,6 +1859,9 @@
 	              $('.lasteditedPip').text(s[0].date_modified);
 	              openPipeline(pipeline_id);
 	              $('#pipelineSum').attr('disabled', "disabled");
+                      
+                  }
+	              
 
 	          },
 	          error: function (errorThrown) {
