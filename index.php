@@ -54,6 +54,8 @@
     <link href="//editor.datatables.net/examples/resources/bootstrap/editor.bootstrap.css" rel="stylesheet" type="text/css" />
     <!--    dataTables.checkboxes-->
     <link type="text/css" href="css/dataTables.checkboxes.css" rel="stylesheet" />
+    <!--    pagination-->
+    <link type="text/css" href="css/pagination.css" rel="stylesheet" />
     <!-- jQuery 3 -->
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
 
@@ -217,9 +219,13 @@
         }
 
         /* In order to fix textarea width*/
-
         textarea {
             resize: vertical;
+        }
+/*        Make center the pagination numbers*/
+        .paginationjs {
+            display: flex;
+            justify-content: center;
         }
 
     </style>
@@ -386,10 +392,10 @@
                                     <table id="amzTable" class="table">
                                         <thead>
                                             <tr>
-                                                <th  scope="col">Profile Name</th>
-                                                <th  scope="col">Details</th>
+                                                <th scope="col">Profile Name</th>
+                                                <th scope="col">Details</th>
                                                 <th style="width:250px;" scope="col">Status</th>
-                                                <th  scope="col">Actions</th>
+                                                <th scope="col">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -405,7 +411,7 @@
             </div>
         </div>
         <!-- Add Amazon Modal Ends-->
-        
+
         <!-- Add Amazon Node Modal Starts-->
         <div id="addAmzNodeModal" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -428,10 +434,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-sm-3 control-label" >Use Autoscale</label>
+                                <label class="col-sm-3 control-label">Use Autoscale</label>
                                 <div class="col-sm-9">
-                                <input type="checkbox" id="autoscale_check" name="autoscale_check" data-toggle="collapse" data-target="#autoscaleDiv"> 
-                            </div>
+                                    <input type="checkbox" id="autoscale_check" name="autoscale_check" data-toggle="collapse" data-target="#autoscaleDiv">
+                                </div>
                             </div>
                             <div id="autoscaleDiv" class="collapse">
                                 <div class="form-group row">
@@ -445,7 +451,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="activateAmz" >Activate Cluster</button>
+                        <button type="button" class="btn btn-primary" id="activateAmz">Activate Cluster</button>
                     </div>
                 </div>
             </div>
@@ -495,6 +501,8 @@
 
         <!-- AdminLTE for demo purposes -->
         <script src="dist/js/demo.js"></script>
+        <!-- pagination 2.1.2 -->
+        <script src="dist/js/pagination.min.js"></script>
 
         <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>

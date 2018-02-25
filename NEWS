@@ -1,3 +1,10 @@
+26.02.2018 Version 0.0.68
+Terminate amazon waiting status by monitoring log file with error keywords.
+Selection and order box for pipelines which are going to be in main page is added for admin
+pipeline details are saved by separate ajax (no need for revision when changes on details)
+Public pipelines should be approved by admins(by selecting pin to main page)
+Pagination feature in Main page is added.
+
 25.02.2018 Version 0.0.67
 ssh and amz path is changed for security reasons.
 

@@ -49,17 +49,8 @@ function getJS($np, $login, $id)
   <script src=\"//cdn.datatables.net/select/1.2.4/js/dataTables.select.min.js\" charset=\"utf-8\"></script>
   <script type=\"text/javascript\" src=\"./dist/js/dataTables.checkboxes.js\"></script>";}
   else if ($np==4 && $login==1){$js .= "<script src=\"js/profile.js\"></script>"; }
-    
-//  else if ($np==3){
-//      $js .= "   <script src=\"js/cytoscape.min.js\"></script>
-//            <script src=\"js/cytoscape-cxtmenu.js\"></script>
-//            <script src=\"js/cytoscape-panzoom.js\"></script>
-//            <script src=\"js/FileSaver.js\"></script>
-//            <script src=\"https://cdn.rawgit.com/cpettitt/dagre/v0.7.4/dist/dagre.min.js\"></script>
-//            <script src=\"https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.5.0/cytoscape-dagre.js\"></script>
-//            <script src=\"js/pipeline.js\"></script>";
-//  }else{
-//  }
+    else {$js .= "<script src=\"js/public.js\"></script>";}
+
   return $js;
 }
 
