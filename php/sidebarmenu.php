@@ -15,7 +15,7 @@
                   </span>
               </a>
             </button>
-<?php
+    <?php
   session_start(); 
   $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
                     if ($ownerID != ''){
@@ -31,8 +31,7 @@ require_once("config/config.php");
 //    session_start();
 //$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
 
-class dbfuncs {
-
+class sidebarfuncs {
 
     private $dbhost = DBHOST;
     private $db = DB;
@@ -97,23 +96,58 @@ class dbfuncs {
      return self::queryTable($sql);
    }
     
+    public function getUserRole($ownerID) {
+		$sql = "SELECT role 
+                FROM users  
+                where id = '$ownerID'";
+		return self::queryTable($sql);
+    }
+    
      public function getPipelineSideBar($ownerID)
    {
       if ($ownerID != ''){
-        $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
-      } else {
-        $where_b = "b.perms = 63";
-       }     
-        $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id
+          $userRoleArr = json_decode($this->getUserRole($ownerID));
+          $userRole = $userRoleArr[0]->{'role'};
+          
+          if ($userRole == "admin"){
+              $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
                LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
                INNER JOIN (
-                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, MAX(p.rev_id) rev_id
+                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
-                LEFT JOIN user_group ug ON p.group_id=ug.g_id where (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
+                LEFT JOIN user_group ug ON p.group_id=ug.g_id 
+                WHERE (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
                 GROUP BY p. pipeline_gid
-                
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
+              
+          } else {
+              $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
+               FROM biocorepipe_save pip
+               LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
+               INNER JOIN (
+                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
+                FROM biocorepipe_save p
+                LEFT JOIN user_group ug ON p.group_id=ug.g_id 
+                WHERE (p.owner_id='$ownerID' OR (p.perms = 63 AND p.pin = 'true') OR (ug.u_id ='$ownerID' and p.perms = 15))
+                GROUP BY p. pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR (b.perms = 63 AND b.pin = 'true') OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
+          }
+          
+      } else {
+        $where_b = "b.perms = 63 AND pip.pin = 'true'";
+          $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
+               FROM biocorepipe_save pip
+               LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
+               INNER JOIN (
+                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
+                FROM biocorepipe_save p
+                LEFT JOIN user_group ug ON p.group_id=ug.g_id 
+                WHERE (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
+                GROUP BY p. pipeline_gid
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and $where_b ";
+       }     
+        
          
      return self::queryTable($sql);
    }
@@ -158,16 +192,15 @@ function getSideMenuPipelineItem($obj)
 $html="";
 foreach ($obj as $item):
     $nameSub = substr($item->{'name'}, 0, 20);
-    $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
+    $html.='<li pin="'.$item->{'pin'}.'" p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a href="index.php?np=1&id='.$item->{'id'}.'" class="pipelineItems"  draggable="false" id="pipeline-'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
 endforeach;
 return $html;
 }
 
 
-$query = new dbfuncs();
+$query = new sidebarfuncs();
 
 $parentMenus = json_decode($query->getParentSideBar($ownerID));
-//$pipelinesMenu = json_decode($query->getPipelineSideBar($ownerID));
 
 
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
@@ -205,4 +238,4 @@ $menuhtml.='                    <ul>';
 echo $menuhtml;
 
 ?>
-        <!-- /.sidebar -->
+    <!-- /.sidebar -->

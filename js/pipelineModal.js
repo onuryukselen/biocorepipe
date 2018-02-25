@@ -748,7 +748,7 @@ function loadPipelineDetails(pipeline_id) {
             $('#pipelineSum').val(s[0].summary);
             pipelineOwn = s[0].own;
             // if user not own it, cannot change or delete pipeline
-            if (pipelineOwn === "0" && userRole[0].role !== "admin") {
+            if (pipelineOwn === "0" &&  usRole !== "admin") {
                 $('#deletePipeRevision').remove();
                 $('#delPipeline').remove();
                 $('#savePipeline').remove();
@@ -839,11 +839,8 @@ function duplicateProcessRev() {
 }
 
 $(document).ready(function () {
-    var userRole = getValues({ p: "getUserRole" });
-    if (userRole && userRole[0].role !== null){
-        if (userRole[0].role === "admin") {
-            $('#pinMainPage').css("display", "inline");
-        }
+    if (usRole && usRole  === "admin"){
+        $('#pinMainPage').css("display", "inline");
     }
     var pipeline_id = $('#pipeline-title').attr('pipelineid');
     if (pipeline_id !== '') {

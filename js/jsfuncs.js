@@ -90,7 +90,27 @@ function checkAmazonStatus(proId) {
     }
 
 }
+
+//user role
+ userRole = getValues({ p: "getUserRole" });
+    if (userRole != '') {
+    if (userRole[0].role !== null){
+        if (userRole[0].role === "admin") {
+             usRole = "admin";
+        }else {
+            usRole = "";
+        } 
+    } else {
+        usRole = "";
+    }
+    }else {
+        usRole = "";
+    }
+
 $(document).ready(function () {
+   
+    
+    
     function addAmzRow(id, name, default_region, executor, instance_type, image_id, subnet_id) {
         $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Default Region: ' + default_region + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
     }
@@ -193,6 +213,9 @@ $(document).ready(function () {
 
 
 //load filter sidebar menu options
+if (usRole === "admin"){
+    $("#filterMenu").append('<li><a href="#" data-value="630" tabIndex="-1"><input type="checkbox"/>&nbsp;Waiting Approval</a></li>');
+}
 var allUserGrp = getValues({ p: "getUserGroups" });
 $("#filterMenu").append('<li><a href="#" data-value="3" tabIndex="-1"><input type="checkbox"/>&nbsp;Private</a></li>');
 $("#filterMenu").append('<li><a href="#" data-value="63" tabIndex="-1"><input type="checkbox"/>&nbsp;Public</a></li>');
@@ -229,7 +252,8 @@ function filterSideBar(options) {
         var selOptArr = [];
         var group_idArr = [];
         for (var i = 0; i < options.length; i++) {
-            if (options[i] === '3' || options[i] === '63') {
+            console.log(options[i])
+            if (options[i] === '3' || options[i] === '63' || options[i] === '630') {
                 var selOpt = options[i];
                 selOptArr.push(selOpt);
             } else if (options[i].match(/group-(.*)/)) {
@@ -244,9 +268,23 @@ function filterSideBar(options) {
             var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
             $(tagElems2).hide()
             for (var j = 0; j < tagElems2.length; j++) {
+                if ($(tagElems2).eq(j).attr('pin') === 'true'){
+                    var checkPinText = '63';
+                }else {
+                    var checkPinText = '630';
+                }
+                var checkPin = $.inArray(checkPinText, selOptArr) >= 0;
+                console.log('checkPin')
+                console.log(checkPin)
                 var checkPerm = $.inArray($(tagElems2).eq(j).attr('p'), selOptArr) >= 0;
+                console.log('checkPerm')
+                console.log(checkPerm)
+                
                 var checkGroup = $.inArray($(tagElems2).eq(j).attr('g'), group_idArr) >= 0;
-                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') !== "15" && checkPerm)) {
+                console.log('checkGroup')
+                console.log(checkGroup)
+                
+                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') === "3" && checkPerm) || ($(tagElems2).eq(j).attr('p') === "63" && checkPin) ) {
                     $(tagElems).eq(i).show()
                     if (selOpt !== "") {} else {
                         $(tagElems).show()
