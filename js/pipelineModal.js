@@ -606,9 +606,7 @@ function checkRevisionProc(data, proID) {
     if (checkResult === false) {
         //has edited process ever used in other pipelines?
         var checkPipe = checkPipeline(proID);
-        console.log(checkPipe);
         var numOfProcess = checkPipe.length;
-        console.log(numOfProcess)
         if (numOfProcess > 1) {
             warnUser = true;
             infoText = infoText + 'It is not allowed to save on current revision since process parameters are changed and edited process exists in pipelines.</br></br>In order to save on current revision, you may remove the process from following pipelines: '
@@ -743,13 +741,14 @@ function loadPipelineDetails(pipeline_id) {
         data: getPipelineD,
         async: true,
         success: function (s) {
+            if (s[0]){
             $('#creatorInfoPip').css('display', "block");
             $('#pipeline-title').changeVal(s[0].name);
             $('#ownUserNamePip').text(s[0].username);
             $('#pipelineSum').val(s[0].summary);
             pipelineOwn = s[0].own;
             // if user not own it, cannot change or delete pipeline
-            if (pipelineOwn === "0") {
+            if (pipelineOwn === "0" && userRole[0].role !== "admin") {
                 $('#deletePipeRevision').remove();
                 $('#delPipeline').remove();
                 $('#savePipeline').remove();
@@ -778,6 +777,7 @@ function loadPipelineDetails(pipeline_id) {
             $('#datecreatedPip').text(s[0].date_created);
             $('.lasteditedPip').text(s[0].date_modified);
             openPipeline(pipeline_id);
+            }
 
         },
         error: function (errorThrown) {
@@ -1187,7 +1187,6 @@ $(document).ready(function () {
             dataToProcess.push({ name: "process_gid", value: newProcess_gid });
             dataToProcess.push({ name: "script", value: scripteditor });
             dataToProcess.push({ name: "p", value: "saveProcess" });
-            console.log(dataToProcess)
             if (proName === '' || proGroId === '') {
                 dataToProcess = [];
             }
@@ -1228,9 +1227,6 @@ $(document).ready(function () {
             var infoText = '';
             var numOfProcess = '';
             [warnUser, infoText, numOfProcess] = checkRevisionProc(data, proID);
-            console.log(warnUser)
-            console.log(infoText)
-            console.log(numOfProcess)
             //B.1)Save on current process
             if (warnUser === false) {
                 var proGroId = data[5].value;

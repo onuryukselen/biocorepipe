@@ -119,12 +119,12 @@
 	  $('#perms').click(function () {
 	      autosaveDetails();
 	  });
-      $('#pin').click(function () {
+	  $('#pin').click(function () {
 	      autosaveDetails();
 	  });
-      $('#pin_order').keyup(function () {
+	  $('#pin_order').keyup(function () {
 	      autosaveDetails();
-	  });  
+	  });
 	  $("#pipeline-title").keyup(function () { //Click outside of the field or enter
 	      autosave();
 	  });
@@ -184,31 +184,31 @@
 	          p: "loadPipeline",
 	          id: id
 	      }) //all data from biocorepipe_save table
+	      if (sData) {
+	          if (Object.keys(sData).length > 0) {
+	              nodes = sData[0].nodes
+	              nodes = JSON.parse(nodes.replace(/'/gi, "\""))
+	              mG = sData[0].mainG
+	              mG = JSON.parse(mG.replace(/'/gi, "\""))["mainG"]
+	              zoom.translate([parseFloat(mG[0]), parseFloat(mG[1])]).scale(parseFloat(mG[2]));
+	              newTransform = "translate(" + (parseFloat(mG[0])) + "," + (parseFloat(mG[1])) + ")scale(" + (parseFloat(mG[2])) + ")"
+	              d3.select("#mainG").attr("transform", newTransform)
+	              for (var key in nodes) {
+	                  x = nodes[key][0]
+	                  y = nodes[key][1]
+	                  pId = nodes[key][2]
+	                  name = nodes[key][3]
+	                  gN = key.split("-")[1]
+	                  loadPipeline(x, y, pId, name, gN)
+	              }
 
-	      if (Object.keys(sData).length > 0) {
-
-	          nodes = sData[0].nodes
-	          nodes = JSON.parse(nodes.replace(/'/gi, "\""))
-	          mG = sData[0].mainG
-	          mG = JSON.parse(mG.replace(/'/gi, "\""))["mainG"]
-	          zoom.translate([parseFloat(mG[0]), parseFloat(mG[1])]).scale(parseFloat(mG[2]));
-	          newTransform = "translate(" + (parseFloat(mG[0])) + "," + (parseFloat(mG[1])) + ")scale(" + (parseFloat(mG[2])) + ")"
-	          d3.select("#mainG").attr("transform", newTransform)
-	          for (var key in nodes) {
-	              x = nodes[key][0]
-	              y = nodes[key][1]
-	              pId = nodes[key][2]
-	              name = nodes[key][3]
-	              gN = key.split("-")[1]
-	              loadPipeline(x, y, pId, name, gN)
-	          }
-
-	          ed = sData[0].edges
-	          ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
-	          for (var ee = 0; ee < ed.length; ee++) {
-	              eds = ed[ee].split("_")
-	              addCandidates2DictForLoad(eds[0])
-	              createEdges(eds[0], eds[1])
+	              ed = sData[0].edges
+	              ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
+	              for (var ee = 0; ee < ed.length; ee++) {
+	                  eds = ed[ee].split("_")
+	                  addCandidates2DictForLoad(eds[0])
+	                  createEdges(eds[0], eds[1])
+	              }
 	          }
 	      }
 	  }
@@ -357,14 +357,16 @@
 	  //--Pipeline details table --
 	  function addProPipeTab(id) {
 	      var procData = processData.filter(function (el) { return el.id == id });
-	      var procName = procData[0].name;
-	      var procDesc = truncateName(procData[0].summary, 'processTable');
-	      var procRev = procData[0].rev_id;
-	      var proRow = insertProRowTable(id, procName, procDesc, procRev);
-	      var rowExistPro = '';
-	      var rowExistPro = document.getElementById('procTa-' + id);
-	      if (!rowExistPro) {
-	          $('#processTable > tbody:last-child').append(proRow);
+	      if (procData) {
+	          var procName = procData[0].name;
+	          var procDesc = truncateName(procData[0].summary, 'processTable');
+	          var procRev = procData[0].rev_id;
+	          var proRow = insertProRowTable(id, procName, procDesc, procRev);
+	          var rowExistPro = '';
+	          var rowExistPro = document.getElementById('procTa-' + id);
+	          if (!rowExistPro) {
+	              $('#processTable > tbody:last-child').append(proRow);
+	          }
 	      }
 	  }
 
@@ -646,6 +648,7 @@
 	      diffy = 0 - coor[1]
 	      d3.event.sourceEvent.stopPropagation();
 	      d3.select(document.getElementById(this.id).parentElement).classed("dragging", true);
+
 	  }
 
 	  function dragged(d) {
@@ -1382,24 +1385,25 @@
 	      var perms = $('#perms').val();
 	      var pin = $('#pin').is(":checked").toString();
 	      var pin_order = $('#pin_order').val();
-          var data= {
-	              p: "savePipelineDetails",
-	              id: id,
-	              summary: summary,
-	              group_id: group_id,
-	              perms: perms,
-	              pin: pin,
-	              pin_order: pin_order
-	          };
+	      var data = {
+	          p: "savePipelineDetails",
+	          id: id,
+	          summary: summary,
+	          group_id: group_id,
+	          perms: perms,
+	          pin: pin,
+	          pin_order: pin_order
+	      };
 	      if (id !== '') {
 	          var saveDetails = getValues(data);
-              if (saveDetails){
-                  $('#autosave').text('Details are saved');
-              }
+	          if (saveDetails) {
+	              $('#autosave').text('Details are saved');
+	          }
 	      }
 
 
 	  }
+
 	  //Save pipeline
 	  function save() {
 	      saveNodes = {}
@@ -1409,7 +1413,11 @@
 	              x = t.translate[0]
 	          y = t.translate[1]
 	          gClass = document.getElementById(key).className.baseVal
-	          prosessID = gClass.split("-")[1]
+	          prosessID = gClass.split("-")[1];
+	          //fix bug while saving on dragging
+	          if (prosessID.match(/(.*) dragging/)) {
+	              prosessID = prosessID.match(/(.*) dragging/)[1];
+	          }
 	          processName = processList[key]
 	          saveNodes[key] = [x, y, prosessID, processName]
 	      }
@@ -1451,7 +1459,6 @@
 	      }, {
 	          "pin_order": pin_order
 	      }];
-	      console.log(savedList);
 	      //A. Add new pipeline
 	      if (sName !== "" && id === '') {
 	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
@@ -1564,7 +1571,6 @@
 	      z = t.scale[0]
 
 	      gNum = parseInt(gN)
-	      var name = sDataName
 	      var name = sDataName
 	      var id = sDatapId
 	      var process_id = id

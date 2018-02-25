@@ -1,3 +1,8 @@
+27.02.2018 Version 0.0.69
+Bug fixed while saving dragging pipeline elements.
+Bug while showing pin to mainpage element is fixed.
+Description for single cell pipeline is added.
+
 26.02.2018 Version 0.0.68
 Terminate amazon waiting status by monitoring log file with error keywords.
 Selection and order box for pipelines which are going to be in main page is added for admin
