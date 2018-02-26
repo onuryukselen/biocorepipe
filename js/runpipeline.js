@@ -728,16 +728,22 @@
 	      //search inputName as name attribute of svg elements of
 	      var connectedNodeId = $("circle.input[name*='" + inputName + "']").attr('id');
 	      //find the connected node to get gNum
-	      for (var e = 0; e < edges.length; e++) {
-	          if (edges[e].indexOf(connectedNodeId) !== -1) { //if not exist: -1
-	              var nodes = edges[e].split("_")
-	              var fNode = nodes[0]
-	              var gNumInputParam = fNode.split("-")[4]
-	              //get the given name from outputs table
-	              var givenNameInParam = $('#input-PName-' + gNumInputParam).text();
-	              var pattern = /(.*)\$\{(.*)\}(.*)/;
-	              outName = outName.replace(pattern, '$1' + givenNameInParam + '$3');
-	              break;
+	      if (connectedNodeId !== "") {
+	          for (var e = 0; e < edges.length; e++) {
+	              if (edges[e].indexOf(connectedNodeId) !== -1) { //if not exist: -1
+	                  var nodes = edges[e].split("_")
+	                  var fNode = nodes[0]
+	                  var gNumInputParam = fNode.split("-")[4]
+	                  //get the given name from outputs table
+	                  if (gNumInputParam !== '') {
+	                      var givenNameInParam = $('#input-PName-' + gNumInputParam).text();
+	                      var pattern = /(.*)\$\{(.*)\}(.*)/;
+	                      if (givenNameInParam !== '') {
+	                          outName = outName.replace(pattern, '$1' + givenNameInParam + '$3');
+	                      }
+	                      break;
+	                  }
+	              }
 	          }
 	      }
 	      return outName;
