@@ -15,12 +15,13 @@ $(document).ready(function () {
             addAmazonRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].next_path, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id);
         });
     }
+
     function getAmzButModal() {
-    var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="' + 'profile' + 'edit" data-toggle="modal" data-target="#' + "profile" + 'modal">Edit</button> &nbsp; <button type="button" class="btn btn-primary btn-sm" title="Remove" id="' + 'profile' + 'remove">Remove</button>&nbsp;<button type="button" class="btn btn-primary btn-sm" title="start/stop" id="amzStartStop" data-toggle="modal" data-target="#amzModal">Start/Stop</button> &nbsp;</div>';
-    return button;
-        
-        
-}
+        var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="' + 'profile' + 'edit" data-toggle="modal" data-target="#' + "profile" + 'modal">Edit</button> &nbsp; <button type="button" class="btn btn-primary btn-sm" title="Remove" id="' + 'profile' + 'remove">Remove</button>&nbsp;<button type="button" class="btn btn-primary btn-sm" title="start/stop" id="amzStartStop" data-toggle="modal" data-target="#amzModal">Start/Stop</button> &nbsp;</div>';
+        return button;
+
+
+    }
 
     function addLocalRow(id, name, next_path, executor) {
         $('#profilesTable > thead').append('<tr id="local-' + id + '"> <td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
@@ -31,7 +32,7 @@ $(document).ready(function () {
     }
 
     function addAmazonRow(id, name, next_path, executor, instance_type, image_id) {
-        $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' +  getAmzButModal() +  '</td></tr>');
+        $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getAmzButModal() + '</td></tr>');
     }
 
     function updateLocalRow(id, name, next_path, executor) {
@@ -43,10 +44,10 @@ $(document).ready(function () {
     }
 
     function updateAmazonRow(id, name, next_path, executor, instance_type, image_id) {
-        $('#profilesTable > thead > #amazon-' + id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' +  getAmzButModal() + '</td>');
+        $('#profilesTable > thead > #amazon-' + id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getAmzButModal() + '</td>');
     }
 
- 
+
     $('#profilemodal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         $(this).find('form').trigger('reset');
@@ -76,7 +77,6 @@ $(document).ready(function () {
                 $(formValues[26]).val(data[0].job_cpu);
                 $(formValues[27]).val(data[0].job_time);
             };
-            console.log(formValues);
             if (proType === "local") {
                 var data = getValues({ p: "getProfileLocal", id: proId });
                 $('#chooseEnv').val('local').trigger('change');
@@ -92,7 +92,6 @@ $(document).ready(function () {
                 $('#mExec').trigger('change');
             } else if (proType === "amazon") {
                 var data = getValues({ p: "getProfileAmazon", id: proId });
-                console.log(data);
                 $('#chooseEnv').val('amazon').trigger('change');
                 fillFixedCol(formValues, data);
                 $(formValues[6]).val(data[0].prikey_amz);
@@ -146,12 +145,14 @@ $(document).ready(function () {
     $(function () {
         $(document).on('change', '#mExec', function () {
             var mExecType = $('#mExec option:selected').val();
-            $('#mExecJob').val(mExecType).trigger('change');
-            $('#mExecJob').attr('disabled', "disabled");
+            $('#mExecJob').removeAttr('disabled');
             if (mExecType === "local") {
+                $('#mExecJob').trigger('change');
                 $('#execNextDiv').css('display', 'none');
                 $('#mExecJobDiv').css('display', 'block');
-            } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm") {
+            } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm" || mExecType === "ignite") {
+                $('#mExecJob').val(mExecType).trigger('change');
+                $('#mExecJob').attr('disabled', "disabled");
                 $('#execNextDiv').css('display', 'block');
                 $('#mExecJobDiv').css('display', 'block');
             }
@@ -163,7 +164,7 @@ $(document).ready(function () {
             var mExecJobType = $('#mExecJob option:selected').val();
             if (mExecJobType === "local") {
                 $('#execJobSetDiv').css('display', 'none');
-            } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm") {
+            } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm" || mExecJobType === "ignite") {
                 $('#execJobSetDiv').css('display', 'block');
             }
         })
@@ -202,7 +203,6 @@ $(document).ready(function () {
                 data[7].value = encodeURIComponent(data[7].value);
                 data.push({ name: "p", value: "saveProfileAmazon" });
             }
-            console.log(data)
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
@@ -246,7 +246,6 @@ $(document).ready(function () {
                         //                        });
 
                     } else { //insert
-                        console.log(data);
                         if (selEnvType === "local") {
                             addLocalRow(s.id, data[1].value, data[17].value, data[18].value);
                         } else if (selEnvType === "cluster") {
@@ -326,7 +325,7 @@ $(document).ready(function () {
         }
         return button;
     }
-    
+
     var groupTable = $('#grouptable').DataTable({
         "ajax": {
             url: "ajax/ajaxquery.php",
@@ -375,7 +374,6 @@ $(document).ready(function () {
             var savetype = $('#mGroupID').val();
             var data = formValues.serializeArray(); // convert form to array
             data.push({ name: "p", value: "saveGroup" });
-            console.log(data);
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
@@ -414,14 +412,12 @@ $(document).ready(function () {
                         var getGroupData = [];
                         getGroupData.push({ name: "id", value: s.id });
                         getGroupData.push({ name: "p", value: 'getGroups' });
-                        console.log(getGroupData);
                         $.ajax({
                             type: "POST",
                             url: "ajax/ajaxquery.php",
                             data: getGroupData,
                             async: true,
                             success: function (sc) {
-                                console.log(sc);
                                 var groupDat = sc;
                                 var addData = {};
                                 var keys = groupTable.settings().init().columns;
@@ -491,7 +487,6 @@ $(document).ready(function () {
                 },
                 async: false,
                 success: function (s) {
-                    console.log(s);
                     for (var i = 0; i < s.length; i++) {
                         var param = s[i];
                         var optionGroup = new Option(param.username, param.id);
@@ -521,7 +516,6 @@ $(document).ready(function () {
                 },
                 async: false,
                 success: function (s) {
-                    console.log(s);
                     for (var i = 0; i < s.length; i++) {
                         var param = s[i];
                         var optionGroup = new Option(param.username, param.id);
@@ -576,8 +570,6 @@ $(document).ready(function () {
         } else if (label === 'List of All Users') {
             var clickedrow = $('#joinmodallabel').attr('clickedrow');
             var selGroup = $('#mGroupList').val();
-            console.log(selGroup);
-            console.log(clickedrow);
             if (selGroup !== '') {
                 var joinGro = getValues({ p: "saveUserGroup", u_id: selGroup, g_id: clickedrow });
                 if (joinGro) {

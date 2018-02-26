@@ -183,7 +183,8 @@ class dbfuncs {
         $next_queue = $cluDataArr[0]['next_queue'];
         $next_memory = $cluDataArr[0]['next_memory'];
         $next_cpu = $cluDataArr[0]['next_cpu'];
-        return array($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu);
+        $executor_job = $cluDataArr[0]['executor_job'];
+        return array($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu, $executor_job);
     }
     function getPreCmd ($profileCmd,$proPipeCmd, $imageCmd){
             //combine pre-run cmd
@@ -218,20 +219,43 @@ class dbfuncs {
     return $next_path_real;
     }
     
+    function convertToHoursMins($time) {
+        $format = '%d:%s';
+        settype($time, 'integer');
+        if ($time >= 1440) {
+            $time = 1440;
+        }
+        $hours = floor($time/60);
+        $minutes = $time%60;
+        if ($minutes < 10) {
+            $minutes = '0' . $minutes;
+        }
+        return sprintf($format, $hours, $minutes);
+    }
+    
     //get all nextflow executor text
-    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory) {
+    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job) {
     //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
         if ($executor == "local"){
-            $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
-        } else if ($executor == "lsf"){  
-            $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
+            if ($executor_job == 'ignite'){
+                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            }else {
+                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            }
+        } else if ($executor == "lsf"){ 
+            //convert gb to mb
+            settype($next_memory, 'integer');
+            $next_memory = $next_memory*1000;
+            $exec_string = "bsub -J $jobname -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
             $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
         } else if ($executor == "sge"){
-            $exec_string = "qsub -q $next_queue -N $jobname -pe smp $next_cpu -W $next_time -l h_vmem=$next_memory";
+            //$next_time is in minutes convert into hours and minutes.
+            $next_time = convertToHoursMins($next_time);
+            $next_memory = $next_memory."G";
+            $exec_string = "qsub -q $next_queue -N $jobname -pe smp $next_cpu -l h_rt= $next_time:00 -l h_vmem=$next_memory";
             $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
         } else if ($executor == "slurm"){
         } else if ($executor == "ignite"){
-            $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs -with-trace > $dolphin_path_real/log.txt ";
         }
     return $exec_next_all;
     }
@@ -404,9 +428,9 @@ class dbfuncs {
             //get nextflow input parameters
             $next_inputs = $this->getNextInputs($project_pipeline_id,$ownerID);
             //get nextflow executor parameters
-            list($outdir, $proPipeCmd,$jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
+            list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
             //get username and hostname and exec info for connection
-            list($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
+            list($connect, $next_path, $profileCmd, $executor, $next_time, $next_queue, $next_memory, $next_cpu, $executor_job)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
             //get cmd before run
             $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
             //eg. /project/umw_biocore/bin
@@ -425,7 +449,7 @@ class dbfuncs {
             $log_array['next_exist'] = $next_exist;
             // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
-            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory);
+            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job);
             
             $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
@@ -453,9 +477,9 @@ class dbfuncs {
             //get nextflow input parameters
             $next_inputs = $this->getNextInputs($project_pipeline_id,$ownerID);
             //get nextflow executor parameters
-            list($outdir, $proPipeCmd,$jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
+            list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
             //get username and hostname and exec info for connection
-            list($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
+            list($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu, $executor_job)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
             //get cmd before run
             $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
             //eg. /project/umw_biocore/bin
@@ -473,7 +497,7 @@ class dbfuncs {
             $log_array['next_exist'] = $next_exist;
             // if $matches[2] == " ", it means nextflow file is exist 
             if ($matches[2] == " ") {
-            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory);
+            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue, $next_cpu, $next_time, $next_memory, $jobname, $executor_job);
                 
             $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"

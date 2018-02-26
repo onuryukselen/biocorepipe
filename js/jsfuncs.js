@@ -1,3 +1,23 @@
+//user role
+function callusRole(){
+     var userRole = getValues({ p: "getUserRole" });
+    if (userRole != '') {
+    if (userRole[0].role !== null){
+        if (userRole[0].role === "admin") {
+             var usRole = "admin";
+        }else {
+            var usRole = "";
+        } 
+    } else {
+        var usRole = "";
+    }
+    }else {
+        var usRole = "";
+    }
+    return usRole;
+}
+usRole = callusRole(); 
+
 //initialize all tooltips on a page (eg.$('#mFileTypeTool').tooltip("show"))
 $(function () {
     $('[data-toggle="tooltip"]').tooltip();
@@ -91,21 +111,7 @@ function checkAmazonStatus(proId) {
 
 }
 
-//user role
- userRole = getValues({ p: "getUserRole" });
-    if (userRole != '') {
-    if (userRole[0].role !== null){
-        if (userRole[0].role === "admin") {
-             usRole = "admin";
-        }else {
-            usRole = "";
-        } 
-    } else {
-        usRole = "";
-    }
-    }else {
-        usRole = "";
-    }
+
 
 $(document).ready(function () {
    
