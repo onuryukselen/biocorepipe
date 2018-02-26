@@ -1,3 +1,7 @@
+27.02.2018 Version 0.0.72
+ssh text is fixed for cluster runs.
+Amazon status checker updated for eliminate lags.
+
 27.02.2018 Version 0.0.71
 Slurm ignite Nextflow job submission is defined in local executor.
 Profile page upgraded.
