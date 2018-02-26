@@ -161,7 +161,7 @@
 	      checkReadytoRun();
 	  }
 
-	  d3.select("#container").style("background-image", "url(http://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
+	  d3.select("#container").style("background-image", "url(https://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
 
 	  var zoom = d3.behavior.zoom()
 	      .translate([0, 0])
@@ -302,205 +302,6 @@
 	      }
 	  }
 
-	  //	  function addProcess(processDat, xpos, ypos) {
-	  //	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
-	  //	          x = (xpos - t.translate[0])
-	  //	      y = (ypos - t.translate[1])
-	  //	      z = t.scale[0]
-	  //
-	  //
-	  //	      //var process_id = processData[index].id;
-	  //
-	  //	      //for input parameters:  
-	  //	      if (processDat === "inputparam@inPro") {
-	  //	          var name = processDat.split('@')[0]
-	  //	          var process_id = processDat.split('@')[1]
-	  //	          var id = process_id
-	  //	          ipR = 70 / 2
-	  //	          ipIor = ipR / 3
-	  //	          var kind = "input"
-	  //	          var sDataX = (5 + x + ipR + ipIor) / z
-	  //	          var sDataY = (20 + y + ipR + ipIor) / z
-	  //	          var pName = pName || "inputparam"
-	  //	          var paramId = paramId || "inPara"
-	  //	          var classtoparam = classtoparam || "connect_to_input output"
-	  //	          var init = "o"
-	  //	          var pColor = "orange"
-	  //
-	  //	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-	  //	          processList[("g-" + gNum)] = name
-	  //	          gNum = gNum + 1
-	  //	      }
-	  //	      //for output parameters:  
-	  //	      else if (processDat === "outputparam@outPro") {
-	  //	          var name = processDat.split('@')[0]
-	  //	          var process_id = processDat.split('@')[1]
-	  //	          var id = process_id
-	  //	          ipR = 70 / 2
-	  //	          ipIor = ipR / 3
-	  //	          var kind = "output"
-	  //	          var sDataX = (5 + x + ipR + ipIor) / z
-	  //	          var sDataY = (20 + y + ipR + ipIor) / z
-	  //	          var pName = pName || "outputparam"
-	  //	          var paramId = paramId || "outPara"
-	  //	          var classtoparam = classtoparam || "connect_to_output input"
-	  //	          var init = "i"
-	  //	          var pColor = "green"
-	  //	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
-	  //
-	  //	          processList[("g-" + gNum)] = name
-	  //	          gNum = gNum + 1
-	  //	      }
-	  //
-	  //	      //for processes:
-	  //	      else {
-	  //	          var name = processDat.split('@')[0]
-	  //	          var process_id = processDat.split('@')[1]
-	  //	          var id = process_id
-	  //
-	  //	          //--Pipeline details table add process--
-	  //	          addProPipeTab(id, gNum)
-	  //
-	  //	          var inputs = getValues({
-	  //	              p: "getInputsPP",
-	  //	              "process_id": process_id
-	  //	          })
-	  //
-	  //	          var outputs = getValues({
-	  //	              p: "getOutputsPP",
-	  //	              "process_id": process_id
-	  //	          })
-	  //	          //gnum uniqe, id same id (Written in class) in same type process
-	  //	          g = d3.select("#mainG").append("g")
-	  //	              .attr("id", "g-" + gNum)
-	  //	              .attr("class", "g-" + id)
-	  //	              .attr("transform", "translate(" + (-30 + x + r + ior) / z + "," + (-10 + y + r + ior) / z + ")")
-	  //
-	  //	              .on("mouseover", mouseOverG)
-	  //	              .on("mouseout", mouseOutG)
-	  //	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-	  //	          g.append("circle").attr("id", "bc-" + gNum)
-	  //	              .attr("class", "bc-" + id)
-	  //	              .attr("type", "bc")
-	  //	              .attr("cx", cx)
-	  //	              .attr("cy", cy)
-	  //	              .attr("r", r + ior)
-	  //	              //  .attr('fill-opacity', 0.6)
-	  //	              .attr("fill", "red")
-	  //	              .transition()
-	  //	              .delay(500)
-	  //	              .duration(3000)
-	  //	              .attr("fill", "#E0E0E0")
-	  //	          //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
-	  //	          g.append("circle")
-	  //	              .datum([{
-	  //	                  cx: 0,
-	  //	                  cy: 0
-	  //                }])
-	  //	              .attr("id", "sc-" + gNum)
-	  //	              .attr("class", "sc-" + id)
-	  //	              .attr("type", "sc")
-	  //	              .attr("r", r - ior)
-	  //	              .attr("fill", "#BEBEBE")
-	  //	              .attr('fill-opacity', 0.6)
-	  //	              .on("mouseover", scMouseOver)
-	  //	              .on("mouseout", scMouseOut)
-	  //	              .call(drag)
-	  //	          //gnum(written in id): uniqe,
-	  //	          g.append("text").attr("id", "text-" + gNum)
-	  //	              .datum([{
-	  //	                  cx: 0,
-	  //	                  cy: 0
-	  //                }])
-	  //	              .attr('font-family', "FontAwesome, sans-serif")
-	  //	              .attr('font-size', '1em')
-	  //	              .attr('name', name)
-	  //	              .attr('class', 'process')
-	  //	              .text(truncateName(name, 'process'))
-	  //	              .style("text-anchor", "middle")
-	  //	              .on("mouseover", scMouseOver)
-	  //	              .on("mouseout", scMouseOut)
-	  //	              .call(drag)
-	  //
-	  //	          g.append("text").attr("id", "text-" + gNum)
-	  //	              .datum([{
-	  //	                  cx: 0,
-	  //	                  cy: 0
-	  //                }])
-	  //	              .attr('font-family', "FontAwesome, sans-serif")
-	  //	              .attr('font-size', '0.9em')
-	  //	              .attr("x", -6)
-	  //	              .attr("y", 15)
-	  //	              .text('\uf040')
-	  //	              .on("mousedown", rename)
-	  //
-	  //	          //gnum(written in id): uniqe,
-	  //	          g.append("text")
-	  //	              .attr("id", "del-" + gNum)
-	  //	              .attr('font-family', "FontAwesome, sans-serif")
-	  //	              .attr('font-size', '1em')
-	  //	              .attr("x", -6)
-	  //	              .attr("y", r + ior / 2)
-	  //	              .text('\uf014')
-	  //	              .style("opacity", 0.2)
-	  //	              .on("mousedown", removeElement)
-	  //
-	  //	          g.append("text")
-	  //	              .attr("id", "info-" + gNum)
-	  //	              .attr("class", "info-" + id)
-	  //	              .attr('font-family', "FontAwesome, sans-serif")
-	  //	              .attr('font-size', '1em')
-	  //	              .attr("x", -6)
-	  //	              .attr("y", -1 * (r + ior / 2 - 10))
-	  //	              .text('\uf013')
-	  //	              .style("opacity", 0.2)
-	  //	              .on("mousedown", getInfo)
-	  //
-	  //	          // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
-	  //	          for (var k = 0; k < inputs.length; k++) {
-	  //	              d3.select("#g-" + gNum).append("circle")
-	  //	                  .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
-	  //	                  .attr("type", "I/O")
-	  //	                  .attr("kind", "input")
-	  //	                  .attr("parentG", "g-" + gNum)
-	  //	                  .attr("name", inputs[k].name)
-	  //	                  .attr("status", "standard")
-	  //	                  .attr("connect", "single")
-	  //	                  .attr("class", findType(inputs[k].parameter_id) + " input")
-	  //	                  .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
-	  //	                  .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
-	  //	                  .attr("r", ior)
-	  //	                  .attr("fill", "tomato")
-	  //	                  .attr('fill-opacity', 0.8)
-	  //	                  .on("mouseover", IOmouseOver)
-	  //	                  .on("mousemove", IOmouseMove)
-	  //	                  .on("mouseout", IOmouseOut)
-	  //	                  .on("mousedown", IOconnect)
-	  //	          }
-	  //	          for (var k = 0; k < outputs.length; k++) {
-	  //	              d3.select("#g-" + gNum).append("circle")
-	  //	                  .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
-	  //	                  .attr("type", "I/O")
-	  //	                  .attr("kind", "output")
-	  //	                  .attr("parentG", "g-" + gNum)
-	  //	                  .attr("name", outputs[k].name)
-	  //	                  .attr("status", "standard")
-	  //	                  .attr("connect", "single")
-	  //	                  .attr("class", findType(outputs[k].parameter_id) + " output")
-	  //	                  .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
-	  //	                  .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
-	  //	                  .attr("r", ior).attr("fill", "steelblue")
-	  //	                  .attr('fill-opacity', 0.8)
-	  //	                  .on("mouseover", IOmouseOver)
-	  //	                  .on("mousemove", IOmouseMove)
-	  //	                  .on("mouseout", IOmouseOut)
-	  //	                  .on("mousedown", IOconnect)
-	  //	          }
-	  //	          processList[("g-" + gNum)] = name
-	  //	          gNum = gNum + 1
-	  //	      }
-	  //
-	  //	  }
 
 	  function findType(id) {
 	      parameter = parametersData.filter(function (el) {
@@ -923,6 +724,26 @@
 	      }
 	  }
 
+	  function replaceNextVar(outName, inputName) {
+	      //search inputName as name attribute of svg elements of
+	      var connectedNodeId = $("circle.input[name*='" + inputName + "']").attr('id');
+	      //find the connected node to get gNum
+	      for (var e = 0; e < edges.length; e++) {
+	          if (edges[e].indexOf(connectedNodeId) !== -1) { //if not exist: -1
+	              var nodes = edges[e].split("_")
+	              var fNode = nodes[0]
+	              var gNumInputParam = fNode.split("-")[4]
+	              //get the given name from outputs table
+	              var givenNameInParam = $('#input-PName-' + gNumInputParam).text();
+	              var pattern = /(.*)\$\{(.*)\}(.*)/;
+	              outName = outName.replace(pattern, '$1' + givenNameInParam + '$3');
+	              break;
+	          }
+	      }
+	      return outName;
+
+	  }
+
 	  function updateSecClassName(second, inputParamLocF) {
 	      if (inputParamLocF === 0) {
 	          var candi = "output"
@@ -991,6 +812,7 @@
 	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGcomma-' + secGnum + '>, </span>');
 	              $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
 	          } else {
+	              //inputsTable
 	              if (rowType === 'input') {
 	                  if (paraQualifier === 'file') {
 	                      var selectFileButton = getButtonsModal('inputFile', 'Select File');
@@ -1014,12 +836,25 @@
 	                      insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
 
 	                  }
-	              } else if (rowType === 'output') {
-	                  var outName = document.getElementById(second).getAttribute("name"); //first g-number
+	              }
+	              //outputsTable
+	              else if (rowType === 'output') {
+	                  var outName = document.getElementById(second).getAttribute("name");
+	                  if (outName.match(/file\((.*)\)/)) {
+	                      outName = outName.match(/file\((.*)\)/i)[1];
+	                      // if path is divided by slash replace first ${(.*)} with original variable
+	                      var patt = /\$\{(.*)\}/;
+	                      if (outName.match(/\//) && outName.match(patt)) {
+	                          //find input name equavalant and replace
+	                          var inputName = outName.match(patt)[1];
+	                          outName = replaceNextVar(outName, inputName);
+	                      }
+	                  }
 	                  outName = outName.replace(/\"/g, '');
 	                  outName = outName.replace(/\'/g, '');
 	                  outName = outName.replace(/\?/g, '')
 	                  outName = outName.replace(/\${(.*)}/g, '*');
+	                  outName = paramGivenName + "/" + outName;
 	                  var outNameEl = '<span fName="' + outName + '">NA' + '</span>';
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, outNameEl);
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
@@ -1743,12 +1578,12 @@
 	      $('#filePath-' + gNumParam).text(data[1].value);
 	      checkReadytoRun();
 	  }
-      checkType = "";
+	  checkType = "";
 	  //checkType become "rerun" when rerun button is clicked
 	  function checkReadytoRun(type) {
-          if (checkType === ""){
-	      checkType = type || "";
-          }
+	      if (checkType === "") {
+	          checkType = type || "";
+	      }
 	      runStatus = getRunStatus(project_pipeline_id);
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
 	      var getProPipeInputs = getValues({
@@ -1763,7 +1598,7 @@
 	          var amzStatus = profileNextText.replace(patt, '$2');
 	      }
 	      var output_dir = $('#rOut_dir').val();
-          
+
 	      if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
 	          if ((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && checkType === "rerun" || runStatus === "") {
 	              if (amzStatus) {
@@ -1793,7 +1628,7 @@
 	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
 	              window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
 	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
-	              window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	              window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
 	          }
 	      }
 	  }
@@ -1817,7 +1652,7 @@
 
 	  //	  callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall) {
-          checkType ="";
+	      checkType = "";
 	      displayButton('connectingProPipe');
 	      $('#runLogArea').val("");
 	      // Call the callback

@@ -109,8 +109,8 @@
                         <div class="col-sm-9">
                             <select style="width:150px" id="chooseEnv" class="fbtn btn-default form-control" name="runEnv">
                                   <option value="" disabled selected>Select environment </option>
-                                  <option value="local">Local</option>
-                                  <option value="cluster">Remote Machine</option>
+<!--                                  <option value="local">Local</option>-->
+                                  <option value="cluster">Host</option>
                                   <option value="amazon">Amazon</option>
                                 </select>
                         </div>
@@ -242,8 +242,8 @@
                                   <option class="hideClu" value="local">Local</option>
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
-                                  <option value="slurm">SLURM</option>
-                                  <option value="ignite">Ignite</option>
+<!--                                  <option value="slurm">SLURM</option>-->
+<!--                                  <option value="ignite">IGNITE</option>-->
 <!--                                  <option value="pbs">PBS/Torque</option>-->
 <!--                                  <option value="nqsii">NQSII</option>-->
 <!--                                  <option value="condor">HTCondor</option>-->
@@ -260,7 +260,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Queue</th>
-                                            <th scope="col">Memory</th>
+                                            <th scope="col">Memory(GB)</th>
                                             <th scope="col">CPUs</th>
                                             <th scope="col">Time(min.)</th>
                                         </tr>
@@ -268,7 +268,7 @@
                                     <tbody>
                                         <tr>
                                             <td><input id="next_queue" name="next_queue" class="form-control" type="text" value="short"></td>
-                                            <td><input id="next_memory" class="form-control" type="text" name="next_memory" value="32024"></td>
+                                            <td><input id="next_memory" class="form-control" type="text" name="next_memory" value="32"></td>
                                             <td><input id="next_cpu" name="next_cpu" class="form-control" type="text" value="1"></td>
                                             <td><input id="next_time" name="next_time" class="form-control" type="text" value="100"></td>
                                         </tr>
@@ -286,7 +286,7 @@
                                   <option value="sge">SGE</option>
                                   <option value="lsf">LSF</option>
                                   <option value="slurm">SLURM</option>
-                                  <option value="ignite">Ignite</option>
+                                  <option value="ignite">IGNITE</option>
 <!--                                  <option value="pbs">PBS/Torque</option>-->
 <!--                                  <option value="nqsii">NQSII</option>-->
 <!--                                  <option value="condor">HTCondor</option>-->
@@ -303,7 +303,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Queue</th>
-                                            <th scope="col">Memory</th>
+                                            <th scope="col">Memory(GB)</th>
                                             <th scope="col">CPUs</th>
                                             <th scope="col">Time(min.)</th>
                                         </tr>
@@ -311,7 +311,7 @@
                                     <tbody>
                                         <tr>
                                             <td><input id="job_queue" name="job_queue" class="form-control" type="text" value="short"></td>
-                                            <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32024"></td>
+                                            <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32"></td>
                                             <td><input id="job_cpu" name="job_cpu" class="form-control" type="text" value="1"></td>
                                             <td><input id="job_time" name="job_time" class="form-control" type="text" value="100"></td>
                                         </tr>

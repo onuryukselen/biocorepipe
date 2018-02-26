@@ -1,3 +1,10 @@
+27.02.2018 Version 0.0.71
+Slurm ignite Nextflow job submission is defined in local executor.
+Profile page upgraded.
+All executor memories are defined as GB.
+Jobname is defined as pipeline name for lsf and sge executors.
+Outputs paths are fixed for file and set format when multiple directories are defined in file section(in run pipeline page)
+
 27.02.2018 Version 0.0.70
 pipeline filtering feature added for admin (waiting approval vs public)
 

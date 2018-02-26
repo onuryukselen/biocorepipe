@@ -731,7 +731,7 @@ function prepareInfoModal() {
 }
 
 
-function loadPipelineDetails(pipeline_id) {
+function loadPipelineDetails(pipeline_id, usRole) {
     var getPipelineD = [];
     getPipelineD.push({ name: "id", value: pipeline_id });
     getPipelineD.push({ name: "p", value: 'loadPipeline' });
@@ -741,42 +741,46 @@ function loadPipelineDetails(pipeline_id) {
         data: getPipelineD,
         async: true,
         success: function (s) {
-            if (s[0]){
-            $('#creatorInfoPip').css('display', "block");
-            $('#pipeline-title').changeVal(s[0].name);
-            $('#ownUserNamePip').text(s[0].username);
-            $('#pipelineSum').val(s[0].summary);
-            pipelineOwn = s[0].own;
-            // if user not own it, cannot change or delete pipeline
-            if (pipelineOwn === "0" &&  usRole !== "admin") {
-                $('#deletePipeRevision').remove();
-                $('#delPipeline').remove();
-                $('#savePipeline').remove();
-                $('#advOptDiv').remove();
-            }
-            //load user groups
-            var allUserGrp = getValues({ p: "getUserGroups" });
-            for (var i = 0; i < allUserGrp.length; i++) {
-                var param = allUserGrp[i];
-                var optionGroup = new Option(param.name, param.id);
-                $("#groupSel").append(optionGroup);
-            }
-            if (s[0].group_id !== "0") {
-                $('#groupSel').val(s[0].group_id);
-            }
+            if (s[0]) {
+                $('#creatorInfoPip').css('display', "block");
+                $('#pipeline-title').changeVal(s[0].name);
+                $('#ownUserNamePip').text(s[0].username);
+                $('#pipelineSum').val(s[0].summary);
+                pipelineOwn = s[0].own;
+                // if user not own it, cannot change or delete pipeline
+                if (pipelineOwn === "0") {
+                    $('#deletePipeRevision').remove();
+                    $('#delPipeline').remove();
+                    $('#savePipeline').remove();
+                    $('#advOptDiv').css('display', 'none');
+                }
+                if (usRole && usRole === "admin") {
+                    $('#advOptDiv').css('display', 'inline');
+                    $('#pinMainPage').css("display", "inline");
+                }
+                //load user groups
+                var allUserGrp = getValues({ p: "getUserGroups" });
+                for (var i = 0; i < allUserGrp.length; i++) {
+                    var param = allUserGrp[i];
+                    var optionGroup = new Option(param.name, param.id);
+                    $("#groupSel").append(optionGroup);
+                }
+                if (s[0].group_id !== "0") {
+                    $('#groupSel').val(s[0].group_id);
+                }
 
-            $('#perms').val(s[0].perms);
-            if (s[0].pin === 'true'){
-            $('#pin').attr('checked',true);
-            }  else if (s[0].pin === "false") {
-	          $('#pin').removeAttr('checked');
-            }
-            if (s[0].pin_order !== "0") {
-            $('#pin_order').val(s[0].pin_order);
-            }
-            $('#datecreatedPip').text(s[0].date_created);
-            $('.lasteditedPip').text(s[0].date_modified);
-            openPipeline(pipeline_id);
+                $('#perms').val(s[0].perms);
+                if (s[0].pin === 'true') {
+                    $('#pin').attr('checked', true);
+                } else if (s[0].pin === "false") {
+                    $('#pin').removeAttr('checked');
+                }
+                if (s[0].pin_order !== "0") {
+                    $('#pin_order').val(s[0].pin_order);
+                }
+                $('#datecreatedPip').text(s[0].date_created);
+                $('.lasteditedPip').text(s[0].date_modified);
+                openPipeline(pipeline_id);
             }
 
         },
@@ -839,12 +843,11 @@ function duplicateProcessRev() {
 }
 
 $(document).ready(function () {
-    if (usRole && usRole  === "admin"){
-        $('#pinMainPage').css("display", "inline");
-    }
+    var usRole = callusRole();
     var pipeline_id = $('#pipeline-title').attr('pipelineid');
     if (pipeline_id !== '') {
-        loadPipelineDetails(pipeline_id);
+        loadPipelineDetails(pipeline_id, usRole);
+
     } else {
         //load user groups
         var allUserGrp = getValues({ p: "getUserGroups" });
@@ -1281,46 +1284,46 @@ $(document).ready(function () {
                 });
                 $('#confirmRevision').on('click', '#saveOnExist', function (event) {
                     var proGroId = data[5].value;
-                var sMenuProIdFinal = proName + '@' + proID;
-                var sMenuProGroupIdFinal = proGroId;
-                var dataToProcess = []; //dataToProcess to save in process table
-                for (var i = 1; i < 6; i++) {
-                    dataToProcess.push(data[i]);
-                }
-                var scripteditor = JSON.stringify(editor.getValue());
-                var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
-                dataToProcess.push({ name: "process_gid", value: process_gid });
-                dataToProcess.push({ name: "script", value: scripteditor });
-                dataToProcess.push({ name: "p", value: "saveProcess" });
-                if (proName === '' || proGroId === '') {
-                    dataToProcess = [];
-                }
-                if (dataToProcess.length > 0) {
-                    $.ajax({
-                        type: "POST",
-                        url: "ajax/ajaxquery.php",
-                        data: dataToProcess,
-                        async: true,
-                        success: function (s) {
-                            //update process link into sidebar menu
-                            updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
-                            var startPoint = 6; //first object in data array where inputparameters starts.
-                            var ppIDinputList;
-                            var ppIDoutputList;
-                            var inputsBefore = getValues({ p: "getInputsPP", "process_id": proID });
-                            var outputsBefore = getValues({ p: "getOutputsPP", "process_id": proID });
+                    var sMenuProIdFinal = proName + '@' + proID;
+                    var sMenuProGroupIdFinal = proGroId;
+                    var dataToProcess = []; //dataToProcess to save in process table
+                    for (var i = 1; i < 6; i++) {
+                        dataToProcess.push(data[i]);
+                    }
+                    var scripteditor = JSON.stringify(editor.getValue());
+                    var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
+                    dataToProcess.push({ name: "process_gid", value: process_gid });
+                    dataToProcess.push({ name: "script", value: scripteditor });
+                    dataToProcess.push({ name: "p", value: "saveProcess" });
+                    if (proName === '' || proGroId === '') {
+                        dataToProcess = [];
+                    }
+                    if (dataToProcess.length > 0) {
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: dataToProcess,
+                            async: true,
+                            success: function (s) {
+                                //update process link into sidebar menu
+                                updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
+                                var startPoint = 6; //first object in data array where inputparameters starts.
+                                var ppIDinputList;
+                                var ppIDoutputList;
+                                var inputsBefore = getValues({ p: "getInputsPP", "process_id": proID });
+                                var outputsBefore = getValues({ p: "getOutputsPP", "process_id": proID });
                             [ppIDinputList, ppIDoutputList] = addProParatoDB(data, startPoint, proID);
-                            updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
-                            refreshDataset();
-                        $('#confirmRevision').modal('hide');
-                            $('#addProcessModal').modal('hide');
-                        },
-                        error: function (errorThrown) {
-                            alert("Error: " + errorThrown);
-                        }
-                    });
-                }
-                    
+                                updateProPara(inputsBefore, outputsBefore, ppIDinputList, ppIDoutputList, proID);
+                                refreshDataset();
+                                $('#confirmRevision').modal('hide');
+                                $('#addProcessModal').modal('hide');
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+
 
                 });
 
