@@ -141,13 +141,20 @@ class dbfuncs {
     }
     
      //get nextflow input parameters
-    function getNextInputs ($project_pipeline_id,$ownerID ){
+    function getNextInputs ($executor, $project_pipeline_id, $ownerID ){
         $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
         $next_inputs="";
-        foreach ($allinputs as $inputitem):
-            $next_inputs.="--".$inputitem->{'given_name'}." \\\\\\\"".$inputitem->{'name'}."\\\\\\\" ";
-        endforeach;
+        if ($executor === "local"){
+            foreach ($allinputs as $inputitem):
+                $next_inputs.="--".$inputitem->{'given_name'}." \\\"".$inputitem->{'name'}."\\\" ";
+            endforeach;
+        } else if ($executor !== "local"){
+            foreach ($allinputs as $inputitem):
+                $next_inputs.="--".$inputitem->{'given_name'}." \\\\\\\"".$inputitem->{'name'}."\\\\\\\" ";
+            endforeach;
+        }
         return $next_inputs;
+        
     }
     
     //get nextflow executor parameters
@@ -433,12 +440,12 @@ class dbfuncs {
             return json_encode($log_array);
             
         } else if ($profileType == "cluster") {
-            //get nextflow input parameters
-            $next_inputs = $this->getNextInputs($project_pipeline_id,$ownerID);
             //get nextflow executor parameters
             list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
             //get username and hostname and exec info for connection
             list($connect, $next_path, $profileCmd, $executor, $next_time, $next_queue, $next_memory, $next_cpu, $executor_job)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
+            //get nextflow input parameters
+            $next_inputs = $this->getNextInputs($executor, $project_pipeline_id,$ownerID);
             //get cmd before run
             $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
             //eg. /project/umw_biocore/bin
@@ -482,12 +489,12 @@ class dbfuncs {
                 die(json_encode('Connection failed. Nextflow file not exists in cluster'));
             }
         } else if ($profileType == "amazon") {
-            //get nextflow input parameters
-            $next_inputs = $this->getNextInputs($project_pipeline_id,$ownerID);
             //get nextflow executor parameters
             list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
             //get username and hostname and exec info for connection
-            list($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu, $executor_job)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
+            list($connect, $next_path, $profileCmd, $executor, $next_time, $next_queue, $next_memory, $next_cpu, $executor_job)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
+            //get nextflow input parameters
+            $next_inputs = $this->getNextInputs($executor, $project_pipeline_id,$ownerID);
             //get cmd before run
             $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
             //eg. /project/umw_biocore/bin
@@ -669,22 +676,22 @@ class dbfuncs {
         $log_array = array('logAmzStop' => $logAmzStop);
         return json_encode($log_array);
     }
-        //check both start and list files
-        function runAmzCloudList($id){
-        //check cloud list
-        $cmd = "cd {$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1";
-        $log_array = $this->runCommand ($cmd, 'cloudlist', '');
+
+    
+     //read both start and list files
+        function readAmzCloudListStart($id){
         //read logAmzCloudList.txt
         $logPath ="{$this->amz_path}/pro_{$id}/logAmzCloudList.txt";
         $logAmzCloudList = $this->readFile($logPath);
-        $log_array['logAmzCloudList'] = $logAmzCloudList;
+        $log_array = array('logAmzCloudList' => $logAmzCloudList);
         //read logAmzStart.txt
         $logPathStart ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
         $logAmzStart = $this->readFile($logPathStart);
         $log_array['logAmzStart'] = $logAmzStart;
         return $log_array;
-        
     }
+    
+    
     
     public function checkAmazonStatus($id,$ownerID) {
         //check status 
@@ -692,7 +699,7 @@ class dbfuncs {
         $status = $amzStat[0]->{'status'};
         if ($status == "waiting"){
             //check cloud list
-            $log_array = $this->runAmzCloudList($id);
+            $log_array = $this->readAmzCloudListStart($id);
             if (preg_match("/running/", $log_array['logAmzCloudList'])){
                 $this->updateAmazonProStatus($id, "initiated", $ownerID);
                 $log_array['status'] = "initiated";
@@ -712,7 +719,7 @@ class dbfuncs {
             }
         } else if ($status == "initiated"){
             //check cloud list
-            $log_array = $this->runAmzCloudList($id);
+            $log_array = $this->readAmzCloudListStart($id);
             if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 //read logAmzStart.txt
                 $amzStartPath ="{$this->amz_path}/pro_{$id}/logAmzStart.txt";
@@ -743,7 +750,7 @@ class dbfuncs {
             
         } else if ($status == "running"){
             //check cloud list
-            $log_array = $this->runAmzCloudList($id);
+            $log_array = $this->readAmzCloudListStart($id);
             if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 $log_array['status'] = "running";
                 $sshTextArr = json_decode($this->getAmazonProSSH($id, $ownerID));
@@ -761,7 +768,7 @@ class dbfuncs {
         } 
 //        else if ($status == "waitingTerm"){
 //            //check cloud list
-//            $log_array = $this->runAmzCloudList($id);
+//            $log_array = $this->readAmzCloudListStart($id);
 //            if (preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
 //                $log_array['status'] = "running";
 //                return json_encode($log_array);
@@ -775,7 +782,7 @@ class dbfuncs {
 //            }
 //        }
         else if ($status == "terminated"){
-                $log_array = $this->runAmzCloudList($id);
+                $log_array = $this->readAmzCloudListStart($id);
                 $log_array['status'] = "terminated";
                 return json_encode($log_array);
         } else if ($status == ""){
@@ -784,7 +791,12 @@ class dbfuncs {
         }
     }
     
-    
+            //check cloud list
+    public function runAmazonCloudCheck($id,$ownerID){
+        $cmd = "cd {$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1 & echo $! &";
+        $log_array = $this->runCommand ($cmd, 'cloudlist', '');
+        return json_encode($log_array);
+    }
     
     
 

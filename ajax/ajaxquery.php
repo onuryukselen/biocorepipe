@@ -123,6 +123,10 @@ else if ($p=="checkAmazonStatus"){
 	$profileId = $_REQUEST['profileId'];
     $data = $db -> checkAmazonStatus($profileId,$ownerID);
 }
+else if ($p=="runAmazonCloudCheck"){
+	$profileId = $_REQUEST['profileId'];
+    $data = $db -> runAmazonCloudCheck($profileId,$ownerID);
+}
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);
 }
