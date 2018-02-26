@@ -145,7 +145,7 @@ class dbfuncs {
         $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
         $next_inputs="";
         foreach ($allinputs as $inputitem):
-            $next_inputs.="--".$inputitem->{'given_name'}." \\\"".$inputitem->{'name'}."\\\" ";
+            $next_inputs.="--".$inputitem->{'given_name'}." \\\\\\\"".$inputitem->{'name'}."\\\\\\\" ";
         endforeach;
         return $next_inputs;
     }
@@ -253,7 +253,7 @@ class dbfuncs {
             //-J $jobname
             $jobname = $this->cleanName($jobname);
             $exec_string = "bsub  -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \\\"";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt\\\"";
         } else if ($executor == "sge"){
             //$next_time is in minutes convert into hours and minutes.
             $next_time = $this->convertToHoursMins($next_time);
@@ -261,7 +261,7 @@ class dbfuncs {
             //-N $jobname
             $jobname = $this->cleanName($jobname);
             $exec_string = "qsub -q $next_queue  -pe smp $next_cpu -l h_rt= $next_time:00 -l h_vmem=$next_memory";
-            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \\\"";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt\\\"";
         } else if ($executor == "slurm"){
         } else if ($executor == "ignite"){
         }
