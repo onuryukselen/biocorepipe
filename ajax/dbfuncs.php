@@ -246,14 +246,16 @@ class dbfuncs {
             //convert gb to mb
             settype($next_memory, 'integer');
             $next_memory = $next_memory*1000;
-            $exec_string = "bsub -J $jobname -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-            $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            //-J $jobname
+            $exec_string = "bsub  -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \\\"";
         } else if ($executor == "sge"){
             //$next_time is in minutes convert into hours and minutes.
             $next_time = convertToHoursMins($next_time);
             $next_memory = $next_memory."G";
-            $exec_string = "qsub -q $next_queue -N $jobname -pe smp $next_cpu -l h_rt= $next_time:00 -l h_vmem=$next_memory";
-            $exec_next_all = "cd $dolphin_path_real && $exec_string \"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt ";
+            //-N $jobname
+            $exec_string = "qsub -q $next_queue  -pe smp $next_cpu -l h_rt= $next_time:00 -l h_vmem=$next_memory";
+            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs -with-trace > $dolphin_path_real/log.txt \\\"";
         } else if ($executor == "slurm"){
         } else if ($executor == "ignite"){
         }
