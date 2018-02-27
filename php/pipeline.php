@@ -171,12 +171,12 @@
                         </select>
         </div>
     </div>
-    <div id="pinMainPage" style="display:none;"; class="col-md-6">
+    <div id="pinMainPage" style="display:none;" ; class="col-md-6">
         <div class="form-group">
             <label>Pin to Main Page </label>
-            <input id="pin" type="checkbox" >
+            <input id="pin" type="checkbox">
             <label> Order </label>
-            <input id="pin_order" >
+            <input id="pin_order">
         </div>
     </div>
 </div>
@@ -432,15 +432,58 @@
                         </div>
                     </div>
 
+                    <div id="advOptProDiv">
+                        <div class="form-group">
+                            <label for="mAdvIcon" class="col-sm-2 control-label">Advanced Options</label>
+                            <div class="col-sm-10">
+                                <i id="mAdvProIcon" data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a id="mAdvProCollap" class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-top:10px; padding-left:5px;" data-toggle="collapse" data-target="#advOptPro"></a></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- collapsed settings-->
+                    <div id="advOptPro" class="row collapse">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">Permissions to View</label>
+                                <div class="col-sm-6">
+                                    <select id="permsPro" class="fbtn btn-default form-control" name="perms">
+                              <option value="3" selected="">Only me </option>
+                              <option value="15">Only my groups</option>
+                              <option disabled value="63">Everyone </option>
+                        </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">Group Selection</label>
+                                <div class="col-sm-6">
+                                    <select id="groupSelPro" class="fbtn btn-default form-control" name="group_id">
+                          <option value="" disabled selected>Choose group </option>
+                        </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Publish</label>
+                                <div class="col-sm-3">
+                                    <select id="publishPro" class="fbtn btn-default form-control" name="publish">
+                                      <option value="0">No</option>
+                                      <option value="1">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </form>
             </div>
             <div class="modal-footer">
-                <!--                <button type="button" class="btn btn-danger" style="display:none" id="deleteProcess" data-toggle="modal" data-target="#confirmModal" data-backdrop="false">Delete Process</button>-->
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveprocess">Save changes</button>
                 <button type="button" class="btn btn-primary" style="display:none" id="selectProcess">Select Revision</button>
-                <!--               data-backdrop="false" data-toggle="modal" data-target="#mConfirmYesNo"-->
-
             </div>
         </div>
     </div>

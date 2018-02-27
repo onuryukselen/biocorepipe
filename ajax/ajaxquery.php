@@ -503,11 +503,23 @@ else if ($p=="saveProcess"){
     $script = htmlspecialchars($_REQUEST['script'], ENT_QUOTES);
     $rev_id = $_REQUEST['rev_id']; 
     $rev_comment = $_REQUEST['rev_comment']; 
+    $group = $_REQUEST['group']; 
+    $perms = $_REQUEST['perms']; 
+    $publish = $_REQUEST['publish']; 
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID);
+        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $group, $perms, $publish, $ownerID);
+        if ($perms !== "3"){
+            $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
+            }
     } else {
-        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group, $perms, $publish, $ownerID);
+        if ($perms !== "3"){
+            $obj = json_decode($data);
+            $id = $obj[1]->{"id"};
+            $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
+        }
     }
+    
 }
 else if ($p=="saveProject"){
     $name = $_REQUEST['name'];
@@ -590,10 +602,12 @@ else if ($p=="saveProcessParameter"){
     $process_id = $_REQUEST['process_id'];
     $parameter_id = $_REQUEST['parameter_id'];
     $type = $_REQUEST['type'];
+    $perms = $_REQUEST['perms'];
+    $group_id= $_REQUEST['group'];
     if (!empty($id)) {
-        $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID);
+        $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID);
     } else {
-        $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID);
+        $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID);
     }
 }
 

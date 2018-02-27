@@ -570,6 +570,7 @@ function getValues(data) {
         data: data,
         async: false,
         cache: false,
+        type: "POST",
         success: function (data) {
             result = data;
         }

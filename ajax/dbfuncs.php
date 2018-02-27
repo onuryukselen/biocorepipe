@@ -989,13 +989,13 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     
-    public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $ownerID) {
-        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$rev_id','$rev_comment', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group, $perms, $publish, $ownerID) {
+        $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user, perms, group_id, publish) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$rev_id','$rev_comment', '$ownerID', now(), now(), '$ownerID', '$perms', '$group', '$publish')";
         return self::insTable($sql);
     }
 
-    public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $ownerID) {
-        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user = '$ownerID'  WHERE id = '$id'";
+    public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $group, $perms, $publish, $ownerID) {
+        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', owner_id='$ownerID', last_modified_user='$ownerID', group_id='$group', perms='$perms', publish='$publish' WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -1464,14 +1464,14 @@ class dbfuncs {
 //    }
    
 
-    public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID) {
-        $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, closure, operator, owner_id, date_created, date_modified, last_modified_user, perms) 
-                VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$closure', '$operator', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID) {
+        $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, closure, operator, owner_id, date_created, date_modified, last_modified_user, perms, group_id) 
+                VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$closure', '$operator', '$ownerID', now(), now(), '$ownerID', '$perms', '$group_id')";
         return self::insTable($sql);
     }
     
-    public function updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $ownerID) {
-        $sql = "UPDATE process_parameter SET sname='$sname', process_id='$process_id', parameter_id='$parameter_id', type='$type', closure='$closure', operator='$operator', owner_id='$ownerID', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID) {
+        $sql = "UPDATE process_parameter SET sname='$sname', process_id='$process_id', parameter_id='$parameter_id', type='$type', closure='$closure', operator='$operator', owner_id='$ownerID', last_modified_user ='$ownerID', perms='$perms', group_id='$group_id'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
 
@@ -1561,7 +1561,7 @@ class dbfuncs {
 		if ($id != ""){
 			$where = " where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		}
-		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, IF(p.owner_id='$ownerID',1,0) as own  
+		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
         FROM process p
         LEFT JOIN user_group ug ON p.group_id=ug.g_id
         $where";
@@ -1683,7 +1683,7 @@ class dbfuncs {
         INNER JOIN project_pipeline_input pi ON pip.id=pi.pipeline_id
         WHERE pi.project_pipeline_id = '$id' and pi.owner_id='$ownerID'";
         $nodesArr = json_decode(self::queryTable($sql));
-         $nodes = json_decode($nodesArr[0]->{"nodes"});
+        $nodes = json_decode($nodesArr[0]->{"nodes"});
         foreach ($nodes as $item):
             if ($item[2] !== "inPro" && $item[2] !== "outPro"){
                 $proId = $item[2];
