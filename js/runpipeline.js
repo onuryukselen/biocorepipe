@@ -1609,12 +1609,20 @@
 	          if ((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && checkType === "rerun" || runStatus === "") {
 	              if (amzStatus) {
 	                  if (amzStatus === "running") {
-	                      displayButton('runProPipe');
+	                      if (checkType === "rerun") {
+	                          runProjectPipe(runProPipeCall);
+	                      } else {
+	                          displayButton('runProPipe');
+	                      }
 	                  } else {
 	                      displayButton('statusProPipe');
 	                  }
 	              } else {
-	                  displayButton('runProPipe');
+	                  if (checkType === "rerun") {
+	                      runProjectPipe(runProPipeCall);
+	                  } else {
+	                      displayButton('runProPipe');
+	                  }
 	              }
 	          }
 
@@ -1748,54 +1756,8 @@
 
 	  }
 
-	  //	  function checkServerLog(serverLogGet, proType, proId) {
-	  //	      if (proType === 'local') {
-	  //	          if (serverLogGet.next_submit_pid) {
-	  //	              $('#connectingProPipe').css('display', 'none');
-	  //	              $('#runLogs').css('display', 'inline');
-	  //	              $('#runProPipe').css('display', 'none');
-	  //	              $('#waitingProPipe').css('display', 'inline');
-	  //	              readNextflowLogTimer(proType, proId);
-	  //	          } else {
-	  //	              //Error occured
-	  //	              $('#runLogs').css('display', 'inline');
-	  //	              $('#connectingProPipe').css('display', 'none');
-	  //	              $('#errorProPipe').css('display', 'inline');
-	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	  //	              $('#runLogArea').val(serverLogGet);
-	  //	          }
-	  //	      } else if (proType === 'cluster' || proType === 'amazon') {
-	  //	          serverLog = getServerLog(project_pipeline_id);
-	  //	          if (serverLogGet.next_submit_pid && !serverLog.match(/Error/)) {
-	  //	              $('#connectingProPipe').css('display', 'none');
-	  //	              $('#runLogs').css('display', 'inline');
-	  //	              $('#runProPipe').css('display', 'none');
-	  //	              $('#waitingProPipe').css('display', 'inline');
-	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Submit", project_pipeline_id: project_pipeline_id });
-	  //	              readNextflowLogTimer(proType, proId);
-	  //	          } else {
-	  //	              //error occured before job starts
-	  //	              $('#runLogs').css('display', 'inline');
-	  //	              $('#connectingProPipe').css('display', 'none');
-	  //	              $('#errorProPipe').css('display', 'inline');
-	  //	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	  //	              $('#runLogArea').val(serverLogGet + "\n" + serverLog);
-	  //	          }
-	  //	      }
-	  //	  }
-
-	  //	  function checkServerLogTimer(proType, proId) {
-	  //	      interval_serverlog_ID = setInterval(function () {
-	  //	          readNextflowLogTimer(proType, proId)
-	  //	      }, 10000);
-	  //	  }
-
-	  //######################read nextflow log file for status #########################################################
-	  //instead of read pid, read nextflow log file(alternative to checkNextflowLogTimer function)
+	  //#########read nextflow log file for status  ################################################
 	  function readNextflowLogTimer(proType, proId) {
-	      //	      if (interval_serverlog_ID) {
-	      //	          clearInterval(interval_serverlog_ID);
-	      //	      }
 	      interval_readNextlog = setInterval(function () {
 	          readNextLog(proType, proId, "no_reload")
 	      }, 10000);
@@ -1807,6 +1769,12 @@
 	      if (proType === 'cluster' || proType === 'amazon') {
 	          serverLog = getServerLog(project_pipeline_id);
 	          $('#runLogArea').val(serverLog);
+	          //xxxxxxx
+	          //for lsf: Job <203477> is submitted to queue <long>.\n"
+	          if (serverLog.match(/Job <(.*)> is submitted/)) {
+	              var runPid = serverLog.match(/Job <(.*)> is submitted/)[1];
+	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	          }
 	      }
 
 	      nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
@@ -1824,6 +1792,7 @@
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id, duration: duration });
+	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -1837,6 +1806,8 @@
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
 	                      //Save output file paths to input and project_input database
 	                      addOutFileDb();
+	                      //send ssh to rename log file
+	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 
 	                  }
 	                  if (type !== "reload") {
@@ -1849,6 +1820,7 @@
 	                  // status completed with error 
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
+	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -1868,12 +1840,23 @@
 	          } else if (nextflowLog.match(/downloading/i)) {
 	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
 	              displayButton('waitingProPipe');
+	              if (type === "reload") {
+	                  readNextflowLogTimer(proType, proId);
+	              }
+
+	          } else if (nextflowLog.match(/No such file or directory/i)) {
+	              var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
+	              displayButton('waitingProPipe');
+	              if (type === "reload") {
+	                  readNextflowLogTimer(proType, proId);
+	              }
 
 	          } else {
 	              //error occured
 	              console.log("Error.Nextflow not started");
 	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	                  //	                  var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
@@ -1886,6 +1869,7 @@
 	              console.log("Error");
 	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	                  //	                  var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
@@ -1904,8 +1888,6 @@
 	      }
 	  }
 
-	  //#################################################################################################
-	  /////xxxxxxxxx
 	  function showOutputPath() {
 	      var outTableRow = $('#outputsTable > tbody > >:last-child').find('span');
 	      var output_dir = $('#rOut_dir').val();
@@ -1937,24 +1919,8 @@
 	          var input_id = inputGet.id;
 	          //insert into project_input table
 	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-	          //	          var projectInputID = proInputGet.id;
-	          //	          //insert into project_pipeline_input table
-	          //	          var propipeInputGet = getValues({
-	          //	              "p": "saveProPipeInput",
-	          //	              "input_id": input_id,
-	          //	              "project_id": project_id,
-	          //	              "pipeline_id": pipeline_id,
-	          //	              "project_pipeline_id": project_pipeline_id,
-	          //	              "g_num": gNumParam,
-	          //	              "given_name": given_name,
-	          //	              "qualifier": qualifier
-	          //	          });
 	      }
 	  }
-
-
-
-
 
 
 	  function getNextflowLog(project_pipeline_id, proType, proId) {
@@ -1971,55 +1937,6 @@
 	          return logText;
 	      }
 	  }
-
-
-	  //	  function checkNextflowLogTimer(proType, proId) {
-	  //	      var runPid = getRunPid(project_pipeline_id);
-	  //	      var status = "";
-	  //	      interval_nextlog_ID = setInterval(function () {
-	  //	          status = checkRunPid(runPid, proType, proId)
-	  //	          console.log(status)
-	  //	      }, 10000);
-	  //	  }
-
-
-	  //	  function checkRunPid(runPid, proType, proId) {
-	  //
-	  //	      var checkRunStatus = getValues({ p: "checkRunPid", pid: runPid, profileType: proType, profileId: proId });
-	  //	      console.log(checkRunStatus);
-	  //
-	  //	      if (proType === 'local') {
-	  //	          if (checkRunStatus === "running") {
-	  //	              var runLog = getNextflowLog(project_pipeline_id, proType, proId);
-	  //	              $('#runLogArea').val(runLog);
-	  //	              return checkRunStatus;
-	  //	          } else if (checkRunStatus === "completed") {
-	  //	              var runLog = getNextflowLog(project_pipeline_id, proType, proId);
-	  //	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
-	  //	              $('#runLogArea').val(runLog);
-	  //	              $('#runningProPipe').css('display', 'none');
-	  //	              $('#completeProPipe').css('display', 'inline');
-	  //	              clearInterval(interval_nextlog_ID);
-	  //	          }
-	  //	      } else if (proType === 'cluster') {
-	  //	          if (checkRunStatus === "running") {
-	  //	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	  //	              if (nextflowLog !== null) {
-	  //	                  $('#runLogArea').val(serverLog + nextflowLog);
-	  //	              }
-	  //	              return checkRunStatus;
-	  //	          } else if (checkRunStatus === "completed") {
-	  //	              nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	  //	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: 0, project_pipeline_id: project_pipeline_id });
-	  //	              $('#runLogArea').val(serverLog + nextflowLog);
-	  //	              if (updateRunPidComp) {
-	  //	                  $('#runningProPipe').css('display', 'none');
-	  //	                  $('#completeProPipe').css('display', 'inline');
-	  //	                  clearInterval(interval_nextlog_ID);
-	  //	              }
-	  //	          }
-	  //	      }
-	  //	  }
 
 
 	  function getServerLog(project_pipeline_id) {
@@ -2123,7 +2040,6 @@
 	                      refreshCreatorData(project_pipeline_id);
 	                      updateSideBarProPipe("", project_pipeline_id, run_name, "edit")
 	                  } else if (dupliProPipe === true) {
-	                      console.log(s.id);
 	                      var duplicateProPipeIn = getValues({ p: "duplicateProjectPipelineInput", new_id: s.id, old_id: old_project_pipeline_id });
 	                      if (duplicateProPipeIn) {
 	                          setTimeout(function () { window.location.replace("index.php?np=3&id=" + s.id); }, 0);

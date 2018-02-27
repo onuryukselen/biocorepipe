@@ -50,12 +50,19 @@ else if ($p=="saveRun"){
     $checkRun = $db->getRun($project_pipeline_id,$ownerID);
     $checkarray = json_decode($checkRun,true); 
     $ppId = $checkarray[0]["project_pipeline_id"];
+    $attempt = $checkarray[0]["attempt"];
+    settype($attempt, 'integer');
+    if (empty($attempt)){
+        $attempt = 0;
+    }
+    $attempt = $attempt +1;
     if (!empty($ppId)) {
+        $db->updateRunAttempt($project_pipeline_id, $attempt, $ownerID);    
         $db->updateRunStatus($project_pipeline_id, $status, $ownerID);    
         $db->insertRunLog($project_pipeline_id, $status, $ownerID);
         
     } else {
-        $db->insertRun($project_pipeline_id, $status, $ownerID);
+        $db->insertRun($project_pipeline_id, $status, "1", $ownerID);
         $db->insertRunLog($project_pipeline_id, $status, $ownerID);
     }
 
@@ -78,6 +85,12 @@ else if ($p=="getRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $data = $db -> getRun($project_pipeline_id,$ownerID);
 }
+//else if ($p=="renameLogSSH"){
+//	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+//    $profileType = $_REQUEST['profileType'];
+//	$profileId = $_REQUEST['profileId'];
+//    $data = $db -> renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
+//}
 else if ($p=="checkRunPid"){
 	$pid = $_REQUEST['pid'];
 	$profileType = $_REQUEST['profileType'];

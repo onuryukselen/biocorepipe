@@ -1,3 +1,8 @@
+27.02.2018 Version 0.0.73
+Number of attempts column added to run table.
+Log files are renamed before run is initiated to eliminate the chance of documentation error.
+Rerun button upgraded.
+
 27.02.2018 Version 0.0.72
 ssh text is fixed for cluster runs.
 Amazon status checker updated for eliminate lags.

@@ -277,7 +277,11 @@ class dbfuncs {
     
     
     function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
-    {
+    {   if ($profileType == 'cluster'){
+        //rename the log file
+        $this->renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
+    }
+        //create folders
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
         fwrite($file, $nextText);
@@ -1152,9 +1156,9 @@ class dbfuncs {
     }
 
 //    ----------- Runs     ---------
-    public function insertRun($project_pipeline_id, $status, $ownerID) {
-        $sql = "INSERT INTO run (project_pipeline_id, run_status, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
-			('$project_pipeline_id', '$status', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertRun($project_pipeline_id, $status, $attempt, $ownerID) {
+        $sql = "INSERT INTO run (project_pipeline_id, run_status, attempt, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
+			('$project_pipeline_id', '$status', '$attempt', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
     public function insertRunLog($project_pipeline_id, $status, $ownerID) {
@@ -1171,9 +1175,21 @@ class dbfuncs {
         $sql = "UPDATE run SET run_status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
         return self::runSQL($sql);
     }
+    public function updateRunAttempt($project_pipeline_id, $attempt, $ownerID) {
+        $sql = "UPDATE run SET attempt= '$attempt', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
+        return self::runSQL($sql);
+    }
     public function updateRunPid($project_pipeline_id, $pid, $ownerID) {
         $sql = "UPDATE run SET pid='$pid', date_modified= now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$project_pipeline_id'";
         return self::runSQL($sql);
+    }
+    public function getRunPid($project_pipeline_id) {
+        $sql = "SELECT pid FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
+        return self::queryTable($sql);
+    }
+    public function getRunAttempt($project_pipeline_id) {
+        $sql = "SELECT attempt FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
+        return self::queryTable($sql);
     }
     public function getServerLog($project_pipeline_id,$ownerID) {
         $path= "../{$this->run_path}/run$project_pipeline_id";
@@ -1200,9 +1216,6 @@ class dbfuncs {
         $sql = "SELECT pid FROM profile_amazon WHERE id = '$id'";
 		return self::queryTable($sql);
     }
-
-        
-        
     
     public function checkRunPid($pid,$profileType,$profileId,$ownerID) {
         if ($profileType == 'local'){
@@ -1222,6 +1235,30 @@ class dbfuncs {
             } else {
             return json_encode('completed');
             }
+        }
+    }
+    //xxxx
+    public function renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID) {
+        if ($profileType == 'cluster'){
+            //getRun pid
+            $attemptData = json_decode($this->getRunAttempt($project_pipeline_id));
+            $attempt = $attemptData[0]->{'attempt'};
+            if (empty($attempt) || $attempt == 0 || $attempt == "0"){
+                $attempt = "0";
+            }
+            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+            $outdir = $proPipeAll[0]->{'output_dir'};
+            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
+            
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$profileId}.pky";
+            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mv $dolphin_path_real/log.txt $dolphin_path_real/log$attempt.txt \" 2>&1 & echo $! &";
+            $log_array = $this->runCommand ($cmd, 'rename_log', '');
+//            return json_encode($cmd);
+            return json_encode($log_array);
         }
     }
     
