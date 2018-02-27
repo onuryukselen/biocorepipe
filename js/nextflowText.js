@@ -44,12 +44,13 @@ function sortProcessList(processList) {
                 }
             } else {
                 //check if the position of outGnum if inGnum is also exist in array
+                //cut inGnum and paste to indexOut position
                 if (sortGnum.includes(inGnum) && sortGnum.includes(outGnum)) {
                     var indexIn = sortGnum.indexOf(inGnum);
                     var indexOut = sortGnum.indexOf(outGnum);
                     if (indexOut > indexIn) {
-                        sortGnum.splice(indexOut, 1);
-                        sortGnum.splice(indexIn, 0, outGnum);
+                        sortGnum.splice(indexIn, 1);
+                        sortGnum.splice(indexOut, 0, inGnum);
                     }
                 }
                 var index = sortGnum.indexOf(outGnum);
@@ -347,7 +348,7 @@ function IOandScriptForNf(id, currgid) {
         script = script.substring(1, script.length - 1); //remove first and last duble quote
     }
     //insert """ for script if not exist
-    if (script.search('"""') === -1) {
+    if (script.search('"""') === -1 && script.search('\'\'\'') === -1) {
         script = '"""\n' + script + '\n"""'
     }
 

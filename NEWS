@@ -1,18 +1,28 @@
+27.02.2018 Version 0.0.74
+Nextflow file update (checks three single quotes)
+Nextflow sorting algorithm error fixed.
+Permissions, group and publish option added to process modal.
+
+27.02.2018 Version 0.0.73
+Number of attempts column added to run table.
+Log files are renamed before run is initiated to eliminate the chance of documentation error.
+Rerun button upgraded.
+
 27.02.2018 Version 0.0.72
 ssh text is fixed for cluster runs.
 Amazon status checker updated for eliminate lags.
 
-27.02.2018 Version 0.0.71
+26.02.2018 Version 0.0.71
 Slurm ignite Nextflow job submission is defined in local executor.
 Profile page upgraded.
 All executor memories are defined as GB.
 Jobname is defined as pipeline name for lsf and sge executors.
 Outputs paths are fixed for file and set format when multiple directories are defined in file section(in run pipeline page)
 
-27.02.2018 Version 0.0.70
+26.02.2018 Version 0.0.70
 pipeline filtering feature added for admin (waiting approval vs public)
 
-27.02.2018 Version 0.0.69
+26.02.2018 Version 0.0.69
 Bug fixed while saving dragging pipeline elements.
 Bug while showing pin to mainpage element is fixed.
 Description for single cell pipeline is added.
