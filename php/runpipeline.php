@@ -220,7 +220,6 @@
                     <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
                               <option value="3" selected>Only me </option>
                               <option value="15">Only my group</option>
-                              <option value="63">Everyone </option>
                         </select>
                 </div>
             </div>

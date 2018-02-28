@@ -514,8 +514,8 @@ else if ($p=="saveProcess"){
     } else {
         $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group, $perms, $publish, $ownerID);
         if ($perms !== "3"){
-            $obj = json_decode($data);
-            $id = $obj[1]->{"id"};
+            $obj = json_decode($data,true);
+            $id = $obj["id"];
             $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
         }
     }
@@ -553,6 +553,16 @@ else if ($p=="duplicateProcess"){
     $new_name = $_REQUEST['name'];
     $old_id = $_REQUEST['id'];
     $data = $db->duplicateProcess($new_process_gid, $new_name, $old_id, $ownerID);
+    $idArray = json_decode($data,true);
+    $new_pro_id = $idArray["id"];
+    $db->duplicateProcessParameter($new_pro_id, $old_id, $ownerID);
+}
+else if ($p=="createProcessRev"){
+    $rev_comment = $_REQUEST['rev_comment'];
+    $rev_id = $_REQUEST['rev_id'];
+    $new_process_gid = $_REQUEST['process_gid'];
+    $old_id = $_REQUEST['id'];
+    $data = $db->createProcessRev($new_process_gid, $rev_comment, $rev_id, $old_id, $ownerID);
     $idArray = json_decode($data,true);
     $new_pro_id = $idArray["id"];
     $db->duplicateProcessParameter($new_pro_id, $old_id, $ownerID);
@@ -652,6 +662,11 @@ else if ($p=="checkPipelinePerm")
 	$process_id = $_REQUEST['process_id'];
     $data = $db->checkPipelinePerm($process_id, $ownerID);
 }
+else if ($p=="checkProjectPipePerm")
+{
+	$pipeline_id = $_REQUEST['pipeline_id'];
+    $data = $db->checkProjectPipePerm($pipeline_id, $ownerID);
+}
 else if ($p=="checkProject")
 {
 	$pipeline_id = $_REQUEST['pipeline_id'];
@@ -720,7 +735,8 @@ else if ($p=="savePipelineDetails")
 	$perms = $_REQUEST['perms'];
 	$pin = $_REQUEST['pin'];
 	$pin_order = $_REQUEST['pin_order'];
-    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$ownerID);
+	$publish = $_REQUEST['publish'];
+    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$ownerID);
 }
 else if ($p=="savePipelineName"){
     $name = $_REQUEST['name'];
