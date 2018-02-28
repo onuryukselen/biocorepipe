@@ -1,3 +1,10 @@
+28.02.2018 Version 0.0.75
+Process publish feature is added.
+Permission checker added for process if user wants to return back to private mode.
+Admin need to approve everyone permission for processes.
+Search filter shows process that are waiting approval.
+All processes retrieved to admin role which allows to edit permissions.
+
 27.02.2018 Version 0.0.74
 Nextflow file update (checks three single quotes)
 Nextflow sorting algorithm error fixed.

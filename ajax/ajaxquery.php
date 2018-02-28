@@ -510,7 +510,7 @@ else if ($p=="saveProcess"){
         $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $group, $perms, $publish, $ownerID);
         if ($perms !== "3"){
             $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
-            }
+        }
     } else {
         $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group, $perms, $publish, $ownerID);
         if ($perms !== "3"){
@@ -606,8 +606,14 @@ else if ($p=="saveProcessParameter"){
     $group_id= $_REQUEST['group'];
     if (!empty($id)) {
         $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID);
+        if ($perms !== "3"){
+            $db->updateParameterGroupPermById($parameter_id, $group_id, $perms, $ownerID);
+        }
     } else {
         $data = $db->insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID);
+        if ($perms !== "3"){
+            $db->updateParameterGroupPermById($parameter_id, $group_id, $perms, $ownerID);
+        }
     }
 }
 
@@ -640,6 +646,11 @@ else if ($p=="checkPipeline")
 {
 	$process_id = $_REQUEST['process_id'];
     $data = $db->checkPipeline($process_id, $ownerID);
+}
+else if ($p=="checkPipelinePerm")
+{
+	$process_id = $_REQUEST['process_id'];
+    $data = $db->checkPipelinePerm($process_id, $ownerID);
 }
 else if ($p=="checkProject")
 {

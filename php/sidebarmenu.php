@@ -86,6 +86,13 @@ class sidebarfuncs {
       public function getParentSideBar($ownerID)
    {
       if ($ownerID != ''){
+            $userRoleArr = json_decode($this->getUserRole($ownerID));
+            $userRole = $userRoleArr[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
+                FROM process_group pg ";
+                return self::queryTable($sql);
+            }
         $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
         FROM process_group pg
         LEFT JOIN user_group ug ON  pg.group_id=ug.g_id
@@ -155,6 +162,22 @@ class sidebarfuncs {
    function getSubMenuFromSideBar($parent, $ownerID)
    {
        if ($ownerID != ''){
+          $userRoleArr = json_decode($this->getUserRole($ownerID));
+          $userRole = $userRoleArr[0]->{'role'};
+          if ($userRole == "admin"){
+              
+                $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id, p.owner_id, p.publish
+                FROM process p
+                INNER JOIN process_group pg 
+                ON p.process_group_id = pg.id and pg.group_name='$parent' 
+                INNER JOIN (
+                SELECT pr.name, pr.process_gid, pr.owner_id, pr.perms, pr.publish, MAX(pr.rev_id) rev_id
+                FROM process pr
+                GROUP BY pr.process_gid
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid  ";
+          return self::queryTable($sql);
+          }
+       
            $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15))";
            $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
            } else {
@@ -182,7 +205,7 @@ function getSideMenuItem($obj)
 $html="";
 foreach ($obj as $item):
     $nameSub = substr($item->{'name'}, 0, 20);
-    $html.='<li p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
+    $html.='<li pub="'.$item->{'publish'}.'" p="'.$item->{'perms'}.'" g="'.$item->{'group_id'}.'"><a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="'.$item->{'name'}.'@'.$item->{'id'}.'" ><i class="fa fa-angle-double-right"></i>'.$nameSub.'</a></li>';
 endforeach;
 return $html;
 }

@@ -269,7 +269,6 @@ function filterSideBar(options) {
         var selOptArr = [];
         var group_idArr = [];
         for (var i = 0; i < options.length; i++) {
-            console.log(options[i])
             if (options[i] === '3' || options[i] === '63' || options[i] === '630') {
                 var selOpt = options[i];
                 selOptArr.push(selOpt);
@@ -285,23 +284,26 @@ function filterSideBar(options) {
             var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
             $(tagElems2).hide()
             for (var j = 0; j < tagElems2.length; j++) {
+                if ($(tagElems2).eq(j).attr('pin')){
                 if ($(tagElems2).eq(j).attr('pin') === 'true'){
                     var checkPinText = '63';
                 }else {
                     var checkPinText = '630';
                 }
+                }
+                if ($(tagElems2).eq(j).attr('pub')){
+                if ($(tagElems2).eq(j).attr('pub') === '1'){
+                    var checkPubText = '630';
+                }else {
+                    var checkPubText = '0';
+                }
+                }
+                var checkPublish = $.inArray(checkPubText, selOptArr) >= 0;
                 var checkPin = $.inArray(checkPinText, selOptArr) >= 0;
-                console.log('checkPin')
-                console.log(checkPin)
                 var checkPerm = $.inArray($(tagElems2).eq(j).attr('p'), selOptArr) >= 0;
-                console.log('checkPerm')
-                console.log(checkPerm)
-                
                 var checkGroup = $.inArray($(tagElems2).eq(j).attr('g'), group_idArr) >= 0;
-                console.log('checkGroup')
-                console.log(checkGroup)
                 
-                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') === "3" && checkPerm) || ($(tagElems2).eq(j).attr('p') === "63" && checkPin) ) {
+                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') === "3" && checkPerm) || ($(tagElems2).eq(j).attr('p') === "63" && checkPin) ||  ($(tagElems2).eq(j).attr('p') !== "63" && checkPublish)) {
                     $(tagElems).eq(i).show()
                     if (selOpt !== "") {} else {
                         $(tagElems).show()
