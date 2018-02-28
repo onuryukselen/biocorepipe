@@ -47,6 +47,7 @@
 	      processData = getValues({
 	          p: "getProcessData"
 	      })
+
 	      savedData = getValues({
 	          p: "getSavedPipelines"
 	      })
@@ -82,7 +83,8 @@
 	      edges = []
 	      candidates = []
 	      saveNodes = []
-
+          
+          createPipeRev ="";
 	      dupliPipe = false
 	      binding = false
 	      renameTextID = ""
@@ -113,16 +115,13 @@
 	  $('#pipelineSum').keyup(function () {
 	      autosaveDetails();
 	  });
-	  $('#groupSel').click(function () {
-	      autosaveDetails();
-	  });
-	  $('#perms').click(function () {
+	  $('#groupSelPipe').change(function () {
 	      autosaveDetails();
 	  });
 	  $('#pin').click(function () {
 	      autosaveDetails();
 	  });
-	  $('#pin_order').keyup(function () {
+	  $('#publishPipe').change(function () {
 	      autosaveDetails();
 	  });
 	  $("#pipeline-title").keyup(function () { //Click outside of the field or enter
@@ -133,7 +132,7 @@
 	  pipelineOwn = '';
 
 	  function autosave() {
-	      if (pipelineOwn === '' || pipelineOwn === "1") {
+	      if (pipelineOwn === '' || pipelineOwn === "1" && pipelinePerm !== "63") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');
@@ -144,12 +143,12 @@
 	  }
 
 	  function autosaveDetails() {
-	      if (pipelineOwn === '' || pipelineOwn === "1") {
+	      if (pipelineOwn === '' || pipelineOwn === "1" && pipelinePerm !== "63") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');
 	              if (timeoutId) clearTimeout(timeoutId);
-	              timeoutId = setTimeout(function () { saveDetails() }, 2000);
+	              timeoutId = setTimeout(function () { saveDetails() }, 1300);
 	          }
 	      }
 	  }
@@ -1381,10 +1380,11 @@
 	  function saveDetails() {
 	      var id = $("#pipeline-title").attr('pipelineid');
 	      var summary = $('#pipelineSum').val();
-	      var group_id = $('#groupSel').val();
-	      var perms = $('#perms').val();
+	      var group_id = $('#groupSelPipe').val();
+	      var perms = $('#permsPipe').val();
 	      var pin = $('#pin').is(":checked").toString();
 	      var pin_order = $('#pin_order').val();
+	      var publish = $('#publishPipe').val();
 	      var data = {
 	          p: "savePipelineDetails",
 	          id: id,
@@ -1392,7 +1392,8 @@
 	          group_id: group_id,
 	          perms: perms,
 	          pin: pin,
-	          pin_order: pin_order
+	          pin_order: pin_order,
+	          publish: publish
 	      };
 	      if (id !== '') {
 	          var saveDetails = getValues(data);
@@ -1427,10 +1428,11 @@
 	      Mainz = Maint.scale[0]
 	      sName = document.getElementById("pipeline-title").value;
 	      var pipelineSummary = $('#pipelineSum').val();
-	      var group_id = $('#groupSel').val();
-	      var perms = $('#perms').val();
+	      var group_id = $('#groupSelPipe').val();
+	      var perms = $('#permsPipe').val();
 	      var pin = $('#pin').is(":checked").toString();
 	      var pin_order = $('#pin_order').val();
+	      var publish = $('#publishPipe').val();
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
 	          id = $("#pipeline-title").attr('pipelineid');
@@ -1458,110 +1460,114 @@
 	          "pin": pin
 	      }, {
 	          "pin_order": pin_order
+	      }, {
+	          "publish": publish
 	      }];
-	      //A. Add new pipeline
-	      if (sName !== "" && id === '') {
-	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
-	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
-	          savedList.push({ "pipeline_gid": newPipeline_gid });
-	          sl = JSON.stringify(savedList);
-	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	          $("#pipeline-title").attr('pipelineid', ret.id);
-	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
-	          if (dupliPipe === true) {
-	              //	              $("#pipeline-title").changeVal(sName);
-	              setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 0);
-	              dupliPipe = false;
-	          }
-	          $('#autosave').text('All changes saved');
-
-
-	      }
-	      //B. pipeline already exist
-	      else if (sName !== "" && id !== '') {
-	          var warnUserPipe = false;
-	          var warnPipeText = '';
-	          var numOfProject = '';
-              [warnUserPipe, warnPipeText, numOfProject] = checkRevisionPipe(id);
-	          //B.1 allow updating on existing pipeline
-	          if (warnUserPipe === false || saveOnExist === true) {
+	      if (createPipeRev === "true") {
+	          return [savedList, id, sName];
+	      } else {
+	          //A. Add new pipeline
+	          if (sName !== "" && id === '') {
+	              var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
+	              var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
+	              savedList.push({ "pipeline_gid": newPipeline_gid });
 	              sl = JSON.stringify(savedList);
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	              if (saveOnExist === true) {
-	                  checkDelInputParam(id);
-	              }
+	              $("#pipeline-title").attr('pipelineid', ret.id);
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	              refreshCreatorData(pipeline_id);
-	              var numRev = $("#pipeRev option").length;
-	              if (numRev === 1) { //sidebar name change
-	                  document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	              $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+	              if (dupliPipe === true) {
+	                  //	              $("#pipeline-title").changeVal(sName);
+	                  setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 0);
+	                  dupliPipe = false;
 	              }
 	              $('#autosave').text('All changes saved');
-	              //
 
 	          }
-	          //B.2 allow save on new revision
-	          else if (warnUserPipe === true) {
-	              // ConfirmYesNo process modal 
-	              $('#confirmRevision').off();
-	              $('#confirmRevision').on('show.bs.modal', function (event) {
-	                  $(this).find('form').trigger('reset');
-	                  $('#confirmYesNoText').html(warnPipeText);
-	                  if (numOfProject === 1) {
-	                      $('#saveOnExist').css('display', 'inline');
-	                  }
-	              });
-	              $('#confirmRevision').on('hide.bs.modal', function (event) {
-	                  $('#saveOnExist').css('display', 'none');
-	              });
-
-	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
-	                  $('#autosave').text('Changes not saved!');
-	              });
-	              $('#confirmRevision').on('click', '#saveOnExist', function (event) {
+	          //B. pipeline already exist
+	          else if (sName !== "" && id !== '') {
+	              var warnUserPipe = false;
+	              var warnPipeText = '';
+	              var numOfProject = '';
+              [warnUserPipe, warnPipeText, numOfProject] = checkRevisionPipe(id);
+	              //B.1 allow updating on existing pipeline
+	              if (warnUserPipe === false || saveOnExist === true) {
 	                  sl = JSON.stringify(savedList);
 	                  var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	                  checkDelInputParam(id);
+	                  if (saveOnExist === true) {
+	                      checkDelInputParam(id);
+	                  }
 	                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	                  refreshCreatorData(pipeline_id);
 	                  var numRev = $("#pipeRev option").length;
 	                  if (numRev === 1) { //sidebar name change
 	                      document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
 	                  }
-	                  saveOnExist = true;
 	                  $('#autosave').text('All changes saved');
-	                  $('#confirmRevision').modal('hide');
+	                  //
 
-	              });
+	              }
+	              //B.2 allow save on new revision
+	              else if (warnUserPipe === true) {
+	                  // ConfirmYesNo process modal 
+	                  $('#confirmRevision').off();
+	                  $('#confirmRevision').on('show.bs.modal', function (event) {
+	                      $(this).find('form').trigger('reset');
+	                      $('#confirmYesNoText').html(warnPipeText);
+	                      if (numOfProject === 1) {
+	                          $('#saveOnExist').css('display', 'inline');
+	                      }
+	                  });
+	                  $('#confirmRevision').on('hide.bs.modal', function (event) {
+	                      $('#saveOnExist').css('display', 'none');
+	                  });
 
-
-	              $('#confirmRevision').on('click', '#saveRev', function (event) {
-	                  var confirmformValues = $('#confirmRevision').find('input');
-	                  var revCommentData = confirmformValues.serializeArray();
-	                  var revComment = revCommentData[0].value;
-	                  if (revComment === '') { //xxx warn user to enter comment
-	                  } else if (revComment !== '') {
-	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
-	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
-	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
-	                      savedList[1].id = ''
-	                      savedList.push({ "pipeline_gid": pipeline_gid });
-	                      savedList.push({ "rev_comment": revComment });
-	                      savedList.push({ "rev_id": newPipRev_id });
+	                  $('#confirmRevision').on('click', '.cancelRev', function (event) {
+	                      $('#autosave').text('Changes not saved!');
+	                  });
+	                  $('#confirmRevision').on('click', '#saveOnExist', function (event) {
 	                      sl = JSON.stringify(savedList);
 	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	                      checkDelInputParam(id);
+	                      pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	                      refreshCreatorData(pipeline_id);
+	                      var numRev = $("#pipeRev option").length;
+	                      if (numRev === 1) { //sidebar name change
+	                          document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	                      }
+	                      saveOnExist = true;
+	                      $('#autosave').text('All changes saved');
 	                      $('#confirmRevision').modal('hide');
-	                      $('#autosave').text('Changes saved on new revision');
-	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
-	                  }
-	              });
-	              $('#confirmRevision').modal('show');
-	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	              refreshCreatorData(pipeline_id);
+
+	                  });
+
+
+	                  $('#confirmRevision').on('click', '#saveRev', function (event) {
+	                      var confirmformValues = $('#confirmRevision').find('input');
+	                      var revCommentData = confirmformValues.serializeArray();
+	                      var revComment = revCommentData[0].value;
+	                      if (revComment === '') { //xxx warn user to enter comment
+	                      } else if (revComment !== '') {
+	                          var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
+	                          var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
+	                          var newPipRev_id = parseInt(maxPipRev_id) + 1;
+	                          savedList[1].id = ''
+	                          savedList.push({ "pipeline_gid": pipeline_gid });
+	                          savedList.push({ "rev_comment": revComment });
+	                          savedList.push({ "rev_id": newPipRev_id });
+	                          sl = JSON.stringify(savedList);
+	                          var ret = getValues({ p: "saveAllPipeline", dat: sl });
+	                          $('#confirmRevision').modal('hide');
+	                          $('#autosave').text('Changes saved on new revision');
+	                          setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
+	                      }
+	                  });
+	                  $('#confirmRevision').modal('show');
+	                  pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
+	                  refreshCreatorData(pipeline_id);
+	              }
 	          }
 	      }
-
 	  }
 
 	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {

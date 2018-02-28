@@ -51,6 +51,8 @@ function cleanProcessModal() {
     $('#mProActionsDiv').css('display', "none");
     $('#mProRevSpan').css('display', "none");
     $('#mName').removeAttr('disabled');
+    $('#permsPro').removeAttr('disabled');
+    $('#publishPro').removeAttr('disabled');
     var advOptProClass = $('#advOptPro').attr('class');
     if (advOptProClass !== "row collapse") {
         $('#mAdvProCollap').trigger("click");
@@ -69,6 +71,8 @@ function cleanInfoModal() {
     editor.setReadOnly(false);
     $('#saveprocess').css('display', "inline");
     $('#selectProcess').css('display', "none");
+    $('#createRevisionBut').css('display', "none");
+
 
 }
 
@@ -199,6 +203,7 @@ function loadSelectedProcess(selProcessId) {
     $('#groupSelPro').val(showProcess.group_id);
     $('#publishPro').val(showProcess.publish);
 
+
     editorScript = removeDoubleQuote(showProcess.script);
     //            var parsedScript = JSON.parse(showProcess.script);
     //            editor.setValue(parsedScript);
@@ -238,6 +243,11 @@ function loadSelectedProcess(selProcessId) {
             $('#mOutOpt-' + numForm).val(outputs[i].operator);
             $('#mOutOptBut-' + numForm).trigger('click');
         }
+    }
+    if (showProcess.perms === "63" && usRole !== "admin") {
+        $('#permsPro').attr('disabled', "disabled");
+        $('#publishPro').attr('disabled', "disabled");
+        disableProModalPublic(selProcessId);
     }
     return processOwn;
 };
@@ -427,7 +437,7 @@ function addProParatoDBbyRev(data, startPoint, process_id) {
                     dataToProcessParam = [];
                     break;
                 } else if (data[k].name === 'mInName-' + matchSPart && data[k].value !== '') {
-                    dataToProcessParam.push({ name: "perms", value: perms });
+                    dataToProcessParam.push({ name: "perms", value: "3" });
                     dataToProcessParam.push({ name: "group", value: group });
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'input' });
@@ -442,7 +452,7 @@ function addProParatoDBbyRev(data, startPoint, process_id) {
                     dataToProcessParam = [];
                     break;
                 } else if (data[k].name === 'mOutName-' + matchSPart && data[k].value !== '') {
-                    dataToProcessParam.push({ name: "perms", value: perms });
+                    dataToProcessParam.push({ name: "perms", value: "3" });
                     dataToProcessParam.push({ name: "group", value: group });
                     dataToProcessParam.push({ name: "parameter_id", value: matchVal });
                     dataToProcessParam.push({ name: "type", value: 'output' });
@@ -653,11 +663,10 @@ function checkPermissionProc(proID) {
     var infoText = '';
     //has process ever used in other pipelines which are group or public?
     var checkPipe = getValues({ p: "checkPipelinePerm", "process_id": proID });
-    console.log(checkPipe)
     var numOfPipelines = checkPipe.length;
     if (numOfPipelines > 0) {
         warnUser = true;
-        infoText = infoText + 'It is not allowed to change permission of current revision since this revision of process exists in pipelines.</br></br>In order to change the permission of process, you may change the permission of following pipelines: '
+        infoText = infoText + 'It is not allowed to change permission of current revision since this revision of process exists in following group/public pipelines: '
         $.each(checkPipe, function (element) {
             if (element !== 0) {
                 infoText = infoText + ', ';
@@ -668,6 +677,27 @@ function checkPermissionProc(proID) {
 
     return [warnUser, infoText, numOfPipelines];
 }
+
+function checkPermissionPipe(pipeline_id) {
+    var warnUser = false;
+    var infoText = '';
+    //has pipeline ever used in other project_pipeline which are group or public?
+    var checkProjectPipeline = getValues({ p: "checkProjectPipePerm", "pipeline_id": pipeline_id });
+    var numOfProjects = checkProjectPipeline.length;
+    if (numOfProjects > 0) {
+        warnUser = true;
+        infoText = infoText + 'It is not allowed to change permission of current revision since this revision of pipeline exists in following group/public runs: '
+        $.each(checkProjectPipeline, function (element) {
+            if (element !== 0) {
+                infoText = infoText + ', ';
+            }
+            infoText = infoText + '"' + checkProjectPipeline[element].name + '"';
+        });
+    }
+
+    return [warnUser, infoText, numOfProjects];
+}
+
 
 function prepareProParam(data, startPoint, typeInOut) {
     if (typeInOut === 'inputs') {
@@ -766,6 +796,156 @@ function disableProModal(selProcessId) {
     $('#selectProcess').css('display', "inline");
 
 };
+//disable when it is selected as everyone
+function disableProModalPublic(selProcessId) {
+    var formValues = $('#addProcessModal').find('input, select, textarea');
+    $('#mName').attr('disabled', "disabled");
+    $('#mDescription').attr('disabled', "disabled");
+    $('#modeAce').attr('disabled', "disabled");
+    $('#mProcessGroup')[0].selectize.disable();
+    editor.setReadOnly(true);
+    //Ajax for selected process input/outputs
+    var inputs = getValues({
+        p: "getInputsPP",
+        "process_id": selProcessId
+    });
+    var outputs = getValues({
+        p: "getOutputsPP",
+        "process_id": selProcessId
+    });
+    for (var i = 0; i < inputs.length; i++) {
+        var numFormIn = i + 1;
+        $('#mInputs-' + numFormIn)[0].selectize.disable();
+        $('#mInName-' + numFormIn).attr('disabled', "disabled");
+        $('#mInNamedel-' + numFormIn).remove();
+        $('#mInClosure-' + numFormIn).attr('disabled', "disabled");
+        $('#mInOpt-' + numFormIn).attr('disabled', "disabled");
+        $('#mInOptBut-' + numFormIn).css("pointer-events", "none");
+        $('#mInOptdel-' + numFormIn).remove();
+
+    }
+    //
+    var delNumIn = numFormIn + 1;
+    $('#mInputs-' + delNumIn + '-selectized').parent().parent().remove();
+    for (var i = 0; i < outputs.length; i++) {
+        var numFormOut = i + 1;
+        $('#mOutputs-' + numFormOut)[0].selectize.disable();
+        $('#mOutName-' + numFormOut).attr('disabled', "disabled");
+        $('#mOutNamedel-' + numFormOut).remove();
+        $('#mOutClosure-' + numFormOut).attr('disabled', "disabled");
+        $('#mOutOpt-' + numFormOut).attr('disabled', "disabled");
+        $('#mOutOptBut-' + numFormOut).css("pointer-events", "none");
+        $('#mOutOptdel-' + numFormOut).remove();
+    }
+    var delNumOut = numFormOut + 1;
+    $('#mOutputs-' + delNumOut + '-selectized').parent().parent().remove();
+    $('#mParameters').remove();
+    $('#mProcessGroupAdd').remove();
+    $('#mProcessGroupEdit').remove();
+    $('#mProcessGroupDel').remove();
+    $('#saveprocess').css('display', "none");
+    $('#deleteRevision').css('display', "none");
+    $('#createRevision').css('display', "inline");
+    $('#createRevisionBut').css('display', "inline");
+    //    $('#advOptProDiv').css('display', "none");
+    //    $('#selectProcess').css('display', "inline");
+
+};
+
+function createRevPipeline(savedList, id, sName) {
+    createPipeRev= "true";
+    [savedList, id, sName] = save();
+    
+    var infoText = "Since this pipeline is public, it is not allowed for modification. You can save the pipeline as a new revision by entering revision comment and clicking the save button."
+    $('#confirmRevision').off();
+    $('#confirmRevision').on('show.bs.modal', function (event) {
+        $(this).find('form').trigger('reset');
+        $('#confirmYesNoText').html(infoText);
+    });
+    $('#confirmRevision').on('click', '#saveRev', function (event) {
+        var confirmformValues = $('#confirmRevision').find('input');
+        var revCommentData = confirmformValues.serializeArray();
+        var revComment = revCommentData[0].value;
+        if (revComment === '') { //xxx warn user to enter comment
+        } else if (revComment !== '') {
+            var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
+            var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
+            var newPipRev_id = parseInt(maxPipRev_id) + 1;
+            savedList[1].id = '';
+            savedList[7].perms = '3';
+            savedList[7].pin = 'false';
+            savedList[10].publish = '0';
+            savedList.push({ "pipeline_gid": pipeline_gid });
+            savedList.push({ "rev_comment": revComment });
+            savedList.push({ "rev_id": newPipRev_id });
+            console.log(savedList);
+            sl = JSON.stringify(savedList);
+            var ret = getValues({ p: "saveAllPipeline", dat: sl });
+            $('#confirmRevision').modal('hide');
+            $('#autosave').text('Changes saved on new revision');
+            setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
+        }
+    });
+    $('#confirmRevision').modal('show');
+
+}
+
+
+function createRevision() {
+    var infoText = "You can save the process as a new revision by entering revision comment at below and clicking the save button."
+    $('#confirmRevision').off();
+    $('#confirmRevision').on('show.bs.modal', function (event) {
+        $(this).find('form').trigger('reset');
+        $('#confirmYesNoText').html(infoText);
+    });
+    $('#confirmRevision').on('click', '#saveRev', function (event) {
+        var proID = $('#mIdPro').val();
+        $('#mName').removeAttr('disabled');
+        var proName = $('#mName').val();
+        var confirmformValues = $('#confirmRevision').find('input');
+        var revCommentData = confirmformValues.serializeArray();
+        var revComment = revCommentData[0].value;
+        if (revComment === '') { //warn user to enter comment
+
+        } else if (revComment !== '') {
+            var proGroId = $('#mProcessGroup').val();
+            var sMenuProIdFinal = proName + '@' + proID;
+            var sMenuProGroupIdFinal = proGroId;
+            var dataToProcess = []; //dataToProcess to save in process table
+            var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
+            var maxRev_id = getValues({ p: "getMaxRev_id", "process_gid": process_gid })[0].rev_id;
+            var newRev_id = parseInt(maxRev_id) + 1;
+            dataToProcess.push({ name: "id", value: proID });
+            dataToProcess.push({ name: "rev_comment", value: revComment });
+            dataToProcess.push({ name: "rev_id", value: newRev_id });
+            dataToProcess.push({ name: "process_gid", value: process_gid });
+            dataToProcess.push({ name: "p", value: "createProcessRev" });
+
+            if (dataToProcess.length > 0) {
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxquery.php",
+                    data: dataToProcess,
+                    async: true,
+                    success: function (s) {
+                        var newProcess_id = s.id;
+                        //update process link into sidebar menu
+                        sMenuProIdFinal = proName + '@' + newProcess_id;
+                        updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, sMenuProGroupIdFinal);
+                        refreshDataset();
+                        $('#addProcessModal').modal('hide');
+                    },
+                    error: function (errorThrown) {
+                        alert("Error: " + errorThrown);
+                    }
+                });
+            }
+            $('#confirmRevision').modal('hide');
+        }
+    });
+    $('#confirmRevision').modal('show');
+
+}
 
 function prepareInfoModal() {
     $('#processmodaltitle').html('Select Process Revision');
@@ -773,6 +953,7 @@ function prepareInfoModal() {
     $('#advOptProDiv').css('display', "none");
     $('#mProRevSpan').css('display', "inline");
     $('#mProRev').attr('info', "info");
+    $('#createRevisionBut').css('display', "none");
 }
 
 
@@ -792,30 +973,45 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 $('#ownUserNamePip').text(s[0].username);
                 $('#pipelineSum').val(s[0].summary);
                 pipelineOwn = s[0].own;
+                pipelinePerm = s[0].perms;
                 // if user not own it, cannot change or delete pipeline
-                if (pipelineOwn === "0" ) {
+                if (pipelineOwn === "0") {
                     $('#deletePipeRevision').remove();
                     $('#delPipeline').remove();
-                    $('#savePipeline').remove();
+                    $('#savePipeline').css('display', 'none');
                     $('#advOptDiv').css('display', 'none');
                 }
-                if (usRole && usRole === "admin") {
+                if (usRole === "admin") {
                     $('#advOptDiv').css('display', 'inline');
                     $('#pinMainPage').css("display", "inline");
+                    $('#savePipeline').css('display', 'inline');
                     $("#permsPro option[value='63']").attr("disabled", false);
+                    $("#permsPipe option[value='63']").attr("disabled", false);
                 }
                 //load user groups
                 var allUserGrp = getValues({ p: "getUserGroups" });
                 for (var i = 0; i < allUserGrp.length; i++) {
                     var param = allUserGrp[i];
                     var optionGroup = new Option(param.name, param.id);
-                    $("#groupSel").append(optionGroup);
+                    $("#groupSelPipe").append(optionGroup);
                 }
                 if (s[0].group_id !== "0") {
-                    $('#groupSel').val(s[0].group_id);
+                    $('#groupSelPipe').val(s[0].group_id);
                 }
+                $('#publishPipe').val(s[0].publish);
+                // permissions
+                $('#permsPipe').val(s[0].perms);
+                if (s[0].perms === "63" && usRole !== "admin") {
+                    $("#permsPipe").attr('disabled', "disabled");
+                    $("#publishPipe").attr('disabled', "disabled");
+                    $('#deletePipeRevision').remove();
+                    $('#delPipeline').remove();
+                    $('#savePipeline').css('display', 'none');
+                    $('#createRevPipeIcon').css('display', 'inline');
+                    $('#createRevPipe').css('display', 'inline');
 
-                $('#perms').val(s[0].perms);
+
+                }
                 if (s[0].pin === 'true') {
                     $('#pin').attr('checked', true);
                 } else if (s[0].pin === "false") {
@@ -834,7 +1030,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
             alert("Error: " + errorThrown);
         }
     });
-    //xxx
+
     var getRevD = [];
     getRevD.push({ name: "pipeline_id", value: pipeline_id });
     getRevD.push({ name: "p", value: 'getPipelineRevision' });
@@ -900,7 +1096,7 @@ $(document).ready(function () {
         for (var i = 0; i < allUserGrp.length; i++) {
             var param = allUserGrp[i];
             var optionGroup = new Option(param.name, param.id);
-            $("#groupSel").append(optionGroup);
+            $("#groupSelPipe").append(optionGroup);
             $("#groupSelPro").append(optionGroup);
         }
 
@@ -1013,10 +1209,39 @@ $(document).ready(function () {
         }
     };
 
-$("#permsPro").click(function(){
-    lastSel = $("#permsPro option:selected");
-});
-    //xxxxxx
+    $("#permsPro").click(function () {
+        lastSel = $("#permsPro option:selected");
+    });
+    $("#permsPipe").click(function () {
+        lastSelPipe = $("#permsPipe option:selected");
+    });
+    $(function () {
+        $(document).on('change', '#permsPipe', function (event) {
+            var selPerm = $(this).val();
+            var pipeline_id = $('#pipeline-title').attr('pipelineid');
+            if (pipeline_id !== "" && selPerm == "3") {
+                var warnUser = false;
+                var infoText = '';
+                var numOfRuns = '';
+                //check if pipeline ever used in projects_pipelines that and have permission higher than 3
+                //then not allowed to change
+                [warnUser, infoText, numOfRuns] = checkPermissionPipe(pipeline_id);
+                if (warnUser === true) {
+                    lastSelPipe.prop("selected", true);
+                    // warnDelete process modal 
+                    $('#warnDelete').off();
+                    $('#warnDelete').on('show.bs.modal', function (event) {
+                        $(this).find('form').trigger('reset');
+                        $('#warnDelText').html(infoText);
+                    });
+                    $('#warnDelete').modal('show');
+                }
+            } else {
+                autosaveDetails();
+            }
+        })
+    });
+
     $(function () {
         $(document).on('change', '#permsPro', function (event) {
             var selPerm = $(this).val();
@@ -1112,7 +1337,7 @@ $("#permsPro").click(function(){
                 var pName = $('#mName').val();
                 $('#selectProcess').attr("pName", pName);
                 disableProModal(selProcessId);
-            }else if (usRole === "admin"){
+            } else if (usRole === "admin") {
                 $("#permsPro option[value='63']").attr("disabled", false);
             }
         } else { //Info Modal 
@@ -1251,6 +1476,19 @@ $("#permsPro").click(function(){
     $('#addProcessModal').on('click', '#saveprocess', function (event) {
         event.preventDefault();
         var savetype = $('#mIdPro').val();
+        $('#permsPro').removeAttr('disabled');
+        $('#publishPro').removeAttr('disabled');
+        $("#permsPro option[value='63']").attr("disabled", false);
+        var perms = $('#permsPro').val();
+        var publish = $('#publishPro').val();
+        $("#permsPro option[value='63']").attr("disabled", true);
+        $('#permsPro').attr('disabled', "disabled");
+        $('#publishPro').attr('disabled', "disabled");
+        var group = $('#groupSelPro').val();
+        if (!group) {
+            group = "";
+        }
+
         // A) Add New Process Starts
         if (!savetype.length) {
             var formValues = $('#addProcessModal').find('input, select, textarea');
@@ -1262,9 +1500,8 @@ $("#permsPro").click(function(){
             for (var i = 0; i < 5; i++) {
                 dataToProcess.push(data[i]);
             }
-            var perms = $('#permsPro').val();
-            var group = $('#groupSelPro').val();
-            var publish = $('#publishPro').val();
+
+
             var scripteditor = JSON.stringify(editor.getValue());
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
@@ -1274,7 +1511,6 @@ $("#permsPro").click(function(){
             dataToProcess.push({ name: "process_gid", value: newProcess_gid });
             dataToProcess.push({ name: "script", value: scripteditor });
             dataToProcess.push({ name: "p", value: "saveProcess" });
-            console.log(dataToProcess);
             if (proName === '' || proGroId === '') {
                 dataToProcess = [];
             }
@@ -1326,9 +1562,6 @@ $("#permsPro").click(function(){
                 }
                 var scripteditor = JSON.stringify(editor.getValue());
                 var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
-                var perms = $('#permsPro').val();
-                var group = $('#groupSelPro').val();
-                var publish = $('#publishPro').val();
                 dataToProcess.push({ name: "perms", value: perms });
                 dataToProcess.push({ name: "group", value: group });
                 dataToProcess.push({ name: "publish", value: publish });
@@ -1386,9 +1619,6 @@ $("#permsPro").click(function(){
                     }
                     var scripteditor = JSON.stringify(editor.getValue());
                     var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
-                    var perms = $('#permsPro').val();
-                    var group = $('#groupSelPro').val();
-                    var publish = $('#publishPro').val();
                     dataToProcess.push({ name: "perms", value: perms });
                     dataToProcess.push({ name: "group", value: group });
                     dataToProcess.push({ name: "publish", value: publish });
@@ -1445,12 +1675,9 @@ $("#permsPro").click(function(){
                         var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
                         var maxRev_id = getValues({ p: "getMaxRev_id", "process_gid": process_gid })[0].rev_id;
                         var newRev_id = parseInt(maxRev_id) + 1;
-                        var perms = $('#permsPro').val();
-                        var group = $('#groupSelPro').val();
-                        var publish = $('#publishPro').val();
-                        dataToProcess.push({ name: "perms", value: perms });
+                        dataToProcess.push({ name: "perms", value: "3" });
                         dataToProcess.push({ name: "group", value: group });
-                        dataToProcess.push({ name: "publish", value: publish });
+                        dataToProcess.push({ name: "publish", value: "0" });
                         dataToProcess.push({ name: "rev_comment", value: revComment });
                         dataToProcess.push({ name: "rev_id", value: newRev_id });
                         dataToProcess.push({ name: "process_gid", value: process_gid });

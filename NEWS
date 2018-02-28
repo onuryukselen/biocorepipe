@@ -1,3 +1,10 @@
+28.02.2018 Version 0.0.76
+Editing on public processes/pipelines blocked (even user is the owner of the process), instead create revision button is added.
+Pipeline publish feature is added.
+Permission checker added for Pipeline if user wants to return back to private mode.
+Admin need to approve everyone permission for pipelines.
+All pipelines retrieved to admin role which allows to edit permissions.
+
 28.02.2018 Version 0.0.75
 Process publish feature is added.
 Permission checker added for process if user wants to return back to private mode.

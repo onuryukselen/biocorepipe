@@ -21,6 +21,10 @@
         <button type="submit" id="dupPipeline" class="btn" name="button" data-backdrop="false" onclick="duplicatePipeline()" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Copy Pipeline">
                         <i class="fa fa-copy" style="font-size: 16px;"></i></a></button>
+        <button type="submit" id="createRevPipeIcon" class="btn" name="button" data-backdrop="false" onclick="createRevPipeline()" style=" margin:0px; padding:0px; display:none;">
+                    <a data-toggle="tooltip" data-placement="bottom" data-original-title="Create Revision">
+                        <i class="fa fa-chain" style="font-size: 16px;"></i></a></button>
+                        
         <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile(&quot;pipeline&quot;))" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
                         <i class="glyphicon glyphicon-save"></i></a></button>
@@ -36,6 +40,7 @@
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
                 <li><a id="deletePipeRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
                 <li><a id="duplicaPipeline" onclick="duplicatePipeline()">Copy Pipeline</a></li>
+                <li><a id="createRevPipe" style="display:none;" onclick="createRevPipeline()">Create Revision</a></li>
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;" class="btn-group">
@@ -152,26 +157,37 @@
 </div>
 
 <!-- collapsed settings-->
-<div id="advOpt" class="row collapse">
-    <div class="col-md-6">
+<div id="advOpt" class=" collapse">
+    <div class="col-md-4">
         <div class="form-group">
-            <label>Permissions to View</label>
-            <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
+            <label class="col-sm-12 control-label">Permissions to View</label>
+                <select id="permsPipe" class="fbtn btn-default form-control" name="perms">
                               <option value="3" selected="">Only me </option>
                               <option value="15">Only my group</option>
-                              <option value="63">Everyone </option>
+                              <option disabled value="63">Everyone </option>
                         </select>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="form-group">
-            <label>Group Selection</label>
-            <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
-                          <option value="" disabled selected>Choose group </option>
+            <label class="col-sm-12 control-label">Group Selection</label>
+                <select id="groupSelPipe" class="fbtn btn-default form-control" name="group_id">
+                          <option value="" selected>Choose group </option>
                         </select>
         </div>
     </div>
-    <div id="pinMainPage" style="display:none;" ; class="col-md-6">
+    <div class="col-sm-4">
+        <div class="form-group">
+            <label class="col-sm-12 control-label">Publish</label>
+                <select id="publishPipe" class="fbtn btn-default form-control" name="publish">
+                                      <option value="0">No</option>
+                                      <option value="1">Yes</option>
+                                    </select>
+            </div>
+    </div>
+
+
+    <div id="pinMainPage" style="display:none;" class="col-md-6">
         <div class="form-group">
             <label>Pin to Main Page </label>
             <input id="pin" type="checkbox">
@@ -193,6 +209,7 @@
                     <button class="btn btn-default dropdown-toggle" type="button" id="mProActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><span class="fa fa-ellipsis-h"></span></button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                         <li><a id="deleteRevision" data-toggle="modal" href="#confirmModal">Delete Revision</a></li>
+                        <li><a id="createRevision" style="display:none;" onclick="createRevision()">Create Revision</a></li>
                         <li><a id="duplicaProRev" onclick="duplicateProcessRev()">Copy Process</a></li>
 
                     </ul>
@@ -459,7 +476,7 @@
                                 <label class="col-sm-6 control-label">Group Selection</label>
                                 <div class="col-sm-6">
                                     <select id="groupSelPro" class="fbtn btn-default form-control" name="group_id">
-                          <option value="" disabled selected>Choose group </option>
+                          <option value="" selected>Choose group </option>
                         </select>
                                 </div>
                             </div>
@@ -484,6 +501,7 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="saveprocess">Save changes</button>
                 <button type="button" class="btn btn-primary" style="display:none" id="selectProcess">Select Revision</button>
+                <button type="button" class="btn btn-primary" style="display:none" id="createRevisionBut" onclick="createRevision()">Create Revision</button>
             </div>
         </div>
     </div>
