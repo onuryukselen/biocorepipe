@@ -2,7 +2,7 @@
 require_once("../config/config.php");
 
 class dbfuncs {
-
+    
     private $dbhost = DBHOST;
     private $db = DB;
     private $dbuser = DBUSER;
@@ -978,6 +978,12 @@ class dbfuncs {
     }
 
     public function getAllProcessGroups($ownerID) {
+        $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
+        if ($userRole == "admin"){
+            $sql = "SELECT DISTINCT pg.id, pg.group_name 
+            FROM process_group pg";
+            return self::queryTable($sql);
+        }
         $sql = "SELECT DISTINCT pg.id, pg.group_name 
         FROM process_group pg
         LEFT JOIN user_group ug ON pg.group_id=ug.g_id
@@ -1436,33 +1442,6 @@ class dbfuncs {
                 $where";
 		return self::queryTable($sql);
     }
-//    public function  getAllProjectPipelineInputs($project_pipeline_id,$ownerID) {
-//        $where = " where ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
-//		$sql = "SELECT ppi.id, i.id as input_id, i.name
-//                FROM project_pipeline_input ppi
-//                INNER JOIN input i ON i.id = ppi.input_id
-//                $where";
-//		return self::queryTable($sql);
-//    }
-    
-    // ------- Process Parameters ------
-
-//    public function getAllProcessParameters($process_id, $type, $start, $end) {
-//        $time = "";
-//        if (!empty($start)) {
-//            $time = "date_created >= '$start' AND date_created < ('$end' + INTERVAL 1 DAY)";
-//        }
-//
-//        $typeExp = "";
-//        if (!empty($type)) {
-//            $typeExp = "AND type = '$type'";
-//        }
-//
-//        $sql = "SELECT pp.id, pp.name, p.name process_name, p.version, type FROM process p, process_parameter pp 
-//                WHERE pp.process_id = $process_id $typeExp AND pp.process_id = p.id";
-//        return self::queryTable($sql);
-//    }
-   
 
     public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID) {
         $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, closure, operator, owner_id, date_created, date_modified, last_modified_user, perms, group_id) 
@@ -1559,6 +1538,11 @@ class dbfuncs {
         }
 		$where = " where p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)"; 
 		if ($id != ""){
+            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
+                return self::queryTable($sql);
+            }
 			$where = " where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		}
 		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
@@ -1569,6 +1553,13 @@ class dbfuncs {
 	}
     
     public function getProcessRevision($process_gid,$ownerID) {
+         $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own  
+                FROM process p
+                WHERE p.process_gid = '$process_gid'";
+                return self::queryTable($sql);
+            }
 		$sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own  
         FROM process p
         LEFT JOIN user_group ug ON p.group_id=ug.g_id
@@ -1597,6 +1588,10 @@ class dbfuncs {
 	}
 	public function checkPipeline($process_id, $ownerID) {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = '$ownerID') AND nodes LIKE '%\"$process_id\",\"%'";
+		return self::queryTable($sql);
+	}
+    public function checkPipelinePerm($process_id, $ownerID) {
+		$sql = "SELECT id, name FROM biocorepipe_save WHERE owner_id = '$ownerID' AND perms>3 AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
     public function checkParameter($parameter_id, $ownerID) {
@@ -1652,29 +1647,29 @@ class dbfuncs {
     public function updateProjectGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE project p
         INNER JOIN project_pipeline pp ON p.id=pp.project_id
-        SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.id = '$id' and p.owner_id='$ownerID'";
+        SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.id = '$id' and p.owner_id='$ownerID' AND p.perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE project_input pi
         INNER JOIN project_pipeline_input ppi ON pi.input_id=ppi.input_id
-        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.owner_id='$ownerID'";
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.owner_id='$ownerID' AND pi.perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updateProjectPipelineInputGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE project_pipeline_input SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$id' and owner_id='$ownerID'";
+        $sql = "UPDATE project_pipeline_input SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$id' and owner_id='$ownerID' AND perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updateInputGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE input i
         INNER JOIN project_pipeline_input ppi ON ppi.input_id=i.id
-        SET i.group_id='$group_id', i.perms='$perms', i.date_modified=now(), i.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and i.owner_id='$ownerID'";
+        SET i.group_id='$group_id', i.perms='$perms', i.date_modified=now(), i.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and i.owner_id='$ownerID' AND i.perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updatePipelineGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE biocorepipe_save pi
         INNER JOIN project_pipeline_input ppi ON pi.id=ppi.pipeline_id
-        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.owner_id='$ownerID'";
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.owner_id='$ownerID' AND pi.perms<'$perms'";
         return self::runSQL($sql);
     }
      public function updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID) {
@@ -1697,23 +1692,28 @@ class dbfuncs {
     
     //update if user owns the process
     public function updateProcessGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE process SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and owner_id='$ownerID'";
+        $sql = "UPDATE process SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and owner_id='$ownerID' AND perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updateProcessParameterGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE process_parameter SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE process_id = '$id' and owner_id='$ownerID'";
+        $sql = "UPDATE process_parameter SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE process_id = '$id' and owner_id='$ownerID' AND perms<'$perms'";
         return self::runSQL($sql);
     }
     public function updateParameterGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE parameter p 
                 INNER JOIN process_parameter pp ON p.id=pp.parameter_id
-                SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.process_id = '$id' and p.owner_id='$ownerID'";
+                SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.process_id = '$id' and p.owner_id='$ownerID' AND p.perms<'$perms'";
+        return self::runSQL($sql);
+    }
+    public function updateParameterGroupPermById($id, $group_id, $perms, $ownerID) {
+        $sql = "UPDATE parameter  
+                SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and owner_id='$ownerID' AND perms<'$perms'";
         return self::runSQL($sql);
     }
      public function updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE process_group pg 
                 INNER JOIN process p ON pg.id=p.process_group_id
-                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' and pg.owner_id='$ownerID'";
+                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' and pg.owner_id='$ownerID' AND pg.perms<'$perms'";
         return self::runSQL($sql);
     }
 	public function saveAllPipeline($dat,$ownerID) {
@@ -1756,6 +1756,7 @@ class dbfuncs {
         if ($ownerID == ""){
             $ownerID ="''";
         }
+        
         $where = " where pip.owner_id = '$ownerID' OR pip.perms = 63 OR (ug.u_id ='$ownerID' and pip.perms = 15)";
 		$sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username
         FROM biocorepipe_save pip
@@ -1766,6 +1767,14 @@ class dbfuncs {
 	}
     
 	public function loadPipeline($id,$ownerID) {
+        $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own
+                FROM biocorepipe_save pip 
+                INNER JOIN users u ON pip.owner_id = u.id
+                where pip.id = '$id'";
+                return self::queryTable($sql);
+            }
 		$sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own
                 FROM biocorepipe_save pip 
                 INNER JOIN users u ON pip.owner_id = u.id
@@ -1793,3 +1802,4 @@ class dbfuncs {
         return self::insTable($sql);
     }
 }
+

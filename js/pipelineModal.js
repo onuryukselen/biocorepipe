@@ -51,10 +51,10 @@ function cleanProcessModal() {
     $('#mProActionsDiv').css('display', "none");
     $('#mProRevSpan').css('display', "none");
     $('#mName').removeAttr('disabled');
-     var advOptProClass = $('#advOptPro').attr('class');
-            if (advOptProClass !== "row collapse"){
-                $('#mAdvProCollap').trigger("click");
-            }
+    var advOptProClass = $('#advOptPro').attr('class');
+    if (advOptProClass !== "row collapse") {
+        $('#mAdvProCollap').trigger("click");
+    }
 
 
 }
@@ -86,7 +86,7 @@ function refreshProcessModal(selProId) {
     $('#mProActionsDiv').css('display', "inline");
     $('#mProRevSpan').css('display', "inline");
     $('#advOptProDiv').css('display', "inline");
-   
+
 
     loadModalRevision(selProId);
     loadSelectedProcess(selProId);
@@ -198,7 +198,7 @@ function loadSelectedProcess(selProcessId) {
     $('#permsPro').val(showProcess.perms);
     $('#groupSelPro').val(showProcess.group_id);
     $('#publishPro').val(showProcess.publish);
-    
+
     editorScript = removeDoubleQuote(showProcess.script);
     //            var parsedScript = JSON.parse(showProcess.script);
     //            editor.setValue(parsedScript);
@@ -331,7 +331,7 @@ function addProParatoDB(data, startPoint, process_id) {
         var perms = $('#permsPro').val();
         var group = $('#groupSelPro').val();
 
-        
+
         if (matchFPart === 'mInputs' && matchVal !== '') {
             //first check if closures are visible
             if ($("#mInClosure-" + matchSPart).css('visibility') === 'visible') {
@@ -648,6 +648,27 @@ function checkRevisionProc(data, proID) {
     return [warnUser, infoText, numOfProcess];
 }
 
+function checkPermissionProc(proID) {
+    var warnUser = false;
+    var infoText = '';
+    //has process ever used in other pipelines which are group or public?
+    var checkPipe = getValues({ p: "checkPipelinePerm", "process_id": proID });
+    console.log(checkPipe)
+    var numOfPipelines = checkPipe.length;
+    if (numOfPipelines > 0) {
+        warnUser = true;
+        infoText = infoText + 'It is not allowed to change permission of current revision since this revision of process exists in pipelines.</br></br>In order to change the permission of process, you may change the permission of following pipelines: '
+        $.each(checkPipe, function (element) {
+            if (element !== 0) {
+                infoText = infoText + ', ';
+            }
+            infoText = infoText + '"' + checkPipe[element].name + '"';
+        });
+    }
+
+    return [warnUser, infoText, numOfPipelines];
+}
+
 function prepareProParam(data, startPoint, typeInOut) {
     if (typeInOut === 'inputs') {
         var searchFpart = 'mInputs';
@@ -772,7 +793,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 $('#pipelineSum').val(s[0].summary);
                 pipelineOwn = s[0].own;
                 // if user not own it, cannot change or delete pipeline
-                if (pipelineOwn === "0") {
+                if (pipelineOwn === "0" ) {
                     $('#deletePipeRevision').remove();
                     $('#delPipeline').remove();
                     $('#savePipeline').remove();
@@ -781,6 +802,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 if (usRole && usRole === "admin") {
                     $('#advOptDiv').css('display', 'inline');
                     $('#pinMainPage').css("display", "inline");
+                    $("#permsPro option[value='63']").attr("disabled", false);
                 }
                 //load user groups
                 var allUserGrp = getValues({ p: "getUserGroups" });
@@ -990,22 +1012,32 @@ $(document).ready(function () {
             return '<div class="item" data-value="' + escape(data.id) + '">Revision: ' + escape(data.rev_id) + '</div>';
         }
     };
-    
+
+$("#permsPro").click(function(){
+    lastSel = $("#permsPro option:selected");
+});
     //xxxxxx
     $(function () {
         $(document).on('change', '#permsPro', function (event) {
             var selPerm = $(this).val();
-            var id = $('#mIdPro').val();
-            //check if process used in pipelines that user not owns it
-            //then not allowed to change
-            
-            //check if process used in pipelines that user owns it but have permission 15 or 63
-            //show user the list of pipelines that has been used with perm15 or 63
-            //then not allowed to change
-            
-            //if it returns from 15 to 3
-            if (id !== "" && selPerm == "3"){
-//                checkProPerms
+            var proID = $('#mIdPro').val();
+            if (proID !== "" && selPerm == "3") {
+                var warnUser = false;
+                var infoText = '';
+                var numOfPipelines = '';
+                //check if process ever used in pipelines that and have permission higher than 3
+                //then not allowed to change
+                [warnUser, infoText, numOfPipelines] = checkPermissionProc(proID);
+                if (warnUser === true) {
+                    lastSel.prop("selected", true);
+                    // warnDelete process modal 
+                    $('#warnDelete').off();
+                    $('#warnDelete').on('show.bs.modal', function (event) {
+                        $(this).find('form').trigger('reset');
+                        $('#warnDelText').html(infoText);
+                    });
+                    $('#warnDelete').modal('show');
+                }
             }
         })
     });
@@ -1075,11 +1107,13 @@ $(document).ready(function () {
             loadModalRevision(selProcessId);
             var processOwn = loadSelectedProcess(selProcessId);
             // if user is the owner of the process (processOwn=1) allowed for edit and delete.
-            if (processOwn === "0") {
+            if (processOwn === "0" && usRole !== "admin") {
                 setTimeout(function () { prepareInfoModal(); }, 0);
                 var pName = $('#mName').val();
                 $('#selectProcess').attr("pName", pName);
                 disableProModal(selProcessId);
+            }else if (usRole === "admin"){
+                $("#permsPro option[value='63']").attr("disabled", false);
             }
         } else { //Info Modal 
             prepareInfoModal();
