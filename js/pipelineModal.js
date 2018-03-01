@@ -68,6 +68,11 @@ function cleanInfoModal() {
     $('#mDescription').removeAttr('disabled');
     $('#modeAce').removeAttr('disabled');
     $('#selectProcess').removeAttr("gNum");
+    $('#selectProcess').removeAttr("fProID");
+    $('#selectProcess').removeAttr("lastProID");
+    $('#selectProcess').removeAttr("pName");
+    $('#selectProcess').removeAttr("xCoor");
+    $('#selectProcess').removeAttr("yCoor");
     editor.setReadOnly(false);
     $('#saveprocess').css('display', "inline");
     $('#selectProcess').css('display', "none");
@@ -1148,12 +1153,11 @@ $(document).ready(function () {
 
 
     $("#addProcessModal").on('click', '#selectProcess', function (event) {
+        event.preventDefault();
         var gNumInfo = $('#selectProcess').attr("gNum");
-
         var firstProID = $('#selectProcess').attr("fProID");
         var lastProID = $('#selectProcess').attr("lastProID");
         var pName = $('#selectProcess').attr("pName");
-        $('#addProcessModal').modal('hide');
         if (lastProID && lastProID !== firstProID) {
             var processDat = pName + '@' + lastProID;
             remove('del-' + gNumInfo);
@@ -1166,6 +1170,7 @@ $(document).ready(function () {
             addProcess(processDat, xCor, yCor);
         }
         autosave();
+        $('#addProcessModal').modal('hide');
     });
 
 
