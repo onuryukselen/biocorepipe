@@ -1,6 +1,6 @@
-*****************************
-DolphinNext Pipeline Examples
-*****************************
+*****************
+Pipeline Examples
+*****************
 
 This guide shows various basic and advance pipeline examples.
 

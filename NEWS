@@ -1,3 +1,9 @@
+28.02.2018 Version 0.0.78
+Fixed error in single Cell pipeline in dolphinnext.
+Ssh keys tab added (not functional)
+readthedocs link added to top of the page
+readthedocs format errors are cleared.
+
 28.02.2018 Version 0.0.77
 Fixed Error when selecting process revisions in pipeline
 

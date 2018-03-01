@@ -1,6 +1,6 @@
-**************************
-DolphinNext Pipeline Guide
-**************************
+**************
+Pipeline Guide
+**************
 
 This guide shows how to create, edit, share and remove pipelines.
 

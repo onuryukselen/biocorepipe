@@ -267,8 +267,8 @@
             </a>
                         </li>
                         <li><a href="index.php?np=4">Profiles </a></li>
+                        <li><a href="http://dolphinnext.readthedocs.io/" target="_blank"><i class="fa fa-mortar-board"></i></a></li>
                         <li> <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
-                        <!--                        <li><a href="#"><i class="fa fa-gears"></i></a></li>-->
 
 
                     </ul>

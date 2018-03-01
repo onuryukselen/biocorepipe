@@ -298,7 +298,14 @@ else if ($p=="saveParameter"){
        $data = $db->insertParameter($name, $qualifier, $file_type, $ownerID);
     }
 }
-
+else if ($p=="getSSH")
+{
+    if (!empty($id)) {
+    $data = $db->getSSHbyID($id, $ownerID);
+    } else {
+    $data = $db->getSSH($ownerID);
+    }
+}
 else if ($p=="getProfileLocal")
 {
     if (!empty($id)) {

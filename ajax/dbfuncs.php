@@ -833,6 +833,14 @@ class dbfuncs {
         $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
+     public function getSSH($ownerID) {
+        $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);    
+    }
+    public function getSSHbyID($id,$ownerID) {
+        $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID' and id = '$id'";
+        return self::queryTable($sql);    
+    }
     public function getProfileClusterbyID($id, $ownerID) {
         $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 

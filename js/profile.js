@@ -28,7 +28,7 @@ $(document).ready(function () {
     }
 
     function addClusterRow(id, name, next_path, executor, username, hostname) {
-        $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Remote Machine</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
+        $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
     }
 
     function addAmazonRow(id, name, next_path, executor, instance_type, image_id) {
@@ -40,7 +40,7 @@ $(document).ready(function () {
     }
 
     function updateClusterRow(id, name, next_path, executor, username, hostname) {
-        $('#profilesTable > thead > #cluster-' + id).html('<td>' + name + '</td> <td>Remote Machine</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
+        $('#profilesTable > thead > #cluster-' + id).html('<td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
     }
 
     function updateAmazonRow(id, name, next_path, executor, instance_type, image_id) {
@@ -218,32 +218,6 @@ $(document).ready(function () {
                         } else if (selEnvType === "amazon") {
                             updateAmazonRow(data[0].value, data[1].value, data[17].value, data[18].value, data[11].value, data[12].value);
                         }
-                        //                        var clickedRow = $('#saveproject').data('clickedrow');
-                        //                        var getProjectData = [];
-                        //                        getProjectData.push({ name: "id", value: savetype });
-                        //                        getProjectData.push({ name: "p", value: 'getProjects' });
-                        //                        $.ajax({
-                        //                            type: "POST",
-                        //                            url: "ajax/ajaxquery.php",
-                        //                            data: getProjectData,
-                        //                            async: true,
-                        //                            success: function (sc) {
-                        //                                var projectDat = sc;
-                        //                                var rowData = {};
-                        //                                var keys = projectTable.settings().init().columns;
-                        //                                for (var i = 0; i < keys.length; i++) {
-                        //                                    var key = keys[i].data;
-                        //                                    rowData[key] = projectDat[0][key];
-                        //                                }
-                        //                                rowData.id = projectDat[0].id;
-                        //                                projectTable.row(clickedRow).remove().draw();
-                        //                                projectTable.row.add(rowData).draw();
-                        //    
-                        //                            },
-                        //                            error: function (errorThrown) {
-                        //                                alert("Error: " + errorThrown);
-                        //                            }
-                        //                        });
 
                     } else { //insert
                         if (selEnvType === "local") {
@@ -259,19 +233,14 @@ $(document).ready(function () {
                         if (numRows > 2) {
                             $('#noProfile').css('display', 'none');
                         }
-
-
                     }
-
                     $('#profilemodal').modal('hide');
-
                 },
                 error: function (errorThrown) {
                     alert("Error: " + errorThrown);
                 }
             });
         }
-
     });
 
     $('#profilesTable').on('click', '#profileremove', function (e) {
@@ -600,10 +569,52 @@ $(document).ready(function () {
             }
         });
     });
+//--------------- groups section ends------------------
 
-    // groups section ends
+//------------   ssh keys section-------------
+    function getSSHTableOptions() {
+            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#sshKeyModal" data-toggle="modal" class="editSSHKeys">Edit</a></li><li><a href="#" data-toggle="modal" class="deleteSSHKeys">Delete</a></li></ul></div>';
+        return button;
+    }
+
+    var sshTable = $('#sshKeyTable').DataTable({
+        "ajax": {
+            url: "ajax/ajaxquery.php",
+            data: { "p": "getSSH" },
+            "dataSrc": ""
+        },
+        "columns": [{
+            "data": "name"
+            },  {
+            "data": "date_created"
+            }, {
+            data: null,
+            className: "center",
+            fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                $(nTd).html(getSSHTableOptions());
+                }
+            }]
+    });
 
 
+
+
+    $('#sshKeyModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'addSSHKey') {
+            $('#sshkeysmodaltitle').html('Add SSH Keys');
+        } else {
+            $('#sshkeysmodaltitle').html('Edit SSH Keys');
+            var clickedRow = button.closest('tr');
+            var rowData = sshTable.row(clickedRow).data();
+            $('#savesshkey').data('clickedrow', clickedRow);
+            var formValues = $('#sshKeyModal').find('input');
+            $(formValues[0]).val(rowData.id);
+            $(formValues[1]).val(rowData.name);
+
+        }
+    });
 
 
 
