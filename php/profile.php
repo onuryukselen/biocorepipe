@@ -461,66 +461,53 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="mSSHName" class="col-sm-3 control-label">Name</label>
-                        <div class="col-sm-9">
+                        <label for="mSSHName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
                             <input type="text" class="form-control" id="mSSHName" name="name">
                         </div>
                     </div>
-<!--                    <hr id="hrDiv">-->
-                    <div id="SHHDiv" class="col-md-12">
-                        <div>
-                            <label><input type="checkbox" id="userKeyCheck" name="userKey"  data-toggle="collapse" data-target="#userKeyDiv"> Use your own keys</input><span><a data-toggle="tooltip" data-placement="bottom" title="Use your own ssh keys and paste them below"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                        </div>
-                        <div id="userKeyDiv" class="panel panel-default collapse">
-                            <div id="mPriKeySHHDiv" class="form-group">
-                                <label for="mPriKeySHH" class="col-sm-3 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                                <div class="col-sm-9">
-                                    <textarea type="text" rows="5" class="form-control" id="mPriKeySHH" name="prikey"></textarea>
-                                </div>
-                            </div>
-                            <div id="mPubKeySHHDiv" class="form-group">
-                                <label for="mPubKeySHH" class="col-sm-3 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                                <div class="col-sm-9">
-                                    <textarea type="text" rows="5" class="form-control" id="mPubKeySHH" name="pubkey"></textarea>
-                                    <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label><input type="checkbox" id="ourKeyCheck" name="ourKey" data-toggle="collapse" data-target="#ourKeyDiv"> Create new keys</input><span><a data-toggle="tooltip" data-placement="bottom" title="Create new ssh keys that are specifically produced for you by clicking create new ssh keys button"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                        </div>
-                        <div id="ourKeyDiv" class="panel panel-default collapse">
-                            <div id="ourKeyAll">
-                                <div id="mPriKeySHHDiv" class="form-group">
-                                    <label for="mPriKeySHH" class="col-sm-3 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                                    <div class="col-sm-9">
-                                        <textarea type="text" rows="5" class="form-control" id="mPriKeySHH" name="prikey"></textarea>
-                                    </div>
-                                </div>
-                                <div id="mPubKeySHHDiv" class="form-group">
-                                    <label for="mPubKeySHH" class="col-sm-3 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
-                                    <div class="col-sm-9">
-                                        <textarea type="text" rows="5" class="form-control" id="mPubKeySHH" name="pubkey"></textarea>
-                                        <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-                    <!--
                     <div class="form-group">
-                        <p class="col-sm-10"><b>Option B)</b> We can create new keys for you by clicking new ssh keys button </p>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="mSSHName" name="name">
+                        <label for="userKeyCheck" class="col-sm-4 control-label"><input type="checkbox" id="userKeyCheck" name="check_userkey"  data-toggle="collapse" data-target="#userKeyDiv"> Use your own keys </input><span><a data-toggle="tooltip" data-placement="bottom" title="Use your own ssh keys and paste them below"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    </div>
+                    <div id="userKeyDiv" class="collapse">
+                        <div id="mUserPriKeyDiv" class="form-group">
+                            <label for="mUserPriKey" class="col-sm-4 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mUserPriKey" name="prikey"></textarea>
+                            </div>
+                        </div>
+                        <div id="mUserPubKeyDiv" class="form-group">
+                            <label for="mUserPubKey" class="col-sm-4 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mUserPubKey" name="pubkey"></textarea>
+                                <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
+                            </div>
                         </div>
                     </div>
--->
-
-
+                    <div class="form-group">
+                        <label for="ourKeyCheck" class="col-sm-4 control-label"><input type="checkbox" id="ourKeyCheck" name="check_ourkey" data-toggle="collapse" data-target="#ourKeyDiv"> Create new keys </input><span><a data-toggle="tooltip" data-placement="bottom" title="Create new ssh keys that are specifically produced for you by clicking generate keys button"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    </div>
+                    <div id="ourKeyDiv" class="collapse">
+                        <div id="createKeysDiv" class="form-group">
+                            <label for="createKeysButton" class="col-sm-4 control-label">Generate Keys<span><a data-toggle="tooltip" data-placement="bottom" title="Click button to generate new keys for you"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <button type="button" id="createKeysButton" class="btn btn-primary" onclick="generateKeys()">Generate Keys</button>
+                            </div>
+                        </div>
+                        <div id="mOurPriKeyDiv" class="form-group" style="display:none;">
+                            <label for="mOurPriKey" class="col-sm-4 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mOurPriKey" name="prikey"></textarea>
+                            </div>
+                        </div>
+                        <div id="mOurPubKeyDiv" class="form-group" style="display:none;">
+                            <label for="mOurPubKey" class="col-sm-4 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mOurPubKey" name="pubkey"></textarea>
+                                <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">

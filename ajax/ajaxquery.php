@@ -306,6 +306,14 @@ else if ($p=="getSSH")
     $data = $db->getSSH($ownerID);
     }
 }
+else if ($p=="generateKeys")
+{
+    $data = $db->generateKeys($ownerID);
+}
+else if ($p=="readGenerateKeys")
+{
+    $data = $db->readGenerateKeys($ownerID);
+}
 else if ($p=="getProfileLocal")
 {
     if (!empty($id)) {

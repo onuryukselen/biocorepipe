@@ -131,12 +131,12 @@ function createNextflowFile(nxf_runmode) {
     endText += '}\n';
 
 
-        if (nxf_runmode === "run") {
-            var interdel = $('#intermeDel').is(":checked");
-            if (interdel && interdel === true) {
-                endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
-            }
+    if (nxf_runmode === "run") {
+        var interdel = $('#intermeDel').is(":checked");
+        if (interdel && interdel === true) {
+            endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
         }
+    }
     return nextText + endText
 }
 
@@ -164,6 +164,22 @@ function outputFileName(id, currgid) {
         //        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + "## ${it.name}\"}" + "\n"
     }
     return outFileName;
+}
+
+function getChannelNameAll(channelName,Iid) {
+    var channelNameAll = "";
+    for (var c = 0; c < edges.length; c++) {
+        if (edges[c].indexOf(Iid) !== -1) {
+            var secNode = edges[c].split("_")[1];
+            if (channelNameAll === "") {
+                channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+            } else {
+                channelNameAll = channelNameAll + "; " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+            }
+
+        }
+    }
+    return channelNameAll
 }
 
 //Input parameters and channels with file paths
@@ -197,10 +213,15 @@ function InputParameters(id, currgid) {
                     channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 
                     //check proId had a mate inputparameter
-                    var inputParAll = getValues({ p: "getInputsPP", "process_id": ProId });
-                    var inputParMate = inputs.filter(function (el) {
+                    if (qual === "set"){
+                    var sNodeProId = inputIdSplit[1];
+                    var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
+                    console.log(inputParAll);
+                    var inputParMate = inputParAll.filter(function (el) {
                         return el.sname == "mate"
                     }).length
+                    console.log(inputParMate);
+                    }
 
                     if (qual === "file") {
                         firstPartTemp = "params." + inputParamName + " =\"\" \n"
@@ -209,32 +230,22 @@ function InputParameters(id, currgid) {
                         secPart = secPart + secPartTemp
                         break
                         //if mate defined in process use fromFilePairs
-                    } else if (qual === "set" && inputParMate) {
+                    } else if (qual === "set" && inputParMate > 0) {
                         firstPartTemp = "params." + inputParamName + " =\"\" \n";
                         //all processes that are connected to
                         var channelNameAll = "";
-                        for (var c = 0; c < edges.length; c++) {
-                            if (edges[c].indexOf(Iid) !== -1) {
-                                var secNode = edges[c].split("_")[1];
-                                if (channelNameAll === "") {
-                                    channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                                } else {
-                                    channelNameAll = channelNameAll + "; " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                                }
-
-                            }
-                        }
+                        channelNameAll =  getChannelNameAll(channelName,Iid);
                         secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
-
-
-
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
                         //if mate not defined in process use fromPath
-                    } else if (qual === "set" && !inputParMate) {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n"
-                        secPartTemp = channelName + " = " + "Channel.fromPath(" + inputParamName + ") \n"
+                    } else if (qual === "set" && inputParMate === 0) {
+                        firstPartTemp = "params." + inputParamName + " =\"\" \n";
+                        //all processes that are connected to
+                        var channelNameAll = "";
+                        channelNameAll =  getChannelNameAll(channelName,Iid);
+                        secPartTemp = channelNameAll + " = " + "Channel.fromPath(" + inputParamName + ") \n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
@@ -257,24 +268,24 @@ function InputParameters(id, currgid) {
     return iText
 }
 
-function getParamOutdir(outParUserEntry){
-    return '"'+outParUserEntry+'/$filename"';
+function getParamOutdir(outParUserEntry) {
+    return '"' + outParUserEntry + '/$filename"';
     "paired/$filename"
 }
 
 //
 function getPublishDirRegex(outputName) {
     //eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
-    if (outputName.match(/file\((.*)\)/)){
+    if (outputName.match(/file\((.*)\)/)) {
         var outputName = outputName.match(/file\((.*)\)/)[1];
         console.log(outputName);
     }
     //if name contains path and separated by '/' then take the last part
-    if (outputName.match(/\//)){
+    if (outputName.match(/\//)) {
         var outArr = outputName.split("/");
-        outputName = outArr[outArr.length-1];
-        }
-    
+        outputName = outArr[outArr.length - 1];
+    }
+
     outputName = outputName.replace(/\*/g, '')
     outputName = outputName.replace(/\?/g, '')
     outputName = outputName.replace(/\'/g, '')
@@ -286,13 +297,13 @@ function publishDir(id, currgid) {
     oText = ""
     var closePar = false
     oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-    for (var i = 0; i < oList.length; i++) { 
+    for (var i = 0; i < oList.length; i++) {
         oId = oList[i].id
         for (var e = 0; e < edges.length; e++) {
             if (edges[e].indexOf(oId) !== -1) { //if not exist -1, 
                 nodes = edges[e].split("_")
-                fNode = nodes[0] 
-                sNode = nodes[1] 
+                fNode = nodes[0]
+                sNode = nodes[1]
                 //publishDir Section
                 if (fNode.split("-")[1] === "outPro" && closePar === false) {
                     closePar = true
@@ -304,11 +315,11 @@ function publishDir(id, currgid) {
                     outputName = document.getElementById(oId).getAttribute("name")
                     outputName = getPublishDirRegex(outputName);
 
-                    
-//                    parFile = parametersData.filter(function (el) {
-//                        return el.id == fNode.split("-")[3]
-//                    })[0].file_type
-                    tempText = "\tif \(filename =~ /" + outputName + "/\) "+ getParamOutdir(outParUserEntry)+"\n"
+
+                    //                    parFile = parametersData.filter(function (el) {
+                    //                        return el.id == fNode.split("-")[3]
+                    //                    })[0].file_type
+                    tempText = "\tif \(filename =~ /" + outputName + "/\) " + getParamOutdir(outParUserEntry) + "\n"
                     // if (filename =~ /^path.8.fastq$/) filename 
                     oText = oText + tempText
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
@@ -317,7 +328,7 @@ function publishDir(id, currgid) {
                     var parId = fNode.split("-")[4]
                     var userEntryId = "text-" + fNode.split("-")[4]
                     outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
-                    tempText = "\telse if \(filename =~ /" + outputName + "/\) "+ getParamOutdir(outParUserEntry)+"\n"
+                    tempText = "\telse if \(filename =~ /" + outputName + "/\) " + getParamOutdir(outParUserEntry) + "\n"
                     oText = oText + tempText
 
                 }
@@ -327,7 +338,7 @@ function publishDir(id, currgid) {
     if (closePar === true) {
         oText = oText + "}\n\n";
         if (outputName === '') {
-            oText = "publishDir \"${params.outdir}/"+ outParUserEntry+"\", mode: 'copy'\n\n";
+            oText = "publishDir \"${params.outdir}/" + outParUserEntry + "\", mode: 'copy'\n\n";
         }
         closePar = false
     }
