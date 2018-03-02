@@ -1,6 +1,6 @@
-*************************
-DolphinNext Project Guide
-*************************
+*************
+Project Guide
+*************
 
 This guide shows how to create project where pipelines and files are added for running.
 

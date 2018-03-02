@@ -1,6 +1,6 @@
-*********************
-DolphinNext Process Guide
-*********************
+*************
+Process Guide
+*************
 
 This guide will explain the details of nextflow process definition. 
 

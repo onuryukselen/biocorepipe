@@ -543,6 +543,28 @@ class dbfuncs {
         }
     }
     
+    public function generateKeys($ownerID) {
+        $cmd = "rm -rf {$this->ssh_path}/.tmp$ownerID && mkdir -p {$this->ssh_path}/.tmp$ownerID && cd {$this->ssh_path}/.tmp$ownerID && ssh-keygen -f tkey -t rsa -N '' > logTemp.txt 2>&1 & echo $! &";
+        $log_array = $this->runCommand ($cmd, 'create_key', '');
+        if (preg_match("/([0-9]+)(.*)/", $log_array['create_key'])){
+             $log_array['create_key_status'] = "active";
+        }else {
+             $log_array['create_key_status'] = "error";
+        }
+        return json_encode($log_array);
+        
+    }
+     public function readGenerateKeys($ownerID) {
+        $keyPubPath ="{$this->ssh_path}/.tmp$ownerID/tkey.pub";
+        $keyPriPath ="{$this->ssh_path}/.tmp$ownerID/tkey";
+        $keyPub = $this->readFile($keyPubPath);
+        $keyPri = $this->readFile($keyPriPath);
+        $log_array = array('$keyPub' => $keyPub);
+        $log_array['$keyPri'] = $keyPri;
+    return json_encode($log_array);
+        
+    }
+    
     
     function insertKey($id, $key, $type, $ownerID){
             mkdir("{$this->ssh_path}", 0700, true);
@@ -833,6 +855,14 @@ class dbfuncs {
         $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
+     public function getSSH($ownerID) {
+        $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);    
+    }
+    public function getSSHbyID($id,$ownerID) {
+        $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID' and id = '$id'";
+        return self::queryTable($sql);    
+    }
     public function getProfileClusterbyID($id, $ownerID) {
         $sql = "SELECT id, name, executor, next_path, username, hostname, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_cluster WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql); 
@@ -901,6 +931,7 @@ class dbfuncs {
         $sql = "SELECT ssh FROM profile_amazon WHERE id = '$id' AND owner_id = '$ownerID'";
 		return self::queryTable($sql);
     }
+ 
     
     public function removeProLocal($id) {
         $sql = "DELETE FROM profile_local WHERE id = '$id'";
@@ -1847,4 +1878,3 @@ class dbfuncs {
         return self::insTable($sql);
     }
 }
-

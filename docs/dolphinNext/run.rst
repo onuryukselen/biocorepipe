@@ -1,6 +1,6 @@
-*********************
-DolphinNext Run Guide
-*********************
+*********
+Run Guide
+*********
 
 This guide will explain the details of run pipeline page.
 

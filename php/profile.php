@@ -7,16 +7,15 @@
                 <ul class="nav nav-tabs">
                     <li class="active"><a href="#runEnvDiv" data-toggle="tab" aria-expanded="true">Run Environments</a></li>
                     <li class=""><a href="#groups" data-toggle="tab" aria-expanded="false">Groups</a></li>
-
+                    <li class=""><a href="#sshKeys" data-toggle="tab" aria-expanded="false">SSH Keys</a></li>
+                    <li class=""><a href="#amazonKeys" data-toggle="tab" aria-expanded="false">Amazon Information</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="runEnvDiv">
                         <form class="form-horizontal">
-
                             <div class="panel-heading clearfix">
                                 <button class="btn btn-primary" type="button" id="addEnv" data-toggle="modal" href="#profilemodal" style="float:right; vertical-align:middle;">Add environment</button>
                                 <h6><b></b></h6>
-
                             </div>
                             <div class="panel panel-default">
                                 <div>
@@ -46,14 +45,13 @@
                         <div class="panel panel-default" id="grouptablepanel">
                             <div class="panel-heading clearfix">
                                 <div class="pull-right">
-<!--                                    <button type="button" class="btn btn-primary btn-sm" id="joingroup" data-toggle="modal" data-target="#joinmodal">Join a Group</button>-->
+                                    <!--                                    <button type="button" class="btn btn-primary btn-sm" id="joingroup" data-toggle="modal" data-target="#joinmodal">Join a Group</button>-->
                                     <button type="button" class="btn btn-primary btn-sm" id="addgroup" data-toggle="modal" data-target="#groupmodal">Create a Group</button>
                                 </div>
                                 <div class="pull-left">
                                     <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> Groups</h5>
                                 </div>
                             </div>
-
                             <div class="panel-body">
                                 <table id="grouptable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
@@ -67,7 +65,56 @@
                                 </table>
                             </div>
                         </div>
-
+                    </div>
+                    <!-- /.tab-pane ends -->
+                    <!-- /.tab-pane starts -->
+                    <div class="tab-pane" id="sshKeys">
+                        <div class="panel panel-default" id="sshKeystablepanel">
+                            <div class="panel-heading clearfix">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-primary btn-sm" id="addSSHKey" data-toggle="modal" data-target="#sshKeyModal">Add SSH Key</button>
+                                </div>
+                                <div class="pull-left">
+                                    <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> SSH Keys</h5>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <table id="sshKeyTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>SSH Key Name</th>
+                                            <th>Created on</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.tab-pane ends -->
+                    <!-- /.tab-pane starts -->
+                    <div class="tab-pane" id="amazonKeys">
+                        <div class="panel panel-default" id="amazonKeystablepanel">
+                            <div class="panel-heading clearfix">
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-primary btn-sm" id="addAmazonKey" data-toggle="modal" data-target="#amazonKeyModal">Add Amazon Key</button>
+                                </div>
+                                <div class="pull-left">
+                                    <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> Amazon Keys</h5>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <table id="amazonKeytable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Amazon Key Name</th>
+                                            <th>Created on</th>
+                                            <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                     <!-- /.tab-pane ends -->
                 </div>
@@ -392,3 +439,82 @@
 
 
 <!---- join Modal ends-->
+
+
+
+
+<!-- ssh keys modal starts-->
+
+<div id="sshKeyModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="sshkeysmodaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mSSHKeysID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mSSHKeysID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mSSHName" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mSSHName" name="name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="userKeyCheck" class="col-sm-4 control-label"><input type="checkbox" id="userKeyCheck" name="check_userkey"  data-toggle="collapse" data-target="#userKeyDiv"> Use your own keys </input><span><a data-toggle="tooltip" data-placement="bottom" title="Use your own ssh keys and paste them below"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    </div>
+                    <div id="userKeyDiv" class="collapse">
+                        <div id="mUserPriKeyDiv" class="form-group">
+                            <label for="mUserPriKey" class="col-sm-4 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mUserPriKey" name="prikey"></textarea>
+                            </div>
+                        </div>
+                        <div id="mUserPubKeyDiv" class="form-group">
+                            <label for="mUserPubKey" class="col-sm-4 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mUserPubKey" name="pubkey"></textarea>
+                                <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ourKeyCheck" class="col-sm-4 control-label"><input type="checkbox" id="ourKeyCheck" name="check_ourkey" data-toggle="collapse" data-target="#ourKeyDiv"> Create new keys </input><span><a data-toggle="tooltip" data-placement="bottom" title="Create new ssh keys that are specifically produced for you by clicking generate keys button"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                    </div>
+                    <div id="ourKeyDiv" class="collapse">
+                        <div id="createKeysDiv" class="form-group">
+                            <label for="createKeysButton" class="col-sm-4 control-label">Generate Keys<span><a data-toggle="tooltip" data-placement="bottom" title="Click button to generate new keys for you"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <button type="button" id="createKeysButton" class="btn btn-primary" onclick="generateKeys()">Generate Keys</button>
+                            </div>
+                        </div>
+                        <div id="mOurPriKeyDiv" class="form-group" style="display:none;">
+                            <label for="mOurPriKey" class="col-sm-4 control-label">Private Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to be used while connecting to a host"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mOurPriKey" name="prikey"></textarea>
+                            </div>
+                        </div>
+                        <div id="mOurPubKeyDiv" class="form-group" style="display:none;">
+                            <label for="mOurPubKey" class="col-sm-4 control-label">Public Key<span><a data-toggle="tooltip" data-placement="bottom" title="Key to to be added into '~/.ssh/authorized_keys' in the host by user"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                            <div class="col-sm-8">
+                                <textarea type="text" rows="5" class="form-control" id="mOurPubKey" name="pubkey"></textarea>
+                                <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the host. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the host by user </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="savesshkey" data-clickedrow="">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- group modal ends-->

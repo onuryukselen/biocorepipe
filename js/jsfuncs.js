@@ -23,7 +23,7 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip();
 });
 
-// check the amazon profiles activity each minute.
+// check the amazon profiles activity each 40 sec.
 checkAmzProfiles("timer");
 
 //to start timer, enter "timer" as input
@@ -37,7 +37,7 @@ function checkAmzProfiles(timer) {
                 countActive++;
             }
             if (timer === "timer") {
-                checkAmazonTimer(proAmzData[k].id);
+                checkAmazonTimer(proAmzData[k].id, 40000);
             }
         }
         if (countActive > 0) {
@@ -50,14 +50,16 @@ function checkAmzProfiles(timer) {
     }
 }
 
-
-function checkAmazonTimer(proId) {
+//interval will decide the check period: default: 40 sec. for termination 5 sec
+function checkAmazonTimer(proId, interval) {
+        console.log('interval_amzStatus_' + proId);
+    
     window['interval_amzStatus_' + proId] = setInterval(function () {
         var runAmzCloudCheck = runAmazonCloudCheck(proId);
         if (runAmzCloudCheck){
             setTimeout(function () { checkAmazonStatus(proId); }, 3000);
         }
-    }, 40000);
+    }, interval);
 }
 function runAmazonCloudCheck(proId){
     var runAmzCloudCheck = getValues({ p: "runAmazonCloudCheck", profileId: proId });
@@ -66,6 +68,8 @@ function runAmazonCloudCheck(proId){
 
 
 function checkAmazonStatus(proId) {
+        console.log('checkAmazonStatus');
+    
     var checkAmazonStatus = getValues({ p: "checkAmazonStatus", profileId: proId });
     if (checkAmazonStatus.status === "waiting") {
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
@@ -86,12 +90,14 @@ function checkAmazonStatus(proId) {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
 
     } else if (checkAmazonStatus.status === "inactive") {
-        console.log('interval_amzStatus_' + proId);
-                clearInterval(window['interval_amzStatus_' + proId]);
-
+        clearInterval(window['interval_amzStatus_' + proId]);
+        console.log('clear: interval_amzStatus_' + proId);
+        
         $('#status-' + proId).text('Inactive');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
     } else if (checkAmazonStatus.status === "terminated") {
+        clearInterval(window['interval_amzStatus_' + proId]);
+        console.log('clear: interval_amzStatus_' + proId);
         if (checkAmazonStatus.logAmzCloudList) {
             var logText = checkAmazonStatus.logAmzCloudList;
             if (logText.match(/INSTANCE ID ADDRESS STATUS ROLE(.*)/)) {
@@ -114,8 +120,7 @@ function checkAmazonStatus(proId) {
         $('#status-' + proId).html('Terminated <br/>' + errorText);
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'inline');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
-        clearInterval(window['interval_amzStatus_' + proId]);
-        console.log('interval_amzStatus_' + proId);
+        
     } else {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
     }
@@ -194,7 +199,7 @@ $(document).ready(function () {
                             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
                             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
                             $('#addAmzNodeModal').modal('hide');
-                                                        checkAmazonTimer(proId);
+                            checkAmazonTimer(proId,40000);
                         }
                     }
                 });
@@ -219,7 +224,9 @@ $(document).ready(function () {
                 if (s.stop_cloud) {
                     // check the amazon profiles activity each minute.
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
-                    setTimeout(function () { checkAmazonStatus(proId); }, 1000);
+                    //clear previous interval and set new one(with faster check interval).
+                    clearInterval(window['interval_amzStatus_' + proId]);
+                    setTimeout(function () { checkAmazonTimer(proId, 3500); }, 1000);
 
                 }
             }
