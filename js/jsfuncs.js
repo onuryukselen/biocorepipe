@@ -133,8 +133,8 @@ $(document).ready(function () {
    
     
     
-    function addAmzRow(id, name, default_region, executor, instance_type, image_id, subnet_id) {
-        $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Default Region: ' + default_region + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
+    function addAmzRow(id, name, executor, instance_type, image_id, subnet_id) {
+        $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
     }
 
     $('#amzModal').on('show.bs.modal', function (event) {
@@ -142,7 +142,7 @@ $(document).ready(function () {
         var proAmzData = getValues({ p: "getProfileAmazon" });
 
         $.each(proAmzData, function (el) {
-            addAmzRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].default_region, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id, proAmzData[el].subnet_id);
+            addAmzRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id, proAmzData[el].subnet_id);
             checkAmazonStatus(proAmzData[el].id);
 
         });
