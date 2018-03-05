@@ -298,13 +298,43 @@ else if ($p=="saveParameter"){
        $data = $db->insertParameter($name, $qualifier, $file_type, $ownerID);
     }
 }
+else if ($p=="getAmz")
+{
+    if (!empty($id)) {
+    $data = json_decode($db->getAmzbyID($id, $ownerID));
+    foreach($data as $d){
+		$access = $d->amz_acc_key;
+        $d->amz_acc_key = trim($db->amazonDecode($access));
+		$secret = $d->amz_suc_key;
+		$d->amz_suc_key = trim($db->amazonDecode($secret));
+	}
+	$data=json_encode($data);
+    } else {
+    $data = $db->getAmz($ownerID);
+    }
+}
 else if ($p=="getSSH")
 {
     if (!empty($id)) {
-    $data = $db->getSSHbyID($id, $ownerID);
+    $data = json_decode($db->getSSHbyID($id, $ownerID));
+    foreach($data as $d){
+        $d->prikey = $db->readKey($id, 'ssh_pri', $ownerID);
+        $d->pubkey = $db->readKey($id, 'ssh_pub', $ownerID);
+	}
+	$data=json_encode($data);
     } else {
     $data = $db->getSSH($ownerID);
     }
+}
+else if ($p=="removeSSH")
+{
+    $db->delKey($id, "ssh_pri", $ownerID);
+    $db->delKey($id, "ssh_pub", $ownerID);
+    $data = $db->removeSSH($id);
+}
+else if ($p=="removeAmz")
+{
+    $data = $db->removeAmz($id);
 }
 else if ($p=="generateKeys")
 {
@@ -376,6 +406,41 @@ else if ($p=="saveProfileLocal"){
        $data = $db->updateProfileLocal($id, $name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
     } else {
        $data = $db->insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID);
+    }
+}
+else if ($p=="saveSSHKeys"){
+    $name = $_REQUEST['name'];
+    $check_userkey = $_REQUEST['check_userkey'];
+    $check_ourkey = $_REQUEST['check_ourkey'];
+    $prikeyRaw = $_REQUEST['prikey'];
+    $pubkeyRaw = $_REQUEST['pubkey'];
+    $prikey = urldecode($prikeyRaw);
+    $pubkey = urldecode($pubkeyRaw);
+    
+    if (!empty($id)) {
+       $data = $db->updateSSH($id, $name, $check_userkey,$check_ourkey, $ownerID);
+       $db->insertKey($id, $prikey, "ssh_pri", $ownerID);
+       $db->insertKey($id, $pubkey, "ssh_pub", $ownerID);
+    } else {
+       $data = $db->insertSSH($name, $check_userkey,$check_ourkey, $ownerID);
+       $idArray = json_decode($data,true);
+       $id = $idArray["id"];
+       $db->insertKey($id, $prikey, "ssh_pri", $ownerID);
+       $db->insertKey($id, $pubkey, "ssh_pub", $ownerID);
+        
+    }
+}
+else if ($p=="saveAmzKeys"){
+    $name = $_REQUEST['name'];
+    $amz_def_reg = $_REQUEST['amz_def_reg'];
+    $amz_acc_keyRaw = $_REQUEST['amz_acc_key'];
+    $amz_suc_keyRaw = $_REQUEST['amz_suc_key'];
+    $amz_acc_key = $db->amazonEncode($amz_acc_keyRaw);
+    $amz_suc_key = $db->amazonEncode($amz_suc_keyRaw);
+    if (!empty($id)) {
+       $data = $db->updateAmz($id, $name, $amz_def_reg,$amz_acc_key,$amz_suc_key, $ownerID);
+    } else {
+       $data = $db->insertAmz($name, $amz_def_reg,$amz_acc_key,$amz_suc_key, $ownerID);
     }
 }
 else if ($p=="saveProfileCluster"){

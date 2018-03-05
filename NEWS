@@ -1,3 +1,7 @@
+04.03.2018 Version 0.0.80
+Ssh keys tab finalized (not functional)
+Amazon keys tab finalized (not functional)
+
 02.03.2018 Version 0.0.79
 Description fields are defined as blob for both in process, pipelines, and runs
 “mate” matching problem in nextflow channel creation is fixed
