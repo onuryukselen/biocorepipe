@@ -178,61 +178,22 @@
                             <input type="text" class="form-control" id="mEnvHostname" name="hostname">
                         </div>
                     </div>
-                    <div id="mPriKeyCluDiv" class="form-group" style="display:none">
-                        <label for="mPriKeyClu" class="col-sm-3 control-label">Private Key
-                        <span><a data-toggle="tooltip" data-placement="bottom" title="Key to be added into '~/.ssh/authorized_keys' file in the cluster"><i class='glyphicon glyphicon-info-sign'></i></a></span>
+                    <div id="mEnvSSHKeyDiv" class="form-group" style="display:none">
+                        <label for="mEnvSSHKey" class="col-sm-3 control-label">SSH Keys
+                        <span><a data-toggle="tooltip" data-placement="bottom" title="Keys that are saved in SSH keys tab and to be used while connecting to host"><i class='glyphicon glyphicon-info-sign'></i></a></span>
                         </label>
                         <div class="col-sm-9">
-                            <textarea type="text" rows="5" class="form-control" id="mPriKeyClu" name="prikey_clu"></textarea>
-                            <p style="font-size:13px;"><b style="color:blue;">* Important Information:</b> Private key will be used for submiting jobs in the cluster. Therefore, public key of the private key required to be added into '~/.ssh/authorized_keys' in the cluster by user </p>
+                            <select id="mEnvSSHKey" class="fbtn btn-default form-control" name="ssh_id">
+                                <option value="" disabled selected>Select Keys </option>
+                            </select>
                         </div>
                     </div>
-                    <div id="mPriKeyAmzDiv" class="form-group" style="display:none">
-                        <label for="mPriKeyAmz" class="col-sm-3 control-label">Private Key</label>
+                    <div id="mEnvAmzKeyDiv" class="form-group" style="display:none">
+                        <label for="mEnvAmzKey" class="col-sm-3 control-label">Amazon Keys<span><a data-toggle="tooltip" data-placement="bottom" title="Keys that are saved in Amazon keys tab and to be used while connecting to Amazon Cloud"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                         <div class="col-sm-9">
-                            <textarea type="text" rows="5" class="form-control" id="mPriKeyAmz" name="prikey_amz"></textarea>
-                        </div>
-                    </div>
-                    <div id="mPubKeyDiv" class="form-group" style="display:none">
-                        <label for="mPubKey" class="col-sm-3 control-label">Public Key</label>
-                        <div class="col-sm-9">
-                            <textarea type="text" rows="5" class="form-control" id="mPubKey" name="pubkey"></textarea>
-                        </div>
-                    </div>
-                    <div id="mEnvAmzDefRegDiv" class="form-group" style="display:none">
-                        <label for="mEnvAmzDefReg" class="col-sm-3 control-label">Default Region</label>
-                        <div class="col-sm-9">
-                            <select id="mEnvAmzDefReg" class="fbtn btn-default form-control" name="amz_def_reg">
-                                  <option value="us-east-2">US East (Ohio) (us-east-2) </option>
-                                  <option value="us-east-1">US East (N. Virginia) (us-east-1)</option>
-                                  <option value="us-west-1">US West (N. California) (us-west-1)</option>
-                                  <option value="us-west-2">US West (Oregon) (us-west-2)</option>
-                                  <option value="ap-northeast-1">Asia Pacific (Tokyo) (ap-northeast-1)</option>
-                                  <option value="ap-northeast-2">Asia Pacific (Seoul) (ap-northeast-2)</option>
-                                  <option value="ap-south-1">Asia Pacific (Mumbai) (ap-south-1)</option>
-                                  <option value="ap-southeast-1">Asia Pacific (Singapore) (ap-southeast-1)</option>
-                                  <option value="ap-southeast-2">Asia Pacific (Sydney) (ap-southeast-2)</option>
-                                  <option value="ca-central-1">Canada (Central) (ca-central-1)</option>
-                                  <option value="cn-north-1">China (Beijing) (cn-north-1)</option>
-                                  <option value="cn-northwest-1">China (Ningxia) (cn-northwest-1)</option>
-                                  <option value="eu-central-1">EU (Frankfurt) (eu-central-1)</option>
-                                  <option value="eu-west-1">EU (Ireland) (eu-west-1)</option>
-                                  <option value="eu-west-2">EU (London) (eu-west-2)</option>
-                                  <option value="eu-west-3">EU (Paris) (eu-west-3)</option>
-                                  <option value="sa-east-1">South America (Sao Paulo) (sa-east-1)</option>
-                                  </select>
-                        </div>
-                    </div>
-                    <div id="mEnvAmzAccKeyDiv" class="form-group" style="display:none">
-                        <label for="mEnvAmzAccKey" class="col-sm-3 control-label">Access Key</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="mEnvAmzAccKey" name="amz_acc_key">
-                        </div>
-                    </div>
-                    <div id="mEnvAmzSucKeyDiv" class="form-group" style="display:none">
-                        <label for="mEnvAmzSucKey" class="col-sm-3 control-label">Secret Key</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="mEnvAmzSucKey" name="amz_suc_key">
+                            <select id="mEnvAmzKey" class="fbtn btn-default form-control" name="amazon_cre_id">
+                                <option value="" disabled selected>Select Keys </option>
+                            </select>
                         </div>
                     </div>
                     <div id="mEnvInsTypeDiv" class="form-group" style="display:none">

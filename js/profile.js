@@ -1,4 +1,3 @@
-    //xxxx
     function generateKeys() {
         var genKeys = getValues({ p: "generateKeys" });
         if (genKeys) {
@@ -82,35 +81,56 @@
             $('#profilesTable > thead > #amazon-' + id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getAmzButModal() + '</td>');
         }
 
+        function loadOptions(type) {
+            if (type === "ssh") {
+                var data = getValues({ p: "getSSH" });
+                for (var i = 0; i < data.length; i++) {
+                    var param = data[i];
+                    var optionGroup = new Option(param.name, param.id);
+                    $("#mEnvSSHKey").append(optionGroup);
+                }
+            } else if (type === "amz") {
+                var data = getValues({ p: "getAmz" });
+                for (var i = 0; i < data.length; i++) {
+                    var param = data[i];
+                    var optionGroup = new Option(param.name, param.id);
+                    $("#mEnvAmzKey").append(optionGroup);
+                }
+            }
+        }
 
         $('#profilemodal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             $(this).find('form').trigger('reset');
             if (button.attr('id') === 'addEnv') {
                 $('#mAddEnvTitle').html('Add Environment');
+                loadOptions("ssh");
+                loadOptions("amz");
             } else if (button.attr('id') === 'profileedit') {
                 $('#mAddEnvTitle').html('Edit Environment');
+                loadOptions("ssh");
+                loadOptions("amz");
                 var clickedRowId = button.closest('tr').attr('id'); //local-20
                 var patt = /(.*)-(.*)/;
                 var proType = clickedRowId.replace(patt, '$1');
                 var proId = clickedRowId.replace(patt, '$2');
                 var formValues = $('#profilemodal').find('input, select, textarea');
-
+                console.log(formValues);
                 function fillFixedCol(formValues, data) {
                     $(formValues[0]).val(data[0].id);
                     $(formValues[1]).val(data[0].name);
-                    $(formValues[16]).val(data[0].cmd);
-                    $(formValues[17]).val(data[0].next_path);
-                    $(formValues[18]).val(data[0].executor);
-                    $(formValues[19]).val(data[0].next_queue);
-                    $(formValues[20]).val(data[0].next_memory);
-                    $(formValues[21]).val(data[0].next_cpu);
-                    $(formValues[22]).val(data[0].next_time);
-                    $(formValues[23]).val(data[0].executor_job);
-                    $(formValues[24]).val(data[0].job_queue);
-                    $(formValues[25]).val(data[0].job_memory);
-                    $(formValues[26]).val(data[0].job_cpu);
-                    $(formValues[27]).val(data[0].job_time);
+                    $(formValues[12]).val(data[0].cmd);
+                    $(formValues[13]).val(data[0].next_path);
+                    $(formValues[14]).val(data[0].executor);
+                    $(formValues[15]).val(data[0].next_queue);
+                    $(formValues[16]).val(data[0].next_memory);
+                    $(formValues[17]).val(data[0].next_cpu);
+                    $(formValues[18]).val(data[0].next_time);
+                    $(formValues[19]).val(data[0].executor_job);
+                    $(formValues[20]).val(data[0].job_queue);
+                    $(formValues[21]).val(data[0].job_memory);
+                    $(formValues[22]).val(data[0].job_cpu);
+                    $(formValues[23]).val(data[0].job_time);
                 };
                 if (proType === "local") {
                     var data = getValues({ p: "getProfileLocal", id: proId });
@@ -123,27 +143,28 @@
                     fillFixedCol(formValues, data);
                     $(formValues[3]).val(data[0].username);
                     $(formValues[4]).val(data[0].hostname);
-                    $(formValues[5]).val(data[0].prikey_clu);
+                    $(formValues[5]).val(data[0].ssh_id);
                     $('#mExec').trigger('change');
                 } else if (proType === "amazon") {
                     var data = getValues({ p: "getProfileAmazon", id: proId });
+                    console.log(data)
                     $('#chooseEnv').val('amazon').trigger('change');
                     fillFixedCol(formValues, data);
-                    $(formValues[6]).val(data[0].prikey_amz);
-                    $(formValues[7]).val(data[0].pubkey_amz);
-                    $(formValues[8]).val(data[0].default_region);
-                    $(formValues[9]).val(data[0].access_key);
-                    $(formValues[10]).val(data[0].secret_key);
-                    $(formValues[11]).val(data[0].instance_type);
-                    $(formValues[12]).val(data[0].image_id);
-                    $(formValues[13]).val(data[0].subnet_id);
-                    $(formValues[14]).val(data[0].shared_storage_id);
-                    $(formValues[15]).val(data[0].shared_storage_mnt);
+                    $(formValues[5]).val(data[0].ssh_id);
+                    $(formValues[6]).val(data[0].amazon_cre_id);
+                    $(formValues[7]).val(data[0].instance_type);
+                    $(formValues[8]).val(data[0].image_id);
+                    $(formValues[9]).val(data[0].subnet_id);
+                    $(formValues[10]).val(data[0].shared_storage_id);
+                    $(formValues[11]).val(data[0].shared_storage_mnt);
                     $('#mExec').trigger('change');
                 }
                 $('#chooseEnv').attr('disabled', "disabled");
             }
         });
+
+
+
 
         $(function () {
             $(document).on('change', '#chooseEnv', function () {
@@ -151,21 +172,14 @@
                 var noneList = [];
                 var blockList = [];
                 if (selEnvType === "local") {
-                    var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
+                    var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mEnvSSHKeyDiv", "mEnvAmzKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
                     var blockList = ["mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv"];
-                    //                if ($('#mExec > .hideClu').length === 0){
-                    //                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
-                    //                }
                 } else if (selEnvType === "cluster") {
-                    var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
-                    var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv"];
-                    //                $('#mExec > .hideClu').remove();
+                    var noneList = ["mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv", "mEnvAmzKeyDiv"];
+                    var blockList = ["mExecDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mEnvSSHKeyDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv"];
                 } else if (selEnvType === "amazon") {
                     var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv"];
-                    var blockList = ["mExecDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
-                    //                if ($('#mExec > .hideClu').length === 0){
-                    //                $("#mExec").prepend('<option class="hideClu" value="local">Local</option>');
-                    //                }
+                    var blockList = ["mExecDiv", "mEnvSSHKeyDiv", "mEnvAmzKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
                 }
                 $.each(noneList, function (element) {
                     $('#' + noneList[element]).css('display', 'none');
@@ -207,16 +221,16 @@
 
         // Dismiss parameters modal 
         $('#profilemodal').on('hide.bs.modal', function (event) {
-            var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mEnvUsernameDiv", "mEnvHostnameDiv", "mPriKeyCluDiv", "mPriKeyAmzDiv", "mPubKeyDiv", "mEnvAmzDefRegDiv", "mEnvAmzAccKeyDiv", "mEnvAmzSucKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
+            var noneList = ["mEnvUsernameDiv", "mEnvHostnameDiv", "mEnvSSHKeyDiv", "mEnvAmzKeyDiv", "mEnvInsTypeDiv", "mEnvImageIdDiv", "mExecDiv", "mEnvNextPathDiv", "mEnvCmdDiv", "execNextDiv", "mExecJobDiv", "execJobSetDiv", "mSubnetIdDiv", "mSharedStorageIdDiv", "mSharedStorageMountDiv"];
             $.each(noneList, function (element) {
                 $('#' + noneList[element]).css('display', 'none');
             });
             $('#chooseEnv').removeAttr('disabled');
             $('#mExecJob').removeAttr('disabled');
+            $('#mEnvAmzKey').find('option').not(':eq(0)').remove()
+            $('#mEnvSSHKey').find('option').not(':eq(0)').remove()
 
         });
-
-
 
 
         $('#profilemodal').on('click', '#saveEnv', function (event) {
@@ -225,19 +239,18 @@
             $('#mExecJob').removeAttr('disabled');
             var formValues = $('#profilemodal').find('input, select, textarea');
             var savetype = $('#mEnvId').val();
+            var profileName = $('#mEnvName').val();
             var data = formValues.serializeArray(); // convert form to array
             var selEnvType = $('#chooseEnv option:selected').val();
-            if (selEnvType.length) {
+            if (selEnvType.length && profileName !== '') {
                 if (selEnvType === "local") {
                     data.push({ name: "p", value: "saveProfileLocal" });
                 } else if (selEnvType === "cluster") {
-                    data[5].value = encodeURIComponent(data[5].value);
                     data.push({ name: "p", value: "saveProfileCluster" });
                 } else if (selEnvType === "amazon") {
-                    data[6].value = encodeURIComponent(data[6].value);
-                    data[7].value = encodeURIComponent(data[7].value);
                     data.push({ name: "p", value: "saveProfileAmazon" });
                 }
+                console.log(data)
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -247,22 +260,21 @@
                         if (savetype.length) { //edit
                             var clickedRowId = selEnvType + '-' + savetype;
                             if (selEnvType === "local") {
-                                updateLocalRow(data[0].value, data[1].value, data[17].value, data[18].value)
+                                updateLocalRow(data[0].value, data[1].value, data[12].value, data[13].value)
                             } else if (selEnvType === "cluster") {
-                                updateClusterRow(data[0].value, data[1].value, data[17].value, data[18].value, data[3].value, data[4].value)
+                                updateClusterRow(data[0].value, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value)
                             } else if (selEnvType === "amazon") {
-                                updateAmazonRow(data[0].value, data[1].value, data[17].value, data[18].value, data[11].value, data[12].value);
+                                updateAmazonRow(data[0].value, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
                             }
-
                         } else { //insert
                             if (selEnvType === "local") {
-                                addLocalRow(s.id, data[1].value, data[17].value, data[18].value);
+                                addLocalRow(s.id, data[1].value, data[12].value, data[13].value);
                             } else if (selEnvType === "cluster") {
-                                addClusterRow(s.id, data[1].value, data[17].value, data[18].value, data[3].value, data[4].value);
+                                addClusterRow(s.id, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value);
                             } else if (selEnvType === "amazon") {
-                                addAmazonRow(s.id, data[1].value, data[17].value, data[18].value, data[11].value, data[12].value);
+                                addAmazonRow(s.id, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
                                 $('#manageAmz').css('display', 'inline');
-                                checkAmazonTimer(s.id);
+                                checkAmazonTimer(s.id, 40000);
                             }
                             var numRows = $('#profilesTable > > tr').length;
                             if (numRows > 2) {
@@ -902,43 +914,43 @@
         });
 
 
-            $('#confirmDelAmzModal').on('click', '.deleteAmzKeys', function (event) {
-                  var remove_id = $('#mDelAmzBtn').attr('remove_id');
+        $('#confirmDelAmzModal').on('click', '.deleteAmzKeys', function (event) {
+            var remove_id = $('#mDelAmzBtn').attr('remove_id');
             var clickedRow = $('#mDelAmzBtn').data('clickedrow');
-                if (remove_id !== '') {
-                    var warnUser = false;
-                    var warnText = '';
-                    //[warnUser, warnText] = checkDeletionAmz(remove_id);
+            if (remove_id !== '') {
+                var warnUser = false;
+                var warnText = '';
+                //[warnUser, warnText] = checkDeletionAmz(remove_id);
 
-                    //A. If it is allowed to delete    
-                    if (warnUser === false) {
-                        $.ajax({
-                            type: "POST",
-                            url: "ajax/ajaxquery.php",
-                            data: {
-                                id: remove_id,
-                                p: "removeAmz"
-                            },
-                            async: true,
-                            success: function (s) {
-                                amzTable.row(clickedRow).remove().draw();
-                            },
-                            error: function (errorThrown) {
-                                alert("Error: " + errorThrown);
-                            }
-                        });
-                    }
-                    //B. If it is not allowed to delete
-                    else if (warnUser === true) {
-                        $('#warnDelete').off();
-                        $('#warnDelete').on('show.bs.modal', function (event) {
-                            $('#warnDelText').html(warnText);
-                        });
-                        $('#warnDelete').modal('show');
-                    }
-                    $('#confirmDelAmzModal').modal('hide');
+                //A. If it is allowed to delete    
+                if (warnUser === false) {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: {
+                            id: remove_id,
+                            p: "removeAmz"
+                        },
+                        async: true,
+                        success: function (s) {
+                            amzTable.row(clickedRow).remove().draw();
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
                 }
-            });
+                //B. If it is not allowed to delete
+                else if (warnUser === true) {
+                    $('#warnDelete').off();
+                    $('#warnDelete').on('show.bs.modal', function (event) {
+                        $('#warnDelText').html(warnText);
+                    });
+                    $('#warnDelete').modal('show');
+                }
+                $('#confirmDelAmzModal').modal('hide');
+            }
+        });
 
         $('#amzKeyModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
