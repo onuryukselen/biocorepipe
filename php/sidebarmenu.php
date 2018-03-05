@@ -142,7 +142,6 @@ class sidebarfuncs {
           }
           
       } else {
-        $where_b = "b.perms = 63 AND pip.pin = 'true'";
           $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
                LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
@@ -150,9 +149,9 @@ class sidebarfuncs {
                 SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
                 LEFT JOIN user_group ug ON p.group_id=ug.g_id 
-                WHERE (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
+                WHERE p.perms = 63 
                 GROUP BY p. pipeline_gid
-                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and $where_b ";
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 AND pip.pin = 'true' ";
        }     
         
          
@@ -180,9 +179,11 @@ class sidebarfuncs {
        
            $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15))";
            $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
+           $where_pr = "(pr.owner_id='$ownerID' OR pr.perms = 63 OR (ug.u_id ='$ownerID' and pr.perms = 15))";
            } else {
            $where_pg = "pg.perms = 63";
            $where_b = "b.perms = 63";
+           $where_pr = "pr.perms = 63";
            }
        $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
              FROM process p
@@ -192,7 +193,7 @@ class sidebarfuncs {
              INNER JOIN (
                 SELECT pr.name, pr.process_gid, pr.owner_id, pr.perms, MAX(pr.rev_id) rev_id
                 FROM process pr
-                LEFT JOIN user_group ug ON pr.group_id=ug.g_id where (pr.owner_id='$ownerID' OR pr.perms = 63 OR (ug.u_id ='$ownerID' and pr.perms = 15))
+                LEFT JOIN user_group ug ON pr.group_id=ug.g_id where $where_pr
                 GROUP BY pr.process_gid
                 ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and $where_b ";
 
