@@ -83,7 +83,7 @@
                                     <thead>
                                         <tr>
                                             <th>SSH Key Name</th>
-                                            <th>Created on</th>
+                                            <th>Modified on</th>
                                             <th>Options</th>
                                         </tr>
                                     </thead>
@@ -97,14 +97,14 @@
                         <div class="panel panel-default" id="amazonKeystablepanel">
                             <div class="panel-heading clearfix">
                                 <div class="pull-right">
-                                    <button type="button" class="btn btn-primary btn-sm" id="addAmazonKey" data-toggle="modal" data-target="#amazonKeyModal">Add Amazon Key</button>
+                                    <button type="button" class="btn btn-primary btn-sm" id="addAmazonKey" data-toggle="modal" data-target="#amzKeyModal">Add Amazon Key</button>
                                 </div>
                                 <div class="pull-left">
                                     <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> Amazon Keys</h5>
                                 </div>
                             </div>
                             <div class="panel-body">
-                                <table id="amazonKeytable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <table id="amzKeyTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th>Amazon Key Name</th>
@@ -517,4 +517,129 @@
         </div>
     </div>
 </div>
-<!-- group modal ends-->
+<!-- ssh modal ends-->
+
+<!-- amz keys modal starts-->
+<div id="amzKeyModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="amzkeysmodaltitle">Modal title</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group" style="display:none">
+                        <label for="mAmzKeysID" class="col-sm-2 control-label">ID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="mAmzKeysID" name="id">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="mAmzName" class="col-sm-3 control-label">Name</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mAmzName" name="name">
+                        </div>
+                    </div>
+                    <div  class="form-group" >
+                        <label for="mAmzDefReg" class="col-sm-3 control-label">Default Region</label>
+                        <div class="col-sm-9">
+                            <select id="mAmzDefReg" class="fbtn btn-default form-control" name="amz_def_reg">
+                                  <option value="us-east-2">US East (Ohio) (us-east-2) </option>
+                                  <option value="us-east-1">US East (N. Virginia) (us-east-1)</option>
+                                  <option value="us-west-1">US West (N. California) (us-west-1)</option>
+                                  <option value="us-west-2">US West (Oregon) (us-west-2)</option>
+                                  <option value="ap-northeast-1">Asia Pacific (Tokyo) (ap-northeast-1)</option>
+                                  <option value="ap-northeast-2">Asia Pacific (Seoul) (ap-northeast-2)</option>
+                                  <option value="ap-south-1">Asia Pacific (Mumbai) (ap-south-1)</option>
+                                  <option value="ap-southeast-1">Asia Pacific (Singapore) (ap-southeast-1)</option>
+                                  <option value="ap-southeast-2">Asia Pacific (Sydney) (ap-southeast-2)</option>
+                                  <option value="ca-central-1">Canada (Central) (ca-central-1)</option>
+                                  <option value="cn-north-1">China (Beijing) (cn-north-1)</option>
+                                  <option value="cn-northwest-1">China (Ningxia) (cn-northwest-1)</option>
+                                  <option value="eu-central-1">EU (Frankfurt) (eu-central-1)</option>
+                                  <option value="eu-west-1">EU (Ireland) (eu-west-1)</option>
+                                  <option value="eu-west-2">EU (London) (eu-west-2)</option>
+                                  <option value="eu-west-3">EU (Paris) (eu-west-3)</option>
+                                  <option value="sa-east-1">South America (Sao Paulo) (sa-east-1)</option>
+                                  </select>
+                        </div>
+                    </div>
+                    <div class="form-group" >
+                        <label for="mAmzAccKey" class="col-sm-3 control-label">Access Key</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mAmzAccKey" name="amz_acc_key">
+                        </div>
+                    </div>
+                    <div class="form-group" >
+                        <label for="mAmzSucKey" class="col-sm-3 control-label">Secret Key</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="mAmzSucKey" name="amz_suc_key">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveamzkey" data-clickedrow="">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- amz keys modal ends-->
+
+<div id="warnDelete" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Information</h4>
+            </div>
+            <div class="modal-body">
+                <span id="warnDelText">Text</span>
+                </br>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+       <!--Confirm Modal-->
+
+<div id="confirmDelModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmDelModalTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmDelModalText">Text</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelBtn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->
+
+       <!--Confirm Modal-->
+
+<div id="confirmDelAmzModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmDelAmzModalTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmDelAmzModalText">Text</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelAmzBtn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->

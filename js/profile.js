@@ -607,20 +607,46 @@
         //--------------- groups section ends------------------
 
         //------------   ssh keys section-------------
-        //not allow to check both own key and our key
-        $('#userKeyCheck').change(function () {
+        //not allow to click both option
+        $('#userKeyDiv').on('show.bs.collapse', function () {
             if ($('#ourKeyCheck').is(":checked") && $('#userKeyCheck').is(":checked")) {
                 $('#ourKeyCheck').trigger("click");
             }
+            $('#userKeyCheck').attr('onclick', "return false;");
         });
-        $('#ourKeyCheck').change(function () {
-            if ($('#userKeyCheck').is(":checked") && $('#ourKeyCheck').is(":checked")) {
+        $('#ourKeyDiv').on('show.bs.collapse', function () {
+            if ($('#ourKeyCheck').is(":checked") && $('#userKeyCheck').is(":checked")) {
                 $('#userKeyCheck').trigger("click");
             }
+            $('#ourKeyCheck').attr('onclick', "return false;");
+        });
+        $('#userKeyDiv').on('shown.bs.collapse', function () {
+            if ($('#ourKeyCheck').is(":checked") && $('#userKeyCheck').is(":checked")) {
+                $('#ourKeyCheck').trigger("click");
+            }
+            $('#userKeyCheck').removeAttr('onclick');
+        });
+        $('#ourKeyDiv').on('shown.bs.collapse', function () {
+            if ($('#ourKeyCheck').is(":checked") && $('#userKeyCheck').is(":checked")) {
+                $('#userKeyCheck').trigger("click");
+            }
+            $('#ourKeyCheck').removeAttr('onclick');
+        });
+        $('#ourKeyDiv').on('hide.bs.collapse', function () {
+            $('#ourKeyCheck').attr('onclick', "return false;");
+        });
+        $('#userKeyDiv').on('hide.bs.collapse', function () {
+            $('#userKeyCheck').attr('onclick', "return false;");
+        });
+        $('#userKeyDiv').on('hidden.bs.collapse', function () {
+            $('#userKeyCheck').removeAttr('onclick');
+        });
+        $('#ourKeyDiv').on('hidden.bs.collapse', function () {
+            $('#ourKeyCheck').removeAttr('onclick');
         });
 
         function getSSHTableOptions() {
-            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#sshKeyModal" data-toggle="modal" class="editSSHKeys">Edit</a></li><li><a href="#" data-toggle="modal" class="deleteSSHKeys">Delete</a></li></ul></div>';
+            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#sshKeyModal" data-toggle="modal" class="editSSHKeys">Edit</a></li><li><a href="#confirmDelModal" data-toggle="modal" class="deleteSSHKeys">Delete</a></li></ul></div>';
             return button;
         }
 
@@ -633,7 +659,7 @@
             "columns": [{
                 "data": "name"
             }, {
-                "data": "date_created"
+                "data": "date_modified"
             }, {
                 data: null,
                 className: "center",
@@ -643,6 +669,69 @@
             }]
         });
 
+        // confirm Delete ssh modal 
+        $('#confirmDelModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var clickedRow = button.closest('tr');
+            var rowData = sshTable.row(clickedRow).data();
+            var remove_id = rowData.id;
+            if (button.attr('class') === 'deleteSSHKeys') {
+                $('#mDelBtn').data('clickedrow', clickedRow);
+                $('#mDelBtn').attr('remove_id', remove_id);
+                $('#mDelBtn').attr('class', 'btn btn-primary deleteSSHKeys');
+                $('#confirmDelModalText').html('Are you sure you want to delete?');
+            }
+        });
+
+        $('#confirmDelModal').on('click', '.deleteSSHKeys', function (event) {
+            var remove_id = $('#mDelBtn').attr('remove_id');
+            var clickedRow = $('#mDelBtn').data('clickedrow');
+
+            if (remove_id !== '') {
+                var warnUser = false;
+                var warnText = '';
+                //[warnUser, warnText] = checkDeletionSSH(remove_id);
+
+                //A. If it is allowed to delete    
+                if (warnUser === false) {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: {
+                            id: remove_id,
+                            p: "removeSSH"
+                        },
+                        async: true,
+                        success: function (s) {
+                            sshTable.row(clickedRow).remove().draw();
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
+                }
+                //B. If it is not allowed to delete
+                else if (warnUser === true) {
+                    $('#warnDelete').off();
+                    $('#warnDelete').on('show.bs.modal', function (event) {
+                        $('#warnDelText').html(warnText);
+                    });
+                    $('#warnDelete').modal('show');
+                }
+                $('#confirmDelModal').modal('hide');
+            }
+        });
+
+        $('#sshKeyModal').on('hide.bs.modal', function (event) {
+            $('#ourKeyCheck').prop('disabled', false);
+            $('#userKeyCheck').prop('disabled', false);
+            if ($('#userKeyCheck').is(":checked")) {
+                $('#userKeyCheck').trigger("click");
+            }
+            if ($('#ourKeyCheck').is(":checked")) {
+                $('#ourKeyCheck').trigger("click");
+            }
+        });
 
 
 
@@ -657,19 +746,30 @@
                 var rowData = sshTable.row(clickedRow).data();
                 $('#savesshkey').data('clickedrow', clickedRow);
                 var formValues = $('#sshKeyModal').find('input');
+                var data = getValues({ p: "getSSH", id: rowData.id })[0];
                 $(formValues[0]).val(rowData.id);
                 $(formValues[1]).val(rowData.name);
+                if (data.check_userkey === 'on') {
+                    $('#userKeyCheck').trigger('click');
+                    $('#mUserPriKey').val(data.prikey)
+                    $('#mUserPubKey').val(data.pubkey)
+                    $('#ourKeyCheck').prop('disabled', true);
+                    $('#userKeyCheck').prop('disabled', true);
+
+                } else if (data.check_ourkey === 'on') {
+                    $('#ourKeyCheck').trigger('click');
+                    $('#mOurPriKeyDiv').css('display', 'inline');
+                    $('#mOurPubKeyDiv').css('display', 'inline');
+                    $('#createKeysDiv').css('display', 'none');
+                    $('#mOurPriKey').val(data.prikey)
+                    $('#mOurPubKey').val(data.pubkey)
+                    $('#userKeyCheck').prop('disabled', true);
+                    $('#ourKeyCheck').prop('disabled', true);
+                }
 
             }
         });
-        $('#sshKeyModal').on('hide.bs.modal', function (event) {
-            if ($('#userKeyCheck').is(":checked")) {
-                $('#userKeyCheck').trigger("click");
-            }
-            if ($('#ourKeyCheck').is(":checked")) {
-                $('#ourKeyCheck').trigger("click");
-            }
-        });
+
         $('#sshKeyModal').on('click', '#savesshkey', function (event) {
             event.preventDefault();
             var data = [];
@@ -677,18 +777,205 @@
             var savetype = $('#mSSHKeysID').val();
             if (sshName !== '' && ($('#userKeyCheck').is(":checked") || $('#ourKeyCheck').is(":checked"))) {
                 if ($('#userKeyCheck').is(":checked")) {
-                    data.push({ name: "check_userkey", value: "on" });
-                    data.push({ name: "prikey", value: $('#mUserPriKey').val() });
-                    data.push({ name: "pubkey", value: $('#mUserPubKey').val() });
+                    if ($('#mUserPriKey').val() !== "" && $('#mUserPubKey').val() !== "") {
+                        data.push({ name: "check_userkey", value: "on" });
+                        data.push({ name: "prikey", value: encodeURIComponent($('#mUserPriKey').val()) });
+                        data.push({ name: "pubkey", value: encodeURIComponent($('#mUserPubKey').val()) });
+                    }
                 } else if ($('#ourKeyCheck').is(":checked")) {
-                    data.push({ name: "check_ourkey", value: "on" });
-                    data.push({ name: "prikey", value: $('#mOurPriKey').val() });
-                    data.push({ name: "pubkey", value: $('#mOurPubKey').val() });
+                    if ($('#mOurPriKey').val() !== "" && $('#mOurPubKey').val() !== "") {
+                        data.push({ name: "check_ourkey", value: "on" });
+                        data.push({ name: "prikey", value: encodeURIComponent($('#mOurPriKey').val()) });
+                        data.push({ name: "pubkey", value: encodeURIComponent($('#mOurPubKey').val()) });
+                    }
                 }
                 data.push({ name: "id", value: savetype });
                 data.push({ name: "name", value: sshName });
                 data.push({ name: "p", value: "saveSSHKeys" });
+                if (data.length > 3) {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: data,
+                        async: true,
+                        success: function (s) {
+                            if (savetype.length) { //edit
+                                var clickedRow = $('#savesshkey').data('clickedrow');
+                                var getsshData = [];
+                                getsshData.push({ name: "id", value: savetype });
+                                getsshData.push({ name: "p", value: 'getSSH' });
+                                $.ajax({
+                                    type: "POST",
+                                    url: "ajax/ajaxquery.php",
+                                    data: getsshData,
+                                    async: true,
+                                    success: function (sc) {
+                                        var rowData = {};
+                                        var keys = sshTable.settings().init().columns;
+                                        for (var i = 0; i < keys.length; i++) {
+                                            var key = keys[i].data;
+                                            rowData[key] = sc[0][key];
+                                        }
+                                        rowData.id = sc[0].id;
+                                        sshTable.row(clickedRow).remove().draw();
+                                        sshTable.row.add(rowData).draw();
+
+                                    },
+                                    error: function (errorThrown) {
+                                        alert("Error: " + errorThrown);
+                                    }
+                                });
+
+                            } else { //insert
+                                var getSSHData = [];
+                                getSSHData.push({ name: "id", value: s.id });
+                                getSSHData.push({ name: "p", value: 'getSSH' });
+                                $.ajax({
+                                    type: "POST",
+                                    url: "ajax/ajaxquery.php",
+                                    data: getSSHData,
+                                    async: true,
+                                    success: function (sc) {
+                                        var addData = {};
+                                        var keys = sshTable.settings().init().columns;
+                                        for (var i = 0; i < keys.length; i++) {
+                                            var key = keys[i].data;
+                                            addData[key] = sc[0][key];
+                                        }
+                                        addData.id = sc[0].id;
+                                        sshTable.row.add(addData).draw();
+                                    },
+                                    error: function (errorThrown) {
+                                        alert("Error: " + errorThrown);
+                                    }
+                                });
+                            }
+                            $('#sshKeyModal').modal('hide');
+
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
+                        }
+                    });
+                }
+            }
+        });
+
+        //------------   ssh keys section ends -------------
+
+        //------------ amazon keys section-------------
+        function getAmzTableOptions() {
+            var button = '<div class="btn-group"><button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Options <span class="fa fa-caret-down"></span></button><ul class="dropdown-menu" role="menu"><li><a href="#amzKeyModal" data-toggle="modal" class="editAmzKeys">Edit</a></li><li><a href="#confirmDelAmzModal" data-toggle="modal" class="deleteAmzKeys">Delete</a></li></ul></div>';
+            return button;
+        }
+        var amzTable = $('#amzKeyTable').DataTable({
+            "ajax": {
+                url: "ajax/ajaxquery.php",
+                data: { "p": "getAmz" },
+                "dataSrc": ""
+            },
+            "columns": [{
+                "data": "name"
+            }, {
+                "data": "date_modified"
+            }, {
+                data: null,
+                className: "center",
+                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html(getAmzTableOptions());
+                }
+            }]
+        });
+        //
+        // confirm Delete amz modal 
+        $('#confirmDelAmzModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var clickedRow = button.closest('tr');
+            var rowData = amzTable.row(clickedRow).data();
+            var remove_id = rowData.id;
+            if (button.attr('class') === 'deleteAmzKeys') {
+                $('#mDelAmzBtn').data('clickedrow', clickedRow);
+                $('#mDelAmzBtn').attr('remove_id', remove_id);
+                $('#mDelAmzBtn').attr('class', 'btn btn-primary deleteAmzKeys');
+                $('#confirmDelAmzModalText').html('Are you sure you want to delete?');
+            }
+        });
+
+
+            $('#confirmDelAmzModal').on('click', '.deleteAmzKeys', function (event) {
+                  var remove_id = $('#mDelAmzBtn').attr('remove_id');
+            var clickedRow = $('#mDelAmzBtn').data('clickedrow');
+                if (remove_id !== '') {
+                    var warnUser = false;
+                    var warnText = '';
+                    //[warnUser, warnText] = checkDeletionAmz(remove_id);
+
+                    //A. If it is allowed to delete    
+                    if (warnUser === false) {
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: {
+                                id: remove_id,
+                                p: "removeAmz"
+                            },
+                            async: true,
+                            success: function (s) {
+                                amzTable.row(clickedRow).remove().draw();
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+                    //B. If it is not allowed to delete
+                    else if (warnUser === true) {
+                        $('#warnDelete').off();
+                        $('#warnDelete').on('show.bs.modal', function (event) {
+                            $('#warnDelText').html(warnText);
+                        });
+                        $('#warnDelete').modal('show');
+                    }
+                    $('#confirmDelAmzModal').modal('hide');
+                }
+            });
+
+        $('#amzKeyModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            $(this).find('form').trigger('reset');
+            if (button.attr('id') === 'addAmazonKey') {
+                $('#amzkeysmodaltitle').html('Add Amazon Credentials');
+            } else {
+                $('#amzkeysmodaltitle').html('Edit Amazon Credentials');
+                var clickedRow = button.closest('tr');
+                var rowData = amzTable.row(clickedRow).data();
+                $('#saveamzkey').data('clickedrow', clickedRow);
+                var formValues = $('#amzKeyModal').find('input');
+                var data = getValues({ p: "getAmz", id: rowData.id })[0];
                 console.log(data);
+                $(formValues[0]).val(rowData.id);
+                $(formValues[1]).val(rowData.name);
+                $('#mAmzDefReg').val(data.amz_def_reg);
+                $('#mAmzAccKey').val(data.amz_acc_key);
+                $('#mAmzSucKey').val(data.amz_suc_key);
+            }
+        });
+
+        $('#amzKeyModal').on('click', '#saveamzkey', function (event) {
+            event.preventDefault();
+            var data = [];
+            var amzName = $('#mAmzName').val();
+            var savetype = $('#mAmzKeysID').val();
+            var amz_def_reg = $('#mAmzDefReg').val();
+            var amz_acc_key = $('#mAmzAccKey').val();
+            var amz_suc_key = $('#mAmzSucKey').val();
+            if (amzName !== '' && amz_def_reg !== "" && amz_acc_key !== "" && amz_suc_key !== "") {
+                data.push({ name: "id", value: savetype });
+                data.push({ name: "name", value: amzName });
+                data.push({ name: "amz_def_reg", value: amz_def_reg });
+                data.push({ name: "amz_acc_key", value: amz_acc_key });
+                data.push({ name: "amz_suc_key", value: amz_suc_key });
+                data.push({ name: "p", value: "saveAmzKeys" });
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -696,61 +983,57 @@
                     async: true,
                     success: function (s) {
                         if (savetype.length) { //edit
-                            //                        var clickedRow = $('#savegroup').data('clickedrow');
-                            //                        var getGroupData = [];
-                            //                        getGroupData.push({ name: "id", value: savetype });
-                            //                        getGroupData.push({ name: "p", value: 'getGroups' });
-                            //                        $.ajax({
-                            //                            type: "POST",
-                            //                            url: "ajax/ajaxquery.php",
-                            //                            data: getGroupData,
-                            //                            async: true,
-                            //                            success: function (sc) {
-                            //                                var groupDat = sc;
-                            //                                var rowData = {};
-                            //                                var keys = groupTable.settings().init().columns;
-                            //                                for (var i = 0; i < keys.length; i++) {
-                            //                                    var key = keys[i].data;
-                            //                                    rowData[key] = groupDat[0][key];
-                            //                                }
-                            //                                rowData.id = groupDat[0].id;
-                            //                                groupTable.row(clickedRow).remove().draw();
-                            //                                groupTable.row.add(rowData).draw();
-                            //
-                            //                            },
-                            //                            error: function (errorThrown) {
-                            //                                alert("Error: " + errorThrown);
-                            //                            }
-                            //                        });
+                            var clickedRow = $('#saveamzkey').data('clickedrow');
+                            var getAmzData = [];
+                            getAmzData.push({ name: "id", value: savetype });
+                            getAmzData.push({ name: "p", value: 'getAmz' });
+                            $.ajax({
+                                type: "POST",
+                                url: "ajax/ajaxquery.php",
+                                data: getAmzData,
+                                async: true,
+                                success: function (sc) {
+                                    var rowData = {};
+                                    var keys = amzTable.settings().init().columns;
+                                    for (var i = 0; i < keys.length; i++) {
+                                        var key = keys[i].data;
+                                        rowData[key] = sc[0][key];
+                                    }
+                                    rowData.id = sc[0].id;
+                                    amzTable.row(clickedRow).remove().draw();
+                                    amzTable.row.add(rowData).draw();
+
+                                },
+                                error: function (errorThrown) {
+                                    alert("Error: " + errorThrown);
+                                }
+                            });
 
                         } else { //insert
-                            //                            var getGroupData = [];
-                            //                            getGroupData.push({ name: "id", value: s.id });
-                            //                            getGroupData.push({ name: "p", value: 'getGroups' });
-                            //                            $.ajax({
-                            //                                type: "POST",
-                            //                                url: "ajax/ajaxquery.php",
-                            //                                data: getGroupData,
-                            //                                async: true,
-                            //                                success: function (sc) {
-                            //                                    var groupDat = sc;
-                            //                                    var addData = {};
-                            //                                    var keys = groupTable.settings().init().columns;
-                            //                                    for (var i = 0; i < keys.length; i++) {
-                            //                                        var key = keys[i].data;
-                            //                                        addData[key] = groupDat[0][key];
-                            //                                    }
-                            //                                    addData.id = groupDat[0].id;
-                            //                                    groupTable.row.add(addData).draw();
-                            //
-                            //                                },
-                            //                                error: function (errorThrown) {
-                            //                                    alert("Error: " + errorThrown);
-                            //                                }
-                            //                            });
+                            var getAmzData = [];
+                            getAmzData.push({ name: "id", value: s.id });
+                            getAmzData.push({ name: "p", value: 'getAmz' });
+                            $.ajax({
+                                type: "POST",
+                                url: "ajax/ajaxquery.php",
+                                data: getAmzData,
+                                async: true,
+                                success: function (sc) {
+                                    var addData = {};
+                                    var keys = amzTable.settings().init().columns;
+                                    for (var i = 0; i < keys.length; i++) {
+                                        var key = keys[i].data;
+                                        addData[key] = sc[0][key];
+                                    }
+                                    addData.id = sc[0].id;
+                                    amzTable.row.add(addData).draw();
+                                },
+                                error: function (errorThrown) {
+                                    alert("Error: " + errorThrown);
+                                }
+                            });
                         }
-
-                        //                        $('#sshKeyModal').modal('hide');
+                        $('#amzKeyModal').modal('hide');
 
                     },
                     error: function (errorThrown) {
@@ -760,9 +1043,7 @@
             }
         });
 
-
-
-
+        //------------   amazon keys section ends -------------
 
 
 

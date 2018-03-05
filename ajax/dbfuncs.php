@@ -561,6 +561,9 @@ class dbfuncs {
         $keyPri = $this->readFile($keyPriPath);
         $log_array = array('$keyPub' => $keyPub);
         $log_array['$keyPri'] = $keyPri;
+         //remove the directory after reading files.
+        $cmd = "rm -rf {$this->ssh_path}/.tmp$ownerID 2>&1 & echo $! &";
+        $log_remove = $this->runCommand ($cmd, 'remove_key', '');
     return json_encode($log_array);
         
     }
@@ -583,7 +586,16 @@ class dbfuncs {
             fwrite($file, $key);
             fclose($file);
             chmod("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
-            
+        } else if ($type == 'ssh_pub'){
+            $file = fopen("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            fwrite($file, $key);
+            fclose($file);
+            chmod("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
+        } else if ($type == 'ssh_pri'){
+            $file = fopen("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 'w');//creates new file
+            fwrite($file, $key);
+            fclose($file);
+            chmod("{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky", 0600); 
         }
 
     }
@@ -592,6 +604,8 @@ class dbfuncs {
         if ($type == 'clu'){
         $filename = "{$this->ssh_path}/{$ownerID}_{$id}.pky";
         } else if ($type == 'amz_pub' || $type == 'amz_pri'){
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        } else if ($type == 'ssh_pub' || $type == 'ssh_pri'){
         $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
         }
         $handle = fopen($filename, 'r');//creates new file
@@ -604,6 +618,8 @@ class dbfuncs {
         if ($type == 'clu'){
         $filename = "{$this->ssh_path}/{$ownerID}_{$id}.pky";
         } else if ($type == 'amz_pub' || $type == 'amz_pri'){
+        $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
+        } else if ($type == 'ssh_pri' || $type == 'ssh_pub'){
         $filename = "{$this->ssh_path}/{$ownerID}_{$id}_{$type}.pky";
         }
         unlink($filename); 
@@ -837,16 +853,42 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     public function insertUser($google_id, $name, $email, $google_image, $username) {
-        $sql = "INSERT INTO users(google_id, name, email, google_image, username, memberdate, date_created, date_modified, last_modified_user, perms) VALUES 
-			('$google_id', '$name', '$email', '$google_image', '$username', now() , now(), now(), '".$this->last_modified_user."', '3')";
+        $sql = "INSERT INTO users(google_id, name, email, google_image, username, memberdate, date_created, date_modified, perms) VALUES 
+			('$google_id', '$name', '$email', '$google_image', '$username', now() , now(), now(), '3')";
         return self::insTable($sql);
     }
     
     public function updateUser($id, $google_id, $name, $email, $google_image, $username) {
-        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='".$this->last_modified_user."' WHERE id = '$id'";
+        $sql = "UPDATE users SET id='$id', google_id='$google_id', name='$name', email='$email', google_image='$google_image', username='$username', last_modified_user='$id' WHERE id = '$id'";
         return self::runSQL($sql);
     }
 //    ------------- Profiles   ------------
+    public function insertSSH($name, $check_userkey, $check_ourkey, $ownerID) {
+        $sql = "INSERT INTO ssh(name, check_userkey, check_ourkey, date_created, date_modified, last_modified_user, perms, owner_id) VALUES 
+			('$name', '$check_userkey', '$check_ourkey', now() , now(), '$ownerID', '3', '$ownerID')";
+        return self::insTable($sql);
+    }
+    public function updateSSH($id, $name, $check_userkey, $check_ourkey, $ownerID) {
+        $sql = "UPDATE ssh SET name='$name', check_userkey='$check_userkey', check_ourkey='$check_ourkey', date_modified = now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+      public function insertAmz($name, $amz_def_reg, $amz_acc_key, $amz_suc_key, $ownerID) {
+        $sql = "INSERT INTO amazon_credentials (name, amz_def_reg, amz_acc_key, amz_suc_key, date_created, date_modified, last_modified_user, perms, owner_id) VALUES 
+			('$name', '$amz_def_reg', '$amz_acc_key', '$amz_suc_key', now() , now(), '$ownerID', '3', '$ownerID')";
+        return self::insTable($sql);
+    }
+    public function updateAmz($id, $name, $amz_def_reg,$amz_acc_key,$amz_suc_key, $ownerID) {
+        $sql = "UPDATE amazon_credentials SET name='$name', amz_def_reg='$amz_def_reg', amz_acc_key='$amz_acc_key', amz_suc_key='$amz_suc_key', date_modified = now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function getAmz($ownerID) {
+        $sql = "SELECT * FROM amazon_credentials WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);    
+    }
+    public function getAmzbyID($id,$ownerID) {
+        $sql = "SELECT * FROM amazon_credentials WHERE owner_id = '$ownerID' and id = '$id'";
+        return self::queryTable($sql);    
+    }
     public function getProfileLocal($ownerID) {
         $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
@@ -931,8 +973,14 @@ class dbfuncs {
         $sql = "SELECT ssh FROM profile_amazon WHERE id = '$id' AND owner_id = '$ownerID'";
 		return self::queryTable($sql);
     }
- 
-    
+         public function removeAmz($id) {
+        $sql = "DELETE FROM amazon_credentials WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+     public function removeSSH($id) {
+        $sql = "DELETE FROM ssh WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
     public function removeProLocal($id) {
         $sql = "DELETE FROM profile_local WHERE id = '$id'";
         return self::runSQL($sql);
