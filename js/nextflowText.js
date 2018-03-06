@@ -216,11 +216,9 @@ function InputParameters(id, currgid) {
                     if (qual === "set"){
                     var sNodeProId = inputIdSplit[1];
                     var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
-                    console.log(inputParAll);
                     var inputParMate = inputParAll.filter(function (el) {
                         return el.sname == "mate"
                     }).length
-                    console.log(inputParMate);
                     }
 
                     if (qual === "file") {
@@ -278,7 +276,6 @@ function getPublishDirRegex(outputName) {
     //eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
     if (outputName.match(/file\((.*)\)/)) {
         var outputName = outputName.match(/file\((.*)\)/)[1];
-        console.log(outputName);
     }
     //if name contains path and separated by '/' then take the last part
     if (outputName.match(/\//)) {

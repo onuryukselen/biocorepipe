@@ -1,22 +1,22 @@
 //user role
-function callusRole(){
-     var userRole = getValues({ p: "getUserRole" });
+function callusRole() {
+    var userRole = getValues({ p: "getUserRole" });
     if (userRole != '') {
-    if (userRole[0].role !== null){
-        if (userRole[0].role === "admin") {
-             var usRole = "admin";
-        }else {
+        if (userRole[0].role !== null) {
+            if (userRole[0].role === "admin") {
+                var usRole = "admin";
+            } else {
+                var usRole = "";
+            }
+        } else {
             var usRole = "";
-        } 
+        }
     } else {
-        var usRole = "";
-    }
-    }else {
         var usRole = "";
     }
     return usRole;
 }
-usRole = callusRole(); 
+usRole = callusRole();
 
 //initialize all tooltips on a page (eg.$('#mFileTypeTool').tooltip("show"))
 $(function () {
@@ -52,24 +52,21 @@ function checkAmzProfiles(timer) {
 
 //interval will decide the check period: default: 40 sec. for termination 5 sec
 function checkAmazonTimer(proId, interval) {
-        console.log('interval_amzStatus_' + proId);
-    
     window['interval_amzStatus_' + proId] = setInterval(function () {
         var runAmzCloudCheck = runAmazonCloudCheck(proId);
-        if (runAmzCloudCheck){
+        if (runAmzCloudCheck) {
             setTimeout(function () { checkAmazonStatus(proId); }, 3000);
         }
     }, interval);
 }
-function runAmazonCloudCheck(proId){
+
+function runAmazonCloudCheck(proId) {
     var runAmzCloudCheck = getValues({ p: "runAmazonCloudCheck", profileId: proId });
     return runAmzCloudCheck;
 }
 
-
 function checkAmazonStatus(proId) {
-        console.log('checkAmazonStatus');
-    
+    console.log('checkAmazonStatus');
     var checkAmazonStatus = getValues({ p: "checkAmazonStatus", profileId: proId });
     if (checkAmazonStatus.status === "waiting") {
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
@@ -92,7 +89,6 @@ function checkAmazonStatus(proId) {
     } else if (checkAmazonStatus.status === "inactive") {
         clearInterval(window['interval_amzStatus_' + proId]);
         console.log('clear: interval_amzStatus_' + proId);
-        
         $('#status-' + proId).text('Inactive');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
     } else if (checkAmazonStatus.status === "terminated") {
@@ -108,19 +104,17 @@ function checkAmazonStatus(proId) {
             } else {
                 errorText = "(" + logText + ")";
             }
-        }else {
+        } else {
             var errorText = "";
         }
-
         if (errorText === "" && checkAmazonStatus.logAmzStart) {
             var logTextStart = checkAmazonStatus.logAmzStart;
             if (logTextStart.match(/error/i) || logTextStart.match(/denied/i) || logTextStart.match(/missing/i) || logTextStart.match(/couldn't/i) || logTextStart.match(/help/i) || logTextStart.match(/wrong/i))
                 errorText = "(" + logTextStart + ")";
-        } 
+        }
         $('#status-' + proId).html('Terminated <br/>' + errorText);
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'inline');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
-        
     } else {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
     }
@@ -130,24 +124,17 @@ function checkAmazonStatus(proId) {
 
 
 $(document).ready(function () {
-   
-    
-    
     function addAmzRow(id, name, executor, instance_type, image_id, subnet_id) {
         $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
     }
-
+    
     $('#amzModal').on('show.bs.modal', function (event) {
         $(this).find('form').trigger('reset');
         var proAmzData = getValues({ p: "getProfileAmazon" });
-
         $.each(proAmzData, function (el) {
             addAmzRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id, proAmzData[el].subnet_id);
             checkAmazonStatus(proAmzData[el].id);
-
         });
-
-
     });
 
     //close amzModal
@@ -158,11 +145,9 @@ $(document).ready(function () {
 
     $('#amzModal').on('click', '#amzStart', function (e) {
         e.preventDefault();
-
         var clickedRowId = $(this).closest('tr').attr('id'); //local-20
         var patt = /(.*)-(.*)/;
         var proId = clickedRowId.replace(patt, '$2');
-
         //enter amazon details modal
         $('#addAmzNodeModal').off();
         $('#addAmzNodeModal').on('show.bs.modal', function (event) {
@@ -186,7 +171,6 @@ $(document).ready(function () {
                     "autoscale_maxIns": autoscale_maxIns,
                     "p": "startProAmazon"
                 };
-
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -199,7 +183,7 @@ $(document).ready(function () {
                             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
                             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
                             $('#addAmzNodeModal').modal('hide');
-                            checkAmazonTimer(proId,40000);
+                            checkAmazonTimer(proId, 40000);
                         }
                     }
                 });
@@ -220,24 +204,20 @@ $(document).ready(function () {
             data: data,
             async: true,
             success: function (s) {
-
                 if (s.stop_cloud) {
                     // check the amazon profiles activity each minute.
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
                     //clear previous interval and set new one(with faster check interval).
                     clearInterval(window['interval_amzStatus_' + proId]);
                     setTimeout(function () { checkAmazonTimer(proId, 3500); }, 1000);
-
                 }
             }
         });
     });
-
 });
 
-
 //load filter sidebar menu options
-if (usRole === "admin"){
+if (usRole === "admin") {
     $("#filterMenu").append('<li><a href="#" data-value="630" tabIndex="-1"><input type="checkbox"/>&nbsp;Waiting Approval</a></li>');
 }
 var allUserGrp = getValues({ p: "getUserGroups" });
@@ -291,26 +271,26 @@ function filterSideBar(options) {
             var tagElems2 = $(tagElems).eq(i).children().eq(1).children()
             $(tagElems2).hide()
             for (var j = 0; j < tagElems2.length; j++) {
-                if ($(tagElems2).eq(j).attr('pin')){
-                if ($(tagElems2).eq(j).attr('pin') === 'true'){
-                    var checkPinText = '63';
-                }else {
-                    var checkPinText = '630';
+                if ($(tagElems2).eq(j).attr('pin')) {
+                    if ($(tagElems2).eq(j).attr('pin') === 'true') {
+                        var checkPinText = '63';
+                    } else {
+                        var checkPinText = '630';
+                    }
                 }
-                }
-                if ($(tagElems2).eq(j).attr('pub')){
-                if ($(tagElems2).eq(j).attr('pub') === '1'){
-                    var checkPubText = '630';
-                }else {
-                    var checkPubText = '0';
-                }
+                if ($(tagElems2).eq(j).attr('pub')) {
+                    if ($(tagElems2).eq(j).attr('pub') === '1') {
+                        var checkPubText = '630';
+                    } else {
+                        var checkPubText = '0';
+                    }
                 }
                 var checkPublish = $.inArray(checkPubText, selOptArr) >= 0;
                 var checkPin = $.inArray(checkPinText, selOptArr) >= 0;
                 var checkPerm = $.inArray($(tagElems2).eq(j).attr('p'), selOptArr) >= 0;
                 var checkGroup = $.inArray($(tagElems2).eq(j).attr('g'), group_idArr) >= 0;
-                
-                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') === "3" && checkPerm) || ($(tagElems2).eq(j).attr('p') === "63" && checkPin) ||  ($(tagElems2).eq(j).attr('p') !== "63" && checkPublish)) {
+
+                if (($(tagElems2).eq(j).attr('p') === "15" && checkPerm && checkGroup) || ($(tagElems2).eq(j).attr('p') === "3" && checkPerm) || ($(tagElems2).eq(j).attr('p') === "63" && checkPin) || ($(tagElems2).eq(j).attr('p') !== "63" && checkPublish)) {
                     $(tagElems).eq(i).show()
                     if (selOpt !== "") {} else {
                         $(tagElems).show()
@@ -337,7 +317,6 @@ function filterSideBar(options) {
 //$('#tags').on('keyup',function(e){
 $('.main-sidebar').on('keyup', '#tags', function (e) {
     $('.filterM a >').prop('checked', false);
-
     var tagElems = $('#autocompletes1').children()
     $(tagElems).hide()
     for (var i = 0; i < tagElems.length; i++) {
@@ -363,23 +342,17 @@ $('.main-sidebar').on('keyup', '#tags', function (e) {
     $('#outputs').show();
     $('.header').show();
     $('#Pipelines').show();
-
 });
-
 
 
 //table buttons:
 var SELECT = 4; // 1
 var EDIT = 2; // 10
 var REMOVE = 1; // 100
-
 function getTableButtons(name, buttons) {
-    //ser <- 9f 
     var selectButton = '';
     var editButton = '';
     var removeButton = '';
-
-
     if (buttons.toString(2) & SELECT) {
         selectButton = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Select" id="' + name + 'select">Select</button> &nbsp; '
     }
@@ -389,12 +362,8 @@ function getTableButtons(name, buttons) {
     if (buttons.toString(2) & REMOVE) {
         removeButton = '<button type="button" class="btn btn-primary btn-sm" title="Remove" id="' + name + 'remove">Remove</button></div>'
     }
-
     return selectButton + editButton + removeButton
 }
-
-
-
 
 // eg. name:run buttons:select
 function getButtonsModal(name, buttons) {
@@ -409,7 +378,6 @@ function getButtonsDef(name, buttons) {
     return button;
 }
 
-
 function getIconButtonModal(name, buttons, icon) {
     var buttonId = buttons.split(' ')[0];
     var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId + '" data-toggle="modal" data-target="#' + name + 'modal"><a data-toggle="tooltip" data-placement="bottom" data-original-title="' + name + '"><i class="' + icon + '" style="font-size: 17px;"></i></a></button>';
@@ -421,9 +389,6 @@ function getIconButton(name, buttons, icon) {
     var button = '<button type="submit" style="padding:0px;" class="btn" title="' + buttons + '" id="' + name + buttonId + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="' + name + '"><i class="' + icon + '" style="font-size: 17px;"></i></a></button>';
     return button;
 }
-
-
-
 
 //checklogin
 var loginSuccess = false;
@@ -496,9 +461,7 @@ function update_user_data(userProfile) {
             } else {
                 var logInSuccess = true;
                 window.location.reload('true');
-
             }
-
         }
     });
 }
@@ -508,7 +471,6 @@ function signOut() {
     var userLog = [];
     userLog.push({ name: "p", value: 'logOutUser' });
     auth2.signOut().then(function () {
-
         $.ajax({
             type: "POST",
             data: userLog,
@@ -518,8 +480,6 @@ function signOut() {
                 if (msg.logOut == 1) {
                     var logInSuccess = false;
                     window.location.reload('true');
-
-
                 }
             }
         });
@@ -615,21 +575,19 @@ $('.collapseIcon').on('click', function (e) {
 
 });
 
-
 // fills the from with the object data. find is comma separated string: 'input, p'
 //eg.  fillForm('#execNextSettTable','input', exec_next_settings);
-
 function fillForm(formId, find, data) {
     var formValues = $(formId).find(find);
-
     var keys = Object.keys(data);
     for (var i = 0; i < keys.length; i++) {
-        $(formValues[i]).val(data[keys[i]]);
-
+        if (data[keys[i]] === "on") {
+            $(formValues[i]).attr('checked', true);
+        } else {
+            $(formValues[i]).val(data[keys[i]]);
+        }
     }
 }
-
-
 
 $(function () {
     $("#feedback-tab").click(function () {
@@ -654,7 +612,6 @@ $(function () {
         event.preventDefault();
     });
 });
-
 
 function escapeHtml(str) {
     var map = {

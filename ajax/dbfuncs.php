@@ -243,17 +243,18 @@ class dbfuncs {
         return sprintf($format, $hours, $minutes);
     }
     function cleanName($name){
-       $name = str_replace("/","_",$name);
-       $name = str_replace(" ","",$name);
-       $name = str_replace("(","_",$name);
-       $name = str_replace(")","_",$name);
-       $name = str_replace("\'","_",$name);
-       $name = str_replace("\"","_",$name);
-       $name = str_replace("\\","_",$name);
-       $name = str_replace("&","_",$name);
-       $name = str_replace("<","_",$name);
-       $name = str_replace(">","_",$name);
-       $name = str_replace("-","_",$name);
+        $name = str_replace("/","_",$name);
+        $name = str_replace(" ","",$name);
+        $name = str_replace("(","_",$name);
+        $name = str_replace(")","_",$name);
+        $name = str_replace("\'","_",$name);
+        $name = str_replace("\"","_",$name);
+        $name = str_replace("\\","_",$name);
+        $name = str_replace("&","_",$name);
+        $name = str_replace("<","_",$name);
+        $name = str_replace(">","_",$name);
+        $name = str_replace("-","_",$name);
+        $name = substr($name, 0, 9);
         return $name;
     }
     
