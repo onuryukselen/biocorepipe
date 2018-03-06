@@ -225,7 +225,7 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label>Group Selection</label>
+                    <label>Group Selection </label>
                     <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
                           <option value="" disabled selected>Choose group </option>
                         </select>
@@ -233,7 +233,7 @@
             </div>
             <div id="jobSettingsDiv" class="col-md-12">
                 <div>
-                    <label><input type="checkbox" id="exec_all" name="exec_all"  data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input></label>
+                    <label><input type="checkbox" id="exec_all" name="exec_all"  data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input> <span><a data-toggle="tooltip" data-placement="bottom" title="You may adjust the nextflow executor settings by clicking this item."><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                 </div>
                 <div id="allProcessDiv" class="panel panel-default collapse">
                     <div id="allProcessSett">
@@ -258,7 +258,7 @@
                     </div>
                 </div>
                 <div>
-                    <label><input type="checkbox" id="exec_each" name="exec_each" data-toggle="collapse" data-target="#eachProcessDiv"> Executor Settings for Each Process</input></label>
+                    <label><input type="checkbox" id="exec_each" name="exec_each" data-toggle="collapse" data-target="#eachProcessDiv"> Executor Settings for Each Process </input><span><a data-toggle="tooltip" data-placement="bottom" title="You may change executor settings for each process and override to 'executor settings for all processes' by clicking this item and clicking the checkbox of process that you want to change. This will only affect the settings of clicked process and keep the original settings for the rest."><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                 </div>
                 <div id="eachProcessDiv" class="panel panel-default collapse">
                     <div id="processTab">

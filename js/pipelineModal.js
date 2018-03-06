@@ -858,9 +858,9 @@ function disableProModalPublic(selProcessId) {
 };
 
 function createRevPipeline(savedList, id, sName) {
-    createPipeRev= "true";
+    createPipeRev = "true";
     [savedList, id, sName] = save();
-    
+
     var infoText = "Since this pipeline is public, it is not allowed for modification. You can save the pipeline as a new revision by entering revision comment and clicking the save button."
     $('#confirmRevision').off();
     $('#confirmRevision').on('show.bs.modal', function (event) {
@@ -1028,6 +1028,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 $('#datecreatedPip').text(s[0].date_created);
                 $('.lasteditedPip').text(s[0].date_modified);
                 openPipeline(pipeline_id);
+                checkNameUnique(processList);
             }
 
         },
@@ -1477,6 +1478,20 @@ $(document).ready(function () {
         $('#mParamsDynamic').css('display', "none");
         $('#mParamList').css('display', "inline");
     });
+
+    function cleanProcessName(proName) {
+        proName = proName.replace(/ /g, "_");
+        proName = proName.replace(/-/g, "_");
+        proName = proName.replace(/,/g, "_");
+        proName = proName.replace(/\$/g, "_");
+        proName = proName.replace(/\!/g, "_");
+        proName = proName.replace(/\</g, "_");
+        proName = proName.replace(/\>/g, "_");
+        proName = proName.replace(/\?/g, "_");
+        proName = proName.replace(/\(/g, "_");
+        proName = proName.replace(/\)/g, "_");
+        return proName;
+    }
     // Add process modal to database
     $('#addProcessModal').on('click', '#saveprocess', function (event) {
         event.preventDefault();
@@ -1498,15 +1513,13 @@ $(document).ready(function () {
         if (!savetype.length) {
             var formValues = $('#addProcessModal').find('input, select, textarea');
             var data = formValues.serializeArray();
-            data[1].value = data[1].value.replace(/ /g, "_");
+            data[1].value = cleanProcessName(data[1].value);
             var dataToProcess = []; //dataToProcess to save in process table
             var proName = data[1].value;
             var proGroId = data[4].value;
             for (var i = 0; i < 5; i++) {
                 dataToProcess.push(data[i]);
             }
-
-
             var scripteditor = JSON.stringify(editor.getValue());
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
@@ -1547,7 +1560,7 @@ $(document).ready(function () {
             $('#mName').removeAttr('disabled'); //temporary remove disabled attribute for serializeArray().
             var formValues = $('#addProcessModal').find('input, select, textarea');
             var data = formValues.serializeArray();
-            data[2].value = data[2].value.replace(/ /g, "_");
+            data[2].value = cleanProcessName(data[2].value);
             $('#mName').attr('disabled', "disabled");
 
             var proID = data[1].value;

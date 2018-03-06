@@ -1,3 +1,8 @@
+06.03.2018 Version 0.0.84
+profile tab button is hidden in public page
+process name automaticaly cleaned from special characters and spaces
+Warning feature for unique process/parameter name in pipeline is added.
+
 06.03.2018 Version 0.0.83
 Confirm modal is added while removing profile. 
 Sql error fixed on sidebar menu.
