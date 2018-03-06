@@ -241,7 +241,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Queue</th>
-                                    <th scope="col">Memory</th>
+                                    <th scope="col">Memory(GB)</th>
                                     <th scope="col">CPUs</th>
                                     <th scope="col">Time(min.)</th>
                                 </tr>
@@ -249,7 +249,7 @@
                             <tbody>
                                 <tr>
                                     <td><input id="job_queue" name="job_queue" class="form-control" type="text" value="short"></td>
-                                    <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32024"></td>
+                                    <td><input id="job_memory" class="form-control" type="text" name="job_memory" value="32"></td>
                                     <td><input id="job_cpu" name="job_cpu" class="form-control" type="text" value="1"></td>
                                     <td><input id="job_time" name="job_time" class="form-control" type="text" value="100"></td>
                                 </tr>
@@ -265,9 +265,10 @@
                         <table id="processTable" class="table">
                             <thead>
                                 <tr>
+                                    <th scope="col">Select</th>
                                     <th scope="col">Process Name</th>
                                     <th scope="col">Queue</th>
-                                    <th scope="col">Memory</th>
+                                    <th scope="col">Memory(GB)</th>
                                     <th scope="col">CPUs</th>
                                     <th scope="col">Time(min.)</th>
                                 </tr>

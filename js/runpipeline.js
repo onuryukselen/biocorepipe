@@ -272,35 +272,29 @@
 	      }
 
 	  }
-
+	  //xxx
 	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef) {
-	      return '<tr procgnum=' + gNum + ' id=procTa-' + process_id + '><td>' + procName + '</td><td><input name="queue" class="form-control" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procCpuDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procTimeDef + '"></input></td></tr>'
+	      return '<tr procProId="' + process_id + '" id="procGnum-' + gNum + '"><td><input name="check" id="check-' + gNum + '" type="checkbox" </td><td>' + procName + '</td><td><input name="queue" class="form-control" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procCpuDef + '"></input></td><td><input name="time" class="form-control" type="text" value="' + procTimeDef + '"></input></td></tr>'
 	  }
 
 	  //--Pipeline details table --
-	  function addProPipeTab(process_id, gNum) {
-	      var procData = processData.filter(function (el) { return el.id == process_id });
-	      var procName = procData[0].name;
-	      //	      var procQueDef = 'long';
-	      //	      var procMemDef = '32024'
-	      //	      var procCpuDef = '2';
-	      //	      var procTimeDef = '3040';
+	  function addProPipeTab(process_id, gNum, procName) {
 	      var procQueDef = 'short';
-	      var procMemDef = '10 GB'
-	      var procCpuDef = '2';
+	      var procMemDef = '10'
+	      var procCpuDef = '1';
 	      var procTimeDef = '100';
 	      var proRow = insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef);
 	      $('#processTable > tbody:last-child').append(proRow);
 	  }
 
-	  function removeProPipeTab(id) {
-	      var proExist = '';
-	      var proExist = $(".g-" + id)[1];
-	      //there should be at least 2 process before delete, otherwise delete
-	      if (!proExist) {
-	          $('#procTa-' + id).remove();
-	      }
-	  }
+	  //	  function removeProPipeTab(id) {
+	  //	      var proExist = '';
+	  //	      var proExist = $(".g-" + id)[1];
+	  //	      //there should be at least 2 process before delete, otherwise delete
+	  //	      if (!proExist) {
+	  //	          $('#procTa-' + id).remove();
+	  //	      }
+	  //	  }
 
 
 	  function findType(id) {
@@ -462,7 +456,7 @@
 	          } else if (proClass === 'g-outPro') { // output param is deleted
 	              $('#outputTa-' + gNum).remove();
 	          } else { //process is deleted
-	              removeProPipeTab(proID)
+	              //	              removeProPipeTab(proID)
 	          }
 	          //--delete pipeline details ends
 
@@ -1229,8 +1223,9 @@
 	          gNum = gNum + 1
 
 	      } else {
-	          addProPipeTab(id, gNum)
-	          //--Pipeline details table ends---
+	          //--Pipeline details table ---
+	          addProPipeTab(id, gNum, name);
+
 
 	          inputs = getValues({
 	              p: "getInputsPP",
@@ -1334,6 +1329,8 @@
 	          }
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
+
+
 	      }
 	  }
 
@@ -1448,12 +1445,7 @@
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
 	      }
-	      //insert exec_next_settings data into exec_next_settings table
-	      //	      if (IsJsonString(pipeData[0].exec_next_settings)) {
-	      //	          var exec_next_settings = JSON.parse(pipeData[0].exec_next_settings);
-	      //	          fillForm('#execNextSettTable', 'input', exec_next_settings);
-	      //	      }
-	      //check executor_job if its local
+
 	      var chooseEnv = $('#chooseEnv option:selected').val();
 
 	      if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
@@ -1467,6 +1459,15 @@
 	              if (IsJsonString(pipeData[0].exec_all_settings)) {
 	                  var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
 	                  fillForm('#allProcessSettTable', 'input', exec_all_settings);
+	              }
+	              //insert exec_each_settings data into #processtable
+	              if (IsJsonString(pipeData[0].exec_each_settings)) {
+	                  var exec_each_settings = JSON.parse(pipeData[0].exec_each_settings);
+	                  $.each(exec_each_settings, function (el) {
+	                      var each_settings = exec_each_settings[el];
+	                      //wait for the table to load
+	                      setTimeout(function () { fillForm('#' + el, 'input', each_settings); }, 1000);
+	                  });
 	              }
 	          }
 	      } else {
@@ -1633,16 +1634,32 @@
 	      }
 	  }
 
-	  function configTextAllProcess(exec_all_settings) {
-	      for (var keyParam in exec_all_settings) {
-	          if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
-	              window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
-	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
-	              window.configTextRaw += 'process.' + 'cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
-	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
-	              window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
-	          } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
-	              window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
+
+	  function configTextAllProcess(exec_all_settings, type, proName) {
+	      if (type === "each") {
+	          for (var keyParam in exec_all_settings) {
+	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
+	                  window.configTextRaw += 'process.$' + proName + '.time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
+	                  window.configTextRaw += 'process.$' + proName + '.cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
+	                  window.configTextRaw += 'process.$' + proName + '.queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
+	                  window.configTextRaw += 'process.$' + proName + '.memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
+	              }
+	          }
+
+	      } else {
+	          for (var keyParam in exec_all_settings) {
+	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
+	                  window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
+	                  window.configTextRaw += 'process.' + 'cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
+	                  window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
+	                  window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
+	              }
 	          }
 	      }
 	  }
@@ -1726,17 +1743,23 @@
 	          if ($('#exec_all').is(":checked") === true) {
 	              var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	              var exec_all_settings = formToJson(exec_all_settingsRaw);
+	              console.log(exec_all_settings)
 	              configTextAllProcess(exec_all_settings);
 	          } else {
 	              configTextAllProcess(allProSett);
 	          }
-	          //          if ($('#exec_each').is(":checked") === true) {
-	          //	      var exec_each_settingsRaw = $('#processTable').find('input');
-	          //	      var exec_each_settings = formToJson(exec_each_settingsRaw);
-	          //	      }
-
-	          //          process.$hello.queue = 'long'
-
+	          if ($('#exec_each').is(":checked") === true) {
+	              var exec_each_settings = formToJsonEachPro();
+	              if (IsJsonString(exec_each_settings)) {
+	                  var exec_each_settings = JSON.parse(exec_each_settings);
+	                  $.each(exec_each_settings, function (el) {
+	                      var each_settings = exec_each_settings[el];
+	                      var processName = $("#" + el + " :nth-child(2)").text()
+	                      //process.$hello.queue = 'long'
+	                      configTextAllProcess(each_settings, "each", processName);
+	                  });
+	              }
+	          }
 	      }
 	      console.log(configTextRaw);
 	      var configText = encodeURIComponent(configTextRaw);
@@ -1972,6 +1995,21 @@
 
 	  }
 
+	  function formToJsonEachPro() {
+	      var checkedBox = $('#processTable').find('input:checked');
+	      var checkedBoxArray = checkedBox.toArray();
+	      var formDataArr = {};
+	      $.each(checkedBoxArray, function (el) {
+	          var boxId = $(checkedBoxArray[el]).attr('id')
+	          var patt = /(.*)-(.*)/;
+	          var proGnum = boxId.replace(patt, '$2');
+	          var selectedRow = $('#procGnum-' + proGnum).find('input');
+	          var selectedRowJson = formToJson(selectedRow, 'stringfy');
+	          formDataArr['procGnum-' + proGnum] = selectedRowJson;
+	      });
+	      return JSON.stringify(formDataArr);
+	  }
+
 	  function saveRunIcon() {
 	      var data = [];
 	      var runSummary = $('#runSum').val();
@@ -1991,12 +2029,9 @@
 	      var cmd = encodeURIComponent($('#runCmd').val());
 	      var exec_each = $('#exec_each').is(":checked").toString();
 	      var exec_all = $('#exec_all').is(":checked").toString();
-	      //	      var exec_next_settingsRaw = $('#execNextSettTable').find('input');
-	      //	      var exec_next_settings = formToJson(exec_next_settingsRaw, 'stringify');
 	      var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	      var exec_all_settings = formToJson(exec_all_settingsRaw, 'stringify');
-	      var exec_each_settingsRaw = $('#processTable').find('input');
-	      var exec_each_settings = formToJson(exec_each_settingsRaw, 'stringify');
+	      var exec_each_settings = formToJsonEachPro();
 	      var docker_check = $('#docker_check').is(":checked").toString();
 	      var docker_img = $('#docker_img').val();
 	      var docker_opt = $('#docker_opt').val();

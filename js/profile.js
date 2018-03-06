@@ -50,35 +50,37 @@
             });
         }
 
-        function getAmzButModal() {
-            var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="' + 'profile' + 'edit" data-toggle="modal" data-target="#' + "profile" + 'modal">Edit</button> &nbsp; <button type="button" class="btn btn-primary btn-sm" title="Remove" id="' + 'profile' + 'remove">Remove</button>&nbsp;<button type="button" class="btn btn-primary btn-sm" title="start/stop" id="amzStartStop" data-toggle="modal" data-target="#amzModal">Start/Stop</button> &nbsp;</div>';
+        function getProfileButton(type) {
+            if (type === "amazon") {
+                var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="profileedit" data-toggle="modal" data-target="#profilemodal">Edit</button> &nbsp; <button type="button" class="btn btn-primary btn-sm" title="Remove" id="profileremove" data-toggle="modal" data-target="#confirmDelProModal">Remove</button>&nbsp;<button type="button" class="btn btn-primary btn-sm" title="start/stop" id="amzStartStop" data-toggle="modal" data-target="#amzModal">Start/Stop</button> &nbsp;</div>';
+            } else if (type === "cluster" || type === "local") {
+                var button = '<div style="display: inline-flex"><button type="button" class="btn btn-primary btn-sm" title="Edit" id="profileedit" data-toggle="modal" data-target="#profilemodal">Edit</button> &nbsp; <button type="button" class="btn btn-primary btn-sm" title="Remove" id="profileremove" data-toggle="modal" data-target="#confirmDelProModal">Remove</button>';
+            }
             return button;
-
-
         }
 
         function addLocalRow(id, name, next_path, executor) {
-            $('#profilesTable > thead').append('<tr id="local-' + id + '"> <td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
+            $('#profilesTable > thead').append('<tr id="local-' + id + '"> <td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '</td><td>' + getProfileButton('local') + '</td></tr>');
         }
 
         function addClusterRow(id, name, next_path, executor, username, hostname) {
-            $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td></tr>');
+            $('#profilesTable > thead').append('<tr id="cluster-' + id + '"> <td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getProfileButton('cluster') + '</td></tr>');
         }
 
         function addAmazonRow(id, name, next_path, executor, instance_type, image_id) {
-            $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getAmzButModal() + '</td></tr>');
+            $('#profilesTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getProfileButton('amazon') + '</td></tr>');
         }
 
         function updateLocalRow(id, name, next_path, executor) {
-            $('#profilesTable > thead > #local-' + id).html('<td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
+            $('#profilesTable > thead > #local-' + id).html('<td>' + name + '</td> <td>Local</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '</td><td>' + getProfileButton('local') + '</td>');
         }
 
         function updateClusterRow(id, name, next_path, executor, username, hostname) {
-            $('#profilesTable > thead > #cluster-' + id).html('<td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getTableButtons("profile", EDIT | REMOVE) + '</td>');
+            $('#profilesTable > thead > #cluster-' + id).html('<td>' + name + '</td> <td>Host</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Connection: ' + username + '@' + hostname + '</td><td>' + getProfileButton('cluster') + '</td>');
         }
 
         function updateAmazonRow(id, name, next_path, executor, instance_type, image_id) {
-            $('#profilesTable > thead > #amazon-' + id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getAmzButModal() + '</td>');
+            $('#profilesTable > thead > #amazon-' + id).html('<td>' + name + '</td> <td>Amazon</td><td>Nextflow Path: ' + next_path + '<br> Executor: ' + executor + '<br>  Instance_type: ' + instance_type + '<br>  Image_id: ' + image_id + '</td><td>' + getProfileButton('amazon') + '</td>');
         }
 
         function loadOptions(type) {
@@ -116,6 +118,7 @@
                 var proId = clickedRowId.replace(patt, '$2');
                 var formValues = $('#profilemodal').find('input, select, textarea');
                 console.log(formValues);
+
                 function fillFixedCol(formValues, data) {
                     $(formValues[0]).val(data[0].id);
                     $(formValues[1]).val(data[0].name);
@@ -250,7 +253,6 @@
                 } else if (selEnvType === "amazon") {
                     data.push({ name: "p", value: "saveProfileAmazon" });
                 }
-                console.log(data)
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxquery.php",
@@ -290,10 +292,21 @@
             }
         });
 
-        $('#profilesTable').on('click', '#profileremove', function (e) {
-            e.preventDefault();
 
-            var clickedRowId = $(this).closest('tr').attr('id'); //local-20
+        // confirm Delete ssh modal 
+        $('#confirmDelProModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var clickedRowId = button.closest('tr').attr('id'); //local-20
+            console.log(clickedRowId);
+            if (button.attr('id') === 'profileremove') {
+                $('#mDelProBtn').attr('clickedRowId', clickedRowId);
+                $('#mDelProBtn').attr('class', 'btn btn-primary deleteProfile');
+                $('#confirmDelProModalText').html('Are you sure you want to delete?');
+            }
+        });
+
+        $('#confirmDelProModal').on('click', '.deleteProfile', function (event) {
+            var clickedRowId = $('#mDelProBtn').attr('clickedRowId');
             var patt = /(.*)-(.*)/;
             var proType = clickedRowId.replace(patt, '$1');
             var proId = clickedRowId.replace(patt, '$2');
@@ -305,31 +318,56 @@
             } else if (proType === "amazon") {
                 data = { "id": proId, "p": "removeProAmazon" };
             }
-            $.ajax({
-                type: "POST",
-                url: "ajax/ajaxquery.php",
-                data: data,
-                async: true,
-                success: function (s) {
-                    $('#profilesTable > > #' + clickedRowId).remove();
-                    var numRows = $('#profilesTable > > tr').length;
-                    if (numRows === 2) {
-                        $('#noProfile').css('display', 'block');
-                    }
-                    // check the amazon profiles
-                    if (proType === "amazon") {
-                        clearInterval(window['interval_amzStatus_' + proId]);
-                        var proAmzData = getValues({ p: "getProfileAmazon" });
-                        if (proAmzData.length < 1) {
-                            $('#manageAmz').css('display', 'none');
+            if (clickedRowId !== '') {
+                var warnUser = false;
+                var warnText = '';
+                //[warnUser, warnText] = checkDeletionProfile(remove_id);
+
+                //A. If it is allowed to delete    
+                if (warnUser === false) {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxquery.php",
+                        data: data,
+                        async: true,
+                        success: function (s) {
+                            $('#profilesTable > > #' + clickedRowId).remove();
+                            var numRows = $('#profilesTable > > tr').length;
+                            if (numRows === 2) {
+                                $('#noProfile').css('display', 'block');
+                            }
+                            // check the amazon profiles
+                            if (proType === "amazon") {
+                                clearInterval(window['interval_amzStatus_' + proId]);
+                                var proAmzData = getValues({ p: "getProfileAmazon" });
+                                if (proAmzData.length < 1) {
+                                    $('#manageAmz').css('display', 'none');
+                                }
+                            }
+                        },
+                        error: function (errorThrown) {
+                            alert("Error: " + errorThrown);
                         }
-                    }
-                },
-                error: function (errorThrown) {
-                    alert("Error: " + errorThrown);
+                    });
                 }
-            });
+                //B. If it is not allowed to delete
+                else if (warnUser === true) {
+                    $('#warnDelete').off();
+                    $('#warnDelete').on('show.bs.modal', function (event) {
+                        $('#warnDelText').html(warnText);
+                    });
+                    $('#warnDelete').modal('show');
+                }
+                $('#confirmDelProModal').modal('hide');
+            }
         });
+
+
+
+
+
+
+
 
         //------------   groups section-------------
         function getGroupTableOptions(owner_id, u_id) {

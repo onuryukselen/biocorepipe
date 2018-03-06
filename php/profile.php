@@ -8,7 +8,7 @@
                     <li class="active"><a href="#runEnvDiv" data-toggle="tab" aria-expanded="true">Run Environments</a></li>
                     <li class=""><a href="#groups" data-toggle="tab" aria-expanded="false">Groups</a></li>
                     <li class=""><a href="#sshKeys" data-toggle="tab" aria-expanded="false">SSH Keys</a></li>
-                    <li class=""><a href="#amazonKeys" data-toggle="tab" aria-expanded="false">Amazon Information</a></li>
+                    <li class=""><a href="#amazonKeys" data-toggle="tab" aria-expanded="false">Amazon Keys</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="runEnvDiv">
@@ -184,7 +184,7 @@
                         </label>
                         <div class="col-sm-9">
                             <select id="mEnvSSHKey" class="fbtn btn-default form-control" name="ssh_id">
-                                <option value="" disabled selected>Select Keys </option>
+                                <option value="" disabled selected>Select SSH Keys </option>
                             </select>
                         </div>
                     </div>
@@ -192,7 +192,7 @@
                         <label for="mEnvAmzKey" class="col-sm-3 control-label">Amazon Keys<span><a data-toggle="tooltip" data-placement="bottom" title="Keys that are saved in Amazon keys tab and to be used while connecting to Amazon Cloud"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                         <div class="col-sm-9">
                             <select id="mEnvAmzKey" class="fbtn btn-default form-control" name="amazon_cre_id">
-                                <option value="" disabled selected>Select Keys </option>
+                                <option value="" disabled selected>Select Amazon Keys </option>
                             </select>
                         </div>
                     </div>
@@ -598,6 +598,25 @@
             <div class="modal-body" id="confirmDelAmzModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelAmzBtn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Confirm Modal Ends-->
+
+       <!--Confirm Modal-->
+
+<div id="confirmDelProModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="confirmDelProModalTitle">Confirm</h4>
+            </div>
+            <div class="modal-body" id="confirmDelProModalText">Text</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelProBtn">Delete</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
             </div>
         </div>
