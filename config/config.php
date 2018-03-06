@@ -5,7 +5,7 @@ The configuration parameters will be read from that section**/
 if (!empty($_SERVER["HTTP_HOST"])){
    $http_host=$_SERVER["HTTP_HOST"];
    # CHANGE HERE ACCORDING TO YOUR ENVIRONMENT
-   if  ( preg_match("/dolphinnext.umassmed.edu/", $http_host) )
+   if  ( preg_match("/dolphinnext/", $http_host) )
    {
       $param_section="Dolphinnext";
    } 
@@ -39,19 +39,5 @@ define('DBPORT', $sec['DBPORT']);
 define('SSHPATH', $sec['SSHPATH']);
 define('AMAZON', $sec['AMAZON']);
 define('AMZPATH', $sec['AMZPATH']);
-//define('LMUSER', $sec['LMUSER']);
-
-//define('MASTER', $salt['MASTER']);
-//define('AMAZON', $salt['AMAZON']);
-//define('ENCODE_ACCESS', $salt['ENCODE_ACCESS']);
-//define('ENCODE_SECRET', $salt['ENCODE_SECRET']);
-//define('VERIFY', $salt['VERIFY']);
-
-//if (!isset($_SESSION) || !is_array($_SESSION)) session_start();
-//if (isset($_SESSION['user']))
-//{
-//  define('USERNAME', $_SESSION['user']);
-//  define('UID', $_SESSION['uid']);
-//}
 
 ?>
