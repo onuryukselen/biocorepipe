@@ -125,7 +125,7 @@ class sidebarfuncs {
                 FROM biocorepipe_save p
                 LEFT JOIN user_group ug ON p.group_id=ug.g_id 
                 WHERE (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
-                GROUP BY p. pipeline_gid
+                GROUP BY p.pipeline_gid
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
               
           } else {
@@ -137,20 +137,18 @@ class sidebarfuncs {
                 FROM biocorepipe_save p
                 LEFT JOIN user_group ug ON p.group_id=ug.g_id 
                 WHERE (p.owner_id='$ownerID' OR (p.perms = 63 AND p.pin = 'true') OR (ug.u_id ='$ownerID' and p.perms = 15))
-                GROUP BY p. pipeline_gid
+                GROUP BY p.pipeline_gid
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR (b.perms = 63 AND b.pin = 'true') OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
           }
           
       } else {
           $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
-               LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
                INNER JOIN (
                 SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
-                LEFT JOIN user_group ug ON p.group_id=ug.g_id 
                 WHERE p.perms = 63 
-                GROUP BY p. pipeline_gid
+                GROUP BY p.pipeline_gid
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 AND pip.pin = 'true' ";
        }     
         

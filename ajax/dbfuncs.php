@@ -8,7 +8,6 @@ class dbfuncs {
     private $dbuser = DBUSER;
     private $dbpass = DBPASS;
     private $dbport = DBPORT;
-//    private $last_modified_user = LMUSER;
     private $run_path = RUNPATH;
     private $ssh_path = SSHPATH;
     private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -oConnectTimeout=3";
@@ -377,7 +376,7 @@ class dbfuncs {
     }
     
     
-    function runCmd($project_pipeline_id, $ownerID, $profileType, $profileId, $ownerID, $log_array)
+    function runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID)
     {
         if ($profileType == "local") {
             //get input parameters

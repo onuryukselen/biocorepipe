@@ -44,7 +44,7 @@ else if ($p=="saveRun"){
     //create file and folders
     $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
     //run the script
-    $data = $db->runCmd($project_pipeline_id,$ownerID, $profileType, $profileId, $ownerID, $log_array);
+    $data = $db->runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID);
     //add run into run table
     //check if $project_pipeline_id already exits
     $checkRun = $db->getRun($project_pipeline_id,$ownerID);
