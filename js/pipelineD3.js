@@ -83,8 +83,8 @@
 	      edges = []
 	      candidates = []
 	      saveNodes = []
-          
-          createPipeRev ="";
+
+	      createPipeRev = "";
 	      dupliPipe = false
 	      binding = false
 	      renameTextID = ""
@@ -1401,14 +1401,59 @@
 	              $('#autosave').text('Details are saved');
 	          }
 	      }
+	  }
 
+	  function hasDuplicates(array) {
+	      var valuesSoFar = [];
+	      var duplicatesSoFar = [];
+	      for (var i = 0; i < array.length; ++i) {
+	          var value = array[i];
+	          if (valuesSoFar.indexOf(value) !== -1) {
+	              duplicatesSoFar.push(value);
+	          }
+	          valuesSoFar.push(value);
+	      }
+	      //no duplicates
+	      if (duplicatesSoFar.length === 0) {
+	          return [false, duplicatesSoFar];
+	      } else {
+	          return [true, duplicatesSoFar];
+	      }
+	  }
 
+	  //xxxxxxx
+	  function checkNameUnique(processList) {
+	      var warnUserUnique = false;
+	      var warnUserText = '';
+	      var processListArray = [];
+	      var keys = Object.keys(processList);
+	      for (var i = 0; i < keys.length; i++) {
+	          processListArray.push(processList[keys[i]])
+	      }
+	      var duplicatesSoFar = [];
+	      var duplicates = false;
+	      [duplicates, duplicatesSoFar] = hasDuplicates(processListArray);
+	      if (duplicates === true) {
+	          var warnUserText = "Process and parameter names should be unique in pipeline. Please modify following names: ";
+	              $.each(duplicatesSoFar, function (element) {
+	                  if (element !== 0) {
+	                      warnUserText = warnUserText + ", ";
+	                  }
+	                  warnUserText = warnUserText + duplicatesSoFar[element];
+	              });
+	          $('#warnSection').css('display', 'inline');
+	          $('#warnArea').html(warnUserText);
+	      } else {
+              $('#warnSection').css('display', 'none');
+          }
 	  }
 
 	  //Save pipeline
 	  function save() {
 	      saveNodes = {}
 	      saveMainG = {}
+	      //check if process and parameter names are unique in pipeline
+	      checkNameUnique(processList);
 	      for (var key in processList) {
 	          t = d3.transform(d3.select('#' + key).attr("transform")),
 	              x = t.translate[0]

@@ -253,6 +253,10 @@
                         <!-- <li><a href="#"><i class="fa fa-bell-o"></i></a></li>-->
                         <?php
                         include("php/funcs.php");
+                        session_start(); 
+                        $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+                        if ($ownerID != ''){$login = 1;} 
+                        else { $login = 0;}
                         $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
                         $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
                         ?>
@@ -262,11 +266,15 @@
                     <ul class="nav navbar-nav">
                         <li id="manageAmz" style="display:none">
                             <a href="#amzModal" data-toggle="modal">Amazon
-<!--              <i class="fa fa-amazon"></i>-->
-              <small id="amzAmount" style="display:none" class="label pull-right bg-green"></small>
-            </a>
+                            <!--              <i class="fa fa-amazon"></i>-->
+                            <small id="amzAmount" style="display:none" class="label pull-right bg-green"></small>
+                            </a>
                         </li>
-                        <li><a href="index.php?np=4">Profiles </a></li>
+                        <?php
+                        if ($login == 1){
+                            echo '<li><a href="index.php?np=4">Profiles </a></li>';
+                        }
+                        ?>
                         <li><a href="http://dolphinnext.readthedocs.io/" target="_blank"><i class="fa fa-mortar-board"></i></a></li>
                         <li> <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
 
@@ -307,10 +315,6 @@
                 <!-- /.search form -->
                 <!-- sidebar menu: : style can be found in sidebar.less -->
                 <?php
-                    session_start(); 
-                    $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
-                    if ($ownerID != ''){$login = 1;} 
-                    else { $login = 0;}
                     print getSidebarMenu($np, $login);
                 ?>
 

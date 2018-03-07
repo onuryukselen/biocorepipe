@@ -1743,7 +1743,6 @@
 	          if ($('#exec_all').is(":checked") === true) {
 	              var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
 	              var exec_all_settings = formToJson(exec_all_settingsRaw);
-	              console.log(exec_all_settings)
 	              configTextAllProcess(exec_all_settings);
 	          } else {
 	              configTextAllProcess(allProSett);

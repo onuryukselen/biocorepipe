@@ -1386,6 +1386,7 @@ class dbfuncs {
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             $ssh_id = $cluDataArr[0]["ssh_id"];
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
@@ -1398,6 +1399,7 @@ class dbfuncs {
             $connect = $cluDataArr[0]["ssh"];
             $ssh_id = $cluDataArr[0]["ssh_id"];
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
+            if (!file_exists($userpky)) die(json_encode('Private key is not found!'));
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};

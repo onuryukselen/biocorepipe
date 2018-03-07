@@ -24,7 +24,7 @@
         <button type="submit" id="createRevPipeIcon" class="btn" name="button" data-backdrop="false" onclick="createRevPipeline()" style=" margin:0px; padding:0px; display:none;">
                     <a data-toggle="tooltip" data-placement="bottom" data-original-title="Create Revision">
                         <i class="fa fa-chain" style="font-size: 16px;"></i></a></button>
-                        
+
         <button type="button" id="downPipeline" class="btn" name="button" onclick="download(createNextflowFile(&quot;pipeline&quot;))" data-backdrop="false" style=" margin:0px; padding:0px;">
                     <a data-toggle="tooltip" data-placement="bottom"  data-original-title="Download Pipeline">
                         <i class="glyphicon glyphicon-save"></i></a></button>
@@ -77,23 +77,29 @@
 
 
 
-<div class="panel panel-default">
-    <div style="height:500px;" id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<div class="panel panel-default" style="margin-bottom:10px; padding-bottom:0px;">
+    <div style="height:500px; " id="container" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+</div>
+<div id="warnSection" class="col-md-12" style=" display:none;">
+    <p   style=" float:left;  font-size:17px; padding-left:0px; color:#ff4444;">Warning: </p>
+    <div class="col-md-11">
+        <p style="float:left; font-size:16px;" id="warnArea"></p>
+    </div>
+</br>
+</br>
 </div>
 </br>
 
-<div id="workDetails">
-    <div>
+
+<div class="col-md-12" id="workDetails">
         <h4>Pipeline Details</h4>
         </br>
-    </div>
     <ul id="inOutNav" class="nav nav-tabs nav-justified">
         <li class="active"><a class="nav-item" data-toggle="tab" href="#processTab">Processes</a></li>
         <li><a class="nav-item" data-toggle="tab" href="#inputsTab">Inputs</a></li>
         <li><a class="nav-item" data-toggle="tab" href="#outputsTab">Outputs</a></li>
     </ul>
     <div class="panel panel-default">
-
         <div id="pipeContent" class="tab-content">
             <div id="processTab" class="tab-pane fade in active">
                 </br>
@@ -161,7 +167,7 @@
     <div class="col-md-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Permissions to View</label>
-                <select id="permsPipe" class="fbtn btn-default form-control" name="perms">
+            <select id="permsPipe" class="fbtn btn-default form-control" name="perms">
                               <option value="3" selected="">Only me </option>
                               <option value="15">Only my group</option>
                               <option disabled value="63">Everyone </option>
@@ -171,7 +177,7 @@
     <div class="col-md-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Group Selection</label>
-                <select id="groupSelPipe" class="fbtn btn-default form-control" name="group_id">
+            <select id="groupSelPipe" class="fbtn btn-default form-control" name="group_id">
                           <option value="" selected>Choose group </option>
                         </select>
         </div>
@@ -179,11 +185,11 @@
     <div class="col-sm-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Publish</label>
-                <select id="publishPipe" class="fbtn btn-default form-control" name="publish">
+            <select id="publishPipe" class="fbtn btn-default form-control" name="publish">
                                       <option value="0">No</option>
                                       <option value="1">Yes</option>
                                     </select>
-            </div>
+        </div>
     </div>
 
 
