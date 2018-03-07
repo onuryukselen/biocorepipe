@@ -1024,8 +1024,7 @@ class dbfuncs {
     public function getAllParameters($ownerID) {
         if ($ownerID == ""){
         $ownerID ="''";
-        }
-        if ($ownerID != ""){
+        } else {
             $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
             if ($userRole == "admin"){
                 $sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms FROM parameter p";
@@ -1653,30 +1652,37 @@ public function getPublicPipelines() {
      return self::queryTable($sql);
    }
 
-	public function getProcessData($id, $ownerID) {
+	public function getProcessData($ownerID) {
         if ($ownerID == ""){
             $ownerID ="''";
-        }
-        if ($ownerID != ""){
+        } else {
             $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
             if ($userRole == "admin"){
-                if ($id != ""){
-                $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
-                return self::queryTable($sql);
-                }else {
                 $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p ";
                 return self::queryTable($sql);
-                }
             }
-		}
-		$where = " where p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)"; 
-		if ($id != ""){
-			$where = " where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		}
 		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
         FROM process p
         LEFT JOIN user_group ug ON p.group_id=ug.g_id
-        $where";
+        WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)";
+		return self::queryTable($sql);
+	}
+    
+    public function getProcessDataById($id, $ownerID) {
+        if ($ownerID == ""){
+            $ownerID ="''";
+        }else {
+            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
+                return self::queryTable($sql);
+            }
+		}
+		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
+        FROM process p
+        LEFT JOIN user_group ug ON p.group_id=ug.g_id
+        where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		return self::queryTable($sql);
 	}
     
@@ -1897,8 +1903,7 @@ public function getPublicPipelines() {
 	public function getSavedPipelines($ownerID) {
         if ($ownerID == ""){
             $ownerID ="''";
-        }
-        if ($ownerID != ""){
+        } else {
             $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
             if ($userRole == "admin"){
                 $sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username

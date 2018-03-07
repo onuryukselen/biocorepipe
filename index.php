@@ -1,3 +1,9 @@
+<?php
+session_start(); 
+$ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+if ($ownerID != ''){$login = 1;} 
+else { $login = 0;}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -253,10 +259,6 @@
                         <!-- <li><a href="#"><i class="fa fa-bell-o"></i></a></li>-->
                         <?php
                         include("php/funcs.php");
-                        session_start(); 
-                        $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
-                        if ($ownerID != ''){$login = 1;} 
-                        else { $login = 0;}
                         $np = isset($_REQUEST["np"]) ? $_REQUEST["np"] : "";
                         $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
                         ?>

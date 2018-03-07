@@ -22,9 +22,7 @@ if(strpos(getcwd(),'travis/build') > 0){
 $ini = parse_ini_file("config.ini", true);
 $ini_array = $ini[$param_section];
 date_default_timezone_set($ini_array['TIMEZONE']);
-define('REMOTE_HOST', $ini_array['REMOTE_HOST']);
 define('CONFIG', $ini_array['CONFIG']);
-define('DOLPHINPATH', $ini_array['DOLPHINPATH']);
 define('RUNPATH', $ini_array['RUNPATH']);
 define('BASE_PATH', $ini_array['BASE_PATH']);
 define('API_PATH', $ini_array['API_PATH']);
