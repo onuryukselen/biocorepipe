@@ -1,3 +1,9 @@
+07.03.2018 Version 0.0.86
+GROUP BY queries updated by removing unnecessary fields.
+isset function added to fix php errors in dbfunc.php.
+session_start moved to top of the page in index.php to fix error.
+unnecessary variables REMOTE_HOST and DOLPHINPATH removed from config.php.
+
 07.03.2018 Version 0.0.85
 GROUP BY fields fixed
 

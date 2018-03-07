@@ -679,8 +679,12 @@ else if ($p=="saveProcessParameter"){
 
 else if ($p=="getProcessData")
 {
-	$id = $_REQUEST['process_id'];
-    $data = $db->getProcessData($id, $ownerID);
+    if (isset($_REQUEST['process_id'])) {
+        $process_id = $_REQUEST['process_id'];
+        $data = $db->getProcessDataById($process_id, $ownerID);
+    }else {
+        $data = $db->getProcessData($ownerID);
+    }
 }
 else if ($p=="getProcessRevision")
 {
