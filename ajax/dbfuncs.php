@@ -54,11 +54,11 @@ class dbfuncs {
      {
         while(($row=$res->fetch_assoc()))
         {
-            if ($row['script']){
+            if (isset($row['script'])){
             $row['script'] = htmlspecialchars_decode($row['script'], ENT_QUOTES);
-            } else if ($row['sname']){
+            } else if (isset($row['sname'])){
             $row['sname'] = htmlspecialchars_decode($row['sname'], ENT_QUOTES);
-            } else if ($row['process_parameter_name']){
+            } else if (isset($row['process_parameter_name'])){
             $row['process_parameter_name'] = htmlspecialchars_decode($row['process_parameter_name'], ENT_QUOTES);
             } 
             $data[]=$row;
@@ -1641,15 +1641,15 @@ class dbfuncs {
         }
 	
 // --------- New Pipeline -----------
-   public function getPublicPipelines($ownerID) {
+public function getPublicPipelines() {
         $sql= "SELECT pip.id, pip.name, pip.summary, pip.pin, pip.pin_order
                FROM biocorepipe_save pip
                INNER JOIN (
-                SELECT name, summary, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
+                SELECT pipeline_gid, MAX(rev_id) rev_id
                 FROM biocorepipe_save 
-                WHERE pin = 'true' and perms = 63
-                GROUP BY name, summary, pipeline_gid, owner_id, perms
-                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 and pip.pin = 'true' ";
+                WHERE pin = 'true' AND perms = 63
+                GROUP BY pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid ";
      return self::queryTable($sql);
    }
 

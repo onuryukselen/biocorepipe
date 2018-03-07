@@ -110,49 +110,37 @@ class sidebarfuncs {
 		return self::queryTable($sql);
     }
     
-     public function getPipelineSideBar($ownerID)
+      public function getPipelineSideBar($ownerID)
    {
       if ($ownerID != ''){
           $userRoleArr = json_decode($this->getUserRole($ownerID));
           $userRole = $userRoleArr[0]->{'role'};
-          
           if ($userRole == "admin"){
-              $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
-               FROM biocorepipe_save pip
-               LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
-               INNER JOIN (
-                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
-                FROM biocorepipe_save p
-                LEFT JOIN user_group ug ON p.group_id=ug.g_id 
-                WHERE (p.owner_id='$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))
-                GROUP BY p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin
-                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
-              
+              $where = " ";
           } else {
-              $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
+              $where = " WHERE (p.owner_id='$ownerID' OR (p.perms = 63 AND p.pin = 'true') OR (ug.u_id ='$ownerID' and p.perms = 15)) ";
+          }
+          $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
                LEFT JOIN user_group ug ON  pip.group_id=ug.g_id
                INNER JOIN (
-                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
+                SELECT p.pipeline_gid, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
                 LEFT JOIN user_group ug ON p.group_id=ug.g_id 
-                WHERE (p.owner_id='$ownerID' OR (p.perms = 63 AND p.pin = 'true') OR (ug.u_id ='$ownerID' and p.perms = 15))
-                GROUP BY p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin
-                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and (b.owner_id='$ownerID' OR (b.perms = 63 AND b.pin = 'true') OR (ug.u_id ='$ownerID' and b.perms = 15)) ";
-          }
+                $where
+                GROUP BY p.pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid";
           
       } else {
           $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
                INNER JOIN (
-                SELECT p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin, MAX(p.rev_id) rev_id
+                SELECT p.pipeline_gid, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
                 WHERE p.perms = 63 
-                GROUP BY p.name, p.pipeline_gid, p.owner_id, p.perms, p.pin
-                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 AND pip.pin = 'true' ";
+                GROUP BY p.pipeline_gid
+                ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid AND pip.pin = 'true' ";
        }     
-        
-         
      return self::queryTable($sql);
    }
    
@@ -162,25 +150,22 @@ class sidebarfuncs {
           $userRoleArr = json_decode($this->getUserRole($ownerID));
           $userRole = $userRoleArr[0]->{'role'};
           if ($userRole == "admin"){
-              
                 $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id, p.owner_id, p.publish
                 FROM process p
                 INNER JOIN process_group pg 
                 ON p.process_group_id = pg.id and pg.group_name='$parent' 
                 INNER JOIN (
-                SELECT pr.name, pr.process_gid, pr.owner_id, pr.perms, pr.publish, MAX(pr.rev_id) rev_id
+                SELECT pr.process_gid, MAX(pr.rev_id) rev_id
                 FROM process pr
-                GROUP BY pr.name, pr.process_gid, pr.owner_id, pr.perms
+                GROUP BY pr.process_gid
                 ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid  ";
           return self::queryTable($sql);
           }
        
            $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15))";
-           $where_b = "(b.owner_id='$ownerID' OR b.perms = 63 OR (ug.u_id ='$ownerID' and b.perms = 15))";
            $where_pr = "(pr.owner_id='$ownerID' OR pr.perms = 63 OR (ug.u_id ='$ownerID' and pr.perms = 15))";
            } else {
            $where_pg = "pg.perms = 63";
-           $where_b = "b.perms = 63";
            $where_pr = "pr.perms = 63";
            }
        $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
@@ -189,11 +174,11 @@ class sidebarfuncs {
              INNER JOIN process_group pg 
              ON p.process_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
-                SELECT pr.name, pr.process_gid, pr.owner_id, pr.perms, MAX(pr.rev_id) rev_id
+                SELECT pr.process_gid, MAX(pr.rev_id) rev_id
                 FROM process pr
                 LEFT JOIN user_group ug ON pr.group_id=ug.g_id where $where_pr
-                GROUP BY pr.name, pr.process_gid, pr.owner_id, pr.perms
-                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid and $where_b ";
+                GROUP BY pr.process_gid
+                ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid";
 
       return self::queryTable($sql);
    }
