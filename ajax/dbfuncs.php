@@ -1648,7 +1648,7 @@ class dbfuncs {
                 SELECT name, summary, pipeline_gid, owner_id, perms, MAX(rev_id) rev_id
                 FROM biocorepipe_save 
                 WHERE pin = 'true' and perms = 63
-                GROUP BY pipeline_gid
+                GROUP BY name, summary, pipeline_gid, owner_id, perms
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid and b.perms = 63 and pip.pin = 'true' ";
      return self::queryTable($sql);
    }
