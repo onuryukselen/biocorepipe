@@ -1435,6 +1435,11 @@
 	      $('#docker_opt').val(pipeData[0].docker_opt);
 	      $('#singu_img').val(pipeData[0].singu_img);
 	      $('#singu_opt').val(pipeData[0].singu_opt);
+	      //load amazon keys for possible s3 connection
+	      loadAmzKeys();
+	      if (pipeData[0].amazon_cre_id !== "0") {
+	          $('#mRunAmzKey').val(pipeData[0].amazon_cre_id);
+	      }
 	      //load user groups
 	      var allUserGrp = getValues({ p: "getUserGroups" });
 	      for (var i = 0; i < allUserGrp.length; i++) {
@@ -1605,13 +1610,24 @@
 	          var amzStatus = profileNextText.replace(patt, '$2');
 	      }
 	      var output_dir = $('#rOut_dir').val();
-
-	      if (getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
-	          if ((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && checkType === "rerun" || runStatus === "") {
+	      //check if s3: is defined in output dir and getProPipeInputs
+	      var s3check = checkS3(output_dir, getProPipeInputs);
+	      var s3value = $('#mRunAmzKey').val();
+	      if (s3check === true && s3value !== null) {
+	          var s3status = true;
+	      } else if (s3check === false) {
+	          var s3status = true;
+	      } else {
+	          var s3status = false;
+	      }
+	      if (s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+	          if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun")) || runStatus === "") {
 	              if (amzStatus) {
 	                  if (amzStatus === "running") {
 	                      if (checkType === "rerun") {
 	                          runProjectPipe(runProPipeCall);
+	                      } else if (checkType === "newrun") {
+	                          displayButton('runProPipe');
 	                      } else {
 	                          displayButton('runProPipe');
 	                      }
@@ -1621,19 +1637,76 @@
 	              } else {
 	                  if (checkType === "rerun") {
 	                      runProjectPipe(runProPipeCall);
+	                  } else if (checkType === "newrun") {
+	                      displayButton('runProPipe');
 	                  } else {
 	                      displayButton('runProPipe');
 	                  }
 	              }
 	          }
-
 	      } else {
-	          if ((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && checkType === "rerun" || runStatus === "") {
+	          if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun")) || runStatus === "") {
 	              displayButton('statusProPipe');
 	          }
 	      }
+	      //reset checkType
+	      if (checkType === "rerun" || checkType === "newrun") {
+	          checkType = "newrun";
+	      } else {
+	          checkType = "";
+	      }
 	  }
 
+	  //Autocheck the output directory for checkreadytorun
+	  $("#rOut_dir").keyup(function () { //Click outside of the field or enter
+	      autoCheck();
+	  });
+	  var timeoutCheck = 0;
+
+	  function autoCheck() {
+	      if (timeoutCheck) clearTimeout(timeoutCheck);
+	      timeoutCheck = setTimeout(function () { checkReadytoRun() }, 2000);
+	  }
+	  //check if path contains s3:// pattern and shows aws menu
+	  function checkS3(path, getProPipeInputs) {
+	      //path part
+	      var s3pattern = 's3:';
+	      var pathCheck = false;
+	      if (path !== '') {
+	          if (path.indexOf(s3pattern) > -1) {
+	              $("#mRunAmzKeyDiv").css('display', "inline");
+	              pathCheck = true;
+	          } else {
+	              pathCheck = false;
+	          }
+	      } else {
+	          pathCheck = false;
+	      }
+	      //getProPipeInputs part
+	      var nameCheck = 0;
+	      $.each(getProPipeInputs, function (el) {
+	          var inputName = getProPipeInputs[el].name;
+	          if (inputName.indexOf(s3pattern) > -1) {
+	              $("#mRunAmzKeyDiv").css('display', "inline");
+	              nameCheck = nameCheck + 1;
+	          }
+	      });
+	      if (nameCheck === 0 && pathCheck === false) {
+	          $("#mRunAmzKeyDiv").css('display', "none");
+	          return false;
+	      } else {
+	          return true;
+	      }
+	  }
+
+	  function loadAmzKeys() {
+	      var data = getValues({ p: "getAmz" });
+	      for (var i = 0; i < data.length; i++) {
+	          var param = data[i];
+	          var optionGroup = new Option(param.name, param.id);
+	          $("#mRunAmzKey").append(optionGroup);
+	      }
+	  }
 
 	  function configTextAllProcess(exec_all_settings, type, proName) {
 	      if (type === "each") {
@@ -1703,6 +1776,15 @@
 	      var proType = profileTypeId.replace(patt, '$1');
 	      var proId = profileTypeId.replace(patt, '$2');
 	      configTextRaw = '';
+          
+          //check if s3 path is defined in output or file paths
+          var checkAmzKeysDiv = $("#mRunAmzKeyDiv").css('display');
+	      if (checkAmzKeysDiv === "inline") {
+	          var amazon_cre_id = $("#mRunAmzKey").val();
+	      } else {
+	          var amazon_cre_id = "";
+	      }
+          
 
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
@@ -1770,6 +1852,7 @@
 	          configText: configText,
 	          profileType: proType,
 	          profileId: proId,
+              amazon_cre_id: amazon_cre_id,
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      console.log(serverLogGet);
@@ -2020,6 +2103,13 @@
 	          project_pipeline_id = '';
 	          run_name = run_name + '-copy'
 	      }
+	      //xxxxx
+	      var checkAmzKeysDiv = $("#mRunAmzKeyDiv").css('display');
+	      if (checkAmzKeysDiv === "inline") {
+	          var amazon_cre_id = $("#mRunAmzKey").val();
+	      } else {
+	          var amazon_cre_id = "";
+	      }
 	      var output_dir = $('#rOut_dir').val();
 	      var profile = $('#chooseEnv').val();
 	      var perms = $('#perms').val();
@@ -2044,6 +2134,7 @@
 	          data.push({ name: "name", value: run_name });
 	          data.push({ name: "project_id", value: project_id });
 	          data.push({ name: "pipeline_id", value: pipeline_id });
+	          data.push({ name: "amazon_cre_id", value: amazon_cre_id });
 	          data.push({ name: "summary", value: runSummary });
 	          data.push({ name: "output_dir", value: output_dir });
 	          data.push({ name: "profile", value: profile });
@@ -2053,7 +2144,6 @@
 	          data.push({ name: "group_id", value: groupSel });
 	          data.push({ name: "exec_each", value: exec_each });
 	          data.push({ name: "exec_all", value: exec_all });
-	          //	          data.push({ name: "exec_next_settings", value: exec_next_settings });
 	          data.push({ name: "exec_all_settings", value: exec_all_settings });
 	          data.push({ name: "exec_each_settings", value: exec_each_settings });
 	          data.push({ name: "docker_check", value: docker_check });
@@ -2192,8 +2282,11 @@
 	          }
 	      });
 
-
-
+	      $(function () {
+	          $(document).on('change', '#mRunAmzKey', function () {
+                  checkReadytoRun();
+              })
+	      });
 
 	      $(function () {
 	          $(document).on('change', '#chooseEnv', function () {
