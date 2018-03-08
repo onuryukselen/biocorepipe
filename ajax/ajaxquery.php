@@ -36,13 +36,14 @@ else if ($p=="saveRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
 	$profileType = $_REQUEST['profileType'];
 	$profileId = $_REQUEST['profileId'];
+	$amazon_cre_id = $_REQUEST['amazon_cre_id'];
 	$nextTextRaw = $_REQUEST['nextText'];
     $nextText = urldecode($nextTextRaw);
 	$configTextRaw = $_REQUEST['configText'];
     $configText = urldecode($configTextRaw);
     $status = "init";
     //create file and folders
-    $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID);
+    $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $amazon_cre_id, $ownerID);
     //run the script
     $data = $db->runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID);
     //add run into run table
@@ -639,8 +640,9 @@ else if ($p=="saveProjectPipeline"){
     $singu_check = $_REQUEST['singu_check'];
     $singu_img = $_REQUEST['singu_img'];
     $singu_opt = $_REQUEST['singu_opt'];
+    $amazon_cre_id = $_REQUEST['amazon_cre_id'];
         if (!empty($id)) {
-        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
+        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID);
             if ($perms !== "3"){
             $db->updateProjectGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID);
@@ -651,7 +653,7 @@ else if ($p=="saveProjectPipeline"){
             }
             
     } else {
-        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID);
+        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID);
     }
 }
 

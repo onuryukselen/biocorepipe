@@ -24,8 +24,6 @@ $ini_array = $ini[$param_section];
 date_default_timezone_set($ini_array['TIMEZONE']);
 define('CONFIG', $ini_array['CONFIG']);
 define('RUNPATH', $ini_array['RUNPATH']);
-define('BASE_PATH', $ini_array['BASE_PATH']);
-define('API_PATH', $ini_array['API_PATH']);
 
 $secRaw = parse_ini_file(".sec", true);
 $sec = $secRaw['Dolphinnext'];

@@ -289,8 +289,28 @@ class dbfuncs {
     }
     
     
-    function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $ownerID)
-    {   if ($profileType == 'cluster'){
+    function initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $amazon_cre_id, $ownerID){
+        //if  $amazon_cre_id is defined append the aws credentials into nextflow.config
+        if ($amazon_cre_id != "" ){
+            $amz_data = json_decode($this->getAmzbyID($amazon_cre_id, $ownerID));
+            foreach($amz_data as $d){
+		      $access = $d->amz_acc_key;
+              $d->amz_acc_key = trim($this->amazonDecode($access));
+		      $secret = $d->amz_suc_key;
+		      $d->amz_suc_key = trim($this->amazonDecode($secret));
+	         }
+            $access_key = $amz_data[0]->{'amz_acc_key'};
+            $secret_key = $amz_data[0]->{'amz_suc_key'};
+            $default_region = $amz_data[0]->{'amz_def_reg'};
+            $configText.= "aws{\n";
+            $configText.= "   accessKey = '$access_key'\n";
+            $configText.= "   secretKey = '$secret_key'\n";
+            $configText.= "   region = '$default_region'\n";
+            $configText.= "}\n";
+        }
+        
+        
+       if ($profileType == 'cluster'){
         //rename the log file
         $this->renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
     }
@@ -1458,13 +1478,13 @@ class dbfuncs {
     
      // ------- Project Pipelines  ------
  
-    public function insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID) {
-        $sql = "INSERT INTO project_pipeline(name, project_id, pipeline_id, summary, output_dir, profile, interdel, cmd, exec_each, exec_all, exec_all_settings, exec_each_settings, docker_check, docker_img, singu_check, singu_img, exec_next_settings, docker_opt, singu_opt, owner_id, date_created, date_modified, last_modified_user, perms) 
-                VALUES ('$name', '$project_id', '$pipeline_id', '$summary', '$output_dir', '$profile', '$interdel', '$cmd', '$exec_each', '$exec_all', '$exec_all_settings', '$exec_each_settings', '$docker_check', '$docker_img', '$singu_check', '$singu_img', '$exec_next_settings', '$docker_opt', '$singu_opt', '$ownerID', now(), now(), '$ownerID', 3)";
+    public function insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID) {
+        $sql = "INSERT INTO project_pipeline(name, project_id, pipeline_id, summary, output_dir, profile, interdel, cmd, exec_each, exec_all, exec_all_settings, exec_each_settings, docker_check, docker_img, singu_check, singu_img, exec_next_settings, docker_opt, singu_opt, amazon_cre_id, owner_id, date_created, date_modified, last_modified_user, perms) 
+                VALUES ('$name', '$project_id', '$pipeline_id', '$summary', '$output_dir', '$profile', '$interdel', '$cmd', '$exec_each', '$exec_all', '$exec_all_settings', '$exec_each_settings', '$docker_check', '$docker_img', '$singu_check', '$singu_img', '$exec_next_settings', '$docker_opt', '$singu_opt', '$amazon_cre_id', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
-    public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $ownerID) {
-        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', cmd='$cmd', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings', docker_opt='$docker_opt', singu_opt='$singu_opt', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID) {
+        $sql = "UPDATE project_pipeline SET name='$name', summary='$summary', output_dir='$output_dir', perms='$perms', profile='$profile', interdel='$interdel', cmd='$cmd', group_id='$group_id', exec_each='$exec_each', exec_all='$exec_all', exec_all_settings='$exec_all_settings', exec_each_settings='$exec_each_settings', docker_check='$docker_check', docker_img='$docker_img', singu_check='$singu_check', singu_img='$singu_img', exec_next_settings='$exec_next_settings', docker_opt='$docker_opt', singu_opt='$singu_opt', amazon_cre_id='$amazon_cre_id', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
         
     }
@@ -1472,7 +1492,7 @@ class dbfuncs {
     public function getProjectPipelines($id,$project_id,$ownerID) {
 		if ($id != ""){
 			$where = " where pp.id = '$id' AND (pp.owner_id = '$ownerID' OR pp.perms = 63 OR (ug.u_id ='$ownerID' and pp.perms = 15))";
-            $sql = "SELECT DISTINCT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms, pp.docker_check, pp.docker_img, pp.singu_check, pp.singu_img, pp.exec_next_settings, pp.cmd, pp.singu_opt, pp.docker_opt, IF(pp.owner_id='$ownerID',1,0) as own
+            $sql = "SELECT DISTINCT pp.id, pp.name as pp_name, pip.id as pip_id, pip.rev_id, pip.name, u.username, pp.summary, pp.project_id, pp.pipeline_id, pp.date_created, pp.date_modified, pp.owner_id, p.name as project_name, pp.output_dir, pp.profile, pp.interdel, pp.group_id, pp.exec_each, pp.exec_all, pp.exec_all_settings, pp.exec_each_settings, pp.perms, pp.docker_check, pp.docker_img, pp.singu_check, pp.singu_img, pp.exec_next_settings, pp.cmd, pp.singu_opt, pp.docker_opt, pp.amazon_cre_id, IF(pp.owner_id='$ownerID',1,0) as own
                     FROM project_pipeline pp 
                     INNER JOIN users u ON pp.owner_id = u.id 
                     INNER JOIN project p ON pp.project_id = p.id

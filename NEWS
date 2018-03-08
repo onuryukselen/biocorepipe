@@ -1,3 +1,9 @@
+07.03.2018 Version 0.0.87
+BASE_PATH and API_PATH removed from config.php and config.ini.
+checkrunready when keyup is added on output directory on run pipeline page
+check s3 pattern feature is added in runpipeline page for input files and output directory. 
+If it is defined, it allows for selection aws credentials and insert then inserts into nextflow.config file
+
 07.03.2018 Version 0.0.86
 GROUP BY queries updated by removing unnecessary fields.
 isset function added to fix php errors in dbfunc.php.

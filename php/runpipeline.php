@@ -37,11 +37,12 @@
             <button class="btn btn-default dropdown-toggle" type="button" id="pipeActions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="vertical-align:middle;"><div class="fa fa-ellipsis-h"></div></button>
             <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu2">
                 <li><a id="deleteRun" data-toggle="modal" href="#confirmModal">Delete Run</a>
-                <li><a id="duplicaRun" onclick="duplicateProPipe()">Copy Run</a></li></li>
+                    <li><a id="duplicaRun" onclick="duplicateProPipe()">Copy Run</a></li>
+                </li>
             </ul>
         </div>
         <div id="pipeRunDiv" style="float:right; margin-right:5px;">
-<!--            <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>-->
+            <!--            <button class="btn btn-danger" type="submit" id="errorProPipe" style="display:none; vertical-align:middle;">Run Error</button>-->
             <div id="errorProPipe" style="display:none; float:right; " class="btn-group">
                 <button class="btn btn-danger" type="button" id="errorProPipeBut">Run Error</button>
                 <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
@@ -61,7 +62,7 @@
                 </ul>
             </div>
             <div id="runningProPipe" style="display:none; float:right; " class="btn-group">
-            <button class="btn btn-info" type="button" id="runningProPipeBut">Running</button>
+                <button class="btn btn-info" type="button" id="runningProPipeBut">Running</button>
                 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <span class="caret"></span>
                   </button>
@@ -70,7 +71,7 @@
                 </ul>
             </div>
             <div id="waitingProPipe" style="display:none; float:right; " class="btn-group">
-            <button class="btn btn-info" type="button" id="waitingProPipeBut">Waiting</button>
+                <button class="btn btn-info" type="button" id="waitingProPipeBut">Waiting</button>
                 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <span class="caret"></span>
                   </button>
@@ -78,8 +79,8 @@
                     <li><a href="#" onclick="terminateProjectPipe();return false;">Terminate</a></li>
                 </ul>
             </div>
-             <div id="connectingProPipe" style="display:none; float:right; " class="btn-group">
-            <button class="btn btn-info" type="button" id="connectingProPipeBut">Connecting..</button>
+            <div id="connectingProPipe" style="display:none; float:right; " class="btn-group">
+                <button class="btn btn-info" type="button" id="connectingProPipeBut">Connecting..</button>
                 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <span class="caret"></span>
                   </button>
@@ -96,18 +97,11 @@
                     <li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
                 </ul>
             </div>
-            
-<!--            <button class="btn btn-info" type="submit" id="runningProPipe" style="display:none; vertical-align:middle;">Running</button>-->
-<!--            <button class="btn btn-info" type="submit" id="waitingProPipe" style="display:none; vertical-align:middle;">Waiting</button>-->
-<!--            <button class="btn btn-info" type="submit" id="connectingProPipe" style="display:none; vertical-align:middle;">Connecting..</button>-->
-            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;"  title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
-            <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters, output directory and selection of active environment" data-placement="bottom" data-toggle="tooltip">Waiting</button>
+            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
+            <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters, output directory and selection of active environment (if s3 path is defined then waiting for the amazon keys)" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>
 </div>
-
-
-
 
 <div style="padding-left:16px; padding-right:16px; padding-bottom:20px; " id="desPipeline">
     <div class="row" id="creatorInfoPip" style="font-size:12px; display:none;"> Created by <span id="ownUserNamePip">admin</span> on <span id="datecreatedPip">Jan. 26, 2016     04:12</span> • Last edited on <span class="lasteditedPip">Feb. 8, 2017 12:15</span>
@@ -142,16 +136,32 @@
                     <label>Output Directory (Full path)</label>
                     <input type="text" class="form-control" style="width: 100%;" id="rOut_dir" name="output_dir" placeholder="Enter output directory">
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="mRunAmzKeyDiv" class="form-group" style="display:none;">
+                    <label>Select Amazon Keys <span><a data-toggle="tooltip" data-placement="bottom" title="Amazon Keys to connect and access your S3 storage"><i class='glyphicon glyphicon-info-sign' style="color:#ffbb33;"></i></a></span></label>
+                    <div style="padding-bottom:15px;">
+                    <select id="mRunAmzKey" class="fbtn btn-default form-control" name="amazon_cre_id">
+                        <option value="" disabled selected>Select Amazon Keys </option>
+                            </select>
+                            </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <div class="form-group">
                     <label>Run Environment </label>
                     <button type="button" class="btn" data-backdrop="false" onclick="refreshEnv()" style="padding:0px;"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Refresh Environments"><i class="fa fa-refresh" style="font-size: 14px;"></i></a></button>
-
-
                     <select id="chooseEnv" style="width: 100%;" class="fbtn btn-default form-control" name="runEnv">
                           <option value="" disabled selected>Choose environment </option>
                     </select>
                 </div>
             </div>
+        </div>
+        <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
                     <div>
