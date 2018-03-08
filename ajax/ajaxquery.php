@@ -624,6 +624,8 @@ else if ($p=="saveProjectPipeline"){
     $name = $_REQUEST['name'];
     $summary = $_REQUEST['summary'];
     $output_dir = $_REQUEST['output_dir'];
+    $publish_dir = $_REQUEST['publish_dir'];
+    $publish_dir_check = $_REQUEST['publish_dir_check'];
     $perms = $_REQUEST['perms'];
     $profile = $_REQUEST['profile'];
     $interdel = $_REQUEST['interdel'];
@@ -642,7 +644,7 @@ else if ($p=="saveProjectPipeline"){
     $singu_opt = $_REQUEST['singu_opt'];
     $amazon_cre_id = $_REQUEST['amazon_cre_id'];
         if (!empty($id)) {
-        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID);
+        $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $publish_dir, $publish_dir_check, $ownerID);
             if ($perms !== "3"){
             $db->updateProjectGroupPerm($id, $group_id, $perms, $ownerID);
             $db->updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID);
@@ -653,7 +655,7 @@ else if ($p=="saveProjectPipeline"){
             }
             
     } else {
-        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $ownerID);
+        $data = $db->insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $publish_dir, $publish_dir_check, $ownerID);
     }
 }
 

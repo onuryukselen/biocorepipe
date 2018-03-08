@@ -133,7 +133,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <label>Output Directory (Full path)</label>
+                    <label>Work Directory (Full path)</label>
                     <input type="text" class="form-control" style="width: 100%;" id="rOut_dir" name="output_dir" placeholder="Enter output directory">
                 </div>
             </div>
@@ -143,10 +143,10 @@
                 <div id="mRunAmzKeyDiv" class="form-group" style="display:none;">
                     <label>Select Amazon Keys <span><a data-toggle="tooltip" data-placement="bottom" title="Amazon Keys to connect and access your S3 storage"><i class='glyphicon glyphicon-info-sign' style="color:#ffbb33;"></i></a></span></label>
                     <div style="padding-bottom:15px;">
-                    <select id="mRunAmzKey" class="fbtn btn-default form-control" name="amazon_cre_id">
+                        <select id="mRunAmzKey" class="fbtn btn-default form-control" name="amazon_cre_id">
                         <option value="" disabled selected>Select Amazon Keys </option>
                             </select>
-                            </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -215,32 +215,21 @@
         <div id="advOpt" class="row collapse">
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
-                </div>
-            </div>
-            <div class="col-md-12">
-                <div class="form-group">
                     <label>Run Command <span><a data-toggle="tooltip" data-placement="bottom" title="You may run the command or commands (by seperating each command with && sign) before the nextflow job starts. (eg. source /etc/bashrc && module load java/1.8.0_31 && module load singularity/singularity-2.4)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
                     <textarea id="runCmd" rows="1" name="runCmd" placeholder="Enter commands here.." style="min-width: 100%; max-width: 100%; border-color:lightgrey;"></textarea>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
+            <div>
+                <label><input type="checkbox" id="publish_dir_check" name="publish_dir_check"  data-toggle="collapse" data-target="#publishDirDiv"> Publish Directory</input> <span><a data-toggle="tooltip" data-placement="bottom" title="You may enter new publish directory (default: work directory) by clicking this item and entering path below.(eg. s3://yourbucket/test)"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+            </div>
+            <div id="publishDirDiv" class=" collapse">
                 <div class="form-group">
-                    <label>Permissions to View</label>
-                    <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
-                              <option value="3" selected>Only me </option>
-                              <option value="15">Only my group</option>
-                        </select>
+                    <input type="text" class="form-control" id="publish_dir" name="publish_dir" placeholder="Enter new publish directory">
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label>Group Selection </label>
-                    <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
-                          <option value="" disabled selected>Choose group </option>
-                        </select>
-                </div>
             </div>
+
             <div id="jobSettingsDiv" class="col-md-12">
                 <div>
                     <label><input type="checkbox" id="exec_all" name="exec_all"  data-toggle="collapse" data-target="#allProcessDiv"> Executor Settings for All Processes</input> <span><a data-toggle="tooltip" data-placement="bottom" title="You may adjust the nextflow executor settings by clicking this item."><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
@@ -286,6 +275,28 @@
                             <tbody></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Permissions to View</label>
+                    <select id="perms" style="width:100%;" class="fbtn btn-default form-control" name="perms">
+                              <option value="3" selected>Only me </option>
+                              <option value="15">Only my group</option>
+                        </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>Group Selection </label>
+                    <select id="groupSel" style="width:100%;" class="fbtn btn-default form-control" name="group_id">
+                          <option value="" disabled selected>Choose group </option>
+                        </select>
                 </div>
             </div>
         </div>
