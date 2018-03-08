@@ -1,8 +1,13 @@
+08.03.2018 Version 0.0.88
+fix docker and singularity (checkbox collapse) error in run pipeline page.
+publish directory feature added to run pipeline page.
+checkrunready feature is added on publish directory if checkbox is on.
+
 07.03.2018 Version 0.0.87
 BASE_PATH and API_PATH removed from config.php and config.ini.
 checkrunready when keyup is added on output directory on run pipeline page
 check s3 pattern feature is added in runpipeline page for input files and output directory. 
-If it is defined, it allows for selection aws credentials and insert then inserts into nextflow.config file
+If it is defined, it allows for selection aws credentials and then inserts into nextflow.config file
 
 07.03.2018 Version 0.0.86
 GROUP BY queries updated by removing unnecessary fields.

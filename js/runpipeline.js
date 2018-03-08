@@ -1385,9 +1385,7 @@
 	  };
 
 	  function updateCheckBox(check_id, status) {
-	      //	      if (check_id === '#exec_all' && status === "false") {
-	      //	          $(check_id).trigger("click");
-	      if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check') && status === "true") {
+	      if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check' || check_id === '#publish_dir_check') && status === "true") {
 	          $(check_id).trigger("click");
 	      }
 	      if (status === "true") {
@@ -1423,9 +1421,11 @@
 	      $('#run-title').changeVal(pipeData[0].pp_name);
 	      $('#runSum').val(pipeData[0].summary);
 	      $('#rOut_dir').val(pipeData[0].output_dir);
+	      $('#publish_dir').val(pipeData[0].publish_dir);
 	      $('#chooseEnv').val(pipeData[0].profile);
 	      $('#perms').val(pipeData[0].perms);
 	      $('#runCmd').val(pipeData[0].cmd);
+	      updateCheckBox('#publish_dir_check', pipeData[0].publish_dir_check);
 	      updateCheckBox('#intermeDel', pipeData[0].interdel);
 	      updateCheckBox('#exec_each', pipeData[0].exec_each);
 	      updateCheckBox('#exec_all', pipeData[0].exec_all);
@@ -1610,8 +1610,21 @@
 	          var amzStatus = profileNextText.replace(patt, '$2');
 	      }
 	      var output_dir = $('#rOut_dir').val();
-	      //check if s3: is defined in output dir and getProPipeInputs
-	      var s3check = checkS3(output_dir, getProPipeInputs);
+          var publishReady = false;
+	      var publish_dir_check = $('#publish_dir_check').is(":checked").toString();
+	      if (publish_dir_check === "true") {
+	          var publish_dir = $('#publish_dir').val();
+              if (publish_dir !== ""){
+                  publishReady = true;
+              } else{
+                  publishReady = false;
+              }
+	      } else {
+	          var publish_dir = "";
+              publishReady = true;
+	      }
+	      //check if s3: is defined in publish_dir and getProPipeInputs
+	      var s3check = checkS3(publish_dir, getProPipeInputs);
 	      var s3value = $('#mRunAmzKey').val();
 	      if (s3check === true && s3value !== null) {
 	          var s3status = true;
@@ -1620,7 +1633,7 @@
 	      } else {
 	          var s3status = false;
 	      }
-	      if (s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+	      if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
 	          if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun")) || runStatus === "") {
 	              if (amzStatus) {
 	                  if (amzStatus === "running") {
@@ -1658,7 +1671,13 @@
 	  }
 
 	  //Autocheck the output directory for checkreadytorun
-	  $("#rOut_dir").keyup(function () { //Click outside of the field or enter
+	  $("#rOut_dir").keyup(function () { 
+	      autoCheck();
+	  });
+      $("#publish_dir").keyup(function () { 
+	      autoCheck();
+	  });
+      $("#publish_dir_check").click(function () { 
 	      autoCheck();
 	  });
 	  var timeoutCheck = 0;
@@ -1776,15 +1795,15 @@
 	      var proType = profileTypeId.replace(patt, '$1');
 	      var proId = profileTypeId.replace(patt, '$2');
 	      configTextRaw = '';
-          
-          //check if s3 path is defined in output or file paths
-          var checkAmzKeysDiv = $("#mRunAmzKeyDiv").css('display');
+
+	      //check if s3 path is defined in output or file paths
+	      var checkAmzKeysDiv = $("#mRunAmzKeyDiv").css('display');
 	      if (checkAmzKeysDiv === "inline") {
 	          var amazon_cre_id = $("#mRunAmzKey").val();
 	      } else {
 	          var amazon_cre_id = "";
 	      }
-          
+
 
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
@@ -1852,7 +1871,7 @@
 	          configText: configText,
 	          profileType: proType,
 	          profileId: proId,
-              amazon_cre_id: amazon_cre_id,
+	          amazon_cre_id: amazon_cre_id,
 	          project_pipeline_id: project_pipeline_id
 	      });
 	      console.log(serverLogGet);
@@ -2103,7 +2122,7 @@
 	          project_pipeline_id = '';
 	          run_name = run_name + '-copy'
 	      }
-	      //xxxxx
+	      //checkAmzKeysDiv
 	      var checkAmzKeysDiv = $("#mRunAmzKeyDiv").css('display');
 	      if (checkAmzKeysDiv === "inline") {
 	          var amazon_cre_id = $("#mRunAmzKey").val();
@@ -2111,6 +2130,8 @@
 	          var amazon_cre_id = "";
 	      }
 	      var output_dir = $('#rOut_dir').val();
+	      var publish_dir = $('#publish_dir').val();
+	      var publish_dir_check = $('#publish_dir_check').is(":checked").toString();
 	      var profile = $('#chooseEnv').val();
 	      var perms = $('#perms').val();
 	      var interdel = $('#intermeDel').is(":checked").toString();
@@ -2137,6 +2158,8 @@
 	          data.push({ name: "amazon_cre_id", value: amazon_cre_id });
 	          data.push({ name: "summary", value: runSummary });
 	          data.push({ name: "output_dir", value: output_dir });
+	          data.push({ name: "publish_dir", value: publish_dir });
+	          data.push({ name: "publish_dir_check", value: publish_dir_check });
 	          data.push({ name: "profile", value: profile });
 	          data.push({ name: "perms", value: perms });
 	          data.push({ name: "interdel", value: interdel });
@@ -2271,21 +2294,48 @@
 
 
 	      //not allow to check both docker and singularity
-	      $('#docker_check').change(function () {
-	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
+	      $('#docker_imgDiv').on('show.bs.collapse', function () {
+	          if ($('#singu_check').is(":checked") && $('#docker_check').is(":checked")) {
 	              $('#singu_check').trigger("click");
 	          }
+	          $('#docker_check').attr('onclick', "return false;");
 	      });
-	      $('#singu_check').change(function () {
-	          if ($('#docker_check').is(":checked") && $('#singu_check').is(":checked")) {
+	      $('#singu_imgDiv').on('show.bs.collapse', function () {
+	          if ($('#singu_check').is(":checked") && $('#docker_check').is(":checked")) {
 	              $('#docker_check').trigger("click");
 	          }
+	          $('#singu_check').attr('onclick', "return false;");
 	      });
+	      $('#docker_imgDiv').on('shown.bs.collapse', function () {
+	          if ($('#singu_check').is(":checked") && $('#docker_check').is(":checked")) {
+	              $('#singu_check').trigger("click");
+	          }
+	          $('#docker_check').removeAttr('onclick');
+	      });
+	      $('#singu_imgDiv').on('shown.bs.collapse', function () {
+	          if ($('#singu_check').is(":checked") && $('#docker_check').is(":checked")) {
+	              $('#docker_check').trigger("click");
+	          }
+	          $('#singu_check').removeAttr('onclick');
+	      });
+	      $('#singu_imgDiv').on('hide.bs.collapse', function () {
+	          $('#singu_check').attr('onclick', "return false;");
+	      });
+	      $('#docker_imgDiv').on('hide.bs.collapse', function () {
+	          $('#docker_check').attr('onclick', "return false;");
+	      });
+	      $('#docker_imgDiv').on('hidden.bs.collapse', function () {
+	          $('#docker_check').removeAttr('onclick');
+	      });
+	      $('#singu_imgDiv').on('hidden.bs.collapse', function () {
+	          $('#singu_check').removeAttr('onclick');
+	      });
+
 
 	      $(function () {
 	          $(document).on('change', '#mRunAmzKey', function () {
-                  checkReadytoRun();
-              })
+	              checkReadytoRun();
+	          })
 	      });
 
 	      $(function () {

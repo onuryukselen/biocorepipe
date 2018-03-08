@@ -90,10 +90,18 @@ function sortProcessList(processList) {
     return sortProcessList;
 }
 
+
+
+
 function createNextflowFile(nxf_runmode) {
     nextText = "";
     if (nxf_runmode === "run") {
-        var output_dir = $('#rOut_dir').val();
+        var publish_dir_check = $('#publish_dir_check').is(":checked").toString();
+        if (publish_dir_check === "true") {
+            var output_dir = $('#publish_dir').val();
+        } else {
+            var output_dir = $('#rOut_dir').val();
+        }
         if (output_dir) {
             nextText = "params.outdir = '" + output_dir + "' " + " \n\n";
         }
@@ -166,7 +174,7 @@ function outputFileName(id, currgid) {
     return outFileName;
 }
 
-function getChannelNameAll(channelName,Iid) {
+function getChannelNameAll(channelName, Iid) {
     var channelNameAll = "";
     for (var c = 0; c < edges.length; c++) {
         if (edges[c].indexOf(Iid) !== -1) {
@@ -213,12 +221,12 @@ function InputParameters(id, currgid) {
                     channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 
                     //check proId had a mate inputparameter
-                    if (qual === "set"){
-                    var sNodeProId = inputIdSplit[1];
-                    var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
-                    var inputParMate = inputParAll.filter(function (el) {
-                        return el.sname == "mate"
-                    }).length
+                    if (qual === "set") {
+                        var sNodeProId = inputIdSplit[1];
+                        var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
+                        var inputParMate = inputParAll.filter(function (el) {
+                            return el.sname == "mate"
+                        }).length
                     }
 
                     if (qual === "file") {
@@ -232,7 +240,7 @@ function InputParameters(id, currgid) {
                         firstPartTemp = "params." + inputParamName + " =\"\" \n";
                         //all processes that are connected to
                         var channelNameAll = "";
-                        channelNameAll =  getChannelNameAll(channelName,Iid);
+                        channelNameAll = getChannelNameAll(channelName, Iid);
                         secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
@@ -242,7 +250,7 @@ function InputParameters(id, currgid) {
                         firstPartTemp = "params." + inputParamName + " =\"\" \n";
                         //all processes that are connected to
                         var channelNameAll = "";
-                        channelNameAll =  getChannelNameAll(channelName,Iid);
+                        channelNameAll = getChannelNameAll(channelName, Iid);
                         secPartTemp = channelNameAll + " = " + "Channel.fromPath(" + inputParamName + ") \n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
@@ -268,7 +276,7 @@ function InputParameters(id, currgid) {
 
 function getParamOutdir(outParUserEntry) {
     return '"' + outParUserEntry + '/$filename"';
-    "paired/$filename"
+    // "paired/$filename"
 }
 
 //
