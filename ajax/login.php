@@ -14,9 +14,7 @@ if ($p=="saveUser"){
     $google_image = $_REQUEST['google_image'];
     $username = $_REQUEST['username'];
     //check if Google ID already exits
-    $checkUser = $db->getUser($google_id);
-    $checkarray = json_decode($checkUser,true); 
-    $id = $checkarray[0]["id"];
+    $id = json_decode($db->getUser($google_id))[0]->{'id'};
     $_SESSION['username'] = $username;
 //    $_SESSION['name'] = $name;
     $_SESSION['google_id'] = $google_id;

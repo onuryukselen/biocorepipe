@@ -10,7 +10,7 @@ class dbfuncs {
     private $dbport = DBPORT;
     private $run_path = RUNPATH;
     private $ssh_path = SSHPATH;
-    private $ssh_settings = "-oStrictHostKeyChecking=no -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -oConnectTimeout=3";
+    private $ssh_settings = "-oStrictHostKeyChecking=no -q -oChallengeResponseAuthentication=no -oBatchMode=yes -oPasswordAuthentication=no -oConnectTimeout=3";
     private $amz_path = AMZPATH;
     private $amazon = AMAZON;
     private static $link;
@@ -1899,6 +1899,10 @@ public function getPublicPipelines() {
         $pipeline_gid = $obj[11]->{"pipeline_gid"};
         $rev_comment = $obj[12]->{"rev_comment"};
         $rev_id = $obj[13]->{"rev_id"};
+        settype($rev_id, "integer");
+        settype($pipeline_gid, "integer");
+        settype($group_id, "integer");
+        settype($pin_order, "integer");
         foreach ($obj[2]->{"nodes"} as $item):
             if ($item[2] !== "inPro" && $item[2] !== "outPro" ){
                 $proId = $item[2];
