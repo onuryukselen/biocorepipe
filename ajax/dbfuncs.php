@@ -896,8 +896,8 @@ class dbfuncs {
         return self::queryTable($sql);
     }
     public function insertUser($google_id, $name, $email, $google_image, $username) {
-        $sql = "INSERT INTO users(google_id, name, email, google_image, username, memberdate, date_created, date_modified, perms) VALUES 
-			('$google_id', '$name', '$email', '$google_image', '$username', now() , now(), now(), '3')";
+        $sql = "INSERT INTO users(google_id, name, email, google_image, username, institute, lab, memberdate, date_created, date_modified, perms) VALUES 
+			('$google_id', '$name', '$email', '$google_image', '$username', '', '', now() , now(), now(), '3')";
         return self::insTable($sql);
     }
     
