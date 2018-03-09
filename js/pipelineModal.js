@@ -1523,6 +1523,8 @@ $(document).ready(function () {
             var scripteditor = JSON.stringify(editor.getValue());
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
+//            dataToProcess.push({ name: "rev_id", value: 0 });
+//            dataToProcess.push({ name: "rev_comment", value: '' });
             dataToProcess.push({ name: "perms", value: perms });
             dataToProcess.push({ name: "group", value: group });
             dataToProcess.push({ name: "publish", value: publish });

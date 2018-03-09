@@ -1516,6 +1516,9 @@
 	              var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
 	              var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
 	              savedList.push({ "pipeline_gid": newPipeline_gid });
+	              savedList.push({ "rev_id": 0 });
+	              savedList.push({ "rev_comment": "" });
+                  console.log(savedList)
 	              sl = JSON.stringify(savedList);
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	              $("#pipeline-title").attr('pipelineid', ret.id);

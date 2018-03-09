@@ -554,16 +554,18 @@ else if ($p=="saveProcess"){
     $script = htmlspecialchars($_REQUEST['script'], ENT_QUOTES);
     $rev_id = $_REQUEST['rev_id']; 
     $rev_comment = $_REQUEST['rev_comment']; 
-    $group = $_REQUEST['group']; 
+    $group_id = $_REQUEST['group']; 
     $perms = $_REQUEST['perms']; 
     $publish = $_REQUEST['publish']; 
+    settype($rev_id, 'integer');
+    settype($group_id, 'integer');
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $group, $perms, $publish, $ownerID);
+        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $group_id, $perms, $publish, $ownerID);
         if ($perms !== "3"){
             $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
         }
     } else {
-        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group, $perms, $publish, $ownerID);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $rev_id, $rev_comment, $group_id, $perms, $publish, $ownerID);
         if ($perms !== "3"){
             $obj = json_decode($data,true);
             $id = $obj["id"];
@@ -643,6 +645,8 @@ else if ($p=="saveProjectPipeline"){
     $singu_img = $_REQUEST['singu_img'];
     $singu_opt = $_REQUEST['singu_opt'];
     $amazon_cre_id = $_REQUEST['amazon_cre_id'];
+    settype($group_id, 'integer');
+    settype($amazon_cre_id, 'integer');
         if (!empty($id)) {
         $data = $db->updateProjectPipeline($id, $name, $summary, $output_dir, $perms, $profile, $interdel, $cmd, $group_id, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $publish_dir, $publish_dir_check, $ownerID);
             if ($perms !== "3"){
@@ -668,6 +672,7 @@ else if ($p=="saveProcessParameter"){
     $type = $_REQUEST['type'];
     $perms = $_REQUEST['perms'];
     $group_id= $_REQUEST['group'];
+    settype($group_id, 'integer');
     if (!empty($id)) {
         $data = $db->updateProcessParameter($id, $sname, $process_id, $parameter_id, $type, $closure, $operator, $perms, $group_id, $ownerID);
         if ($perms !== "3"){
@@ -700,10 +705,11 @@ else if ($p=="getProcessRevision")
 }
 else if ($p=="getPipelineRevision")
 {
-	$id = $_REQUEST['pipeline_id'];
-    $pipeline_gidAr =$db->getPipelineGID($id);
-    $checkarray = json_decode($pipeline_gidAr,true); 
-    $pipeline_gid = $checkarray[0]["pipeline_gid"];
+	$pipeline_id = $_REQUEST['pipeline_id'];
+//    $pipeline_gidAr =$db->getPipelineGID($id);
+//    $checkarray = json_decode($pipeline_gidAr,true); 
+    $pipeline_gid = json_decode($db->getPipelineGID($pipeline_id))[0]->{'pipeline_gid'};
+//    $pipeline_gid = $checkarray[0]["pipeline_gid"];
     $data = $db->getPipelineRevision($pipeline_gid,$ownerID);
 }
 else if ($p=="getPublicPipelines")
@@ -794,6 +800,7 @@ else if ($p=="savePipelineDetails")
 	$pin = $_REQUEST['pin'];
 	$pin_order = $_REQUEST['pin_order'];
 	$publish = $_REQUEST['publish'];
+    settype($group_id, 'integer');
     $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$ownerID);
 }
 else if ($p=="savePipelineName"){

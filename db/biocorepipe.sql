@@ -18,6 +18,9 @@
 --
 -- Table structure for table `amazon_credentials`
 --
+DROP DATABASE IF EXISTS biocorepipe;
+CREATE DATABASE biocorepipe;
+USE biocorepipe;
 
 DROP TABLE IF EXISTS `amazon_credentials`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
