@@ -438,7 +438,7 @@ function Google_signIn(googleUser) {
     var userProfile = [];
     var profile = googleUser.getBasicProfile();
     var emailUser = profile.getEmail();
-    var pattEmail = /(.*)@(.*)/; //Map_Tophat2@11
+    var pattEmail = /(.*)@(.*)/; 
     var username = emailUser.replace(pattEmail, '$1');
     userProfile.push({ name: "google_id", value: profile.getId() });
     userProfile.push({ name: "name", value: profile.getName() });
@@ -446,6 +446,7 @@ function Google_signIn(googleUser) {
     userProfile.push({ name: "google_image", value: profile.getImageUrl() });
     userProfile.push({ name: "username", value: username });
     userProfile.push({ name: "p", value: 'saveUser' });
+    console.log(userProfile)
     update_user_data(userProfile);
 }
 
