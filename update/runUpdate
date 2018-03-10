@@ -1,3 +1,0 @@
-mysql -u root < updateVersion0.0.87.sql
-mysql -u root < updateVersion0.0.88.sql
-mysql -u root < updateVersion0.0.89.sql
