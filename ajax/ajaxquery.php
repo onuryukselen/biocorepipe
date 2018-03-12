@@ -29,9 +29,9 @@ if (isset($_REQUEST['id'])) {
 }
 
 
-if ($p=="createNextflow"){
-	$data = $db -> getNextflow($id);
-}
+//if ($p=="createNextflow"){
+//	$data = $db -> getNextflow($id);
+//}
 else if ($p=="saveRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
 	$profileType = $_REQUEST['profileType'];

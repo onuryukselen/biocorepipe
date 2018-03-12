@@ -401,84 +401,80 @@ class dbfuncs {
     function runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID)
     {
         if ($profileType == "local") {
-            //get input parameters
-            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
-            $next_inputs="";
-            foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
-            endforeach;
-            // get outputdir  
-            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
-            $outdir = $proPipeAll[0]->{'output_dir'};
-            $proPipeCmd = $proPipeAll[0]->{'cmd'};
-            $singu_check = $proPipeAll[0]->{'singu_check'};
-            if ($singu_check == "true"){
-                $singu_img = $proPipeAll[0]->{'singu_img'};
-                $imageCmd =='';
-//                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
-            }
-            //profile cmd before nextflow run
-            $locData=$this->getProfileLocalbyID($profileId, $ownerID);
-            $locDataArr=json_decode($locData,true);
-            $next_path = $locDataArr[0]["next_path"];
-            $profileCmd = $locDataArr[0]['cmd'];
-            $executor = $locDataArr[0]['executor'];
-            $next_time = $locDataArr[0]['next_time'];
-            $next_queue = $locDataArr[0]['next_queue'];
-            $next_memory = $locDataArr[0]['next_memory'];
-            $next_cpu = $locDataArr[0]['next_cpu'];
-            //combine pre-run cmd
-            if (!empty($profileCmd) && !empty($proPipeCmd)){
-                $preCmd = "&& ".$profileCmd." && ".$proPipeCmd;
-            } else if (!empty($profileCmd)){
-                $preCmd = "&& ".$profileCmd;
-            } else if (!empty($proPipeCmd)){
-                $preCmd = "&& ".$proPipeCmd;
-            } else {
-                $preCmd ="";
-            }
-            //combine pre-run cmd with $imageCmd
-            if (!empty($preCmd) && !empty($imageCmd)){
-                $preCmd = $preCmd." && ".$imageCmd;
-            } else if (!empty($preCmd)){
-                $preCmd = $preCmd;
-            } else if (!empty($imageCmd)){
-                $preCmd = "&& ".$imageCmd;
-            } else {
-                $preCmd ="";
-            }
-            
-            //eg. /project/umw_biocore/bin
-            if (!empty($next_path)){
-                $next_path_real = "$next_path/nextflow";
-            } else {
-                $next_path_real  = "nextflow";
-            }
-            $run_path_real = "$outdir/run{$project_pipeline_id}";
-            chdir('../');
-            $server_dir = getcwd();
-            chdir('ajax');
-            $log_path_server = "$server_dir/{$this->run_path}/run{$project_pipeline_id}";
-            //run command
-//            $cmd = 'export PATH=$PATH:/usr/local/bin/dolphin-bin/tophat2_2.0.12:/usr/local/bin/dolphin-bin/hisat2:/usr/local/bin/dolphin-bin/:/usr/local/bin/dolphin-bin/fastqc_0.10.1  ';
-            //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
-            if ($executor == "local"){
-            $exec_next_all = "cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 ";
-            } else if ($executor == "lsf"){  
-            $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-            $exec_next_all = "cd $run_path_real && $exec_string \"$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 \">> $log_path_server/log.txt 2>&1";
-            } else if ($executor == "sge"){
-                
-            } else if ($executor == "slurm"){
-            }
-		    $cmd = "cd $run_path_real $preCmd && $exec_next_all & echo $! &";
-            $this->writeLog($project_pipeline_id, $cmd,'a');
-            $pid_command = popen($cmd, "r" );
-            $pid = fread($pid_command, 2096);
-		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
-		    pclose($pid_command);
-            $log_array['next_submit_pid'] = $pid;
-            return json_encode($log_array);
+//            //get input parameters
+//            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+//            $next_inputs="";
+//            foreach ($allinputs as $inputitem):
+//                $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
+//            endforeach;
+//            // get outputdir  
+//            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+//            $outdir = $proPipeAll[0]->{'output_dir'};
+//            $proPipeCmd = $proPipeAll[0]->{'cmd'};
+//            $singu_check = $proPipeAll[0]->{'singu_check'};
+//            if ($singu_check == "true"){
+//                $singu_img = $proPipeAll[0]->{'singu_img'};
+//                $imageCmd =='';
+////                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
+//            }
+//            //profile cmd before nextflow run
+//            $locData=$this->getProfileLocalbyID($profileId, $ownerID);
+//            $locDataArr=json_decode($locData,true);
+//            $next_path = $locDataArr[0]["next_path"];
+//            $profileCmd = $locDataArr[0]['cmd'];
+//            $executor = $locDataArr[0]['executor'];
+//            $next_time = $locDataArr[0]['next_time'];
+//            $next_queue = $locDataArr[0]['next_queue'];
+//            $next_memory = $locDataArr[0]['next_memory'];
+//            $next_cpu = $locDataArr[0]['next_cpu'];
+//            //combine pre-run cmd
+//            if (!empty($profileCmd) && !empty($proPipeCmd)){
+//                $preCmd = "&& ".$profileCmd." && ".$proPipeCmd;
+//            } else if (!empty($profileCmd)){
+//                $preCmd = "&& ".$profileCmd;
+//            } else if (!empty($proPipeCmd)){
+//                $preCmd = "&& ".$proPipeCmd;
+//            } else {
+//                $preCmd ="";
+//            }
+//            //combine pre-run cmd with $imageCmd
+//            if (!empty($preCmd) && !empty($imageCmd)){
+//                $preCmd = $preCmd." && ".$imageCmd;
+//            } else if (!empty($preCmd)){
+//                $preCmd = $preCmd;
+//            } else if (!empty($imageCmd)){
+//                $preCmd = "&& ".$imageCmd;
+//            } else {
+//                $preCmd ="";
+//            }
+//            if (!empty($next_path)){
+//                $next_path_real = "$next_path/nextflow";
+//            } else {
+//                $next_path_real  = "nextflow";
+//            }
+//            $run_path_real = "$outdir/run{$project_pipeline_id}";
+//            chdir('../');
+//            $server_dir = getcwd();
+//            chdir('ajax');
+//            $log_path_server = "$server_dir/{$this->run_path}/run{$project_pipeline_id}";
+//            //run command
+//            if ($executor == "local"){
+//            $exec_next_all = "cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 ";
+//            } else if ($executor == "lsf"){  
+//            $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
+//            $exec_next_all = "cd $run_path_real && $exec_string \"$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 \">> $log_path_server/log.txt 2>&1";
+//            } else if ($executor == "sge"){
+//                
+//            } else if ($executor == "slurm"){
+//            }
+//		    $cmd = "cd $run_path_real $preCmd && $exec_next_all & echo $! &";
+//            $this->writeLog($project_pipeline_id, $cmd,'a');
+//            $pid_command = popen($cmd, "r" );
+//            $pid = fread($pid_command, 2096);
+//		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
+//		    pclose($pid_command);
+//            $log_array['next_submit_pid'] = $pid;
+//            return json_encode($log_array);
             
         } else if ($profileType == "cluster") {
             //get nextflow executor parameters
@@ -1621,38 +1617,38 @@ class dbfuncs {
     
     // --------- Nextflow -------------
 	
-    public function getNextflow($id) {
-        $data = array();
-
-        $sql = "SELECT DISTINCT pi.id as pipeline_id,
-                pro.id as process_id,
-                pro.name as process_name,
-                pro.script as process_script,
-                pro.script_header as process_script_header,
-                propara.sname as process_parameter_name,
-                propara.type as process_parameter_type,
-                para.id as parameter_id,	
-                para.name as parameter_name,
-                para.channel_name as parameter_channel_name,
-                para.file_path as parameter_file_path,
-                para.qualifier as parameter_qualifier,
-                para.input_text as parameter_input_text,
-				para.file_type as file_type,
-				ppp.id as ppp_id,
-                ppp.name as ppp_name, 
-                ppp.pipeline_id as ppp_pipeline_id,
-                ppp.parameter_id as ppp_parameter_id,
-				ppp.process_id as ppp_process_id,
-				ppp.process_name as ppp_process_name,
-				ppp.type as ppp_type
-				
-                FROM pipeline pi, process pro, process_parameter propara, parameter para,
-					 pipeline_process_parameter ppp
-                WHERE pro.id = propara.process_id AND ppp.parameter_id=para.id
-				AND ppp.pipeline_id = pi.id AND ppp.process_id=pro.id AND ppp.type=propara.type
-                AND propara.parameter_id = para.id AND pi.id = '$id'";
-        return self::queryTable($sql);
-    }
+//    public function getNextflow($id) {
+//        $data = array();
+//
+//        $sql = "SELECT DISTINCT pi.id as pipeline_id,
+//                pro.id as process_id,
+//                pro.name as process_name,
+//                pro.script as process_script,
+//                pro.script_header as process_script_header,
+//                propara.sname as process_parameter_name,
+//                propara.type as process_parameter_type,
+//                para.id as parameter_id,	
+//                para.name as parameter_name,
+//                para.channel_name as parameter_channel_name,
+//                para.file_path as parameter_file_path,
+//                para.qualifier as parameter_qualifier,
+//                para.input_text as parameter_input_text,
+//				para.file_type as file_type,
+//				ppp.id as ppp_id,
+//                ppp.name as ppp_name, 
+//                ppp.pipeline_id as ppp_pipeline_id,
+//                ppp.parameter_id as ppp_parameter_id,
+//				ppp.process_id as ppp_process_id,
+//				ppp.process_name as ppp_process_name,
+//				ppp.type as ppp_type
+//				
+//                FROM pipeline pi, process pro, process_parameter propara, parameter para,
+//					 pipeline_process_parameter ppp
+//                WHERE pro.id = propara.process_id AND ppp.parameter_id=para.id
+//				AND ppp.pipeline_id = pi.id AND ppp.process_id=pro.id AND ppp.type=propara.type
+//                AND propara.parameter_id = para.id AND pi.id = '$id'";
+//        return self::queryTable($sql);
+//    }
 	
     //------- feedback ------
     

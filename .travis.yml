@@ -21,9 +21,6 @@ before_install:
 #  - sudo apt-get -y install php7.2 
 #  - sudo apt-get -y install php-pear php7.2-curl php7.2-dev php7.2-gd php7.2-mbstring php7.2-zip php7.2-mysql php7.2-xml
   - git clone https://github.com/UMMS-Biocore/biocorepipe.git /home/travis/build/dolphinnext
-  
-  
-  
 #  - sudo sed -i '$ a\export PATH=$PATH:/home/travis/build/dolphin-bin' /etc/apache2/envvars
 #  - export PATH=$PATH:/home/travis/build/dolphin-bin
 #  - sudo mkdir -p /var/www/.java/.systemPrefs
@@ -32,4 +29,43 @@ before_install:
 #  - sudo chown -R ${APACHE_RUN_USER}:${APACHE_RUN_GROUP} /var/www
 #  - sudo sed -i '$ a\export JAVA_OPTS="-Djava.util.prefs.systemRoot=/var/www/.java Djava.util.prefs.userRoot=/var/www/.java/.userPrefs\"' /etc/apache2/envvars
 #  - sudo cat /etc/apache2/envvars
+  
+  before_script:
+#  - sudo a2enmod actions
+#  - sudo a2enmod rewrite
+  - sudo service apache2 restart
+  - mysql -u root -e "CREATE USER 'myproject'@'localhost' IDENTIFIED BY 'mypass'"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'myproject'@'localhost' WITH GRANT OPTION;"
+  # update database
+#  - sudo mysql -e "CREATE DATABASE biocore;" -uroot
+#  - sudo mysql -e "CREATE USER 'bioinfo'@'localhost' IDENTIFIED BY 'bioinfo2013'; GRANT ALL ON *.* TO 'bioinfo'@'localhost';" -uroot
+  - sudo mysql -u root biocorepipe < biocorepipe.sql
+  - sudo db/./runUpdate biocorepipe
+  
+#  - sudo mysql -e "use biocore; UPDATE ngs_samples set samplename = name;" -uroot
+#  - sudo mysql -e "use biocore; INSERT INTO amazon_credentials ( aws_access_key_id, aws_secret_access_key, bucket ) VALUES ( 'test_access', 'test_secret', 'test_bucket' );" -uroot
+#  - sudo mysql -e "use biocore; INSERT INTO ngs_organism (organism, organism_symbol) VALUES ('mousetest', 'mm10'); UPDATE ngs_samples SET organism_id = 1;" -uroot
+  # other dependencies
+#  - sudo mkdir -p /home/travis/build/pub /home/travis/build/logs tmp/files tmp/logs tmp/logs/run4 tmp/logs/run5 tmp/logs/run6 tmp/logs/run7 tmp/logs/run8
+#  - sudo ln -s $(pwd) /var/www/dolphin
+#  - sudo ln -s /home/travis/build/pub public/pub
+  - printf "[Dolphinnext]\nDB=biocorepipe\nDBUSER=root\nDBPASS=\nDBHOST=localhost\nDBPORT=3306\nSSHPATH=/export/.dolphinnext/.ssh\nAMAZON=z76fg0iua298gh4\nAMZPATH=/export/.dolphinnext/.amz\n[CONFIG]\nTIMEZONE=America/New_York\nRUNPATH=tmp/logs" > config/.sec
+#  - export PATH=$PATH:/usr/local/bin/dolphin-bin
+#  - sudo chmod -R 777 /home
+ 
+script:
+#  - phpunit unitTesting/ngsimport_unittest.php
+  #	ajax
+  - phpunit unitTesting/ajax/ajaxquery_unittesting.php
+ 
+  #	api
+#  - phpunit unitTesting/api/funcs_unittest.php
+
+after_script:
+#  - mysql -e "show databases;" -uroot
+
+  
+  
+  
+  
   
