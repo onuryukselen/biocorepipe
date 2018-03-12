@@ -1,0 +1,35 @@
+# see http://about.travis-ci.org/docs/user/languages/php/ for more hints
+language: php
+
+# list any PHP version you want to test against
+php:
+  - 7.2.3
+
+env:
+  - mysql
+
+services:
+  - mysql
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get -y install aptitude
+  - sudo apt-get -y install apache2 php-pear curl lynx-cur mysql-serve libreadline-dev libsqlite3-dev libbz2-dev libssl-dev python python-dev libmysqlclient-dev python-pip git expect default-jre libxml2-dev software-properties-common gdebi-core wget tree vim libv8-dev subversion g++ gcc gfortran zlib1g-dev libreadline-dev libx11-dev xorg-dev libbz2-dev liblzma-dev libpcre3-dev libcurl4-openssl-dev
+  - sudo apt-get -y install python-software-properties
+#  RUN LC_ALL=C.UTF-8 apt-add-repository ppa:ondrej/php
+  - sudo apt-get update
+  - sudo apt-get -y install php7.2 
+  - sudo apt-get -y install php-pear php7.2-curl php7.2-dev php7.2-gd php7.2-mbstring php7.2-zip php7.2-mysql php7.2-xml
+  - git clone https://github.com/UMMS-Biocore/biocorepipe.git /home/travis/build/dolphinnext
+  
+  
+  
+#  - sudo sed -i '$ a\export PATH=$PATH:/home/travis/build/dolphin-bin' /etc/apache2/envvars
+#  - export PATH=$PATH:/home/travis/build/dolphin-bin
+#  - sudo mkdir -p /var/www/.java/.systemPrefs
+#  - sudo mkdir /var/www/.java/.userPrefs
+#  - sudo chmod -R 755 /var/www/.java
+#  - sudo chown -R ${APACHE_RUN_USER}:${APACHE_RUN_GROUP} /var/www
+#  - sudo sed -i '$ a\export JAVA_OPTS="-Djava.util.prefs.systemRoot=/var/www/.java Djava.util.prefs.userRoot=/var/www/.java/.userPrefs\"' /etc/apache2/envvars
+#  - sudo cat /etc/apache2/envvars
+  
