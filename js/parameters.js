@@ -43,7 +43,8 @@ $(document).ready(function () {
 
             var clickedRow = button.closest('tr');
             var rowData = parametersTable.row(clickedRow).data();
-
+            console.log('rowData');
+            console.log(rowData);
             $('#saveparameter').data('clickedrow', clickedRow);
 
             var formValues = $('#parametermodal').find('input, textarea, select');

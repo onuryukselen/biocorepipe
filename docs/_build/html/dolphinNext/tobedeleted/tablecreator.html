@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Table Creator Guide &mdash; dolphin 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="dolphin 1.0 documentation" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dolphin
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../DolphinNext.html">DolphinNext</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dolphin</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Table Creator Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/dolphinNext/tobedeleted/tablecreator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="table-creator-guide">
+<h1>Table Creator Guide<a class="headerlink" href="#table-creator-guide" title="Permalink to this headline">¶</a></h1>
+<p>This guide will walk you through all you need to know about the Table Creator page(s).</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>First, make sure to have an instance of dolphin available (see Dolphin Docker) as well as an account for the dolphin interface.</p>
+<p>Once logged in, click on the ‘NGS Tracking’ tab, followed by clicking on the ‘NGS Browser’ from the dropdown to be sent to the Browser for sample selection.</p>
+<img alt="../../_images/menu_bar.png" class="align-center" src="../../_images/menu_bar.png" />
+<p>Additionally, if you want to skip straight to your previous created tables, you can select the ‘Generated Tables’ tab from the ‘NGS Tracking’ tab.</p>
+</div>
+<div class="section" id="creating-custom-tables">
+<h2>Creating Custom Tables<a class="headerlink" href="#creating-custom-tables" title="Permalink to this headline">¶</a></h2>
+<p><strong>Sample Selection</strong></p>
+<p>Once you’ve successfully made it to the Browser, select samples which have finished runs and also have reports which you would like to have merged.</p>
+<p>As soon as you’ve selected all of your samples, you can select the ‘Generate Tables’ button to be sent to the Table Generation page.</p>
+<p><strong>Table Generation</strong></p>
+<p>Once at the Table Generation page, you will notice that the samples you have selected fill up the ‘Samples Selected’ table.  Under the ‘Run ID’ column you can select which run from that samples results you wish to use.</p>
+<img alt="../../_images/samples_selected.png" class="align-center" src="../../_images/samples_selected.png" />
+<p>As you select different runs, you might notice rows in the ‘Report Selection’ box dimming out.  The bolded files in this page are the compatible reports in which you can merge while the dimmed out ones are incompatible or missing from one of the runs you have selected.</p>
+<p>Once you’ve selected all the appropriate runs, you may then select the report you wish to merge within the ‘Report Selection’ box.</p>
+<img alt="../../_images/report_selected.png" class="align-center" src="../../_images/report_selected.png" />
+<p>If you forgot any samples that you wanted to add to the table generation, you can maximize the ‘Additional Sample Selection’ and select the samples from the table generated within this box.  Checking off a sample will also remove it from the ‘Samples Selected’ table.</p>
+<img alt="../../_images/additional_sample_selection.png" class="align-center" src="../../_images/additional_sample_selection.png" />
+<p>Additionally, if you want to remove samples, you can also click on the red ‘X’ to the right of each sample within the ‘Samples Selected’ table.</p>
+<p>When all the information is selected and you are ready to generate your table, you can then click the ‘Generate Table’ button to be taken to your generated table.</p>
+<p><strong>Table Generated</strong></p>
+<p>In the ‘Table Generated’ page, you will have the reports of the runs selected merged into one table.  This table is much like the tables within the ‘NGS Reports’ page.</p>
+<img alt="../../_images/table_generated.png" class="align-center" src="../../_images/table_generated.png" />
+<p>For external use, you can select the ‘Download Type’ button to export the table to a variety of formats:</p>
+<blockquote>
+<div><ul class="simple">
+<li>JSON</li>
+<li>JSON2</li>
+<li>HTML</li>
+<li>XML</li>
+</ul>
+</div></blockquote>
+<img alt="../../_images/export_table.png" class="align-center" src="../../_images/export_table.png" />
+<p>You can also download the raw TSV file of the newly generated table or send the table to the DEBrowser (For more information on DEBrowser, see the DEBrowser section). This will only appear for rsem/mRNA/tRNA tables.</p>
+<p>If you wish to save the table, either for easy access later or for plotting capabilities, you can name the table in the ‘Save Table As”’ tab and then click the ‘Save Table’ at the bottom of the page.</p>
+<p><strong>Saved Tables</strong></p>
+<p>Within the ‘NGS Table List’ the user can view all of their merged tables they have created and saved.  You can select a few options from the options button to the right of each run:</p>
+<blockquote>
+<div><ul class="simple">
+<li>View</li>
+<li>Plot Table</li>
+<li>Change Permissions</li>
+<li>Send to DEBrowser</li>
+<li>Delete</li>
+</ul>
+</div></blockquote>
+<img alt="../../_images/tables_generated_options.png" class="align-center" src="../../_images/tables_generated_options.png" />
+<p>Selecting ‘View’ will take you to the ‘Table Generated’ page with the report where you can save the table under a new name if you wish.</p>
+<p>Selecting the ‘Plot Table’ will direct you to the ‘Plots’ page with your generated table selected as the input.  You can also visit the ‘Plots’ page at any time and select any of your generated tables to use for input.</p>
+<p>Change Permissions will appear if you are the owner of the generated table.  You will be able to change the permissions given to this table by selection this option.</p>
+<p>Selecting ‘Send to DEBrowser’ will allow you to send your table information straight to the DEBrowser (For more information on DEBrowser, see the DEBrowser section).  This will only appear for rsem/mRNA/tRNA tables.</p>
+<p>Selecting ‘Delete’ will remove the generated table from your list of tables.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alper Kucukural, Onur Yukselen.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

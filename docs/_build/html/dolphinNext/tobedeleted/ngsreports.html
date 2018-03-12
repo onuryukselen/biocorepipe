@@ -1,0 +1,276 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>NGS Reports Guide &mdash; dolphin 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="dolphin 1.0 documentation" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> dolphin
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../DolphinNext.html">DolphinNext</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">dolphin</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>NGS Reports Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/dolphinNext/tobedeleted/ngsreports.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ngs-reports-guide">
+<h1>NGS Reports Guide<a class="headerlink" href="#ngs-reports-guide" title="Permalink to this headline">¶</a></h1>
+<p>This guide will walk you through all of your options within the Reports page.</p>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>First, make sure to have an instance of dolphin available (see Dolphin Docker) as well as an account for the dolphin interface.</p>
+<p>Once logged in, click on the ‘NGS Tracking’ tab on the left, then click on ‘Run Status’.</p>
+<img alt="../../_images/menu_bar.png" class="align-center" src="../../_images/menu_bar.png" />
+<p>After navigating to the status page, the next step is to make sure the run whose results you are interested in has completed without errors.</p>
+<p>Once you have a completed run, you can select the options button on the far right and select the ‘Report Details’ option.</p>
+<img alt="../../_images/completed.png" class="align-center" src="../../_images/completed.png" />
+<p>Selecting this option will bring you to the Report Details page.</p>
+</div>
+<div class="section" id="report-details">
+<h2>Report Details<a class="headerlink" href="#report-details" title="Permalink to this headline">¶</a></h2>
+<p>Upon reaching the Report Details page, the user is greeted with an Initial Mapping Results table.</p>
+<img alt="../../_images/initial_mapping.png" class="align-center" src="../../_images/initial_mapping.png" />
+<p>This table displays various information about the samples you’ve selected for your run and based on the common RNAs that you may have selected to map for, the table will also display the number of reads mapped for each selected.</p>
+<p>It’s important to note that the reads mapped to RNA are not selected for mapping within the other RNA steps.</p>
+<p>If you have indeed selected to map their reads against a specific RNA, the dropdown under the table will also produce additional information in regards to the RNA selected from the dropdown list.</p>
+<img alt="../../_images/results_table.png" class="align-center" src="../../_images/results_table.png" />
+<p>Once the table is populated, an options button labeled ‘Select Data Options’ will appear and selecting it will give you a variety of options to choose from.</p>
+<img alt="../../_images/results_data_options.png" class="align-center" src="../../_images/results_data_options.png" />
+<p>Options include:</p>
+<ul class="simple">
+<li><strong>TYPE Links</strong>:  These links will direct the user towards another webpage with the data from the table in the specified TYPE format.</li>
+<li><strong>Send to DEBrowser:</strong> This link will only appear under rsem/mRNA/tRNA results.  It will send the user to the DEBrowser with the selected table as the dataset (For more information on DEBrowser, see the DEBrowser section).</li>
+<li><strong>Download File</strong>:  This link will download the table to a file in a TSV format.</li>
+<li><strong>Clear Selection</strong>:  If the user desires, they can clear the table of it’s contents.</li>
+</ul>
+<p>Following the Initial Mapping Results there may be additional minimized sections.  These sections are available to the user based on the parameters set by the user.</p>
+<img alt="../../_images/fastqc_summary.png" class="align-center" src="../../_images/fastqc_summary.png" />
+<p>These tabs include:</p>
+<ul class="simple">
+<li>FastQC Summary</li>
+<li>Detailed FastQC Results</li>
+<li>RSEM Results</li>
+<li>DESEQ Results</li>
+<li>Picard Metrics</li>
+<li>RSeQC Metrics</li>
+</ul>
+<p>Expanding any of the FastQC tabs will provide a list of links related to either the FastQC summary or the specific sample FastQC results.
+Clicking one of these links will re-direct you to another page with the specified results.</p>
+<p>By expanding the RSEM, DESEQ, Picard Metrics, or RSeQC tabs, you will be greeted with another dropdown menu like that within the Initial Mapping Results tab.</p>
+<p>The list provided within the dropdown menu will contain files related to the tab which is expanded.</p>
+<p>If you select a TSV file, a table will be populated with the results and another options button will appear to the right of the dropdown list with the same options of that within the Initial Mapping Results table.</p>
+<p>Selecting a PDF file will not populate a table, nor will it replace a previously populated table that you have already selected.
+Instead, selecting a PDF file will change the options available to the user within the ‘Select Data Options’ button to either ‘Download File’ or ‘Clear Selection’
+Selecting the ‘Download File’ option will redirect you to a new page containing the PDF with the ability to download.</p>
+<img alt="../../_images/pdf_options.png" class="align-center" src="../../_images/pdf_options.png" />
+<p>At the very bottom of the page, you have 2 additional buttons.</p>
+<p>The ‘Return to Status’ button will re-direct you to the status page and the ‘Go To Plots’ button will re-direct you to the plots page.</p>
+<p>For more information on the Status page, consult the ‘NGS Status Guide’.</p>
+<p>For more information on the Plots page, consult the ‘NGS Plots Guide’.</p>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Alper Kucukural, Onur Yukselen.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
