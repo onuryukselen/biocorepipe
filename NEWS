@@ -1,5 +1,6 @@
 16.03.2018 Version 0.0.99
 New test functions are added for travis.
+Error fixed in run pipeline page.
 
 16.03.2018 Version 0.0.98
 Debugging is upgraded by run logs.
