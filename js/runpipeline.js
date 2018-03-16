@@ -823,12 +823,13 @@
 	                  }
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-	                  //xxx get project_pipeline_inputs:
+	                  //get project_pipeline_inputs:
 	                  var getProPipeInputs = getValues({
 	                      p: "getProjectPipelineInputs",
 	                      project_pipeline_id: project_pipeline_id,
 	                      g_num: firGnum
 	                  });
+	                  a = getProPipeInputs;
 	                  if (getProPipeInputs.length === 1) {
 	                      var rowID = rowType + 'Ta-' + firGnum;
 	                      var filePath = getProPipeInputs[0].name; //value for val type
@@ -1491,14 +1492,15 @@
 	  function loadRunOptions() {
 	      $('#chooseEnv').find('option').not(':disabled').remove();
 	      //get profiles for user
-	      var proLocData = getValues({ p: "getProfileLocal" });
+
 	      var proCluData = getValues({ p: "getProfileCluster" });
 	      var proAmzData = getValues({ p: "getProfileAmazon" });
-	      if (proLocData.length + proCluData.length + proAmzData.length !== 0) {
-	          $.each(proLocData, function (el) {
-	              var option = new Option(proLocData[el].name + ' (Local)', 'local-' + proLocData[el].id);
-	              $("#chooseEnv").append(option);
-	          });
+	      if (proCluData.length + proAmzData.length !== 0) {
+
+	      var proCluData = getValues({ p: "getProfileCluster" });
+	      var proAmzData = getValues({ p: "getProfileAmazon" });
+	      if (proCluData.length + proAmzData.length !== 0) {
+
 	          $.each(proCluData, function (el) {
 	              var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
 	              $("#chooseEnv").append(option);
@@ -1610,18 +1612,18 @@
 	          var amzStatus = profileNextText.replace(patt, '$2');
 	      }
 	      var output_dir = $('#rOut_dir').val();
-          var publishReady = false;
+	      var publishReady = false;
 	      var publish_dir_check = $('#publish_dir_check').is(":checked").toString();
 	      if (publish_dir_check === "true") {
 	          var publish_dir = $('#publish_dir').val();
-              if (publish_dir !== ""){
-                  publishReady = true;
-              } else{
-                  publishReady = false;
-              }
+	          if (publish_dir !== "") {
+	              publishReady = true;
+	          } else {
+	              publishReady = false;
+	          }
 	      } else {
 	          var publish_dir = "";
-              publishReady = true;
+	          publishReady = true;
 	      }
 	      //check if s3: is defined in publish_dir and getProPipeInputs
 	      var s3check = checkS3(publish_dir, getProPipeInputs);
@@ -1633,6 +1635,7 @@
 	      } else {
 	          var s3status = false;
 	      }
+
 	      if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
 	          if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun")) || runStatus === "") {
 	              if (amzStatus) {
@@ -1671,13 +1674,13 @@
 	  }
 
 	  //Autocheck the output,publish_dir,publish_dir_check for checkreadytorun
-	  $("#rOut_dir").keyup(function () { 
+	  $("#rOut_dir").keyup(function () {
 	      autoCheck();
 	  });
-      $("#publish_dir").keyup(function () { 
+	  $("#publish_dir").keyup(function () {
 	      autoCheck();
 	  });
-      $("#publish_dir_check").click(function () { 
+	  $("#publish_dir_check").click(function () {
 	      autoCheck();
 	  });
 	  var timeoutCheck = 0;
@@ -1892,12 +1895,15 @@
 	      serverLog = '';
 	      if (proType === 'cluster' || proType === 'amazon') {
 	          serverLog = getServerLog(project_pipeline_id);
-	          $('#runLogArea').val(serverLog);
-	          //xxxxxxx
-	          //for lsf: Job <203477> is submitted to queue <long>.\n"
-	          if (serverLog.match(/Job <(.*)> is submitted/)) {
-	              var runPid = serverLog.match(/Job <(.*)> is submitted/)[1];
-	              var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	          if (serverLog && serverLog !== null && serverLog !== false) {
+	              $('#runLogArea').val(serverLog);
+	              //for lsf: Job <203477> is submitted to queue <long>.\n"
+	              if (serverLog.match(/Job <(.*)> is submitted/)) {
+	                  var runPid = serverLog.match(/Job <(.*)> is submitted/)[1];
+	                  var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	              }
+	          } else {
+	              serverLog = "";
 	          }
 	      }
 
@@ -2042,7 +2048,8 @@
 	          var inputGet = getValues(data);
 	          var input_id = inputGet.id;
 	          //insert into project_input table
-	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+              //bug: it adds NA named files after each run
+//	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
 	      }
 	  }
 

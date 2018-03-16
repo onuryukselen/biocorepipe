@@ -1,3 +1,16 @@
+16.03.2018 Version 0.0.97
+getProjectPipelineInputs function error fixed.
+
+15.03.2018 Version 0.0.96
+42 test functions for travis are added.
+check server log error fixed.
+
+13.03.2018 Version 0.0.95
+pipelineModal.js update for empty process columns.
+
+12.03.2018 Version 0.0.94
+Commented out local run option in php.
+
 12.03.2018 Version 0.0.93
 header process script added to nextflow text.
 

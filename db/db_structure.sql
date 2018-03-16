@@ -291,7 +291,7 @@ CREATE TABLE `process_group` (
   `date_modified` datetime DEFAULT NULL,
   `last_modified_user` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -300,7 +300,6 @@ CREATE TABLE `process_group` (
 
 LOCK TABLES `process_group` WRITE;
 /*!40000 ALTER TABLE `process_group` DISABLE KEYS */;
-INSERT INTO `process_group` VALUES (1,'Index',1,NULL,63,NULL,NULL,NULL),(2,'Alignment',1,NULL,63,NULL,NULL,NULL),(4,'Samtools',1,NULL,63,NULL,NULL,NULL),(5,'Misc.',1,NULL,63,NULL,NULL,NULL),(6,'QC',1,NULL,63,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `process_group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -439,7 +438,6 @@ CREATE TABLE `profile_cluster` (
 
 LOCK TABLES `profile_cluster` WRITE;
 /*!40000 ALTER TABLE `profile_cluster` DISABLE KEYS */;
-INSERT INTO `profile_cluster` VALUES (1,'Local','docker','localhost',1,'','local','100','short','1','32','local','100','short','1','32','source /etc/profile',1,3,'2018-03-13 20:11:42','2018-03-13 20:11:42','1');
 /*!40000 ALTER TABLE `profile_cluster` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -733,7 +731,6 @@ CREATE TABLE `ssh` (
 
 LOCK TABLES `ssh` WRITE;
 /*!40000 ALTER TABLE `ssh` DISABLE KEYS */;
-INSERT INTO `ssh` VALUES (1,'dockerkey','','on',1,NULL,3,'2018-03-13 20:11:04','2018-03-13 20:11:15','1');
 /*!40000 ALTER TABLE `ssh` ENABLE KEYS */;
 UNLOCK TABLES;
 

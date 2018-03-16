@@ -26,6 +26,7 @@ $(function () {
 function cleanProcessName(proName) {
     proName = proName.replace(/ /g, "_");
     proName = proName.replace(/-/g, "_");
+    proName = proName.replace(/:/g, "_");
     proName = proName.replace(/,/g, "_");
     proName = proName.replace(/\$/g, "_");
     proName = proName.replace(/\!/g, "_");
@@ -1026,7 +1027,6 @@ function createRevPipeline(savedList, id, sName) {
             savedList.push({ "pipeline_gid": pipeline_gid });
             savedList.push({ "rev_comment": revComment });
             savedList.push({ "rev_id": newPipRev_id });
-            console.log(savedList);
             sl = JSON.stringify(savedList);
             var ret = getValues({ p: "saveAllPipeline", dat: sl });
             $('#confirmRevision').modal('hide');
