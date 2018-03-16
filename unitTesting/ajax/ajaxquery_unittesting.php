@@ -603,12 +603,12 @@ class ajaxQueryTest extends TestCase
 	}
     
 
-		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id,'1');
-		$this->assertEquals(json_decode($data)[0]->name,'test_project');
-		$this->assertEquals(json_decode($data)[0]->summary,'testSummary');
-		ob_end_clean();
-	}
+//		include('ajaxquery.php');
+//		$this->assertEquals(json_decode($data)[0]->id,'1');
+//		$this->assertEquals(json_decode($data)[0]->name,'test_project');
+//		$this->assertEquals(json_decode($data)[0]->summary,'testSummary');
+//		ob_end_clean();
+//	}
     /**
      * @depends testInsertUser
      */
