@@ -2212,9 +2212,7 @@
 	  }
 
 	  function getProfileData(proType, proId) {
-	      if (proType === 'local') {
-	          var profileData = getValues({ p: "getProfileLocal", id: proId });
-	      } else if (proType === 'cluster') {
+	      if (proType === 'cluster') {
 	          var profileData = getValues({ p: "getProfileCluster", id: proId });
 	      } else if (proType === 'amazon') {
 	          var profileData = getValues({ p: "getProfileAmazon", id: proId });

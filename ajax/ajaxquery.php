@@ -313,14 +313,7 @@ else if ($p=="readGenerateKeys")
 {
     $data = $db->readGenerateKeys($ownerID);
 }
-else if ($p=="getProfileLocal")
-{
-//    if (!empty($id)) {
-//    $data = $db->getProfileLocalbyID($id, $ownerID);
-//    } else {
-//    $data = $db->getProfileLocal($ownerID);
-//    }
-}
+
 else if ($p=="getProfileCluster")
 {
     if (!empty($id)) {
