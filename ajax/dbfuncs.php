@@ -408,83 +408,7 @@ class dbfuncs {
     
     function runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID)
     {
-        if ($profileType == "local") {
-//            //get input parameters
-//            $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
-//            $next_inputs="";
-//            foreach ($allinputs as $inputitem):
-//                $next_inputs.="--".$inputitem->{'given_name'}." '".$inputitem->{'name'}."' ";
-//            endforeach;
-//            // get outputdir  
-//            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
-//            $outdir = $proPipeAll[0]->{'output_dir'};
-//            $proPipeCmd = $proPipeAll[0]->{'cmd'};
-//            $singu_check = $proPipeAll[0]->{'singu_check'};
-//            if ($singu_check == "true"){
-//                $singu_img = $proPipeAll[0]->{'singu_img'};
-//                $imageCmd =='';
-////                $imageCmd = $this->imageCmd($singu_img, 'singularity', $profileType);
-//            }
-//            //profile cmd before nextflow run
-//            $locData=$this->getProfileLocalbyID($profileId, $ownerID);
-//            $locDataArr=json_decode($locData,true);
-//            $next_path = $locDataArr[0]["next_path"];
-//            $profileCmd = $locDataArr[0]['cmd'];
-//            $executor = $locDataArr[0]['executor'];
-//            $next_time = $locDataArr[0]['next_time'];
-//            $next_queue = $locDataArr[0]['next_queue'];
-//            $next_memory = $locDataArr[0]['next_memory'];
-//            $next_cpu = $locDataArr[0]['next_cpu'];
-//            //combine pre-run cmd
-//            if (!empty($profileCmd) && !empty($proPipeCmd)){
-//                $preCmd = "&& ".$profileCmd." && ".$proPipeCmd;
-//            } else if (!empty($profileCmd)){
-//                $preCmd = "&& ".$profileCmd;
-//            } else if (!empty($proPipeCmd)){
-//                $preCmd = "&& ".$proPipeCmd;
-//            } else {
-//                $preCmd ="";
-//            }
-//            //combine pre-run cmd with $imageCmd
-//            if (!empty($preCmd) && !empty($imageCmd)){
-//                $preCmd = $preCmd." && ".$imageCmd;
-//            } else if (!empty($preCmd)){
-//                $preCmd = $preCmd;
-//            } else if (!empty($imageCmd)){
-//                $preCmd = "&& ".$imageCmd;
-//            } else {
-//                $preCmd ="";
-//            }
-//            if (!empty($next_path)){
-//                $next_path_real = "$next_path/nextflow";
-//            } else {
-//                $next_path_real  = "nextflow";
-//            }
-//            $run_path_real = "$outdir/run{$project_pipeline_id}";
-//            chdir('../');
-//            $server_dir = getcwd();
-//            chdir('ajax');
-//            $log_path_server = "$server_dir/{$this->run_path}/run{$project_pipeline_id}";
-//            //run command
-//            if ($executor == "local"){
-//            $exec_next_all = "cd $run_path_real && $next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 ";
-//            } else if ($executor == "lsf"){  
-//            $exec_string = "bsub -q $next_queue -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
-//            $exec_next_all = "cd $run_path_real && $exec_string \"$next_path_real nextflow.nf $next_inputs -with-trace >> $log_path_server/log.txt 2>&1 \">> $log_path_server/log.txt 2>&1";
-//            } else if ($executor == "sge"){
-//                
-//            } else if ($executor == "slurm"){
-//            }
-//		    $cmd = "cd $run_path_real $preCmd && $exec_next_all & echo $! &";
-//            $this->writeLog($project_pipeline_id, $cmd,'a');
-//            $pid_command = popen($cmd, "r" );
-//            $pid = fread($pid_command, 2096);
-//		    $this->updateRunPid($project_pipeline_id, $pid, $ownerID);
-//		    pclose($pid_command);
-//            $log_array['next_submit_pid'] = $pid;
-//            return json_encode($log_array);
-            
-        } else if ($profileType == "cluster") {
+        if ($profileType == "cluster") {
             //get nextflow executor parameters
             list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd) = $this->getNextExecParam($project_pipeline_id,$ownerID);
             //get username and hostname and exec info for connection
@@ -915,14 +839,8 @@ class dbfuncs {
         $sql = "SELECT * FROM amazon_credentials WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
-    public function getProfileLocal($ownerID) {
-        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID'";
-        return self::queryTable($sql);    
-    }
-    public function getProfileLocalbyID($id,$ownerID) {
-        $sql = "SELECT id, name, executor, next_path, cmd, next_time, next_queue, next_memory, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu FROM profile_local WHERE owner_id = '$ownerID' and id = '$id'";
-        return self::queryTable($sql);    
-    }
+
+
      public function getSSH($ownerID) {
         $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
