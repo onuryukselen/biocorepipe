@@ -140,7 +140,7 @@ class dbfuncs {
     
      //get nextflow input parameters
     function getNextInputs ($executor, $project_pipeline_id, $ownerID ){
-        $allinputs = json_decode($this->getProjectPipelineInputs("", $project_pipeline_id, $ownerID));
+        $allinputs = json_decode($this->getProjectPipelineInputs($project_pipeline_id, $ownerID));
         $next_inputs="";
         if ($executor === "local"){
             foreach ($allinputs as $inputitem):
@@ -1106,14 +1106,6 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     
-    public function getJoinGroups($ownerID) {
-        $sql = "SELECT id, name FROM groups WHERE id NOT IN (
-		SELECT g_id
-		FROM user_group
-		WHERE u_id = '$ownerID')";
-        return self::queryTable($sql);
-    }
-    
     public function viewGroupMembers($g_id) {
         $sql = "SELECT id, username
 	           FROM users
@@ -1448,13 +1440,8 @@ class dbfuncs {
                 WHERE process_id='$old_id'";
         return self::insTable($sql);
     }
-    
-    
-    public function getProjectPipelineInputs($g_num, $project_pipeline_id,$ownerID) {
-        $where = " where ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63 OR (ug.u_id ='$ownerID' and ppi.perms = 15))" ; 
-        if (isset($g_num)){
-			 $where = " where ppi.g_num= '$g_num' AND ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63 OR (ug.u_id ='$ownerID' and ppi.perms = 15))" ; 
-		}
+    public function getProjectPipelineInputs($project_pipeline_id,$ownerID) {
+        $where = " where ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63 OR (ug.u_id ='$ownerID' and ppi.perms = 15))"; 
 		$sql = "SELECT DISTINCT ppi.id, i.id as input_id, i.name, ppi.given_name, ppi.g_num
                 FROM project_pipeline_input ppi
                 INNER JOIN input i ON i.id = ppi.input_id
@@ -1462,8 +1449,15 @@ class dbfuncs {
                 $where";
 		return self::queryTable($sql);
     }
-
-    
+    public function getProjectPipelineInputsByGnum($g_num, $project_pipeline_id,$ownerID) {
+        $where = " where ppi.g_num= '$g_num' AND ppi.project_pipeline_id = '$project_pipeline_id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63 OR (ug.u_id ='$ownerID' and ppi.perms = 15))"; 
+		$sql = "SELECT DISTINCT ppi.id, i.id as input_id, i.name, ppi.given_name, ppi.g_num
+                FROM project_pipeline_input ppi
+                INNER JOIN input i ON i.id = ppi.input_id
+                LEFT JOIN user_group ug ON ppi.group_id=ug.g_id
+                $where";
+		return self::queryTable($sql);
+    }
     public function getProjectPipelineInputsById($id,$ownerID) {
         $where = " where ppi.id= '$id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
 		$sql = "SELECT ppi.id, i.id as input_id, i.name
@@ -1472,7 +1466,6 @@ class dbfuncs {
                 $where";
 		return self::queryTable($sql);
     }
-
     public function insertProcessParameter($sname, $process_id, $parameter_id, $type, $closure, $operator, $reg_ex, $perms, $group_id, $ownerID) {
         $sql = "INSERT INTO process_parameter(sname, process_id, parameter_id, type, closure, operator, reg_ex, owner_id, date_created, date_modified, last_modified_user, perms, group_id) 
                 VALUES ('$sname', '$process_id', '$parameter_id', '$type', '$closure', '$operator', '$reg_ex', '$ownerID', now(), now(), '$ownerID', '$perms', '$group_id')";

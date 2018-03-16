@@ -1,4 +1,3 @@
-<<<<<<< 2018-03-15
 <?php
 if (!isset($_SESSION) || !is_array($_SESSION)) session_start();
 $_SESSION['ownerID'] = '1';
@@ -24,9 +23,24 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
+    /**
+     * @depends testInsertParameter
+     */
+    public function testupdateParameter() {
+	ob_start();
+		$_REQUEST['p'] = 'saveParameter';
+		$_REQUEST['id'] = "1";
+		$_REQUEST['name'] = "inputDir";
+		$_REQUEST['qualifier'] = "val";
+		$_REQUEST['file_type'] = "inputDir_update";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->file_type,'inputDir_update');
+		ob_end_clean();
+	}
     public function testInsertUser() {
 		ob_start();
 		$_REQUEST['p'] = 'saveUser';
+		$_REQUEST['id'] = '';
 		$_REQUEST['google_id'] = '111';
 		$_REQUEST['name'] = "onur yukselen";
 		$_REQUEST['google_image'] = "https://lh4.googleusercontent.com/-h7_FO3k9sB4/AAAAAAAAAAI/AAAAAAAAAAA/AGi4gfw9MqsLVfHz5xXsoOzA1KIZ1yLwXw/s96-c/photo.jpg";
@@ -42,6 +56,7 @@ class ajaxQueryTest extends TestCase
     public function testInsertUser2() {
 		ob_start();
 		$_REQUEST['p'] = 'saveUser';
+		$_REQUEST['id'] = '';
 		$_REQUEST['google_id'] = '222';
 		$_REQUEST['name'] = "member name";
 		$_REQUEST['google_image'] = "https://lh4.googleusercontent.com/-h7_FO3k9sB4/AAAAAAAAAAI/AAAAAAAAAAA/AGi4gfw9MqsLVfHz5xXsoOzA1KIZ1yLwXw/s96-c/photo.jpg";
@@ -49,6 +64,23 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['email'] = "member@gmail.com";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'2');
+		ob_end_clean();
+	}
+     /**
+     * @depends testInsertUser
+     */
+    public function testUpdateUser() {
+		ob_start();
+		$_REQUEST['p'] = 'saveUser';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['google_id'] = '111';
+		$_REQUEST['name'] = "onur yukselen";
+		$_REQUEST['google_image'] = "https://lh6.googleusercontent.com/-j-GMmh9Xzd0/AAAAAAAAAAI/AAAAAAAAByM/HnRa5tGHpLU/s96-c/photo.jpg";
+		$_REQUEST['username'] = "admin";
+		$_REQUEST['email'] = "admin@gmail.com";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->google_image,'https://lh6.googleusercontent.com/-j-GMmh9Xzd0/AAAAAAAAAAI/AAAAAAAAByM/HnRa5tGHpLU/s96-c/photo.jpg');
 		ob_end_clean();
 	}
     public function testInsertProject() {
@@ -60,12 +92,39 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
-       public function testInsertProcessGroup() {
+    /**
+     * @depends testInsertProject
+     */
+    public function testUpdateProject() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProject';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['name'] = 'test_project';
+		$_REQUEST['summary'] = "testSummaryUpdate";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->id,'testSummaryUpdate');
+		ob_end_clean();
+	}
+    public function testInsertProcessGroup() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProcessGroup';
-		$_REQUEST['group_name'] = 'test_menu';
+		$_REQUEST['group_name'] = 'test_menu_before';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProcessGroup
+     */
+    public function testUpdateProcessGroup() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProcessGroup';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['group_name'] = 'test_menu';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->group_name,'test_menu');
 		ob_end_clean();
 	}
     public function testInsertProcess() {
@@ -82,23 +141,80 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['rev_id'] = '';
 		$_REQUEST['rev_comment'] = '';
 		$_REQUEST['group'] = '';
-		$_REQUEST['perms'] = '3';
+		$_REQUEST['perms'] = '15';
 		$_REQUEST['publish'] = 'false';
 		$_REQUEST['publish'] = 'false';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProcess
+     */
+     public function testUpdateProcess() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProcess';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['name'] = 'test_process';
+		$_REQUEST['process_gid'] = 'NaN';
+		$_REQUEST['summary'] = 'test_summary';
+		$_REQUEST['process_group_id'] = '1';
+		$_REQUEST['script'] = 'test_script';
+		$_REQUEST['script_header'] = 'update_script_header';
+		$_REQUEST['script_mode'] = 'perl';
+		$_REQUEST['script_mode_header'] = 'python';
+		$_REQUEST['rev_id'] = '';
+		$_REQUEST['rev_comment'] = '';
+		$_REQUEST['group'] = '';
+		$_REQUEST['perms'] = '63';
+		$_REQUEST['publish'] = 'false';
+		$_REQUEST['publish'] = 'false';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->perms,'63');
+		$this->assertEquals(json_decode($data)[0]->script_header,'update_script_header');
+		ob_end_clean();
+	}
+    
+     /**
+     * @depends testUpdateProcessGroup
+     * @depends testUpdateProcess
+     */
+    public function testgetAllProcessGroups() {
+		ob_start();
+		$_REQUEST['p'] = 'getAllProcessGroups';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu');
+		$this->assertEquals(json_decode($data)[0]->perms, '63');
 		ob_end_clean();
 	}
     public function testInsertInput() {
 		ob_start();
 		$_REQUEST['p'] = 'saveInput';
-		$_REQUEST['name'] = "testinput";
+		$_REQUEST['name'] = "testinput_before_update";
+		$_REQUEST['id'] = "";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
+    /**
+     * @depends testInsertInput
+     */
+        public function testUpdateInput() {
+		ob_start();
+		$_REQUEST['p'] = 'saveInput';
+		$_REQUEST['name'] = "testinput";
+		$_REQUEST['id'] = "1";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->id,'testinput');
+		ob_end_clean();
+	}
+    
 
         //***discuss
+        //also update version is missing
 //    public function testInsertSSH() {
 //		ob_start();
 //		$_REQUEST['p'] = 'saveSSHKeys';
@@ -111,15 +227,35 @@ class ajaxQueryTest extends TestCase
 //		$this->assertEquals(json_decode($data)->id,'1');
 //		ob_end_clean();
 //	}
+    
+    
+    
     public function testInsertAmz() {
 		ob_start();
 		$_REQUEST['p'] = 'saveAmzKeys';
 		$_REQUEST['name'] = "amzKey";
+		$_REQUEST['id'] = "";
 		$_REQUEST['amz_def_reg'] = "test1";
 		$_REQUEST['amz_acc_key'] = "test2";
 		$_REQUEST['amz_suc_key'] = "test3";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertAmz
+     */
+    public function testupdateAmz() {
+		ob_start();
+		$_REQUEST['p'] = 'saveAmzKeys';
+		$_REQUEST['id'] = "1";
+		$_REQUEST['name'] = "amzKey";
+		$_REQUEST['amz_def_reg'] = "test1_up";
+		$_REQUEST['amz_acc_key'] = "test2_up";
+		$_REQUEST['amz_suc_key'] = "test3_up";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->amz_def_reg,'test1_up');
 		ob_end_clean();
 	}
     
@@ -146,6 +282,60 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'2');
 		ob_end_clean();
 	}
+    /**
+     * @depends testInsertProfileCluster
+     */
+    public function testUpdateProfileCluster() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProfileCluster';
+		$_REQUEST['id'] = '2';
+		$_REQUEST['name'] = "localtest";
+		$_REQUEST['cmd'] = "source /etc/profile";
+		$_REQUEST['executor'] = "local";
+		$_REQUEST['next_memory'] = "";
+		$_REQUEST['next_queue'] = "short";
+		$_REQUEST['next_time'] = "";
+		$_REQUEST['next_cpu'] = "";
+		$_REQUEST['executor_job'] = "local";
+		$_REQUEST['job_memory'] = "";
+		$_REQUEST['job_queue'] = "short";
+		$_REQUEST['job_time'] = "";
+		$_REQUEST['job_cpu'] = "";
+		$_REQUEST['username'] = "docker";
+		$_REQUEST['hostname'] = "localhost";
+		$_REQUEST['next_path'] = "";
+		$_REQUEST['ssh_id'] = "1";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'2');
+		$this->assertEquals(json_decode($data)[0]->next_queue,'short');
+		$this->assertEquals(json_decode($data)[0]->job_queue,'short');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProfileCluster
+     */
+    public function testgetProfileCluster() {
+		ob_start();
+		$_REQUEST['p'] = 'getProfileCluster';
+        $_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'localtest');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProfileCluster
+     */
+    public function testgetProfileClusterbyId() {
+		ob_start();
+		$_REQUEST['p'] = 'getProfileCluster';
+		$_REQUEST['id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'localtest');
+		ob_end_clean();
+	}
+    
     public function testInsertProfileAmazon() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProfileAmazon';
@@ -173,6 +363,78 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
+    
+    /**
+     * @depends testInsertProfileAmazon
+     */
+    public function testUpdateProfileAmazon() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProfileAmazon';
+		$_REQUEST['id'] = "1";
+		$_REQUEST['name'] = "amazontest";
+		$_REQUEST['cmd'] = "";
+		$_REQUEST['executor'] = "local";
+		$_REQUEST['next_memory'] = "";
+		$_REQUEST['next_queue'] = "";
+		$_REQUEST['next_time'] = "";
+		$_REQUEST['next_cpu'] = "";
+		$_REQUEST['executor_job'] = "local";
+		$_REQUEST['job_memory'] = "";
+		$_REQUEST['job_queue'] = "long";
+		$_REQUEST['job_time'] = "";
+		$_REQUEST['job_cpu'] = "";
+		$_REQUEST['ins_type'] = "";
+		$_REQUEST['image_id'] = "";
+		$_REQUEST['subnet_id'] = "";
+		$_REQUEST['shared_storage_id'] = "";
+		$_REQUEST['shared_storage_mnt'] = "";
+		$_REQUEST['next_path'] = "";
+		$_REQUEST['ssh_id'] = "1";
+		$_REQUEST['amazon_cre_id'] = "1";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->job_queue,'long');
+		ob_end_clean();
+	}
+    
+    /**
+     * @depends testInsertProfileAmazon
+     */
+    public function testgetProfileAmazon() {
+		ob_start();
+		$_REQUEST['p'] = 'getProfileAmazon';
+        $_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'amazontest');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProfileAmazon
+     */
+    public function testgetProfileAmazonById() {
+		ob_start();
+		$_REQUEST['p'] = 'getProfileAmazon';
+		$_REQUEST['id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'amazontest');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProfileAmazon
+     */
+    public function testgetProfileAmazonById() {
+		ob_start();
+		$_REQUEST['p'] = 'updateAmazonProStatus';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['status'] = 'update';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->status,'update');
+		ob_end_clean();
+	}
+    
     public function testInsertProjectInput() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProjectInput';
@@ -190,17 +452,15 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
- 
-
     //not working
-//    public function testCheckLoginDecline() {
-//		ob_start();
-//		$_REQUEST['p'] = 'checkLogin';
-//        unset($google_id);
-//		include('ajaxquery.php');
-//		$this->assertEquals(json_decode($data)->error,'1');
-//		ob_end_clean();
-//	}
+    public function testCheckLoginDecline() {
+		ob_start();
+		$_REQUEST['p'] = 'checkLogin';
+        $_SESSION['google_id']="";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->error,'1');
+		ob_end_clean();
+	}
 
     public function testInsertGroup() {
 		ob_start();
@@ -302,15 +562,35 @@ class ajaxQueryTest extends TestCase
     public function testInsertProPipeInput() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProPipeInput';
+		$_REQUEST['id'] = "";
 		$_REQUEST['input_id'] = "1";
 		$_REQUEST['project_id'] = "1";
 		$_REQUEST['pipeline_id'] = "1";
 		$_REQUEST['project_pipeline_id'] = "1";
 		$_REQUEST['g_num'] = "0";
 		$_REQUEST['given_name'] = "test_inputparam";
-		$_REQUEST['qualifier'] = "test_inputparam";
+		$_REQUEST['qualifier'] = "val";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertProPipeInput
+     */
+    public function testUpdateProPipeInput() {
+		ob_start();
+		$_REQUEST['p'] = 'saveProPipeInput';
+		$_REQUEST['id'] = "1";
+		$_REQUEST['input_id'] = "1";
+		$_REQUEST['project_id'] = "1";
+		$_REQUEST['pipeline_id'] = "1";
+		$_REQUEST['project_pipeline_id'] = "1";
+		$_REQUEST['g_num'] = "0";
+		$_REQUEST['given_name'] = "test_inputparam";
+		$_REQUEST['qualifier'] = "file";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->qualifier,'file');
 		ob_end_clean();
 	}
     
@@ -351,7 +631,7 @@ class ajaxQueryTest extends TestCase
 	}
 
     /**
-     * @depends testInsertProject
+     * @depends testUpdateProject
      */
 	public function testGetProjects() {
 		ob_start();
@@ -360,7 +640,7 @@ class ajaxQueryTest extends TestCase
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id,'1');
 		$this->assertEquals(json_decode($data)[0]->name,'test_project');
-		$this->assertEquals(json_decode($data)[0]->summary,'testSummary');
+		$this->assertEquals(json_decode($data)[0]->summary,'testSummaryUpdate');
 		ob_end_clean();
 	}
     /**
@@ -395,6 +675,7 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name,'inputDir');
 		ob_end_clean();
 	}
+
     /**
      * @depends testInsertGroup
      * @depends testInsertUser
@@ -406,6 +687,19 @@ class ajaxQueryTest extends TestCase
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id,'2');
 		$this->assertEquals(json_decode($data)[0]->username,'member');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertGroup
+     * @depends testInsertUser
+     */
+    public function testviewGroupMembers() {
+		ob_start();
+		$_REQUEST['p'] = 'viewGroupMembers';
+		$_REQUEST['g_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->username,'admin');
 		ob_end_clean();
 	}
     /**
@@ -422,6 +716,17 @@ class ajaxQueryTest extends TestCase
     /**
      * @depends testInsertGroup
      */
+    public function testgetAllGroups() {
+		ob_start();
+		$_REQUEST['p'] = 'getAllGroups';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_group');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertGroup
+     */
     public function testgetUserGroups() {
 		ob_start();
 		$_REQUEST['p'] = 'getUserGroups';
@@ -430,6 +735,9 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name,'test_group');
 		ob_end_clean();
 	}
+
+    
+    
     /**
      * @depends testInsertUser
      */
@@ -454,7 +762,7 @@ class ajaxQueryTest extends TestCase
 	}
     /**
      * @depends testInsertProjectPipeline
-     * @depends testInsertProject
+     * @depends testUpdateProject
      */
     public function testgetProjectPipelines() {
 		ob_start();
@@ -467,8 +775,8 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
     /**
-     * @depends testInsertProject
-     * @depends testInsertInput
+     * @depends testUpdateProject
+     * @depends testUpdateInput
      */
     public function testgetProjectInputs() {
 		ob_start();
@@ -480,8 +788,8 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
     /**
-     * @depends testInsertProject
-     * @depends testInsertInput
+     * @depends testUpdateProject
+     * @depends testUpdateInput
      */
     public function testgetProjectInput() {
 		ob_start();
@@ -494,32 +802,47 @@ class ajaxQueryTest extends TestCase
 	}
     
     /**
-     * @depends testInsertProject
-     * @depends testInsertInput
+     * @depends testUpdateProject
+     * @depends testUpdateInput
      * @depends testInsertProjectPipeline
      * @depends testInsertProPipeInput
      */
-//    public function testgetProjectPipelineInputs() {
-//		ob_start();
-//		$_REQUEST['p'] = 'getProjectPipelineInputs';
-//		$_REQUEST['g_num'] = '0';
-//		$_REQUEST['project_pipeline_id'] = '1';
-//        $_REQUEST['id'] = '';
-//		include('ajaxquery.php');
-//		$this->assertEquals(json_decode($data)[0]->id, '1');
-//		$this->assertEquals(json_decode($data)[0]->input_id, '1');
-//		$this->assertEquals(json_decode($data)[0]->given_name, 'test_inputparam');
-//		ob_end_clean();
-//	}
+    public function testgetProjectPipelineInputsByGnum() {
+		ob_start();
+		$_REQUEST['p'] = 'getProjectPipelineInputs';
+		$_REQUEST['g_num'] = '0';
+		$_REQUEST['project_pipeline_id'] = '1';
+        $_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->input_id, '1');
+		$this->assertEquals(json_decode($data)[0]->given_name, 'test_inputparam');
+		ob_end_clean();
+	}
     /**
-     * @depends testInsertProject
-     * @depends testInsertInput
+     * @depends testUpdateProject
+     * @depends testUpdateInput
+     * @depends testInsertProjectPipeline
+     */
+    public function testgetProjectPipelineInputs() {
+		ob_start();
+		$_REQUEST['p'] = 'getProjectPipelineInputs';
+		$_REQUEST['project_pipeline_id'] = '1';
+		$_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->input_id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
+		ob_end_clean();
+	}
+    /**
+     * @depends testUpdateProject
+     * @depends testUpdateInput
      * @depends testInsertProjectPipeline
      */
     public function testgetProjectPipelineInputsById() {
 		ob_start();
 		$_REQUEST['p'] = 'getProjectPipelineInputs';
-		$_REQUEST['g_num'] = '0';
 		$_REQUEST['project_pipeline_id'] = '1';
 		$_REQUEST['id'] = '1';
 		include('ajaxquery.php');
@@ -529,7 +852,7 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
     /**
-     * @depends testInsertInput
+     * @depends testUpdateInput
      */
     public function testgetInputs() {
 		ob_start();
@@ -540,7 +863,7 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
     /**
-     * @depends testInsertInput
+     * @depends testUpdateInput
      */
     public function testgetInputsById() {
 		ob_start();
@@ -551,19 +874,9 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
 		ob_end_clean();
 	}
+   
     /**
-     * @depends testInsertProcessGroup
-     */
-    public function testgetAllProcessGroups() {
-		ob_start();
-		$_REQUEST['p'] = 'getAllProcessGroups';
-		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '1');
-		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu');
-		ob_end_clean();
-	}
-    /**
-     * @depends testInsertProcessGroup
+     * @depends testUpdateProcessGroup
      */
     public function testgetEditDelProcessGroups() {
 		ob_start();
