@@ -424,7 +424,7 @@ class ajaxQueryTest extends TestCase
     /**
      * @depends testInsertProfileAmazon
      */
-    public function testgetProfileAmazonById() {
+    public function testupdateAmazonProStatus() {
 		ob_start();
 		$_REQUEST['p'] = 'updateAmazonProStatus';
 		$_REQUEST['id'] = '1';
