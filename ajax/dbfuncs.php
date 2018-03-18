@@ -99,9 +99,7 @@ class dbfuncs {
                   }
               }  
         } else if ($type == 'docker'){
-            
         }
-        
     }
     
     //type:w creates new file
@@ -147,9 +145,11 @@ class dbfuncs {
                 $next_inputs.="--".$inputitem->{'given_name'}." \\\"".$inputitem->{'name'}."\\\" ";
             endforeach;
         } else if ($executor !== "local"){
-            foreach ($allinputs as $inputitem):
-                $next_inputs.="--".$inputitem->{'given_name'}." \\\\\\\"".$inputitem->{'name'}."\\\\\\\" ";
-            endforeach;
+            if (!empty($allinputs)){
+                foreach ($allinputs as $inputitem):
+                    $next_inputs.="--".$inputitem->{'given_name'}." \\\\\\\"".$inputitem->{'name'}."\\\\\\\" ";
+                endforeach;
+            }
         }
         return $next_inputs;
         
@@ -322,24 +322,7 @@ class dbfuncs {
         fwrite($file, $configText);
         fclose($file);
         chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.config", 0755);
-        if ($profileType == "local") {
-//            // get outputdir
-//            $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
-//            $outdir = $proPipeAll[0]->{'output_dir'};
-//            $run_path_real = "$outdir/run{$project_pipeline_id}";
-//            //check nextflow file
-//            $log_path_server = "../{$this->run_path}/run{$project_pipeline_id}";
-//            if (!file_exists($log_path_server."/nextflow.nf")) die(json_encode('Nextflow file is not found!'));
-//            if (!file_exists($log_path_server."/nextflow.config")) die(json_encode('Nextflow config file is not found!'));
-//            //mkdir and copy nextflow and config file to run directory in local
-//            mkdir("$run_path_real", 0755, true);
-//            $cmd = "cp $log_path_server/nextflow.nf $run_path_real/nextflow.nf && cp $log_path_server/nextflow.config $run_path_real/nextflow.config";
-//            $this->writeLog($project_pipeline_id,$cmd,'w');
-//            $pid_command = popen($cmd, 'r');//copy file
-//            $pid = fread($pid_command, 2096);
-//            pclose($pid_command);
-//            chmod("$run_path_real/nextflow.nf", 0755);
-        } else if ($profileType == "cluster") {
+        if ($profileType == "cluster") {
             // get outputdir
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
@@ -699,9 +682,6 @@ class dbfuncs {
         $log_array['logAmzStart'] = $logAmzStart;
         return $log_array;
     }
-    
-    
-    
     public function checkAmazonStatus($id,$ownerID) {
         //check status 
         $amzStat = json_decode($this->getAmazonStatus($id,$ownerID)); 
@@ -787,7 +767,7 @@ class dbfuncs {
         }
     }
     
-            //check cloud list
+    //check cloud list
     public function runAmazonCloudCheck($id,$ownerID){
         $cmd = "cd {$this->amz_path}/pro_$id && rm -f logAmzCloudList.txt && nextflow cloud list cluster$id >> logAmzCloudList.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'cloudlist', '');
@@ -839,9 +819,7 @@ class dbfuncs {
         $sql = "SELECT * FROM amazon_credentials WHERE owner_id = '$ownerID' and id = '$id'";
         return self::queryTable($sql);    
     }
-
-
-     public function getSSH($ownerID) {
+    public function getSSH($ownerID) {
         $sql = "SELECT * FROM ssh WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);    
     }
@@ -868,12 +846,10 @@ class dbfuncs {
         WHERE p.owner_id = '$ownerID' and p.id = '$id'";
         return self::queryTable($sql);    
     }
-    
     public function insertProfileLocal($name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
         $sql = "INSERT INTO profile_local (name, executor, next_path, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, owner_id, perms, date_created, date_modified, last_modified_user) VALUES ('$name', '$executor','$next_path', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-
     public function updateProfileLocal($id, $name, $executor,$next_path, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ownerID) {
         $sql = "UPDATE profile_local SET name='$name', executor='$executor', next_path='$next_path', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu',  last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
@@ -883,7 +859,6 @@ class dbfuncs {
         $sql = "INSERT INTO profile_cluster(name, executor, next_path, username, hostname, cmd, next_memory, next_queue, next_time, next_cpu, executor_job, job_memory, job_queue, job_time, job_cpu, ssh_id, owner_id, perms, date_created, date_modified, last_modified_user) VALUES('$name', '$executor', '$next_path', '$username', '$hostname', '$cmd', '$next_memory', '$next_queue', '$next_time', '$next_cpu', '$executor_job', '$job_memory', '$job_queue', '$job_time', '$job_cpu', '$ssh_id', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-
     public function updateProfileCluster($id, $name, $executor,$next_path, $username, $hostname, $cmd, $next_memory, $next_queue, $next_time, $next_cpu, $executor_job, $job_memory, $job_queue, $job_time, $job_cpu, $ssh_id, $ownerID) {
         $sql = "UPDATE profile_cluster SET name='$name', executor='$executor', next_path='$next_path', username='$username', hostname='$hostname', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', ssh_id='$ssh_id', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
@@ -900,7 +875,6 @@ class dbfuncs {
         $sql = "UPDATE profile_amazon SET nodes='$nodes', autoscale_check='$autoscale_check', autoscale_maxIns='$autoscale_maxIns', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    
     public function updateAmazonProStatus($id, $status, $ownerID) {
         $sql = "UPDATE profile_amazon SET status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
@@ -942,10 +916,13 @@ class dbfuncs {
         if ($ownerID == ""){
         $ownerID ="''";
         } else {
-            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-            if ($userRole == "admin"){
-                $sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms FROM parameter p";
-                return self::queryTable($sql);
+            $userRoleCheck = $this->getUserRole($ownerID);
+            if (isset(json_decode($userRoleCheck)[0])){
+                $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                if ($userRole == "admin"){
+                    $sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms FROM parameter p";
+                    return self::queryTable($sql);
+                }
             }
         }
         
@@ -978,7 +955,6 @@ class dbfuncs {
         $sql = "INSERT INTO process_group (owner_id, group_name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$group_name', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
-
     public function updateProcessGroup($id, $group_name, $ownerID) {
         $sql = "UPDATE process_group SET group_name='$group_name', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
@@ -993,20 +969,16 @@ class dbfuncs {
         $sql = "DELETE FROM process_group WHERE id = '$id'";
         return self::runSQL($sql);
     }
-
     // --------- Process -----------
-
-//    public function getAllProcesses() {
-//        $sql = "SELECT id, name, script FROM process";
-//        return self::queryTable($sql);
-//    }
-
     public function getAllProcessGroups($ownerID) {
-        $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-        if ($userRole == "admin"){
-            $sql = "SELECT DISTINCT pg.id, pg.group_name 
-            FROM process_group pg";
-            return self::queryTable($sql);
+        $userRoleCheck = $this->getUserRole($ownerID);
+        if (isset(json_decode($userRoleCheck)[0])){
+            $userRole = json_decode($userRoleCheck)[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT DISTINCT pg.id, pg.group_name 
+                FROM process_group pg";
+                return self::queryTable($sql);
+            }
         }
         $sql = "SELECT DISTINCT pg.id, pg.group_name 
         FROM process_group pg
@@ -1018,7 +990,6 @@ class dbfuncs {
         $sql = "SELECT id, group_name FROM process_group WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);
     }
-    
     public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $script_header, $rev_id, $rev_comment, $group, $perms, $publish, $script_mode, $script_mode_header, $ownerID) {
         $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, script_header, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user, perms, group_id, publish, script_mode, script_mode_header) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$script_header', '$rev_id','$rev_comment', '$ownerID', now(), now(), '$ownerID', '$perms', '$group', '$publish','$script_mode', '$script_mode_header')";
         return self::insTable($sql);
@@ -1028,7 +999,6 @@ class dbfuncs {
         $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', script_header='$script_header',  last_modified_user='$ownerID', group_id='$group', perms='$perms', publish='$publish', script_mode='$script_mode', script_mode_header='$script_mode_header' WHERE id = '$id'";
         return self::runSQL($sql);
     }
-
     public function removeProcess($id) {
         $sql = "DELETE FROM process WHERE id = '$id'";
         return self::runSQL($sql);
@@ -1085,7 +1055,6 @@ class dbfuncs {
         $sql = "DELETE FROM project_input WHERE project_id = '$id'";
         return self::runSQL($sql);
     }
-    
     public function removeProcessByProcessGroupID($process_group_id) {
         $sql = "DELETE FROM process WHERE process_group_id = '$process_group_id'";
         return self::runSQL($sql);
@@ -1105,7 +1074,6 @@ class dbfuncs {
                 INNER JOIN users u ON g.owner_id = u.id $where";
 		return self::queryTable($sql);
     }
-    
     public function viewGroupMembers($g_id) {
         $sql = "SELECT id, username
 	           FROM users
@@ -1115,7 +1083,6 @@ class dbfuncs {
 		          WHERE g_id = '$g_id')";
         return self::queryTable($sql);
     }
-    
     public function getMemberAdd($g_id) {
         $sql = "SELECT id, username
 	           FROM users
@@ -1148,12 +1115,10 @@ class dbfuncs {
         $sql = "INSERT INTO user_group (g_id, u_id, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$g_id', '$u_id', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
-
     public function updateGroup($id, $name, $ownerID) {
         $sql = "UPDATE groups SET name= '$name', last_modified_user = '$ownerID', date_modified = now() WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    
 //    ----------- Projects   ---------
     public function getProjects($id,$ownerID) {
         $where = " where p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)"; 
@@ -1171,12 +1136,10 @@ class dbfuncs {
         $sql = "INSERT INTO project(name, summary, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$summary', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
-
     public function updateProject($id, $name, $summary, $ownerID) {
         $sql = "UPDATE project SET name= '$name', summary= '$summary', last_modified_user = '$ownerID', date_modified = now() WHERE id = '$id'";
         return self::runSQL($sql);
     }
-
 //    ----------- Runs     ---------
     public function insertRun($project_pipeline_id, $status, $attempt, $ownerID) {
         $sql = "INSERT INTO run (project_pipeline_id, run_status, attempt, owner_id, perms, date_created, date_modified, last_modified_user) VALUES 
@@ -1238,7 +1201,6 @@ class dbfuncs {
         $sql = "SELECT pid FROM profile_amazon WHERE id = '$id'";
 		return self::queryTable($sql);
     }
-    
     public function checkRunPid($pid,$profileType,$profileId,$ownerID) {
         if ($profileType == 'local'){
             if (file_exists( "/proc/$pid" )){
@@ -1283,7 +1245,6 @@ class dbfuncs {
             return json_encode($log_array);
         }
     }
-    
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
          if ($profileType == 'cluster'){
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
@@ -1313,9 +1274,7 @@ class dbfuncs {
              return json_encode($nextflow_log);
         }
     }
-    
 //    ----------- Inputs, Project Inputs   ---------
-    
     public function getInputs($id,$ownerID) {
         $where = " where i.owner_id = '$ownerID' OR i.perms = 63 OR (ug.u_id ='$ownerID' and i.perms = 15)"; 
 		if ($id != ""){
@@ -1354,7 +1313,6 @@ class dbfuncs {
 			('$name', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-
     public function updateInput($id, $name, $ownerID) {
         $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
@@ -1400,14 +1358,13 @@ class dbfuncs {
                     $where";    
 		return self::queryTable($sql);
     }
-    
      // ------- Project Pipeline Inputs  ------
     public function insertProPipeInput($project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name, $qualifier, $ownerID) {
         $sql = "INSERT INTO project_pipeline_input(project_pipeline_id, input_id, project_id, pipeline_id, g_num, given_name, qualifier, owner_id, perms, date_created, date_modified, last_modified_user) VALUES ('$project_pipeline_id', '$input_id', '$project_id', '$pipeline_id', '$g_num', '$given_name', '$qualifier', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-
     public function updateProPipeInput($id, $project_pipeline_id, $input_id, $project_id, $pipeline_id, $gNum, $given_name, $qualifier, $ownerID) {
+        settype($g_num, 'integer');
         $sql = "UPDATE project_pipeline_input SET project_pipeline_id='$project_pipeline_id', input_id='$input_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', given_name='$given_name', qualifier='$qualifier', last_modified_user ='$ownerID'  WHERE id = $id";
         return self::runSQL($sql);
     } 
@@ -1418,7 +1375,6 @@ class dbfuncs {
                 WHERE project_pipeline_id='$old_id'";
         return self::insTable($sql);
     }
-    
     public function duplicateProcess($new_process_gid, $new_name, $old_id, $ownerID) {
         $sql = "INSERT INTO process(process_group_id, name, summary, script, script_header, script_mode, script_mode_header, owner_id, perms, date_created, date_modified, last_modified_user, rev_id, process_gid) 
                 SELECT process_group_id, '$new_name', summary, script, script_header, script_mode, script_mode_header, '$ownerID', '3', now(), now(),'$ownerID', '0', '$new_process_gid'
@@ -1460,7 +1416,7 @@ class dbfuncs {
     }
     public function getProjectPipelineInputsById($id,$ownerID) {
         $where = " where ppi.id= '$id' AND (ppi.owner_id = '$ownerID' OR ppi.perms = 63)" ; 
-		$sql = "SELECT ppi.id, i.id as input_id, i.name
+		$sql = "SELECT ppi.id, ppi.qualifier, i.id as input_id, i.name
                 FROM project_pipeline_input ppi
                 INNER JOIN input i ON i.id = ppi.input_id
                 $where";
@@ -1486,7 +1442,6 @@ class dbfuncs {
         $sql = "DELETE FROM process_parameter WHERE parameter_id = '$parameter_id'";
         return self::runSQL($sql);
     }
-
     public function removeProcessParameterByProcessGroupID($process_group_id) {
         $sql = "DELETE process_parameter
                 FROM process_parameter 
@@ -1499,13 +1454,13 @@ class dbfuncs {
         return self::runSQL($sql);
     }
     //------- feedback ------
-        public function savefeedback($email,$message,$url) {
+    public function savefeedback($email,$message,$url) {
         $sql = "INSERT INTO feedback(email, message, url, date_created) VALUES 
 			('$email', '$message','$url', now())";
         return self::insTable($sql);
-        }
+    }
 // --------- New Pipeline -----------
-public function getPublicPipelines() {
+    public function getPublicPipelines() {
         $sql= "SELECT pip.id, pip.name, pip.summary, pip.pin, pip.pin_order
                FROM biocorepipe_save pip
                INNER JOIN (
@@ -1520,10 +1475,13 @@ public function getPublicPipelines() {
         if ($ownerID == ""){
             $ownerID ="''";
         } else {
-            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-            if ($userRole == "admin"){
-                $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p ";
-                return self::queryTable($sql);
+            $userRoleCheck = $this->getUserRole($ownerID);
+            if (isset(json_decode($userRoleCheck)[0])){
+                $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                if ($userRole == "admin"){
+                    $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p ";
+                    return self::queryTable($sql);
+                }
             }
 		}
 		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
@@ -1536,10 +1494,13 @@ public function getPublicPipelines() {
         if ($ownerID == ""){
             $ownerID ="''";
         }else {
-            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-            if ($userRole == "admin"){
-                $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
-                return self::queryTable($sql);
+            $userRoleCheck = $this->getUserRole($ownerID);
+            if (isset(json_decode($userRoleCheck)[0])){
+                $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                if ($userRole == "admin"){
+                    $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
+                    return self::queryTable($sql);
+                }
             }
 		}
 		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own  
@@ -1550,12 +1511,15 @@ public function getPublicPipelines() {
 	}
     public function getProcessRevision($process_gid,$ownerID) {
         if ($ownerID != ""){
-         $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-            if ($userRole == "admin"){
-                $sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own  
-                FROM process p
-                WHERE p.process_gid = '$process_gid'";
-                return self::queryTable($sql);
+         $userRoleCheck = $this->getUserRole($ownerID);
+            if (isset(json_decode($userRoleCheck)[0])){
+                $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                if ($userRole == "admin"){
+                    $sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own  
+                    FROM process p
+                    WHERE p.process_gid = '$process_gid'";
+                    return self::queryTable($sql);
+                }
             }
         }
 		$sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own  
@@ -1566,12 +1530,15 @@ public function getPublicPipelines() {
 	}
     public function getPipelineRevision($pipeline_gid,$ownerID) {
         if ($ownerID != ""){
-                $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-                if ($userRole == "admin"){
-                    $sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own FROM biocorepipe_save pip WHERE pip.pipeline_gid = '$pipeline_gid'";
-                    return self::queryTable($sql);
+                $userRoleCheck = $this->getUserRole($ownerID);
+                if (isset(json_decode($userRoleCheck)[0])){
+                    $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                    if ($userRole == "admin"){
+                        $sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own FROM biocorepipe_save pip WHERE pip.pipeline_gid = '$pipeline_gid'";
+                        return self::queryTable($sql);
+                    }
                 }
-            }
+        }
 		$sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own
         FROM biocorepipe_save pip
         LEFT JOIN user_group ug ON pip.group_id=ug.g_id
@@ -1698,6 +1665,7 @@ public function getPublicPipelines() {
         INNER JOIN project_pipeline_input pi ON pip.id=pi.pipeline_id
         WHERE pi.project_pipeline_id = '$id' and pi.owner_id='$ownerID'";
         $nodesArr = json_decode(self::queryTable($sql));
+        if (!empty($nodesArr[0])){
         $nodes = json_decode($nodesArr[0]->{"nodes"});
         foreach ($nodes as $item):
             if ($item[2] !== "inPro" && $item[2] !== "outPro"){
@@ -1708,6 +1676,7 @@ public function getPublicPipelines() {
                 $this->updateProcessGroupGroupPerm($proId, $group_id, $perms, $ownerID);
             }
         endforeach;
+        }
      }
     
     //update if user owns the process
@@ -1779,12 +1748,15 @@ public function getPublicPipelines() {
         if ($ownerID == ""){
             $ownerID ="''";
         } else {
-            $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-            if ($userRole == "admin"){
-                $sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username
-                FROM biocorepipe_save pip
-                INNER JOIN users u ON pip.owner_id = u.id";
-                return self::queryTable($sql);
+            $userRoleCheck = $this->getUserRole($ownerID);
+            if (isset(json_decode($userRoleCheck)[0])){
+                $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                if ($userRole == "admin"){
+                    $sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username
+                    FROM biocorepipe_save pip
+                    INNER JOIN users u ON pip.owner_id = u.id";
+                    return self::queryTable($sql);
+                }
             }
         }
         $where = " where pip.owner_id = '$ownerID' OR pip.perms = 63 OR (ug.u_id ='$ownerID' and pip.perms = 15)";
@@ -1797,13 +1769,16 @@ public function getPublicPipelines() {
 	}
 	public function loadPipeline($id,$ownerID) {
             if ($ownerID != ""){
-                $userRole = json_decode($this->getUserRole($ownerID))[0]->{'role'};
-                if ($userRole == "admin"){
-                    $sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own
-                    FROM biocorepipe_save pip 
-                    INNER JOIN users u ON pip.owner_id = u.id
-                    where pip.id = '$id'";
-                    return self::queryTable($sql);
+                $userRoleCheck = $this->getUserRole($ownerID);
+                if (isset(json_decode($userRoleCheck)[0])){
+                    $userRole = json_decode($userRoleCheck)[0]->{'role'};
+                    if ($userRole == "admin"){
+                        $sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own
+                        FROM biocorepipe_save pip 
+                        INNER JOIN users u ON pip.owner_id = u.id
+                        where pip.id = '$id'";
+                        return self::queryTable($sql);
+                    }
                 }
             }
 		$sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own

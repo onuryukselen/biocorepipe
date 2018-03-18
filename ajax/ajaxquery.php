@@ -228,6 +228,7 @@ else if ($p=="removeProjectPipeline"){
 }
 else if ($p=="removeProjectPipelineInputByGnum"){  
     $g_num = $_REQUEST['g_num'];
+    settype($g_num, 'integer');
     $data = $db -> removeProjectPipelineInputByGnum($id,$g_num);
 }
 else if ($p=="removeProjectInput"){   
@@ -432,6 +433,7 @@ else if ($p=="saveProPipeInput"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $g_num = $_REQUEST['g_num'];
+    settype($g_num, 'integer');
     $given_name = $_REQUEST['given_name'];
     $qualifier = $_REQUEST['qualifier'];
     if (!empty($id)) {

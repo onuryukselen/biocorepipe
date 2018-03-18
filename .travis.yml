@@ -41,7 +41,10 @@ after_script:
   - mysql -e "show databases;" -uroot
   - mysql -e "use biocorepipe; show tables;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM biocorepipe_save;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM parameter;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM process;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM process_group;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM process_parameter;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM project;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM users;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM user_group;" -uroot
@@ -49,6 +52,8 @@ after_script:
   - mysql -e "use biocorepipe; SELECT * FROM input;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM project_input;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM project_pipeline_input;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM profile_cluster;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM profile_amazon;" -uroot
 
   
   

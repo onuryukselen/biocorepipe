@@ -1,3 +1,7 @@
+17.03.2018 Version 0.1.00
+30 new test functions are added for travis.
+DB functions are upgraded for travis tests.
+
 16.03.2018 Version 0.0.99
 New test functions are added for travis.
 Error fixed in run pipeline page.
