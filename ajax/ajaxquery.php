@@ -29,31 +29,13 @@ if (isset($_REQUEST['id'])) {
     $nextText = urldecode($nextTextRaw);
 	$configTextRaw = $_REQUEST['configText'];
     $configText = urldecode($configTextRaw);
-    $status = "init";
     //create file and folders
     $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $amazon_cre_id, $ownerID);
     //run the script
     $data = $db->runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID);
-    //add run into run table
-    //check if $project_pipeline_id already exits
-    $checkRun = $db->getRun($project_pipeline_id,$ownerID);
-    $checkarray = json_decode($checkRun,true); 
-    $ppId = $checkarray[0]["project_pipeline_id"];
-    $attempt = $checkarray[0]["attempt"];
-    settype($attempt, 'integer');
-    if (empty($attempt)){
-        $attempt = 0;
-    }
-    $attempt = $attempt +1;
-    if (!empty($ppId)) {
-        $db->updateRunAttempt($project_pipeline_id, $attempt, $ownerID);    
-        $db->updateRunStatus($project_pipeline_id, $status, $ownerID);    
-        $db->insertRunLog($project_pipeline_id, $status, $ownerID);
-        
-    } else {
-        $db->insertRun($project_pipeline_id, $status, "1", $ownerID);
-        $db->insertRunLog($project_pipeline_id, $status, $ownerID);
-    }
+    //add run into run table and increase the run attempt
+    //$status = "init";
+    $db->updateRunAttemptLog("init", $project_pipeline_id, $ownerID);
 
 }
 else if ($p=="getServerLog"){

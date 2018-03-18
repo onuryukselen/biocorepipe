@@ -336,15 +336,18 @@ class dbfuncs {
             //check $userpky file exist
             if (!file_exists($userpky)) {
             $this->writeLog($project_pipeline_id,'Private key is not found!','a');
+            $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
             die(json_encode('Private key is not found!'));
             }
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             if (!file_exists($run_path_real."/nextflow.nf")) {
             $this->writeLog($project_pipeline_id,'Nextflow file is not found!','a');
+            $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
             die(json_encode('Nextflow file is not found!'));
             }
             if (!file_exists($run_path_real."/nextflow.config")) {
             $this->writeLog($project_pipeline_id,'Nextflow config file is not found!','a');
+            $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
             die(json_encode('Nextflow config file is not found!'));
             }
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
@@ -368,15 +371,18 @@ class dbfuncs {
             //check $userpky file exist
             if (!file_exists($userpky)) {
                 $this->writeLog($project_pipeline_id,'Private key is not found!','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('Private key is not found!'));
             }
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             if (!file_exists($run_path_real."/nextflow.nf")) {
                 $this->writeLog($project_pipeline_id,'Nextflow file is not found!','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('Nextflow file is not found!'));  
             }
             if (!file_exists($run_path_real."/nextflow.config")) {
                 $this->writeLog($project_pipeline_id,'Nextflow config file is not found!','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('Nextflow config file is not found!'));
             }
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
@@ -407,6 +413,7 @@ class dbfuncs {
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
             if (!file_exists($userpky)) {
                 $this->writeLog($project_pipeline_id,'Private key is not found!','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('Private key is not found!'));
             }
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -425,8 +432,9 @@ class dbfuncs {
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             $this->writeLog($project_pipeline_id,$cmd,'a');
             if (!$next_submit_pid) {
-                $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                die(json_encode('Connection failed while running nextflow in the cluster'));
+                $this->writeLog($project_pipeline_id,'ERROR: Connection failed! Please check your connection profile or internet connection','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
             }
             $log_array['next_submit_pid'] = $next_submit_pid;
             return json_encode($log_array);
@@ -440,15 +448,17 @@ class dbfuncs {
                      if ($matches[2] == " ") {
                          $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
                          if (!$next_submit_pid) {
-                             $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                             die(json_encode('Connection failed while running nextflow in the cluster'));
+                             $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                             $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                             die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
                          }
                             $log_array['next_submit_pid'] = $next_submit_pid;
                             return json_encode($log_array);
                      }
                 }
-                $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                die(json_encode('Connection failed. Nextflow file not exists in cluster'));
+                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
             }
         } else if ($profileType == "amazon") {
             //get nextflow executor parameters
@@ -465,6 +475,7 @@ class dbfuncs {
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
             if (!file_exists($userpky)) {
                 $this->writeLog($project_pipeline_id,'Private key is not found!','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('Private key is not found!'));
             }
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
@@ -483,8 +494,9 @@ class dbfuncs {
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             $this->writeLog($project_pipeline_id,$cmd,'a');
             if (!$next_submit_pid) {
-                $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                die(json_encode('Connection failed while running nextflow in the cluster'));
+                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
             }
             $log_array['next_submit_pid'] = $next_submit_pid;
             return json_encode($log_array);
@@ -498,18 +510,41 @@ class dbfuncs {
                      if ($matches[2] == " ") {
                          $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
                          if (!$next_submit_pid) {
-                             $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                             die(json_encode('Connection failed while running nextflow in the cluster'));
+                             $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                             $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                             die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
                          }
                          $log_array['next_submit_pid'] = $next_submit_pid;
                          return json_encode($log_array);
                      }
                 }
-                $this->writeLog($project_pipeline_id,'Connection failed while running nextflow in the cluster','a');
-                die(json_encode('Connection failed while running nextflow in the cluster'));
+                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
             }
         }
     }
+    
+    public function updateRunAttemptLog($status, $project_pipeline_id, $ownerID){
+        //check if $project_pipeline_id already exits
+        $checkRun = $this->getRun($project_pipeline_id,$ownerID);
+        $checkarray = json_decode($checkRun,true); 
+        $ppId = $checkarray[0]["project_pipeline_id"];
+        $attempt = $checkarray[0]["attempt"];
+        settype($attempt, 'integer');
+        if (empty($attempt)){
+            $attempt = 0;
+        }
+        $attempt = $attempt +1;
+        if (!empty($ppId)) {
+            $this->updateRunAttempt($project_pipeline_id, $attempt, $ownerID);    
+            $this->updateRunStatus($project_pipeline_id, $status, $ownerID);    
+            $this->insertRunLog($project_pipeline_id, $status, $ownerID);
+        } else {
+            $this->insertRun($project_pipeline_id, $status, "1", $ownerID);
+            $this->insertRunLog($project_pipeline_id, $status, $ownerID);
+        }
+     }
     
     public function generateKeys($ownerID) {
         $cmd = "rm -rf {$this->ssh_path}/.tmp$ownerID && mkdir -p {$this->ssh_path}/.tmp$ownerID && cd {$this->ssh_path}/.tmp$ownerID && ssh-keygen -f tkey -t rsa -N '' > logTemp.txt 2>&1 & echo $! &";

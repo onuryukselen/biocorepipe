@@ -9,7 +9,6 @@
 	              return true;
 	      return false;
 	  };
-
 	  function dragStart(event) {
 	      event.dataTransfer.setData("Text", event.target.id);
 	  }
@@ -21,17 +20,11 @@
 	  function allowDrop(event) {
 	      event.preventDefault();
 	  }
-
 	  refreshDataset()
-
 	  function refreshDataset() {
 	      processData = getValues({
 	          p: "getProcessData"
 	      })
-	      savedData = getValues({
-	          p: "getSavedPipelines"
-	      })
-	      addOption2LoadSelect()
 	      parametersData = getValues({
 	          p: "getAllParameters"
 	      })
@@ -133,7 +126,6 @@
 	      }) //all data from biocorepipe_save table
 
 	      if (Object.keys(sData).length > 0) {
-
 	          nodes = sData[0].nodes
 	          nodes = JSON.parse(nodes.replace(/'/gi, "\""))
 	          mG = sData[0].mainG
@@ -149,7 +141,6 @@
 	              gN = key.split("-")[1]
 	              loadPipeline(x, y, pId, name, gN)
 	          }
-
 	          ed = sData[0].edges
 	          ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
 	          for (var ee = 0; ee < ed.length; ee++) {
@@ -175,17 +166,14 @@
 	      mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	      //d3.select("#startArea").attr("width", 2*(r+ior)* d3.event.scale).attr("height",2*(r+ior)* d3.event.scale)
 	  }
-
-
-
-	  function addOption2LoadSelect() {
-	      for (var i = 0; i < savedData.length; i++) {
-	          d3.select("#pipelines").append("option")
-	              .attr("value", savedData[i].name)
-	              .attr("id", savedData[i].id)
-	              .text(savedData[i].name)
-	      }
-	  }
+	  //	  function addOption2LoadSelect() {
+	  //	      for (var i = 0; i < savedData.length; i++) {
+	  //	          d3.select("#pipelines").append("option")
+	  //	              .attr("value", savedData[i].name)
+	  //	              .attr("id", savedData[i].id)
+	  //	              .text(savedData[i].name)
+	  //	      }
+	  //	  }
 	  //kind=input/output
 	  //
 	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
@@ -287,21 +275,14 @@
 	      $('#processTable > tbody:last-child').append(proRow);
 	  }
 
-	  //	  function removeProPipeTab(id) {
-	  //	      var proExist = '';
-	  //	      var proExist = $(".g-" + id)[1];
-	  //	      //there should be at least 2 process before delete, otherwise delete
-	  //	      if (!proExist) {
-	  //	          $('#procTa-' + id).remove();
-	  //	      }
-	  //	  }
-
-
 	  function findType(id) {
-	      parameter = parametersData.filter(function (el) {
-	          return el.id == id
-	      })
-	      return parameter[0].file_type
+	      var parameter = [];
+	      var parameter = parametersData.filter(function (el) { return el.id == id });
+	      if (parameter && parameter != '') {
+	          return parameter[0].file_type
+	      } else {
+	          return '';
+	      }
 	  }
 
 	  function calculatePos(len, k, poz, type) {
@@ -516,32 +497,38 @@
 	              conToOutput()
 	              tooltip.html('Connect to output')
 	          } else if (givenNamePP === 'inputparam') {
-	              //	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
-	              var paraID = document.getElementById(this.id).id.split("-")[3]
-	              var paraData = parametersData.filter(function (el) {
-	                  return el.id == paraID
-	              })
-	              var paraFileType = paraData[0].file_type
+	              //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              var paraID = document.getElementById(this.id).id.split("-")[3];
+	              var paraFileType = "";
+	              var paraData = parametersData.filter(function (el) { return el.id == paraID });
+	              if (paraData && paraData != '') {
+	                  var paraFileType = paraData[0].file_type
+	              }
 	              tooltip.html('Input parameter<br/>File Type: <em>' + paraFileType + '</em>')
 	          } else if (givenNamePP === 'outputparam') {
 	              //Since outputparam is connected, it is not allowed to connect more parameters
-	              //              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
-	              var paraData = parametersData.filter(function (el) {
-	                  return el.id == paraID
-	              })
-	              var paraFileType = paraData[0].file_type
+	              var paraData = parametersData.filter(function (el) { return el.id == paraID })
+	              var paraFileType = "";
+	              if (paraData & paraData !== "") {
+	                  paraFileType = paraData[0].file_type
+	              }
 	              tooltip.html('Output parameter<br/>File Type: <em>' + paraFileType + '</em>')
 	          } else {
-	              //	              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+	              //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
 	              var givenNamePP = document.getElementById(this.id).getAttribute("name")
 	              var paraID = document.getElementById(this.id).id.split("-")[3]
-	              var paraData = parametersData.filter(function (el) {
-	                  return el.id == paraID
-	              })
-	              var paraFileType = paraData[0].file_type
-	              var paraQualifier = paraData[0].qualifier
-	              var paraName = paraData[0].name
+	              var paraData = parametersData.filter(function (el) { return el.id == paraID })
+	              var paraFileType = "";
+	              var paraQualifier = "";
+	              var paraName = "";
+	              if (paraData && paraData !== '') {
+	                  paraFileType = paraData[0].file_type;
+	                  paraQualifier = paraData[0].qualifier;
+	                  paraName = paraData[0].name;
+	              }
+
 	              if (paraQualifier !== 'val') {
 	                  tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
 	              } else {
@@ -797,11 +784,14 @@
 	          }
 	          var paramGivenName = document.getElementById('text-' + firGnum).getAttribute("name");
 	          var paraData = parametersData.filter(function (el) { return el.id == secPI });
-	          var procData = processData.filter(function (el) { return el.id == secProI });
-	          var paraFileType = paraData[0].file_type;
-	          var paraQualifier = paraData[0].qualifier;
-	          var paraIdentifier = paraData[0].name;
-	          //var processName = procData[0].name;
+	          var paraFileType = "";
+	          var paraQualifier = "";
+	          var paraIdentifier = "";
+	          if (paraData && paraData != '') {
+	              var paraFileType = paraData[0].file_type;
+	              var paraQualifier = paraData[0].qualifier;
+	              var paraIdentifier = paraData[0].name;
+	          }
 	          var processName = $('#text-' + secGnum).attr('name');
 
 	          //var givenNamePP = document.getElementById(second).getAttribute("name")
@@ -829,11 +819,13 @@
 	                      project_pipeline_id: project_pipeline_id,
 	                      g_num: firGnum
 	                  });
-	                  if (getProPipeInputs.length === 1) {
-	                      var rowID = rowType + 'Ta-' + firGnum;
-	                      var filePath = getProPipeInputs[0].name; //value for val type
-	                      var proPipeInputID = getProPipeInputs[0].id;
-	                      insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
+	                  if (getProPipeInputs && getProPipeInputs != "") {
+	                      if (getProPipeInputs.length === 1) {
+	                          var rowID = rowType + 'Ta-' + firGnum;
+	                          var filePath = getProPipeInputs[0].name; //value for val type
+	                          var proPipeInputID = getProPipeInputs[0].id;
+	                          insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
+	                      }
 	                  }
 	              }
 	              //outputsTable
@@ -1053,9 +1045,7 @@
 	              if (edgeFirstGnum === String(gNum) && edgeFirstPId === "inPro") {
 	                  paramId = edgeSecondParID //if edge is found
 	                  classtoparam = findType(paramId) + " output"
-	                  pName = parametersData.filter(function (el) {
-	                      return el.id == paramId
-	                  })[0].name
+	                  pName = parametersData.filter(function (el) { return el.id == paramId })[0].name
 	                  break
 	              }
 	          }
@@ -1274,7 +1264,7 @@
 
 	  function refreshCreatorData(project_pipeline_id) {
 	      pipeData = getValues({ p: "getProjectPipelines", id: project_pipeline_id });
-	      if (pipeData) {
+	      if (pipeData && pipeData != "") {
 	          $('#creatorInfoPip').css('display', "block");
 	          $('#ownUserNamePip').text(pipeData[0].username);
 	          $('#datecreatedPip').text(pipeData[0].date_created);
@@ -1319,10 +1309,12 @@
 	      }
 	      //load user groups
 	      var allUserGrp = getValues({ p: "getUserGroups" });
-	      for (var i = 0; i < allUserGrp.length; i++) {
-	          var param = allUserGrp[i];
-	          var optionGroup = new Option(param.name, param.id);
-	          $("#groupSel").append(optionGroup);
+	      if (allUserGrp && allUserGrp != "") {
+	          for (var i = 0; i < allUserGrp.length; i++) {
+	              var param = allUserGrp[i];
+	              var optionGroup = new Option(param.name, param.id);
+	              $("#groupSel").append(optionGroup);
+	          }
 	      }
 	      if (pipeData[0].group_id !== "0") {
 	          $('#groupSel').val(pipeData[0].group_id);
@@ -1370,15 +1362,17 @@
 	      //get profiles for user
 	      var proCluData = getValues({ p: "getProfileCluster" });
 	      var proAmzData = getValues({ p: "getProfileAmazon" });
-	      if (proCluData.length + proAmzData.length !== 0) {
-	          $.each(proCluData, function (el) {
-	              var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
-	              $("#chooseEnv").append(option);
-	          });
-	          $.each(proAmzData, function (el) {
-	              var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
-	              $("#chooseEnv").append(option);
-	          });
+	      if (proCluData && proAmzData) {
+	          if (proCluData.length + proAmzData.length !== 0) {
+	              $.each(proCluData, function (el) {
+	                  var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
+	                  $("#chooseEnv").append(option);
+	              });
+	              $.each(proAmzData, function (el) {
+	                  var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
+	                  $("#chooseEnv").append(option);
+	              });
+	          }
 	      }
 	  }
 
@@ -1395,6 +1389,7 @@
 	      $('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
 	      $('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  }
+
 	  function removeSelectFile(rowID, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          $('#' + rowID).find('#inputFileSelect').css('display', 'inline');
@@ -1406,6 +1401,7 @@
 	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
+
 	  function saveFileSetValModal(data, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -1418,27 +1414,35 @@
 	      data.push({ name: "p", value: "saveInput" });
 	      //insert into input table
 	      var inputGet = getValues(data);
-	      var input_id = inputGet.id;
-	      //insert into project_input table
-	      var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-	      var projectInputID = proInputGet.id;
-	      //insert into project_pipeline_input table
-	      var propipeInputGet = getValues({
-	          "p": "saveProPipeInput",
-	          "input_id": input_id,
-	          "project_id": project_id,
-	          "pipeline_id": pipeline_id,
-	          "project_pipeline_id": project_pipeline_id,
-	          "g_num": gNumParam,
-	          "given_name": given_name,
-	          "qualifier": qualifier
-	      });
-	      var projectPipelineInputID = propipeInputGet.id;
-	      //get inputdata from input table
-	      var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
-	      var filePath = proInputGet[0].name;
-	      //insert into #inputsTab
-	      insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
+	      if (inputGet) {
+	          var input_id = inputGet.id;
+	          //insert into project_input table
+	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+	          if (proInputGet) {
+	              var projectInputID = proInputGet.id;
+	              //insert into project_pipeline_input table
+	              var propipeInputGet = getValues({
+	                  "p": "saveProPipeInput",
+	                  "input_id": input_id,
+	                  "project_id": project_id,
+	                  "pipeline_id": pipeline_id,
+	                  "project_pipeline_id": project_pipeline_id,
+	                  "g_num": gNumParam,
+	                  "given_name": given_name,
+	                  "qualifier": qualifier
+	              });
+	              if (propipeInputGet) {
+	                  var projectPipelineInputID = propipeInputGet.id;
+	                  //get inputdata from input table
+	                  var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
+	                  if (proInputGet) {
+	                      var filePath = proInputGet[0].name;
+	                      //insert into #inputsTab
+	                      insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
+	                  }
+	              }
+	          }
+	      }
 	      checkReadytoRun();
 	  }
 
@@ -1589,10 +1593,12 @@
 
 	  function loadAmzKeys() {
 	      var data = getValues({ p: "getAmz" });
-	      for (var i = 0; i < data.length; i++) {
-	          var param = data[i];
-	          var optionGroup = new Option(param.name, param.id);
-	          $("#mRunAmzKey").append(optionGroup);
+	      if (data && data != "") {
+	          for (var i = 0; i < data.length; i++) {
+	              var param = data[i];
+	              var optionGroup = new Option(param.name, param.id);
+	              $("#mRunAmzKey").append(optionGroup);
+	          }
 	      }
 	  }
 
@@ -1743,7 +1749,6 @@
 	          amazon_cre_id: amazon_cre_id,
 	          project_pipeline_id: project_pipeline_id
 	      });
-	      console.log(serverLogGet);
 	      readNextflowLogTimer(proType, proId);
 	      $('#runLogs').css('display', 'inline');
 
@@ -1788,7 +1793,6 @@
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id, duration: duration });
-	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -1802,9 +1806,6 @@
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
 	                      //Save output file paths to input and project_input database
 	                      addOutFileDb();
-	                      //send ssh to rename log file
-	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
-
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -1816,7 +1817,6 @@
 	                  // status completed with error 
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
-	                      //	                      var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	                  }
 	                  if (type !== "reload") {
 	                      clearInterval(interval_readNextlog);
@@ -1852,7 +1852,6 @@
 	              console.log("Error.Nextflow not started");
 	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	                  //	                  var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
@@ -1865,7 +1864,6 @@
 	              console.log("Error");
 	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	                  //	                  var renameLog = getValues({ p: "renameLogSSH", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
@@ -1912,7 +1910,9 @@
 	          data.push({ name: "p", value: "saveInput" });
 	          //insert into input table
 	          var inputGet = getValues(data);
-	          var input_id = inputGet.id;
+	          if (inputGet) {
+	              var input_id = inputGet.id;
+	          }
 	          //insert into project_input table
 	          //bug: it adds NA named files after each run
 	          //	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
@@ -1921,39 +1921,42 @@
 
 
 	  function getNextflowLog(project_pipeline_id, proType, proId) {
-	      if (proType === "local") {
-	          var logText = getServerLog(project_pipeline_id);
-	          return logText;
-	      } else if (proType === "cluster" || proType === "amazon") {
+	      if (proType === "cluster" || proType === "amazon") {
 	          var logText = getValues({
 	              p: "getNextflowLog",
 	              project_pipeline_id: project_pipeline_id,
 	              profileType: proType,
 	              profileId: proId
 	          });
-	          return logText;
+	          if (logText && logText != "") {
+	              return logText;
+	          } else {
+	              return "";
+	          }
 	      }
 	  }
 
 
 	  function getServerLog(project_pipeline_id) {
-
 	      var logText = getValues({
 	          p: "getServerLog",
 	          project_pipeline_id: project_pipeline_id
 	      });
-	      return logText;
+	      if (logText && logText != "") {
+	          return logText;
+	      } else {
+	          return "";
+	      }
 	  }
 
-	  function getRunPid(project_pipeline_id) {
-
-	      var runData = getValues({
-	          p: "getRun",
-	          project_pipeline_id: project_pipeline_id
-	      });
-	      var runPid = runData[0].pid;
-	      return runPid;
-	  }
+	  //	  function getRunPid(project_pipeline_id) {
+	  //	      var runData = getValues({
+	  //	          p: "getRun",
+	  //	          project_pipeline_id: project_pipeline_id
+	  //	      });
+	  //	      var runPid = runData[0].pid;
+	  //	      return runPid;
+	  //	  }
 
 	  function formToJson(rawFormData, stringify) {
 	      var formDataSerial = rawFormData.serializeArray();
@@ -2076,6 +2079,7 @@
 	          //Changes are not saved. Please enter the run name. 
 	      }
 	  }
+
 	  function getProfileData(proType, proId) {
 	      if (proType === 'cluster') {
 	          var profileData = getValues({ p: "getProfileCluster", id: proId });
@@ -2084,6 +2088,7 @@
 	      }
 	      return profileData;
 	  }
+
 	  function getJobData(getType) {
 	      var chooseEnv = $('#chooseEnv option:selected').val();
 	      if (chooseEnv) {
@@ -2092,22 +2097,28 @@
 	          var proId = chooseEnv.replace(patt, '$2');
 	          var profileData = getProfileData(proType, proId);
 	          var allProSett = {};
-	          allProSett.job_queue = profileData[0].job_queue;
-	          allProSett.job_memory = profileData[0].job_memory;
-	          allProSett.job_cpu = profileData[0].job_cpu;
-	          allProSett.job_time = profileData[0].job_time;
-	          if (getType === "job") {
-	              return profileData;
-	          } else if (getType === "both") {
+	          if (profileData && profileData != '') {
+	              allProSett.job_queue = profileData[0].job_queue;
+	              allProSett.job_memory = profileData[0].job_memory;
+	              allProSett.job_cpu = profileData[0].job_cpu;
+	              allProSett.job_time = profileData[0].job_time;
+	              if (getType === "job") {
+	                  return profileData;
+	              } else if (getType === "both") {
+	                  return [allProSett, profileData];
+	              }
+	          } else {
 	              return [allProSett, profileData];
 	          }
 	      }
 	  }
+
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
 	      if (type === "edit") {
 	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
 	      }
 	  }
+
 	  function getRunStatus(project_pipeline_id) {
 	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
 	      if (runStatusGet[0]) {
@@ -2230,13 +2241,17 @@
 	              $('#mIdFile').val(proPipeInputID);
 	              // Get the input id of proPipeInput;
 	              var proInputGet = getValues({ "p": "getProjectPipelineInputs", "id": proPipeInputID });
-	              var input_id = proInputGet[0].input_id;
-	              var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
-	              //insert data into form
-	              var formValues = $('#inputFilemodal').find('input');
-	              var keys = Object.keys(inputGet);
-	              for (var i = 0; i < keys.length; i++) {
-	                  $(formValues[i]).val(inputGet[keys[i]]);
+	              if (proInputGet) {
+	                  var input_id = proInputGet[0].input_id;
+	                  var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
+	                  if (inputGet) {
+	                      //insert data into form
+	                      var formValues = $('#inputFilemodal').find('input');
+	                      var keys = Object.keys(inputGet);
+	                      for (var i = 0; i < keys.length; i++) {
+	                          $(formValues[i]).val(inputGet[keys[i]]);
+	                      }
+	                  }
 	              }
 	          }
 	      });
@@ -2297,13 +2312,17 @@
 	              $('#mIdVal').val(proPipeInputID);
 	              // Get the input id of proPipeInput;
 	              var proInputGet = getValues({ "p": "getProjectPipelineInputs", "id": proPipeInputID });
-	              var input_id = proInputGet[0].input_id;
-	              var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
-	              //insert data into form
-	              var formValues = $('#inputValmodal').find('input');
-	              var keys = Object.keys(inputGet);
-	              for (var i = 0; i < keys.length; i++) {
-	                  $(formValues[i]).val(inputGet[keys[i]]);
+	              if (proInputGet) {
+	                  var input_id = proInputGet[0].input_id;
+	                  var inputGet = getValues({ "p": "getInputs", "id": input_id })[0];
+	                  if (inputGet) {
+	                      //insert data into form
+	                      var formValues = $('#inputValmodal').find('input');
+	                      var keys = Object.keys(inputGet);
+	                      for (var i = 0; i < keys.length; i++) {
+	                          $(formValues[i]).val(inputGet[keys[i]]);
+	                      }
+	                  }
 	              }
 	          }
 	      });

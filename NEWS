@@ -1,3 +1,7 @@
+17.03.2018 Version 0.1.01
+Js controling improved by checking success of ajax operations in runpipeline and jsfunc.
+Debugging improved by adding controls for each step, before run is initiated. 
+
 17.03.2018 Version 0.1.00
 30 new test functions are added for travis.
 DB functions are upgraded for travis tests.
