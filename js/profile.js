@@ -496,27 +496,7 @@
             $('#confirmGroupButton').css('display', 'inline');
             var button = $(event.relatedTarget);
             $(this).find('option').remove();
-            if (button.attr('id') === 'joingroup') {
-                $('#joinmodallabel').html('Join a Group');
-                $.ajax({
-                    type: "GET",
-                    url: "ajax/ajaxquery.php",
-                    data: {
-                        p: "getJoinGroups"
-                    },
-                    async: false,
-                    success: function (s) {
-                        for (var i = 0; i < s.length; i++) {
-                            var param = s[i];
-                            var optionGroup = new Option(param.name, param.id);
-                            $("#mGroupList").append(optionGroup);
-                        }
-                    },
-                    error: function (errorThrown) {
-                        alert("Error: " + errorThrown);
-                    }
-                });
-            } else if (button.attr('class') === 'viewGroupMembers') {
+            if (button.attr('class') === 'viewGroupMembers') {
                 $('#joinmodallabel').html('View Group Members');
                 $('#groupLabel').html('Group Members');
                 $('#confirmGroupButton').css('display', 'none');

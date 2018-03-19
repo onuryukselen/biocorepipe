@@ -825,17 +825,15 @@
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
 	                  //get project_pipeline_inputs:
 	                  var getProPipeInputs = getValues({
-	                      p: "getProjectPipelineInputs",
+	                      p: "getProjectPipelineInputsByGnum",
 	                      project_pipeline_id: project_pipeline_id,
 	                      g_num: firGnum
 	                  });
-	                  a = getProPipeInputs;
 	                  if (getProPipeInputs.length === 1) {
 	                      var rowID = rowType + 'Ta-' + firGnum;
 	                      var filePath = getProPipeInputs[0].name; //value for val type
 	                      var proPipeInputID = getProPipeInputs[0].id;
 	                      insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
-
 	                  }
 	              }
 	              //outputsTable
@@ -1017,128 +1015,6 @@
 
 	      document.body.removeChild(element);
 	  }
-
-	  //	  function resetPos() {
-	  //	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
-	  //	  }
-
-
-
-	  //	  function save() {
-	  //	      saveNodes = {}
-	  //	      saveMainG = {}
-	  //	      for (var key in processList) {
-	  //	          t = d3.transform(d3.select('#' + key).attr("transform")),
-	  //	              x = t.translate[0]
-	  //	          y = t.translate[1]
-	  //	          gClass = document.getElementById(key).className.baseVal
-	  //	          prosessID = gClass.split("-")[1]
-	  //	          processName = processList[key]
-	  //	          saveNodes[key] = [x, y, prosessID, processName]
-	  //	      }
-	  //	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
-	  //	          Mainx = Maint.translate[0]
-	  //	      Mainy = Maint.translate[1]
-	  //	      Mainz = Maint.scale[0]
-	  //	      sName = document.getElementById("pipeline-title").value;
-	  //	      var pipelineSummary = $('#pipelineSum').val();
-	  //	      id = 0
-	  //	      if (sName !== "" && dupliPipe === false) {
-	  //	          id = $("#pipeline-title").attr('pipelineid');
-	  //	      } else if (sName !== "" && dupliPipe === true) {
-	  //	          id = '';
-	  //	          sName = sName + '-copy'
-	  //	      }
-	  //
-	  //	      saveMainG["mainG"] = [Mainx, Mainy, Mainz]
-	  //	      savedList = [{
-	  //	          "name": sName
-	  //	      }, {
-	  //	          "id": id
-	  //	      }, {
-	  //	          "nodes": saveNodes
-	  //	      }, saveMainG, {
-	  //	          "edges": edges
-	  //	      }, {
-	  //	          "summary": pipelineSummary
-	  //	      }];
-	  //
-	  //	      //xxx
-	  //	      //A. Add new pipeline
-	  //	      if (sName !== "" && id === '') {
-	  //	          var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
-	  //	          var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
-	  //	          savedList.push({ "pipeline_gid": newPipeline_gid });
-	  //	          sl = JSON.stringify(savedList);
-	  //	          var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	  //	          $("#pipeline-title").attr('pipelineid', ret.id);
-	  //	          pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	  //	          $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
-	  //	          if (dupliPipe === true) {
-	  //	              $("#pipeline-title").changeVal(sName);
-	  //	              dupliPipe = false;
-	  //	          }
-	  //	          $('#autosave').text('All changes saved');
-	  //
-	  //
-	  //	      }
-	  //	      //B. pipeline already exist
-	  //	      else if (sName !== "" && id !== '') {
-	  //	          var warnUserPipe = false;
-	  //	          var warnPipeText = '';
-	  //              [warnUserPipe, warnPipeText] = checkRevisionPipe(id);
-	  //	          //B.1 allow updating on existing pipeline
-	  //	          if (warnUserPipe === false) {
-	  //	              sl = JSON.stringify(savedList);
-	  //	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	  //	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	  //	              refreshCreatorData(pipeline_id);
-	  //	              document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
-	  //	              $('#autosave').text('All changes saved');
-	  //
-	  //
-	  //	          }
-	  //	          //B.2 allow save on new revision
-	  //	          else if (warnUserPipe === true) {
-	  //	              // ConfirmYesNo process modal 
-	  //	              $('#confirmRevision').off();
-	  //	              $('#confirmRevision').on('show.bs.modal', function (event) {
-	  //	                  $(this).find('form').trigger('reset');
-	  //	                  $('#confirmYesNoText').html(warnPipeText);
-	  //	              });
-	  //
-	  //	              $('#confirmRevision').on('click', '.cancelRev', function (event) {
-	  //	                  $('#autosave').text('Changes not saved!');
-	  //
-	  //	              });
-	  //
-	  //	              $('#confirmRevision').on('click', '#saveRev', function (event) {
-	  //	                  var confirmformValues = $('#confirmRevision').find('input');
-	  //	                  var revCommentData = confirmformValues.serializeArray();
-	  //	                  var revComment = revCommentData[0].value;
-	  //	                  if (revComment === '') { //xxx warn user to enter comment
-	  //	                  } else if (revComment !== '') {
-	  //	                      var pipeline_gid = getValues({ p: "getPipeline_gid", "pipeline_id": id })[0].pipeline_gid;
-	  //	                      var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
-	  //	                      var newPipRev_id = parseInt(maxPipRev_id) + 1;
-	  //	                      savedList[1].id = ''
-	  //	                      savedList.push({ "pipeline_gid": pipeline_gid });
-	  //	                      savedList.push({ "rev_comment": revComment });
-	  //	                      savedList.push({ "rev_id": newPipRev_id });
-	  //	                      sl = JSON.stringify(savedList);
-	  //	                      var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	  //	                      $('#confirmRevision').modal('hide');
-	  //	                      $('#autosave').text('Changes saved on new revision');
-	  //	                      setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 700);
-	  //	                  }
-	  //	              });
-	  //	              $('#confirmRevision').modal('show');
-	  //	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	  //	              refreshCreatorData(pipeline_id);
-	  //	          }
-	  //	      }
-	  //
-	  //	  }
 
 	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
@@ -1492,15 +1368,9 @@
 	  function loadRunOptions() {
 	      $('#chooseEnv').find('option').not(':disabled').remove();
 	      //get profiles for user
-
 	      var proCluData = getValues({ p: "getProfileCluster" });
 	      var proAmzData = getValues({ p: "getProfileAmazon" });
 	      if (proCluData.length + proAmzData.length !== 0) {
-
-	      var proCluData = getValues({ p: "getProfileCluster" });
-	      var proAmzData = getValues({ p: "getProfileAmazon" });
-	      if (proCluData.length + proAmzData.length !== 0) {
-
 	          $.each(proCluData, function (el) {
 	              var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
 	              $("#chooseEnv").append(option);
@@ -1511,8 +1381,6 @@
 	          });
 	      }
 	  }
-
-
 
 	  function insertSelectInput(rowID, gNumParam, filePath, proPipeInputID, qualifier) {
 	      if (qualifier === 'file' || qualifier === 'set') {
@@ -1527,7 +1395,6 @@
 	      $('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
 	      $('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  }
-	  //xxx
 	  function removeSelectFile(rowID, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          $('#' + rowID).find('#inputFileSelect').css('display', 'inline');
@@ -1539,7 +1406,6 @@
 	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
-
 	  function saveFileSetValModal(data, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -2048,8 +1914,8 @@
 	          var inputGet = getValues(data);
 	          var input_id = inputGet.id;
 	          //insert into project_input table
-              //bug: it adds NA named files after each run
-//	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+	          //bug: it adds NA named files after each run
+	          //	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
 	      }
 	  }
 
@@ -2210,7 +2076,6 @@
 	          //Changes are not saved. Please enter the run name. 
 	      }
 	  }
-
 	  function getProfileData(proType, proId) {
 	      if (proType === 'cluster') {
 	          var profileData = getValues({ p: "getProfileCluster", id: proId });
@@ -2219,7 +2084,6 @@
 	      }
 	      return profileData;
 	  }
-
 	  function getJobData(getType) {
 	      var chooseEnv = $('#chooseEnv option:selected').val();
 	      if (chooseEnv) {
@@ -2238,15 +2102,12 @@
 	              return [allProSett, profileData];
 	          }
 	      }
-
 	  }
-
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
 	      if (type === "edit") {
 	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
 	      }
 	  }
-
 	  function getRunStatus(project_pipeline_id) {
 	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
 	      if (runStatusGet[0]) {
@@ -2262,7 +2123,6 @@
 	      dupliProPipe = true;
 	      saveRunIcon();
 	  }
-
 
 	  $(document).ready(function () {
 	      project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
@@ -2286,7 +2146,6 @@
 	              runStatus = getRunStatus(project_pipeline_id);
 	          }
 	      }
-
 	      if (runStatus !== "") {
 	          $('#runLogs').css('display', 'inline');
 	          //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init
@@ -2296,8 +2155,6 @@
 	          var profileId = profileTypeId.replace(patt, '$2');
 	          setTimeout(function () { readNextLog(profileType, profileId, "reload"); }, 100);
 	      }
-
-
 	      //not allow to check both docker and singularity
 	      $('#docker_imgDiv').on('show.bs.collapse', function () {
 	          if ($('#singu_check').is(":checked") && $('#docker_check').is(":checked")) {
@@ -2336,13 +2193,11 @@
 	          $('#singu_check').removeAttr('onclick');
 	      });
 
-
 	      $(function () {
 	          $(document).on('change', '#mRunAmzKey', function () {
 	              checkReadytoRun();
 	          })
 	      });
-
 	      $(function () {
 	          $(document).on('change', '#chooseEnv', function () {
 	              var [allProSett, profileData] = getJobData("both");
@@ -2358,7 +2213,6 @@
 	              fillForm('#allProcessSettTable', 'input', allProSett);
 	          })
 	      });
-
 	      $('#inputFilemodal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
 	          $(this).find('form').trigger('reset');
@@ -2384,7 +2238,6 @@
 	              for (var i = 0; i < keys.length; i++) {
 	                  $(formValues[i]).val(inputGet[keys[i]]);
 	              }
-
 	          }
 	      });
 
@@ -2452,7 +2305,6 @@
 	              for (var i = 0; i < keys.length; i++) {
 	                  $(formValues[i]).val(inputGet[keys[i]]);
 	              }
-
 	          }
 	      });
 
@@ -2512,7 +2364,4 @@
 	              }
 	          });
 	      });
-
-
-	      //xxx
 	  });
