@@ -47,11 +47,6 @@
 	      processData = getValues({
 	          p: "getProcessData"
 	      })
-
-	      savedData = getValues({
-	          p: "getSavedPipelines"
-	      })
-	      addOption2LoadSelect()
 	      parametersData = getValues({
 	          p: "getAllParameters"
 	      })
@@ -221,24 +216,11 @@
 	      .on("zoom", zoomed);
 
 	  createSVG()
-
 	  function zoomed() {
 	      mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	      //d3.select("#startArea").attr("width", 2*(r+ior)* d3.event.scale).attr("height",2*(r+ior)* d3.event.scale)
 	  }
 
-
-
-	  function addOption2LoadSelect() {
-	      for (var i = 0; i < savedData.length; i++) {
-	          d3.select("#pipelines").append("option")
-	              .attr("value", savedData[i].name)
-	              .attr("id", savedData[i].id)
-	              .text(savedData[i].name)
-	      }
-	  }
 	  //kind=input/output
-	  //
 	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
 	      //gnum uniqe, id same id (Written in class) in same type process
 	      g = d3.select("#mainG").append("g")

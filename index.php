@@ -37,7 +37,7 @@ else { $login = 0;}
     <!-- Daterange picker -->
     <link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css">
     <!-- bootstrap wysihtml5 - text editor -->
-    <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+<!--    <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">-->
     <!-- selectize style -->
     <link rel="stylesheet" href="css/selectize.bootstrap3.css">
     <!-- feedback modal style -->
@@ -464,8 +464,6 @@ else { $login = 0;}
         </div>
         <!-- Add Amazon Node Modal Ends-->
         
- 
-
 
 
         <!--Google Platform Library on your web pages that integrate Google Sign-In-->
@@ -485,12 +483,8 @@ else { $login = 0;}
         <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
         <!-- Morris.js charts -->
         <script src="bower_components/raphael/raphael.min.js"></script>
-
         <!-- Sparkline -->
         <script src="bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
-        <!-- jvectormap -->
-        <script src="plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-        <script src="plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
         <!-- jQuery Knob Chart -->
         <script src="bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
         <!-- daterangepicker -->
@@ -498,8 +492,6 @@ else { $login = 0;}
         <script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
         <!-- datepicker -->
         <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
-        <!-- Bootstrap WYSIHTML5 -->
-        <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
         <!-- Slimscroll -->
         <script src="bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
         <!-- FastClick -->
