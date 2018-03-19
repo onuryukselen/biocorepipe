@@ -1,6 +1,8 @@
 17.03.2018 Version 0.1.01
 Js controling improved by checking success of ajax operations in runpipeline and jsfunc.
 Debugging improved by adding controls for each step, before run is initiated. 
+Unnecessary php files are removed. 
+For simplicity, dbfunc class removed from Sidebarmenu and sidebarmenuproject php files.
 
 17.03.2018 Version 0.1.00
 30 new test functions are added for travis.

@@ -1,14 +1,3 @@
-<!--
-<style type="text/css" media="screen">
-    #editor {
-        height: 300px;
-    }
-    #editorProHeader {
-        height: 150px;
-    }
-
-</style>
--->
 <style>
     .nodisp {
         display: block
