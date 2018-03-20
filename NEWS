@@ -1,3 +1,6 @@
+19.03.2018 Version 0.1.02
+Profile page for Readthedocs is added.
+
 17.03.2018 Version 0.1.01
 Js controling improved by checking success of ajax operations in runpipeline and jsfunc.
 Debugging improved by adding controls for each step, before run is initiated. 
