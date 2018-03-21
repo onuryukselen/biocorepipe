@@ -251,13 +251,13 @@
                             <select id="mProcessGroup" class="fbtn btn-default form-control" name="process_group_id"></select>
                         </div>
                         <div id="mProcessGroupAdd" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="button" class="btn btn-default form-control" id="groupAdd" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="groupAdd" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Add Menu Group"><span><i class="glyphicon glyphicon-plus"></i></span></a></button>
                         </div>
                         <div id="mProcessGroupEdit" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="button" class="btn btn-default form-control" id="groupEdit" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><i class="fa fa-pencil-square-o"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="groupEdit" data-toggle="modal" data-target="#processGroupModal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Edit Menu Group"><span><i class="fa fa-pencil-square-o"></i></span></a></button>
                         </div>
                         <div id="mProcessGroupDel" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="button" class="btn btn-default form-control" id="groupDel" data-toggle="modal" data-target="#delprocessGrmodal" data-backdrop="false"><i class="fa fa-trash-o"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="groupDel" data-toggle="modal" data-target="#delprocessGrmodal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete Menu Group"><span><i class="fa fa-trash-o"></i></span></a></button>
                         </div>
                     </div>
                     <div id="mParameters" class="form-group" style=" padding-top:15px; border-top:0.094em solid lightgrey;">
@@ -266,13 +266,13 @@
                             <select id="mParamAllIn" class="fbtn btn-default form-control mParChange" name="ParamAll" style="display:none;"></select>
                         </div>
                         <div id="mParamsAdd" class="col-sm-1" style=" width:auto; padding-right:0;">
-                            <button type="button" class="btn btn-default form-control" id="mParamAdd" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><i class="glyphicon glyphicon-plus"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="mParamAdd" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Add Parameter"><span><i class="glyphicon glyphicon-plus"></i></span></a></button>
                         </div>
                         <div id="mParamsEdit" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="button" class="btn btn-default form-control" id="mParamEdit" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><i class="fa fa-pencil-square-o"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="mParamEdit" data-toggle="modal" data-target="#parametermodal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Edit Parameter"><span><i class="fa fa-pencil-square-o"></i></span></a></button>
                         </div>
                         <div id="mParamsDel" class="col-sm-1" style=" width: auto; padding-left: 0; padding-right: 0;">
-                            <button type="button" class="btn btn-default form-control" id="mParDel" data-toggle="modal" data-target="#delparametermodal" data-backdrop="false"><i class="fa fa-trash-o"></i></button>
+                            <button type="button" class="btn btn-default form-control" id="mParDel" data-toggle="modal" data-target="#delparametermodal" data-backdrop="false"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete Parameter"><span><i class="fa fa-trash-o"></i></span></a></button>
                         </div>
                     </div>
                     <div id="inputTitle" class="form-group" style="   margin-bottom:15px; padding-top:15px;">
@@ -494,10 +494,10 @@
                                 <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
                                 <div class="col-sm-3" style="padding-left:0;">
                                     <select id="script_mode" name="script_mode" class="form-control">
+                                    <option value="sh" >shell</option>
                                     <option value="groovy" >groovy</option>
                                     <option value="perl" >perl</option>
                                     <option value="python" >python</option>
-                                    <option value="sh" >shell</option>
                                     </select>
                                 </div>
                             </div>
@@ -522,10 +522,10 @@
                                 <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
                                 <div class="col-sm-3" style="padding-left:0;">
                                     <select id="script_mode_header" name="script_mode_header" class="form-control">
+                                    <option value="sh" >shell</option>
                                     <option value="groovy" >groovy</option>
                                     <option value="perl" >perl</option>
                                     <option value="python" >python</option>
-                                    <option value="sh" >shell</option>
                                     </select>
                                 </div>
                             </div>

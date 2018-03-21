@@ -7,7 +7,7 @@ This guide will walk you through all of your options within the Profile page.
 Profile Page
 ============
 
-Once logged in, click on the profile tab in the top right of the screen. Once you've accessed the profile page, you'll notice several tabs to explore.
+Once logged in, click on the profile tab in the top right of the screen. You'll notice several tabs to explore in profile page.
 
 .. image:: dolphinnext_images/profile_tabs2.png
 	:align: center
@@ -23,14 +23,14 @@ SSH Keys
 .. image:: dolphinnext_images/ssh_keys.png
 	:align: center
 
-In the SSH keys tab, you can create new or enter existing SSH key pairs by clicking on "Add SSH Key" button. By using Add SSH Keys window, enter the name of your keys and select the method you want to proceed: ``A. Use your own keys`` or ``B. Create new keys``. 
+In the SSH keys tab, you can create new or enter existing SSH key pairs by clicking on "Add SSH Key" button. By using Add SSH Keys window, enter the name of your keys and select the method you want to proceed: ``A. Use your own keys`` or ``B. Create new keys``.
 
 * **A. Use your own keys:** If you choose "use your own keys", your private and public key pairs will be asked. You can reach your key pairs in your computer at default location: ``~/.ssh/id_rsa`` for private and ``~/.ssh/id_rsa.pub`` for public key. If these files are not exist or you want to create new ones, then on the command line, enter::
 
     ssh-keygen -t rsa
 
 
-You will be prompted to supply a filename and a password. In order to accept the default filename (and location) for your key pair, press Enter without entering a filename. Your SSH keys will be generated using the default filename (``id_rsa`` and ``id_rsa.pub``). 
+You will be prompted to supply a filename and a password. In order to accept the default filename (and location) for your key pair, press Enter without entering a filename. Your SSH keys will be generated using the default filename (``id_rsa`` and ``id_rsa.pub``).
 
 * **B. Create new keys:** You will proceed by clicking generate keys button where new pair of ssh keys will be specifically produced for you. You should keep these keys in your default .ssh directory (``~/.ssh/id_rsa`` for private and ``~/.ssh/id_rsa.pub`` for public key). It is required to be adjust your public key permissions to 644 (-rw-r--r--) and private key permissions to 600 (-rw-------) by entering following commands::
 
@@ -38,7 +38,7 @@ You will be prompted to supply a filename and a password. In order to accept the
     chmod -R 600 ~/.ssh/id_rsa_pub
 
 
-.. warning:: In both of the cases, private key will be used for submiting jobs in the host. Therefore, public key required to be added into ``~/.ssh/authorized_keys`` in the host by user. 
+.. warning:: In both of the cases, private key will be used for submiting jobs in the host. Therefore, public key required to be added into ``~/.ssh/authorized_keys`` in the host by user.
 
 Amazon Keys
 ===========
@@ -61,57 +61,38 @@ Run Environments
 
 .. image:: dolphinnext_images/profile_runenv.png
 	:align: center
-    
+
 This section is used for defining connection profiles by clicking on "Add Environment" button. Type options (A. Host or B. Amazon) will be prompted to user. You may choose "Host" option, if you are planing to submit jobs to specified hosts by using SSH Keys, or you may proceed with "Amazon" option to create Amazon EC2 instances and submit your jobs to Amazon Cloud.
 
 A. Defining Host Profile:
 =========================
-* **Username/Hostname:** You should enter your username and hostname of the host which you would like to connect.  For instance, in order to connect ``us2r@ghpcc06.umassrc.org``, you would enter ``us2r`` as username and ``ghpcc06.umassrc.org`` as hostname. 
+* **Username/Hostname:** You should enter your username and hostname of the host which you would like to connect.  For instance, in order to connect ``us2r@ghpcc06.umassrc.org``, you would enter ``us2r`` as username and ``ghpcc06.umassrc.org`` as hostname.
 .. note::  You don't need to add ``@`` sign while entering this information.
 * **SSH Keys:** are saved in SSH keys tab and will be used while connecting to host.
 * **Run Command (optional):** You may run the command or commands (by seperating each command with ``&&`` sign) before the nextflow job starts. eg. ``source /etc/bashrc && module load java/1.8.0_31 && module load bowtie2/2.3.2``
 * **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg.``/project/umw_biocore/bin``
-* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options. 
+<<<<<<< HEAD
+* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options.
+.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``sge``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor.
+=======
+* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options.
+>>>>>>> fab16269d3461af9f74dae19c8769387ab60fafa
 
 B. Defining Amazon Profile:
 ===========================
 * **SSH Keys:** are saved in SSH keys tab and will be used while connecting to host.
 * **Amazon Keys:** AWS credentials that are saved in Amazon keys tab and will allow to start/stop Amazon EC2 instances.
-* **Instance Type:** `Amazon EC2 instance types <https://aws.amazon.com/ec2/instance-types>`_ that comprise varying combinations of CPU, memory, storage, and networking capacity (eg. ``m3.xlarge``).  
-* **Image Id:** Virtual machine ID (eg. ``ami-35626d4f``). If you want to create your own image, it should support `singularity <http://singularity.lbl.gov>`_, `docker engine <https://www.docker.com/>`_ (version 1.11 or higher), Apache Ignite, Cloud-init package, and Java runtime (version 8). 
-* **Subnet Id/Shared Storage Id/Shared Storage Mount:** The filesystem needs to be created at https://console.aws.amazon.com/efs/ and these three information will be obtained upon creation of shared file system. Make sure following criterias are satisfied:  
-    1) Image has the directory to mount this storage. 
-    2) The output directory needs to be under this mount location. 
+* **Instance Type:** `Amazon EC2 instance types <https://aws.amazon.com/ec2/instance-types>`_ that comprise varying combinations of CPU, memory, storage, and networking capacity (eg. ``m3.xlarge``).
+* **Image Id:** Virtual machine ID (eg. ``ami-35626d4f``). If you want to create your own image, it should support `singularity <http://singularity.lbl.gov>`_, `docker engine <https://www.docker.com/>`_ (version 1.11 or higher), Apache Ignite, Cloud-init package, and Java runtime (version 8).
+* **Subnet Id/Shared Storage Id/Shared Storage Mount:** The filesystem needs to be created at https://console.aws.amazon.com/efs/ and these three information will be obtained upon creation of shared file system. Make sure following criterias are satisfied:
+    1) Image has the directory to mount this storage.
+    2) The output directory needs to be under this mount location.
     3) The storage system needs to be created in selected region and necessary rights need to be given in the console.
 * **Run Command (optional):** You may run the command or commands (by seperating each command with ``&&`` sign) before the nextflow job starts. eg. ``source /etc/bashrc && module load java/1.8.0_31 && module load bowtie2/2.3.2``
 * **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg.``/project/umw_biocore/bin``
-* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options. 
-.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options.
+<<<<<<< HEAD
+.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``sge``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor.
+=======
+.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor.
+>>>>>>> fab16269d3461af9f74dae19c8769387ab60fafa

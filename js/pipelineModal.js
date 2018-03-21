@@ -1,7 +1,7 @@
 //ace editor
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/tomorrow");
-editor.getSession().setMode("ace/mode/groovy");
+editor.getSession().setMode("ace/mode/sh");
 editor.$blockScrolling = Infinity;
 //template text for editor
 templategroovy = '//groovy example: \n\n println "Hello, World!"';
@@ -43,7 +43,7 @@ function cleanProcessName(proName) {
 //ace process header editor
 var editorProHeader = ace.edit("editorProHeader");
 editorProHeader.setTheme("ace/theme/tomorrow");
-editorProHeader.getSession().setMode("ace/mode/groovy");
+editorProHeader.getSession().setMode("ace/mode/sh");
 editorProHeader.$blockScrolling = Infinity;
 $(function () {
     $(document).on('change', '#script_mode_header', function () {
@@ -132,8 +132,8 @@ function refreshProcessModal(selProId) {
     $(this).find('form').trigger('reset');
     cleanProcessModal();
     $('#mProRev').attr("prev", "-1");
-    editor.setValue(templategroovy);
-    editorProHeader.setValue(templategroovy);
+    editor.setValue(templatesh);
+    editorProHeader.setValue(templatesh);
     loadModalProGro();
     loadModalParam();
 
@@ -1463,8 +1463,8 @@ $(document).ready(function () {
         stateModule.changeState("allBackup", backUpObj.allBackup);
         stateModule.changeState("menuRevBackup", backUpObj.menuRevBackup);
 
-        editor.setValue(templategroovy);
-        editorProHeader.setValue(templategroovy);
+        editor.setValue(templatesh);
+        editorProHeader.setValue(templatesh);
         loadModalProGro();
         loadModalParam();
 
