@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# dolphin documentation build configuration file, created by
+# DolphinNext documentation build configuration file, created by
 # sphinx-quickstart on Tue Oct 27 14:50:43 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -54,7 +54,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'dolphin'
+project = u'DolphinNext'
 copyright = u'2018, Alper Kucukural, Onur Yukselen'
 author = u'Alper Kucukural, Onur Yukselen'
 
@@ -208,7 +208,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'dolphindoc'
+htmlhelp_basename = 'dolphinnextdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -230,7 +230,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'dolphin.tex', u'dolphin Documentation',
+  (master_doc, 'dolphinNext.tex', u'dolphinNext Documentation',
    u'Alper Kucukural, Onur Yukselen', 'manual'),
 ]
 
@@ -260,7 +260,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'dolphin', u'dolphin Documentation',
+    (master_doc, 'DolphinNext', u'DolphinNext Documentation',
      [author], 1)
 ]
 
@@ -274,8 +274,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'dolphin', u'dolphin Documentation',
-   author, 'dolphin', 'One line description of project.',
+  (master_doc, 'DolphinNext', u'DolphinNext Documentation',
+   author, 'DolphinNext', 'One line description of project.',
    'Miscellaneous'),
 ]
 

@@ -1,3 +1,8 @@
+//open the pipelines sidebar on entrance.
+var tagElems = $('#autocompletes1').children();
+$(tagElems).closest('li').addClass('menu-open');
+$(tagElems).closest('li').children('ul.treeview-menu').show();
+
 //pagination and public page
 $(function () {
     (function (name) {
@@ -6,8 +11,8 @@ $(function () {
             dataSource: function (done) {
                 $.ajax({
                     beforeSend: function () {
-                    container.prev().html('Loading data..');
-                },
+                        container.prev().html('Loading data..');
+                    },
                     data: { p: "getPublicPipelines" },
                     url: "ajax/ajaxquery.php",
                     success: function (response) {
@@ -43,13 +48,15 @@ $(function () {
             }
         };
         //$.pagination(container, options);
-//        container.addHook('beforeInit', function () {
-////            window.console && console.log('beforeInit...');
-//        });
+        //        container.addHook('beforeInit', function () {
+        ////            window.console && console.log('beforeInit...');
+        //        });
         container.pagination(options);
-//        container.addHook('beforePageOnClick', function () {
-////            window.console && console.log('beforePageOnClick...');
-//            //return false
-//        });
+        //        container.addHook('beforePageOnClick', function () {
+        ////            window.console && console.log('beforePageOnClick...');
+        //            //return false
+        //        });
     })('public');
 })
+
+

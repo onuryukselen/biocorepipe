@@ -26,6 +26,7 @@ function getPage($np, $login, $id)
 function getSidebarMenu($np,$login)
 {
   if (($np==2 || $np==3 || $np==4) && $login==1){include("php/sidebarmenuproject.php"); }
+    else if ($np == ''){include("php/sidebarmenumain.php");}
   else {include("php/sidebarmenu.php");}
 }
 

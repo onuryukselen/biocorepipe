@@ -7,7 +7,7 @@ This guide will walk you through all of your options within the Profile page.
 Profile Page
 ============
 
-Once logged in, click on the profile tab in the top right of the screen. Once you've accessed the profile page, you'll notice several tabs to explore.
+Once logged in, click on the profile tab in the top right of the screen. You'll notice several tabs to explore in profile page.
 
 .. image:: dolphinnext_images/profile_tabs2.png
 	:align: center
@@ -71,7 +71,8 @@ A. Defining Host Profile:
 * **SSH Keys:** are saved in SSH keys tab and will be used while connecting to host.
 * **Run Command (optional):** You may run the command or commands (by seperating each command with ``&&`` sign) before the nextflow job starts. eg. ``source /etc/bashrc && module load java/1.8.0_31 && module load bowtie2/2.3.2``
 * **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg.``/project/umw_biocore/bin``
-* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options. 
+* **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options. 
+.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``sge``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. 
 
 B. Defining Amazon Profile:
 ===========================
@@ -86,7 +87,7 @@ B. Defining Amazon Profile:
 * **Run Command (optional):** You may run the command or commands (by seperating each command with ``&&`` sign) before the nextflow job starts. eg. ``source /etc/bashrc && module load java/1.8.0_31 && module load bowtie2/2.3.2``
 * **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg.``/project/umw_biocore/bin``
 * **Executor of Nextflow/Executor of Nextflow Jobs:** You can determine the system where nextflow itself is initiated. Currently local, sge and lsf executors are supported by DolphinNext to initiate nextflow. Apart from the executor of nextflow, you may change the executor of each job by using "Executor of Nextflow Jobs" option. If any option other than local, is selected, additional settings will be prompt for ``Queue``, ``Memory(GB)``, ``CPU`` and ``Time(min.)``. Adjustment of these parameters are allowed for both options. 
-.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``ignite``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. 
+.. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``sge``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor. 
 
 
 
