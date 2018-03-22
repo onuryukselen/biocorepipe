@@ -189,11 +189,11 @@
             $(document).on('change', '#mExec', function () {
                 var mExecType = $('#mExec option:selected').val();
                 $('#mExecJob').removeAttr('disabled');
-                if (mExecType === "local") {
+                if (mExecType === "local" || mExecType === "ignite") {
                     $('#mExecJob').trigger('change');
                     $('#execNextDiv').css('display', 'none');
                     $('#mExecJobDiv').css('display', 'block');
-                } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm" || mExecType === "ignite") {
+                } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm" ) {
                     $('#mExecJob').val(mExecType).trigger('change');
                     $('#mExecJob').attr('disabled', "disabled");
                     $('#execNextDiv').css('display', 'block');
@@ -205,9 +205,9 @@
         $(function () {
             $(document).on('change', '#mExecJob', function () {
                 var mExecJobType = $('#mExecJob option:selected').val();
-                if (mExecJobType === "local") {
-                    $('#execJobSetDiv').css('display', 'none');
-                } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm" || mExecJobType === "ignite") {
+                if (mExecJobType === "local" || mExecJobType === "ignite") {
+                    $('#execJobSetDiv').css('display', 'none' );
+                } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm" ) {
                     $('#execJobSetDiv').css('display', 'block');
                 }
             })
