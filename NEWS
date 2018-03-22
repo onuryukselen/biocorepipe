@@ -1,3 +1,6 @@
+21.03.2018 Version 0.1.04
+Pipeline page for Readthedocs is added.
+
 20.03.2018 Version 0.1.03
 Sidebar menu on entrance is updated.
 Process page for Readthedocs is added.
@@ -9,8 +12,8 @@ Profile page for Readthedocs is added.
 
 17.03.2018 Version 0.1.01
 Js controling improved by checking success of ajax operations in runpipeline and jsfunc.
-Debugging improved by adding controls for each step, before run is initiated. 
-Unnecessary php files are removed. 
+Debugging improved by adding controls for each step, before run is initiated.
+Unnecessary php files are removed.
 For simplicity, dbfunc class removed from Sidebarmenu and sidebarmenuproject php files.
 
 17.03.2018 Version 0.1.00
@@ -53,7 +56,7 @@ runUpdate location changed
 DB added to runUpdate
 
 09.03.2018 Version 0.0.90
-sql errors fixed. 
+sql errors fixed.
 added update folder
 
 09.03.2018 Version 0.0.89
@@ -71,7 +74,7 @@ checkrunready feature is added on publish directory if checkbox is on.
 07.03.2018 Version 0.0.87
 BASE_PATH and API_PATH removed from config.php and config.ini.
 checkrunready when keyup is added on output directory on run pipeline page
-check s3 pattern feature is added in runpipeline page for input files and output directory. 
+check s3 pattern feature is added in runpipeline page for input files and output directory.
 If it is defined, it allows for selection aws credentials and then inserts into nextflow.config file
 
 07.03.2018 Version 0.0.86
@@ -89,7 +92,7 @@ process name automaticaly cleaned from special characters and spaces
 Warning feature for unique process/parameter name in pipeline is added.
 
 06.03.2018 Version 0.0.83
-Confirm modal is added while removing profile. 
+Confirm modal is added while removing profile.
 Sql error fixed on sidebar menu.
 Job configuration feature for each process is added.
 
@@ -174,7 +177,7 @@ Error fixed when status stays 'ready to run' when pipeline input parameters are 
 main page pipeline box width and height fixed
 
 23.02.2018 Version 0.0.65
-outparameter name added to publishdir path. 
+outparameter name added to publishdir path.
 input param resets after disconnection.
 ssh path and error log added to amazon management console.
 
@@ -223,8 +226,8 @@ truncate menu name for sidebarmenu process/pipeline/project
 Single Cell pipeline (4 steps: rsync_basespace, bxltofastq, extractValidReads, split added to local server)
 Duplicate process feature added.
 Go to existing runs button added in pipeline page.
-Bug fixed while saving operators in process revision. 
-Bug fixed while deleting process revision. 
+Bug fixed while saving operators in process revision.
+Bug fixed while deleting process revision.
 Process circle shift when process revision change by info modal resolved.
 
 15.02.2018 Version 0.0.54
@@ -255,7 +258,7 @@ Nextflow log based job control completed.
 
 09.02.2018 Version 0.0.49
 Amazon run submission completed.
-update page accordingly when page reloads completed. (minor bug remains) 
+update page accordingly when page reloads completed. (minor bug remains)
 
 08.02.2018 Version 0.0.48
 Amazon cloud start and stop features are completed.
@@ -272,7 +275,7 @@ Singularity and docker run options added in run pipeline page.
 sidebar for projects is integrated with pages(add/remove/edit features added).
 .salt replaced with .sec file and config.ini parse feature added.
 operator feature for each process_parameter is added in add process modal.
-bug in nextflow.config file is fixed for local runs. 
+bug in nextflow.config file is fixed for local runs.
 
 03.02.2018 Version 0.0.44
 run pipeline bug fixed.
@@ -289,7 +292,7 @@ nextflow executor options added to profile page
 
 01.02.2018 Version 0.0.41
 run command feature added into run pipeline page
-results folder updated. 
+results folder updated.
 
 31.01.2018 Version 0.0.40
 run command feature added into profiles
@@ -312,7 +315,7 @@ database errors fixed by adding quote.
 docker and singularity image options are added and functional.
 nextflow logs are now loaded to run logs area.
 output directory in the run page added to nextflow file as a publish directory.
-nextflow and all process job parameters are functional in run pipeline page. 
+nextflow and all process job parameters are functional in run pipeline page.
 Delete intermediate runs feature is added.
 
 26.01.2018 Version 0.0.35
@@ -411,16 +414,16 @@ Google Authentication feature is added.
 17.12.2017 Version 0.0.14
 owner_id,group_id,perms,date_created,date_modified,last_modified_user is added to all database tables.
 languade modes and template scripts are added to script editor for python, groovy and perl.
-error (using \n) in scripts section is fixed 
+error (using \n) in scripts section is fixed
 pipeline description section added.
 pipeline details section added.
 Draggable modal feature is added.
 
 15.12.2017 Version 0.0.13
-Sql injections prevented in scripts section 
+Sql injections prevented in scripts section
 SVG width is allowed to fit into screen.
 SVG tooltip is updated to show identifier, qualifier, file type and name
-One outputparam is able to connect with only one process 
+One outputparam is able to connect with only one process
 
 
 13.12.2017 Version 0.0.12
@@ -449,7 +452,7 @@ Searching in combobox (by using Selectize.js) is added in "Add process" modal.
 Parameter add/edit/delete modal added in "Add process" modal.
 
 04.12.2017 Version 0.0.6
-Database integration of "Add process" modal is completed. 
+Database integration of "Add process" modal is completed.
 
 01.12.2017 Version 0.0.5
 Add process modal added. Ace editor is included into modal.
@@ -457,9 +460,8 @@ Add process modal added. Ace editor is included into modal.
 28.11.2017 Version 0.0.4
 Single/Pair option added to nextflow. Database updated: Build_index and Map_Tophat2 processes updated. Obsolete tables are removed.
 
-20.11.2017 Version 0.0.3 
+20.11.2017 Version 0.0.3
 Output parameters module added to nextflow. Database updated process scripts
 
-18.11.2017 Version 0.0.2 
+18.11.2017 Version 0.0.2
 Output parameters module added. Database updated for NF_pipelines
-
