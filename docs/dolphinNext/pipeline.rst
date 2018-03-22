@@ -33,7 +33,7 @@ Processes can be reached by "Processes" section at the left sidebar menu. Under 
 	:width: 20%
     
     
-Your will notice several icons on the process circle:
+You will notice several icons on the process circle:
     * **Settings icon**, located at the top, opens "Select Process Revision" window where you may examine the current state of process or you may jump to the other revisions and replace the selected revisions on the workplace. 
     * **Pencil icon** which is at the center of the circle, allow you to edit process name which will be placed in the nextflow file as a process name. Therefore process names should be unique in overall pipeline.
     * At the bottom of the process circle, **bin icon** is located to delete current process from the pipeline.
