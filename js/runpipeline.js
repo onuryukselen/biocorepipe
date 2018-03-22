@@ -1326,7 +1326,8 @@
 	      if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
 	          var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
-	          if (executor_job === 'local') {
+              console.log(executor_job)
+	          if (executor_job === 'local' || executor_job === 'ignite') {
 	              $('#jobSettingsDiv').css('display', 'none');
 	          } else {
 	              $('#jobSettingsDiv').css('display', 'inline');
@@ -1715,7 +1716,7 @@
 	      var [allProSett, profileData] = getJobData("both");
 	      var executor_job = profileData[0].executor_job;
 	      configTextRaw += 'process.executor = \'' + executor_job + '\'\n';
-	      if (executor_job !== 'local') {
+	      if (executor_job !== 'local' && executor_job !== 'ignite') {
 	          //all process settings eg. process.queue = 'short'
 	          if ($('#exec_all').is(":checked") === true) {
 	              var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
@@ -2210,7 +2211,7 @@
 	          $(document).on('change', '#chooseEnv', function () {
 	              var [allProSett, profileData] = getJobData("both");
 	              var executor_job = profileData[0].executor_job;
-	              if (executor_job === 'local') {
+	              if (executor_job === 'local' || executor_job === 'ignite') {
 	                  $('#jobSettingsDiv').css('display', 'none');
 	              } else {
 	                  $('#jobSettingsDiv').css('display', 'inline');

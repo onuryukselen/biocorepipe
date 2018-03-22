@@ -2642,6 +2642,7 @@ $(document).ready(function () {
         var formValues = $('#projectmodal').find('input');
         var savetype = $('#mProjectID').val();
         var data = formValues.serializeArray(); // convert form to array
+        data.push({ name: "summary", value: "" });
         data.push({ name: "p", value: "saveProject" });
         $.ajax({
             type: "POST",
