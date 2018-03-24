@@ -1852,10 +1852,11 @@
 
 	          } else {
 	              //error occured
-	              console.log("Error.Nextflow not started");
-	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
-	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	              }
+	              console.log("Nextflow not started");
+                  //gives early error, if job is not started yet
+//	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
+//	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+//	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
 	              }
