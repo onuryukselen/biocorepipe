@@ -4,8 +4,8 @@ Project Guide
 
 This guide shows how to create project and how to insert pipeline and file into it.
 
-Creating Projects
-=================
+Creating Projects and Adding Pipelines
+======================================
 
 Projects are platforms to categorize all of your runs and files. To run a pipeline, it is required to add selected pipelines into your project. There are two ways to create a new project and add pipelines to it:
 
