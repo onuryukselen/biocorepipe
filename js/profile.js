@@ -193,7 +193,7 @@
                     $('#mExecJob').trigger('change');
                     $('#execNextDiv').css('display', 'none');
                     $('#mExecJobDiv').css('display', 'block');
-                } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm") {
+                } else if (mExecType === "sge" || mExecType === "lsf" || mExecType === "slurm" ) {
                     $('#mExecJob').val(mExecType).trigger('change');
                     $('#mExecJob').attr('disabled', "disabled");
                     $('#execNextDiv').css('display', 'block');
@@ -206,8 +206,8 @@
             $(document).on('change', '#mExecJob', function () {
                 var mExecJobType = $('#mExecJob option:selected').val();
                 if (mExecJobType === "local" || mExecJobType === "ignite") {
-                    $('#execJobSetDiv').css('display', 'none');
-                } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm") {
+                    $('#execJobSetDiv').css('display', 'none' );
+                } else if (mExecJobType === "sge" || mExecJobType === "lsf" || mExecJobType === "slurm" ) {
                     $('#execJobSetDiv').css('display', 'block');
                 }
             })
@@ -237,55 +237,49 @@
             var data = formValues.serializeArray(); // convert form to array
             var selEnvType = $('#chooseEnv option:selected').val();
             if (selEnvType.length && profileName !== '') {
-                if (selEnvType === "cluster") {
+                if (selEnvType === "local") {
+                    data.push({ name: "p", value: "saveProfileLocal" });
+                } else if (selEnvType === "cluster") {
                     data.push({ name: "p", value: "saveProfileCluster" });
                 } else if (selEnvType === "amazon") {
-                    var sshID = $('#mEnvSSHKey').val();
-                    var amzID = $('#mEnvAmzKey').val();
-                    if (sshID && amzID) {
-                        data.push({ name: "p", value: "saveProfileAmazon" });
-                    } else {
-                        data = [];
-                    }
+                    data.push({ name: "p", value: "saveProfileAmazon" });
                 }
-                if (data != '') {
-                    $.ajax({
-                        type: "POST",
-                        url: "ajax/ajaxquery.php",
-                        data: data,
-                        async: true,
-                        success: function (s) {
-                            if (savetype.length) { //edit
-                                var clickedRowId = selEnvType + '-' + savetype;
-                                if (selEnvType === "local") {
-                                    updateLocalRow(data[0].value, data[1].value, data[12].value, data[13].value)
-                                } else if (selEnvType === "cluster") {
-                                    updateClusterRow(data[0].value, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value)
-                                } else if (selEnvType === "amazon") {
-                                    updateAmazonRow(data[0].value, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
-                                }
-                            } else { //insert
-                                if (selEnvType === "local") {
-                                    addLocalRow(s.id, data[1].value, data[12].value, data[13].value);
-                                } else if (selEnvType === "cluster") {
-                                    addClusterRow(s.id, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value);
-                                } else if (selEnvType === "amazon") {
-                                    addAmazonRow(s.id, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
-                                    $('#manageAmz').css('display', 'inline');
-                                    checkAmazonTimer(s.id, 40000);
-                                }
-                                var numRows = $('#profilesTable > > tr').length;
-                                if (numRows > 2) {
-                                    $('#noProfile').css('display', 'none');
-                                }
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxquery.php",
+                    data: data,
+                    async: true,
+                    success: function (s) {
+                        if (savetype.length) { //edit
+                            var clickedRowId = selEnvType + '-' + savetype;
+                            if (selEnvType === "local") {
+                                updateLocalRow(data[0].value, data[1].value, data[12].value, data[13].value)
+                            } else if (selEnvType === "cluster") {
+                                updateClusterRow(data[0].value, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value)
+                            } else if (selEnvType === "amazon") {
+                                updateAmazonRow(data[0].value, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
                             }
-                            $('#profilemodal').modal('hide');
-                        },
-                        error: function (errorThrown) {
-                            alert("Error: " + errorThrown);
+                        } else { //insert
+                            if (selEnvType === "local") {
+                                addLocalRow(s.id, data[1].value, data[12].value, data[13].value);
+                            } else if (selEnvType === "cluster") {
+                                addClusterRow(s.id, data[1].value, data[12].value, data[13].value, data[3].value, data[4].value);
+                            } else if (selEnvType === "amazon") {
+                                addAmazonRow(s.id, data[1].value, data[12].value, data[13].value, data[6].value, data[7].value);
+                                $('#manageAmz').css('display', 'inline');
+                                checkAmazonTimer(s.id, 40000);
+                            }
+                            var numRows = $('#profilesTable > > tr').length;
+                            if (numRows > 2) {
+                                $('#noProfile').css('display', 'none');
+                            }
                         }
-                    });
-                }
+                        $('#profilemodal').modal('hide');
+                    },
+                    error: function (errorThrown) {
+                        alert("Error: " + errorThrown);
+                    }
+                });
             }
         });
 

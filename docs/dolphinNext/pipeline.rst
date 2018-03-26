@@ -7,7 +7,7 @@ This guide will show how to create, edit, delete and share pipelines.
 Basics
 ======
 
-Once logged in, click on the pipeline button in the top left of the screen. You'll notice *Enter Pipeline Name* box, just below the Pipelines button.
+Once logged in, click on the pipeline tab in the top left of the screen. You'll notice *Enter Pipeline Name* box, just below the Pipelines button.
 
 .. image:: dolphinnext_images/pipeline_name.png
 	:align: center

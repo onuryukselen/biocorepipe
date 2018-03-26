@@ -213,7 +213,7 @@
 	      //	          .call(drag)
 
 	      //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-	      //inner parameter circle
+	      //inner parameter circle 
 
 
 	      d3.select("#g-" + gNum).append("circle")
@@ -760,7 +760,7 @@
 	      }
 	      //first click is done on the circle of inputparam
 	      if (inputParamLocF === 0 || outputParamLocF === 0) {
-	          //update the class of inputparam based on selected second circle
+	          //update the class of inputparam based on selected second circle  
 	          secClassName = updateSecClassName(second, inputParamLocF)
 	          d3.selectAll("#" + first).attr("class", secClassName)
 	          //update the parameter of the inputparam based on selected second circle
@@ -776,7 +776,7 @@
 	          fClick = secID
 	          sClick = second
 	          var rowType = '';
-	          //Pipeline details table
+	          //Pipeline details table 
 	          if (inputParamLocF === 0) {
 	              rowType = 'input';
 	          } else if (outputParamLocF === 0) {
@@ -1331,7 +1331,7 @@
 	              $('#jobSettingsDiv').css('display', 'none');
 	          } else {
 	              $('#jobSettingsDiv').css('display', 'inline');
-	              //insert exec_all_settings data into allProcessSettTable table
+	              //insert exec_all_settings data into allProcessSettTable table 
 	              if (IsJsonString(pipeData[0].exec_all_settings)) {
 	                  var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
 	                  fillForm('#allProcessSettTable', 'input', exec_all_settings);
@@ -1404,7 +1404,6 @@
 	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
-
 	  function saveFileSetValModal(data, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -1792,7 +1791,7 @@
 	          $('#runLogArea').val(serverLog + nextflowLog);
 	          if (nextflowLog.match(/N E X T F L O W/)) {
 	              if (nextflowLog.match(/##Success: failed/)) {
-	                  // status completed with error
+	                  // status completed with error 
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id, duration: duration });
@@ -1803,7 +1802,7 @@
 	                  displayButton('errorProPipe');
 
 	              } else if (nextflowLog.match(/##Success: OK/)) {
-	                  // status completed with success
+	                  // status completed with success 
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
@@ -1817,7 +1816,7 @@
 	                  showOutputPath();
 
 	              } else if (nextflowLog.match(/error/gi) || nextflowLog.match(/failed/i)) {
-	                  // status completed with error
+	                  // status completed with error 
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
 	                  }
@@ -1852,11 +1851,10 @@
 
 	          } else {
 	              //error occured
-	              console.log("Nextflow not started");
-                  //gives early error, if job is not started yet
-//	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
-//	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-//	              }
+	              console.log("Error.Nextflow not started");
+	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
+	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
 	              }
@@ -2080,10 +2078,9 @@
 	          });
 	      } else {
 	          //xxx
-	          //Changes are not saved. Please enter the run name.
+	          //Changes are not saved. Please enter the run name. 
 	      }
 	  }
-
 	  function getProfileData(proType, proId) {
 	      if (proType === 'cluster') {
 	          var profileData = getValues({ p: "getProfileCluster", id: proId });
@@ -2092,7 +2089,6 @@
 	      }
 	      return profileData;
 	  }
-
 	  function getJobData(getType) {
 	      var chooseEnv = $('#chooseEnv option:selected').val();
 	      if (chooseEnv) {
@@ -2116,13 +2112,11 @@
 	          }
 	      }
 	  }
-
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
 	      if (type === "edit") {
 	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
 	      }
 	  }
-
 	  function getRunStatus(project_pipeline_id) {
 	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
 	      if (runStatusGet[0]) {
@@ -2269,7 +2263,7 @@
 	              if (checkdata === 'manualTab') {
 	                  var formValues = $('#inputFilemodal').find('input');
 	                  var data = formValues.serializeArray(); // convert form to array
-	                  // check if name is entered
+	                  // check if name is entered 
 	                  if (data[1].value !== '') {
 	                      data[1].value = $.trim(data[1].value);
 	                      saveFileSetValModal(data, 'file');
@@ -2337,7 +2331,7 @@
 	          if (!savetype.length) { //add item
 	              var formValues = $('#inputValmodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
-	              // check if value is entered
+	              // check if value is entered 
 	              if (data[1].value !== '') {
 	                  saveFileSetValModal(data, 'val');
 	                  $('#inputValmodal').modal('hide');

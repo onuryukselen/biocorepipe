@@ -70,7 +70,7 @@
                 </ul>
             </div>
             <div id="waitingProPipe" style="display:none; float:right; " class="btn-group">
-                <button class="btn btn-info" type="button" id="waitingProPipeBut">Waits</button>
+                <button class="btn btn-info" type="button" id="waitingProPipeBut">Waiting</button>
                 <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                     <span class="caret"></span>
                   </button>

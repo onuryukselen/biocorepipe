@@ -69,8 +69,8 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name,'inputDir');
 		ob_end_clean();
 	}
-
-
+    
+    
     public function testInsertUser() {
 		ob_start();
 		$_REQUEST['p'] = 'saveUser';
@@ -384,7 +384,7 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->amz_suc_key, 'test3');
 		ob_end_clean();
 	}
-
+    
     /**
      * @depends testgetAmzbyID
      */
@@ -406,7 +406,7 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->amz_suc_key, 'test3_up');
 		ob_end_clean();
 	}
-
+    
     public function testInsertProfileCluster() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProfileCluster';
@@ -727,7 +727,7 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated');
 		ob_end_clean();
 	}
-
+ 
     public function testsavefeedback() {
 		ob_start();
 		$_REQUEST['p'] = 'savefeedback';

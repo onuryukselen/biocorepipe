@@ -2,15 +2,19 @@
 Amazon Cloud Guide
 ******************
 
-DolphinNext supports submitting jobs to the Amazon AWS cloud by using Nextflow. It allows you to practically setup, start/stop a computing cluster and running your pipeline in the AWS infrastructure.
+DolphinNext supports submitting jobs to the Amazon AWS cloud by using Nextflow which allows you to setup a computing cluster, activate/terminate it and run your pipeline in the AWS infrastructure.
 
 Configuration
 =============
 
 
 	
-Amazon Management Console
-=========================
+AWS credentials
+===============
 
+
+
+SSH keys
+========
 
 
