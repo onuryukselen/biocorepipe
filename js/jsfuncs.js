@@ -29,7 +29,7 @@ checkAmzProfiles("timer");
 //to start timer, enter "timer" as input
 function checkAmzProfiles(timer) {
     var proAmzData = getValues({ p: "getProfileAmazon" });
-    if (proAmzData && proAmzData != '') {
+    if (proAmzData) {
         if (proAmzData.length > 0) {
             $('#manageAmz').css('display', 'inline');
             var countActive = 0;
@@ -56,26 +56,18 @@ function checkAmzProfiles(timer) {
 function checkAmazonTimer(proId, interval) {
     window['interval_amzStatus_' + proId] = setInterval(function () {
         var runAmzCloudCheck = runAmazonCloudCheck(proId);
-        if (runAmzCloudCheck) {
             setTimeout(function () { checkAmazonStatus(proId); }, 3000);
-        }
     }, interval);
 }
 
 function runAmazonCloudCheck(proId) {
     var runAmzCloudCheck = getValues({ p: "runAmazonCloudCheck", profileId: proId });
-    if (runAmzCloudCheck && runAmzCloudCheck != '') {
         return runAmzCloudCheck;
-    } else {
-        runAmzCloudCheck = '';
-        return runAmzCloudCheck;
-    }
 }
 
 function checkAmazonStatus(proId) {
     console.log('checkAmazonStatus');
     var checkAmazonStatus = getValues({ p: "checkAmazonStatus", profileId: proId });
-    if (checkAmazonStatus && checkAmazonStatus != '') {
         if (checkAmazonStatus.status === "waiting") {
             $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
@@ -101,7 +93,6 @@ function checkAmazonStatus(proId) {
             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').attr('disabled', 'disabled');
         } else if (checkAmazonStatus.status === "terminated") {
             clearInterval(window['interval_amzStatus_' + proId]);
-            console.log('clear: interval_amzStatus_' + proId);
             if (checkAmazonStatus.logAmzCloudList) {
                 var logText = checkAmazonStatus.logAmzCloudList;
                 if (logText.match(/INSTANCE ID ADDRESS STATUS ROLE(.*)/)) {
@@ -126,7 +117,6 @@ function checkAmazonStatus(proId) {
         } else {
             $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
         }
-    }
 
 }
 
@@ -134,18 +124,16 @@ function checkAmazonStatus(proId) {
 
 $(document).ready(function () {
     function addAmzRow(id, name, executor, instance_type, image_id, subnet_id) {
-        $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '">Inactive</td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
+        $('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '"><i class="fa fa-hourglass-half"></i></td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
     }
 
     $('#amzModal').on('show.bs.modal', function (event) {
         $(this).find('form').trigger('reset');
         var proAmzData = getValues({ p: "getProfileAmazon" });
-        if (proAmzData && proAmzData != '') {
             $.each(proAmzData, function (el) {
                 addAmzRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id, proAmzData[el].subnet_id);
                 checkAmazonStatus(proAmzData[el].id);
             });
-        }
     });
 
     //close amzModal

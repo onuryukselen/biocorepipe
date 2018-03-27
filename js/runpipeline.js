@@ -9,6 +9,7 @@
 	              return true;
 	      return false;
 	  };
+
 	  function dragStart(event) {
 	      event.dataTransfer.setData("Text", event.target.id);
 	  }
@@ -21,6 +22,7 @@
 	      event.preventDefault();
 	  }
 	  refreshDataset()
+
 	  function refreshDataset() {
 	      processData = getValues({
 	          p: "getProcessData"
@@ -213,7 +215,7 @@
 	      //	          .call(drag)
 
 	      //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-	      //inner parameter circle 
+	      //inner parameter circle
 
 
 	      d3.select("#g-" + gNum).append("circle")
@@ -760,7 +762,7 @@
 	      }
 	      //first click is done on the circle of inputparam
 	      if (inputParamLocF === 0 || outputParamLocF === 0) {
-	          //update the class of inputparam based on selected second circle  
+	          //update the class of inputparam based on selected second circle
 	          secClassName = updateSecClassName(second, inputParamLocF)
 	          d3.selectAll("#" + first).attr("class", secClassName)
 	          //update the parameter of the inputparam based on selected second circle
@@ -776,7 +778,7 @@
 	          fClick = secID
 	          sClick = second
 	          var rowType = '';
-	          //Pipeline details table 
+	          //Pipeline details table
 	          if (inputParamLocF === 0) {
 	              rowType = 'input';
 	          } else if (outputParamLocF === 0) {
@@ -1326,12 +1328,12 @@
 	      if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
 	          var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
-              console.log(executor_job)
+	          console.log(executor_job)
 	          if (executor_job === 'local' || executor_job === 'ignite') {
 	              $('#jobSettingsDiv').css('display', 'none');
 	          } else {
 	              $('#jobSettingsDiv').css('display', 'inline');
-	              //insert exec_all_settings data into allProcessSettTable table 
+	              //insert exec_all_settings data into allProcessSettTable table
 	              if (IsJsonString(pipeData[0].exec_all_settings)) {
 	                  var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
 	                  fillForm('#allProcessSettTable', 'input', exec_all_settings);
@@ -1404,6 +1406,11 @@
 	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
+
+    function checkInputFile(){
+        
+    }
+
 	  function saveFileSetValModal(data, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -1413,39 +1420,72 @@
 	      var gNumParam = rowID.split('-')[1];
 	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
 	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
-	      data.push({ name: "p", value: "saveInput" });
-	      //insert into input table
-	      var inputGet = getValues(data);
-	      if (inputGet) {
-	          var input_id = inputGet.id;
+	      //xxxx
+	      //check database if file is exist?
+	      var nameInput = data[1].value;
+	      var checkInput = getValues({ name: nameInput, p: "checkInput" });
+	      if (checkInput && checkInput != '') {
+	          var input_id = checkInput[0].id;
+	      } else {
+	          //insert into input table
+	          data.push({ name: "p", value: "saveInput" });
+	          var inputGet = getValues(data);
+	          if (inputGet) {
+	              var input_id = inputGet.id;
+	          }
+	      }
+	      //check if project input is exist
+	      var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
+	      if (checkProjectInput && checkProjectInput != '') {
+	          var projectInputID = checkProjectInput[0].id;
+	      } else {
 	          //insert into project_input table
 	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
 	          if (proInputGet) {
 	              var projectInputID = proInputGet.id;
-	              //insert into project_pipeline_input table
-	              var propipeInputGet = getValues({
-	                  "p": "saveProPipeInput",
-	                  "input_id": input_id,
-	                  "project_id": project_id,
-	                  "pipeline_id": pipeline_id,
-	                  "project_pipeline_id": project_pipeline_id,
-	                  "g_num": gNumParam,
-	                  "given_name": given_name,
-	                  "qualifier": qualifier
-	              });
-	              if (propipeInputGet) {
-	                  var projectPipelineInputID = propipeInputGet.id;
-	                  //get inputdata from input table
-	                  var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
-	                  if (proInputGet) {
-	                      var filePath = proInputGet[0].name;
-	                      //insert into #inputsTab
-	                      insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
-	                  }
-	              }
 	          }
 	      }
-	      checkReadytoRun();
+	      //check if project input is exist
+	      var checkProPipeInput = getValues({ "p": "checkProPipeInput", "input_id": input_id, "project_id": project_id, "pipeline_id" : pipeline_id, "project_pipeline_id": project_pipeline_id });
+          console.log(checkProPipeInput)
+	      if (checkProPipeInput && checkProPipeInput != '') {
+	          var projectPipelineInputID = checkProPipeInput[0].id;
+              //update project_pipeline_input table
+	          var propipeInputGet = getValues({
+	              "id": projectPipelineInputID,
+	              "p": "saveProPipeInput",
+	              "input_id": input_id,
+	              "project_id": project_id,
+	              "pipeline_id": pipeline_id,
+	              "project_pipeline_id": project_pipeline_id,
+	              "g_num": gNumParam,
+	              "given_name": given_name,
+	              "qualifier": qualifier
+	          });
+	      } else {
+	          //insert into project_pipeline_input table
+	          var propipeInputGet = getValues({
+	              "p": "saveProPipeInput",
+	              "input_id": input_id,
+	              "project_id": project_id,
+	              "pipeline_id": pipeline_id,
+	              "project_pipeline_id": project_pipeline_id,
+	              "g_num": gNumParam,
+	              "given_name": given_name,
+	              "qualifier": qualifier
+	          });
+	          if (propipeInputGet) {
+	              var projectPipelineInputID = propipeInputGet.id;
+	          }
+	      }
+	      //get inputdata from input table
+	      var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
+	      if (proInputGet) {
+	          var filePath = proInputGet[0].name;
+	          //insert into #inputsTab
+	          insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
+	      }
+	  checkReadytoRun();
 	  }
 
 	  function editFileSetValModal(data, sType) {
@@ -1610,11 +1650,11 @@
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.$' + proName + '.time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
-	                  window.configTextRaw += 'process.$' + proName + '.cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	                  window.configTextRaw += 'process.$' + proName + '.cpus' + ' = ' + exec_all_settings[keyParam] + '\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
 	                  window.configTextRaw += 'process.$' + proName + '.queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
-	                  window.configTextRaw += 'process.$' + proName + '.memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
+	                  window.configTextRaw += 'process.$' + proName + '.memory' + ' = \'' + exec_all_settings[keyParam] + ' GB\'\n';
 	              }
 	          }
 
@@ -1623,11 +1663,11 @@
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
-	                  window.configTextRaw += 'process.' + 'cpus' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
+	                  window.configTextRaw += 'process.' + 'cpus' + ' = ' + exec_all_settings[keyParam] + '\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
 	                  window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
-	                  window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + 'GB\'\n';
+	                  window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + ' GB\'\n';
 	              }
 	          }
 	      }
@@ -1791,7 +1831,7 @@
 	          $('#runLogArea').val(serverLog + nextflowLog);
 	          if (nextflowLog.match(/N E X T F L O W/)) {
 	              if (nextflowLog.match(/##Success: failed/)) {
-	                  // status completed with error 
+	                  // status completed with error
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id, duration: duration });
@@ -1802,7 +1842,7 @@
 	                  displayButton('errorProPipe');
 
 	              } else if (nextflowLog.match(/##Success: OK/)) {
-	                  // status completed with success 
+	                  // status completed with success
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var duration = nextflowLog.match(/##Duration:(.*)\n/)[1];
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextSuc", project_pipeline_id: project_pipeline_id, duration: duration });
@@ -1816,7 +1856,7 @@
 	                  showOutputPath();
 
 	              } else if (nextflowLog.match(/error/gi) || nextflowLog.match(/failed/i)) {
-	                  // status completed with error 
+	                  // status completed with error
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
 	                      var setStatus = getValues({ p: "updateRunStatus", run_status: "NextErr", project_pipeline_id: project_pipeline_id });
 	                  }
@@ -1851,10 +1891,11 @@
 
 	          } else {
 	              //error occured
-	              console.log("Error.Nextflow not started");
-	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
-	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	              }
+	              console.log("Nextflow not started");
+	              //gives early error, if job is not started yet
+	              //	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
+	              //	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
+	              //	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
 	              }
@@ -2078,9 +2119,10 @@
 	          });
 	      } else {
 	          //xxx
-	          //Changes are not saved. Please enter the run name. 
+	          //Changes are not saved. Please enter the run name.
 	      }
 	  }
+
 	  function getProfileData(proType, proId) {
 	      if (proType === 'cluster') {
 	          var profileData = getValues({ p: "getProfileCluster", id: proId });
@@ -2089,6 +2131,7 @@
 	      }
 	      return profileData;
 	  }
+
 	  function getJobData(getType) {
 	      var chooseEnv = $('#chooseEnv option:selected').val();
 	      if (chooseEnv) {
@@ -2112,11 +2155,13 @@
 	          }
 	      }
 	  }
+
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
 	      if (type === "edit") {
 	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
 	      }
 	  }
+
 	  function getRunStatus(project_pipeline_id) {
 	      var runStatusGet = getValues({ p: "getRunStatus", project_pipeline_id: project_pipeline_id });
 	      if (runStatusGet[0]) {
@@ -2263,9 +2308,9 @@
 	              if (checkdata === 'manualTab') {
 	                  var formValues = $('#inputFilemodal').find('input');
 	                  var data = formValues.serializeArray(); // convert form to array
-	                  // check if name is entered 
-	                  if (data[1].value !== '') {
+	                  // check if name is entered
 	                      data[1].value = $.trim(data[1].value);
+	                  if (data[1].value !== '') {
 	                      saveFileSetValModal(data, 'file');
 	                      $('#inputFilemodal').modal('hide');
 	                  }
@@ -2273,9 +2318,9 @@
 	          } else { //edit item
 	              var formValues = $('#inputFilemodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
-	              // check if file_path is entered //xx?
-	              if (data[1].value !== '') {
+	              // check if file_path is entered 
 	                  data[1].value = $.trim(data[1].value);
+	              if (data[1].value !== '') {
 	                  editFileSetValModal(data, 'file');
 	                  $('#inputFilemodal').modal('hide');
 	              }
@@ -2331,7 +2376,8 @@
 	          if (!savetype.length) { //add item
 	              var formValues = $('#inputValmodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
-	              // check if value is entered 
+	              // check if value is entered
+                      data[1].value = $.trim(data[1].value);
 	              if (data[1].value !== '') {
 	                  saveFileSetValModal(data, 'val');
 	                  $('#inputValmodal').modal('hide');
@@ -2339,9 +2385,9 @@
 	          } else { //edit item
 	              var formValues = $('#inputValmodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
-	              var filePath = data[1].value;
-	              // check if file_path is entered //xx?
-	              if (filePath !== '') {
+	              // check if file_path is entered 
+                  data[1].value = $.trim(data[1].value);
+	              if (data[1].value !== '') {
 	                  editFileSetValModal(data, 'val');
 	                  $('#inputValmodal').modal('hide');
 	              }
