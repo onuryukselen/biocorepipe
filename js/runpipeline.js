@@ -1407,21 +1407,7 @@
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
 
-    function checkInputFile(){
-        
-    }
-
-	  function saveFileSetValModal(data, sType) {
-	      if (sType === 'file' || sType === 'set') {
-	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
-	      } else if (sType === 'val') {
-	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
-	      }
-	      var gNumParam = rowID.split('-')[1];
-	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
-	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
-	      //xxxx
-	      //check database if file is exist?
+	  function checkInputInsert (data, gNumParam, given_name, qualifier,rowID,sType) {
 	      var nameInput = data[1].value;
 	      var checkInput = getValues({ name: nameInput, p: "checkInput" });
 	      if (checkInput && checkInput != '') {
@@ -1446,11 +1432,10 @@
 	          }
 	      }
 	      //check if project input is exist
-	      var checkProPipeInput = getValues({ "p": "checkProPipeInput", "input_id": input_id, "project_id": project_id, "pipeline_id" : pipeline_id, "project_pipeline_id": project_pipeline_id });
-          console.log(checkProPipeInput)
+	      var checkProPipeInput = getValues({ "p": "checkProPipeInput", "input_id": input_id, "project_id": project_id, "pipeline_id": pipeline_id, "project_pipeline_id": project_pipeline_id });
 	      if (checkProPipeInput && checkProPipeInput != '') {
 	          var projectPipelineInputID = checkProPipeInput[0].id;
-              //update project_pipeline_input table
+	          //update project_pipeline_input table
 	          var propipeInputGet = getValues({
 	              "id": projectPipelineInputID,
 	              "p": "saveProPipeInput",
@@ -1478,14 +1463,70 @@
 	              var projectPipelineInputID = propipeInputGet.id;
 	          }
 	      }
-	      //get inputdata from input table
-	      var proInputGet = getValues({ "p": "getInputs", "id": input_id, });
+          //get inputdata from input table
+	      var proInputGet = getValues({ "p": "getInputs", "id": input_id });
 	      if (proInputGet) {
 	          var filePath = proInputGet[0].name;
 	          //insert into #inputsTab
 	          insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
 	      }
-	  checkReadytoRun();
+	  }
+
+function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, proPipeInputID) {
+	      var nameInput = data[1].value;
+	      var checkInput = getValues({ name: nameInput, p: "checkInput" });
+	      if (checkInput && checkInput != '') {
+	          var input_id = checkInput[0].id;
+              
+	      } else {
+	          //insert into input table
+              data[0].value = "";
+	          data.push({ name: "p", value: "saveInput" });
+	          var inputGet = getValues(data);
+	          if (inputGet) {
+	              var input_id = inputGet.id;
+	          }
+	      }
+	      //check if project input is exist
+	      var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
+	      if (checkProjectInput && checkProjectInput != '') {
+	          var projectInputID = checkProjectInput[0].id;
+	      } else {
+	          //insert into project_input table
+	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+	          if (proInputGet) {
+	              var projectInputID = proInputGet.id;
+	          }
+	      }
+	          //update project_pipeline_input table
+	          var propipeInputGet = getValues({
+	              "id": proPipeInputID,
+	              "p": "saveProPipeInput",
+	              "input_id": input_id,
+	              "project_id": project_id,
+	              "pipeline_id": pipeline_id,
+	              "project_pipeline_id": project_pipeline_id,
+	              "g_num": gNumParam,
+	              "given_name": given_name,
+	              "qualifier": qualifier
+	          });
+          //update file table
+	      $('#filePath-' + gNumParam).text(nameInput);
+	  }
+
+	  function saveFileSetValModal(data, sType) {
+	      if (sType === 'file' || sType === 'set') {
+	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      } else if (sType === 'val') {
+	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
+	      }
+	      var gNumParam = rowID.split('-')[1];
+	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
+	      //xxxx
+	      //check database if file is exist, if not exist then insert
+	      checkInputInsert(data, gNumParam, given_name, qualifier,rowID,sType);
+	      checkReadytoRun();
 	  }
 
 	  function editFileSetValModal(data, sType) {
@@ -1494,14 +1535,12 @@
 	      } else if (sType === 'val') {
 	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
 	      }
+	      var proPipeInputID = $('#' + rowID).attr('propipeinputid');
 	      var gNumParam = rowID.split('-')[1];
 	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
-	      data.push({ name: "p", value: "saveInput" });
-	      //update file table
-	      var inputGet = getValues(data);
-	      var input_id = data[0].value;
-	      //update #inputsTab
-	      $('#filePath-' + gNumParam).text(data[1].value);
+	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
+          //check database if file is exist, if not exist then insert
+	      checkInputEdit(data, gNumParam, given_name, qualifier,rowID,sType, proPipeInputID);
 	      checkReadytoRun();
 	  }
 	  checkType = "";
@@ -2309,7 +2348,7 @@
 	                  var formValues = $('#inputFilemodal').find('input');
 	                  var data = formValues.serializeArray(); // convert form to array
 	                  // check if name is entered
-	                      data[1].value = $.trim(data[1].value);
+	                  data[1].value = $.trim(data[1].value);
 	                  if (data[1].value !== '') {
 	                      saveFileSetValModal(data, 'file');
 	                      $('#inputFilemodal').modal('hide');
@@ -2319,7 +2358,7 @@
 	              var formValues = $('#inputFilemodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
 	              // check if file_path is entered 
-	                  data[1].value = $.trim(data[1].value);
+	              data[1].value = $.trim(data[1].value);
 	              if (data[1].value !== '') {
 	                  editFileSetValModal(data, 'file');
 	                  $('#inputFilemodal').modal('hide');
@@ -2377,7 +2416,7 @@
 	              var formValues = $('#inputValmodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
 	              // check if value is entered
-                      data[1].value = $.trim(data[1].value);
+	              data[1].value = $.trim(data[1].value);
 	              if (data[1].value !== '') {
 	                  saveFileSetValModal(data, 'val');
 	                  $('#inputValmodal').modal('hide');
@@ -2386,7 +2425,7 @@
 	              var formValues = $('#inputValmodal').find('input');
 	              var data = formValues.serializeArray(); // convert form to array
 	              // check if file_path is entered 
-                  data[1].value = $.trim(data[1].value);
+	              data[1].value = $.trim(data[1].value);
 	              if (data[1].value !== '') {
 	                  editFileSetValModal(data, 'val');
 	                  $('#inputValmodal').modal('hide');
