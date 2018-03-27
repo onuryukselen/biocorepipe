@@ -57,7 +57,7 @@
             },
             async: true,
             success: function (s) {
-        window.location.replace("index.php?np=2");
+                window.location.replace("index.php?np=2");
 
             },
             error: function (errorThrown) {
@@ -66,24 +66,25 @@
         });
     }
 
-function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
-    if (type === 'add') {
-        $('#side-'+project_id).append('<li><a href="index.php?np=3&id=' + project_pipeline_id + '" class="projectItems" draggable="false" id="propipe-' + project_pipeline_id + '"><i class="fa fa-angle-double-right"></i>' + project_pipeline_name + '</a></li>');
-    } else if (type === "remove"){
-      $('#propipe-' + project_pipeline_id).parent().remove();
+    function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
+        if (type === 'add') {
+            $('#side-' + project_id).append('<li><a href="index.php?np=3&id=' + project_pipeline_id + '" class="projectItems" draggable="false" id="propipe-' + project_pipeline_id + '"><i class="fa fa-angle-double-right"></i>' + project_pipeline_name + '</a></li>');
+        } else if (type === "remove") {
+            $('#propipe-' + project_pipeline_id).parent().remove();
+        }
     }
-}
 
- function getRunTableOptions(proPipeOwn){
-        if (proPipeOwn == "1"){
-              return  getButtonsDef('selectRun', 'Run') + getTableButtons("projectrun", REMOVE);
+    function getRunTableOptions(proPipeOwn) {
+        if (proPipeOwn == "1") {
+            return getButtonsDef('selectRun', 'Run') + getTableButtons("projectrun", REMOVE);
         } else {
             return getButtonsDef('selectRun', 'Run');
         }
     }
- function getFilesTableOptions(proInputOwn){
-        if (proInputOwn == "1"){
-              return  getTableButtons("projectfile", REMOVE);
+
+    function getFilesTableOptions(proInputOwn) {
+        if (proInputOwn == "1") {
+            return getTableButtons("projectfile", REMOVE);
         } else {
             return "";
         }
@@ -110,14 +111,14 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                 "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                     $(nTd).html("<a href='index.php?np=3&id=" + oData.id + "'>" + oData.pp_name + "</a>");
                 }
-            },{
+            }, {
                 "data": "name",
                 "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                     $(nTd).html("<a href='index.php?np=1&id=" + oData.pip_id + "'>" + oData.name + "</a>");
                 }
             }, {
                 "data": "rev_id"
-            },{
+            }, {
                 "data": "summary",
                 "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                     $(nTd).text(truncateName(oData.summary, 'newTable'));
@@ -130,8 +131,8 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                 data: null,
                 className: "center",
                 fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                $(nTd).html(getRunTableOptions (oData.own));
-            }
+                    $(nTd).html(getRunTableOptions(oData.own));
+                }
             }],
             'order': [[5, 'desc']]
         });
@@ -159,10 +160,10 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
             }, {
                     "data": "rev_id"
             }, {
-                "data": "summary",
-                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                    $(nTd).text(truncateName(oData.summary, 'newTable'));
-                }
+                    "data": "summary",
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $(nTd).text(truncateName(oData.summary, 'newTable'));
+                    }
             }, {
                     "data": "username"
             }, {
@@ -193,22 +194,22 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
 
 
         });
-        
-        
+
+
         //enter run name modal
-    $('#runNameModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        $(this).find('form').trigger('reset');
-        if (button.attr('id') === 'selectPipe') {
-            $('#runNameModaltitle').html('Enter Run Name');
-        } 
-    });
-    //save run on database
-    $('#runNameModal').on('click', '#saveRun', function (event) {
-        event.preventDefault();
-         var rows_selected = allpipelinestable.column(0).checkboxes.selected();
-         var run_name = $('#runName').val();
-        
+        $('#runNameModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            $(this).find('form').trigger('reset');
+            if (button.attr('id') === 'selectPipe') {
+                $('#runNameModaltitle').html('Enter Run Name');
+            }
+        });
+        //save run on database
+        $('#runNameModal').on('click', '#saveRun', function (event) {
+            event.preventDefault();
+            var rows_selected = allpipelinestable.column(0).checkboxes.selected();
+            var run_name = $('#runName').val();
+
             if (rows_selected.length === 1 && run_name !== '') {
                 var data = [];
                 var $pipeline_id = rows_selected[0];
@@ -249,7 +250,7 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                 $('#runNameModal').modal('hide');
                 $('#runmodal').modal('hide');
             }
-    });
+        });
 
         $('#runtable').on('click', '#projectrunremove', function (e) {
             e.preventDefault();
@@ -267,8 +268,8 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                 async: true,
                 success: function (s) {
                     runsTable.row(clickedRow).remove().draw();
-                        updateSideBarProPipe("", rowData.id, "", 'remove');
-                    
+                    updateSideBarProPipe("", rowData.id, "", 'remove');
+
                 },
                 error: function (errorThrown) {
                     alert("Error: " + errorThrown);
@@ -283,8 +284,8 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
             console.log(rowData.id);
             var project_pipeline_id = (rowData.id);
             window.location.replace("index.php?np=3&id=" + project_pipeline_id);
-           
-            
+
+
         });
 
         var filesTable = $('#filetable').DataTable({
@@ -301,22 +302,23 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
             },
             "columns": [{
                 "data": "name"
-            },  {
+            }, {
                 data: null,
                 className: "center",
                 fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                $(nTd).html(getFilesTableOptions (oData.own));
-            }
+                    $(nTd).html(getFilesTableOptions(oData.own));
+                }
             }]
 
         });
 
+        $('#confirmModal').on('show.bs.modal', function (event) {
+            $('#confirmModalText').html('Entered file/value already exist in table.');
+        });
 
         $('#fileModal').on('show.bs.modal', function (event) {
-            //            allpipelinestable.column(0).checkboxes.deselect();
             $(this).find('form').trigger('reset');
             $('#filemodaltitle').html('Add Files to Project');
-
         });
 
 
@@ -328,28 +330,47 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
                 var formValues = $('#fileModal').find('input');
                 var savetype = $('#mIdFile').val();
                 var data = formValues.serializeArray(); // convert form to array
-//                data.push({ name: "project_id", value: project_id });
-                data.push({ name: "p", value: "saveInput" });
-                //insert into input table
-                var inputGet = getValues(data);
-                var inputID = inputGet.id;
-                //insert into project_input table
-                var proInputGet = getValues({ "p": "saveProjectInput", "input_id": inputID, "project_id": project_id });
-                var projectInputID = proInputGet.id;
-                //get inputdata from input table
-                var inputGets = getValues({ "p": "getInputs", "id": inputID, });
-                //insert into #filestable
-                var rowData = {};
-                var keys = filesTable.settings().init().columns;
-                for (var i = 0; i < keys.length; i++) {
-                    var key = keys[i].data;
-                    rowData[key] = inputGets[0][key];
+                var nameInput = data[1].value;
+                if (nameInput !== "") {
+                    //check database if file is exist?
+                    var checkInput = getValues({ name: nameInput, p: "checkInput" });
+                    if (checkInput && checkInput != '') {
+                        var input_id = checkInput[0].id;
+                    } else {
+                        //insert into input table
+                        data.push({ name: "p", value: "saveInput" });
+                        var inputGet = getValues(data);
+                        if (inputGet) {
+                            var input_id = inputGet.id;
+                        }
+                    }
+                    //check if project input is exist
+                    var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
+                    if (checkProjectInput && checkProjectInput != '') {
+                        var projectInputID = checkProjectInput[0].id;
+                        $('#confirmModal').modal('show');
+                    } else {
+                        //insert into project_input table
+                        var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+                        if (proInputGet) {
+                            var projectInputID = proInputGet.id;
+                        }
+                        //get inputdata from input table
+                        var inputGets = getValues({ "p": "getInputs", "id": input_id });
+                        //insert into #filestable
+                        var rowData = {};
+                        var keys = filesTable.settings().init().columns;
+                        for (var i = 0; i < keys.length; i++) {
+                            var key = keys[i].data;
+                            rowData[key] = inputGets[0][key];
+                        }
+                        rowData.id = projectInputID;
+                        rowData.own = inputGets[0].own;
+                        filesTable.row.add(rowData).draw();
+                    }
+                    $('#fileModal').modal('hide');
                 }
-                rowData.id = projectInputID;
-                rowData.own = inputGets[0].own;
-                filesTable.row.add(rowData).draw();
             }
-            $('#fileModal').modal('hide');
 
         });
 
@@ -361,7 +382,7 @@ function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_
             //xxx check if input is used in any project_pipeline_input or project_input
             // then allow to delete
             //get input_id from project input table
-	        var proInputGet = getValues({"p": "getProjectInput", id: rowData.id});
+            var proInputGet = getValues({ "p": "getProjectInput", id: rowData.id });
             var input_id = proInputGet[0].input_id;
             $.ajax({
                 type: "POST",
