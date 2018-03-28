@@ -193,7 +193,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="projectFileTab">
                            <div class="row">
-                           <div class="col-sm-4" style="border-right:1px solid lightgrey; padding-top:6px;">
+                           <div class="col-sm-3" style="border-right:1px solid lightgrey; padding-top:6px;">
                                 <table id="projectListTable" class="table  table-striped display" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
@@ -203,7 +203,7 @@
                                     <tbody></tbody>
                                 </table>
                             </div> 
-                            <div class="col-sm-8" style="padding-top:6px;">
+                            <div class="col-sm-9" style="padding-top:6px;">
                                 <table id="projectFileTable" class="table  table-striped  display" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
@@ -220,37 +220,6 @@
                     </div>
                 </div>
             </div>
-            <!--
-                    
-
-                        <div id="projectFileTab" role="tabpanel" class="tab-pane fade col-sm-12">
-                            <div class="col-sm-4" style="border-right:1px solid lightgrey; padding-top:6px;">
-                                <table id="projectListTable" class="table  table-striped display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Project Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                            <div class="col-sm-8" style="padding-top:6px;">
-                                <table id="projectFileTable" class="table  table-striped  display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Check</th>
-                                            <th scope="col">File/Values</th>
-                                            <th scope="col">Modified On</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody style="word-break: break-all; "></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
--->
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="savefile" data-clickedrow="">Add Files</button>
