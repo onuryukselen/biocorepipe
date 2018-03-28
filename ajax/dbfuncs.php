@@ -1273,6 +1273,15 @@ class dbfuncs {
         $where";
 		return self::queryTable($sql);
     }
+    public function getProjectsOther($id,$ownerID) {
+        $where = " where p.id != '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
+		$sql = "SELECT DISTINCT p.id, p.name, p.summary, p.date_created, u.username, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own
+        FROM project p
+        INNER JOIN users u ON p.owner_id = u.id
+        LEFT JOIN user_group ug ON p.group_id=ug.g_id
+        $where";
+		return self::queryTable($sql);
+    }
     public function insertProject($name, $summary, $ownerID) {
         $sql = "INSERT INTO project(name, summary, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$summary', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
@@ -1429,7 +1438,7 @@ class dbfuncs {
     }
     public function getProjectInputs($project_id,$ownerID) {
         $where = " where pi.project_id = '$project_id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63 OR (ug.u_id ='$ownerID' and pi.perms = 15))" ;
-		$sql = "SELECT DISTINCT pi.id, i.id as input_id, i.name, IF(pi.owner_id='$ownerID',1,0) as own
+		$sql = "SELECT DISTINCT pi.id, i.id as input_id, i.name, pi.date_modified,  IF(pi.owner_id='$ownerID',1,0) as own
                 FROM project_input pi
                 INNER JOIN input i ON i.id = pi.input_id
                 LEFT JOIN user_group ug ON pi.group_id=ug.g_id
