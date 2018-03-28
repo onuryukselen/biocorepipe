@@ -129,6 +129,9 @@ else if ($p=="getMemberAdd"){
 else if ($p=="getProjects"){
     $data = $db -> getProjects($id,$ownerID);
 }
+else if ($p=="getProjectsOther"){
+    $data = $db -> getProjectsOther($id,$ownerID);
+}
 else if ($p=="getGroups"){
     $data = $db -> getGroups($id,$ownerID);
 }

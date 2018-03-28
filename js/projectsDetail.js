@@ -309,7 +309,67 @@
                     $(nTd).html(getFilesTableOptions(oData.own));
                 }
             }]
+        });
 
+        var projectListTable = $('#projectListTable').DataTable({
+            scrollY:        '20vh',
+            scrollCollapse: true,
+            //            "scrollX": true,
+            "pagingType": "simple",
+            //            "sDom": "frtp",
+            "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
+            "bInfo": false,
+            "searching": false,
+            "ajax": {
+                url: "ajax/ajaxquery.php",
+                data: {
+                    "id": project_id,
+                    "p": "getProjectsOther"
+                },
+                "dataSrc": ""
+            },
+            "columns": [{
+                "data": "name",
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html("<a href='index.php?np=3&id=" + oData.id + "'>" + oData.name + "</a>");
+                }
+            }]
+        });
+
+        var projectFileTable = $('#projectFileTable').DataTable({
+            scrollY:        '20vh',
+            scrollCollapse: true,
+            //            "scrollCollapse": true,
+            //            "sDom": "frtp",
+            "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
+            "bInfo": false,
+            "autoWidth": false,
+            "ajax": {
+                url: "ajax/ajaxquery.php",
+                data: {
+                    "project_id": project_id,
+                    "p": "getProjectInputs"
+                },
+                "dataSrc": ""
+            },
+            "columns": [{
+                    "data": "id",
+                    "checkboxes": {
+                        'targets': 0,
+                        'selectRow': true
+                    }
+            }, {
+                    "data": "name"
+                }, {
+                    "data": "date_modified",
+                    "width": "150px"
+                }
+
+            ],
+            'select': {
+                'style': 'single'
+            },
+            'order': [[2, 'desc']]
         });
 
         $('#confirmModal').on('show.bs.modal', function (event) {
