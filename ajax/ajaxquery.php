@@ -129,9 +129,6 @@ else if ($p=="getMemberAdd"){
 else if ($p=="getProjects"){
     $data = $db -> getProjects($id,$ownerID);
 }
-else if ($p=="getProjectsOther"){
-    $data = $db -> getProjectsOther($id,$ownerID);
-}
 else if ($p=="getGroups"){
     $data = $db -> getGroups($id,$ownerID);
 }
@@ -152,6 +149,25 @@ else if ($p=="getProjectPipelines"){
 else if ($p=="getProjectInputs"){
     $project_id = $_REQUEST['project_id'];
     $data = $db -> getProjectInputs($project_id,$ownerID);
+}
+else if ($p=="getProjectFiles"){
+    $project_id = $_REQUEST['project_id'];
+    $data = $db -> getProjectFiles($project_id,$ownerID);
+}
+else if ($p=="getPublicInputs"){
+    $data = $db -> getPublicInputs($id);
+}
+else if ($p=="getPublicFiles"){
+    $host = $_REQUEST['host'];
+    $data = $db -> getPublicFiles($host);
+}
+else if ($p=="getPublicValues"){
+    $host = $_REQUEST['host'];
+    $data = $db -> getPublicValues($host);
+}
+else if ($p=="getProjectValues"){
+    $project_id = $_REQUEST['project_id'];
+    $data = $db -> getProjectValues($project_id,$ownerID);
 }
 else if ($p=="getProjectInput"){
     $data = $db -> getProjectInput($id,$ownerID);
@@ -403,11 +419,12 @@ else if ($p=="saveProfileAmazon"){
     }
 }
 else if ($p=="saveInput"){
+    $type = $_REQUEST['type'];
     $name = $_REQUEST['name'];
     if (!empty($id)) {
-       $data = $db->updateInput($id, $name, $ownerID);
+       $data = $db->updateInput($id, $name, $type, $ownerID);
     } else {
-       $data = $db->insertInput($name, $ownerID);
+       $data = $db->insertInput($name, $type, $ownerID);
     }
 }
 else if ($p=="saveProPipeInput"){
@@ -507,6 +524,16 @@ else if ($p=="saveProject"){
         $data = $db->updateProject($id, $name, $summary, $ownerID);
     } else {
         $data = $db->insertProject($name, $summary, $ownerID);
+    }
+}
+else if ($p=="savePublicInput"){
+    $name = $_REQUEST['name'];
+    $type = $_REQUEST['type'];
+    $host = $_REQUEST['host'];
+    if (!empty($id)) {
+        $data = $db->updatePublicInput($id, $name, $type, $host, $ownerID);
+    } else {
+        $data = $db->insertPublicInput($name, $type, $host, $ownerID);
     }
 }
 else if ($p=="saveGroup"){
@@ -644,7 +671,8 @@ else if ($p=="checkPipeline")
 else if ($p=="checkInput")
 {
 	$name = $_REQUEST['name'];
-    $data = $db->checkInput($name);
+	$type = $_REQUEST['type'];
+    $data = $db->checkInput($name,$type);
 }
 else if ($p=="checkProjectInput")
 {

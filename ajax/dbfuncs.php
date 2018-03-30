@@ -1273,15 +1273,6 @@ class dbfuncs {
         $where";
 		return self::queryTable($sql);
     }
-    public function getProjectsOther($id,$ownerID) {
-        $where = " where p.id != '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
-		$sql = "SELECT DISTINCT p.id, p.name, p.summary, p.date_created, u.username, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own
-        FROM project p
-        INNER JOIN users u ON p.owner_id = u.id
-        LEFT JOIN user_group ug ON p.group_id=ug.g_id
-        $where";
-		return self::queryTable($sql);
-    }
     public function insertProject($name, $summary, $ownerID) {
         $sql = "INSERT INTO project(name, summary, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$summary', '$ownerID', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
@@ -1445,6 +1436,43 @@ class dbfuncs {
                 $where";
 		return self::queryTable($sql);
     }
+     public function getProjectFiles($project_id,$ownerID) {
+        $where = " where (i.type = 'file' OR i.type IS NULL) AND pi.project_id = '$project_id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63 OR (ug.u_id ='$ownerID' and pi.perms = 15))" ;
+		$sql = "SELECT DISTINCT pi.id, i.id as input_id, i.name, pi.date_modified,  IF(pi.owner_id='$ownerID',1,0) as own
+                FROM project_input pi
+                INNER JOIN input i ON i.id = pi.input_id
+                LEFT JOIN user_group ug ON pi.group_id=ug.g_id
+                $where";
+		return self::queryTable($sql);
+    }
+    public function getPublicInputs($id) {
+        $where = " WHERE i.perms = 63";
+        if ($id != ""){
+			$where = " where i.id = '$id' AND i.perms = 63";
+		}
+        $sql = "SELECT i.*, u.username 
+        FROM input i
+        INNER JOIN users u ON i.owner_id = u.id
+        $where";
+		return self::queryTable($sql);
+    }
+    public function getPublicFiles($host) {
+        $sql = "SELECT id as input_id, name, date_modified FROM input WHERE type = 'file' AND host = '$host' AND perms = 63 ";
+		return self::queryTable($sql);
+    }
+    public function getPublicValues($host) {
+		$sql = "SELECT id as input_id, name, date_modified FROM input WHERE type = 'val' AND host = '$host' AND perms = 63 ";
+		return self::queryTable($sql);
+    }
+    public function getProjectValues($project_id,$ownerID) {
+        $where = " where (i.type = 'val' OR i.type IS NULL) AND pi.project_id = '$project_id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63 OR (ug.u_id ='$ownerID' and pi.perms = 15))" ;
+		$sql = "SELECT DISTINCT pi.id, i.id as input_id, i.name, pi.date_modified,  IF(pi.owner_id='$ownerID',1,0) as own
+                FROM project_input pi
+                INNER JOIN input i ON i.id = pi.input_id
+                LEFT JOIN user_group ug ON pi.group_id=ug.g_id
+                $where";
+		return self::queryTable($sql);
+    }
     public function getProjectInput($id,$ownerID) {
         $where = " where pi.id = '$id' AND (pi.owner_id = '$ownerID' OR pi.perms = 63)" ;
 		$sql = "SELECT pi.id, i.id as input_id, i.name
@@ -1458,15 +1486,25 @@ class dbfuncs {
 			('$project_id', '$input_id', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-    public function insertInput($name, $ownerID) {
-        $sql = "INSERT INTO input(name, owner_id, perms, date_created, date_modified, last_modified_user) VALUES
-			('$name', '$ownerID', 3, now(), now(), '$ownerID')";
+    public function insertInput($name, $type, $ownerID) {
+        $sql = "INSERT INTO input(name, type, owner_id, perms, date_created, date_modified, last_modified_user) VALUES
+			('$name', '$type', '$ownerID', 3, now(), now(), '$ownerID')";
         return self::insTable($sql);
     }
-    public function updateInput($id, $name, $ownerID) {
-        $sql = "UPDATE input SET name='$name', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateInput($id, $name, $type, $ownerID) {
+        $sql = "UPDATE input SET name='$name', type='$type', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
+    public function insertPublicInput($name, $type, $host, $ownerID) {
+        $sql = "INSERT INTO input(name, type, host, owner_id, date_created, date_modified, last_modified_user, perms) VALUES ('$name', '$type', '$host', '$ownerID', now(), now(), '$ownerID', 63)";
+        return self::insTable($sql);
+    }
+    public function updatePublicInput($id, $name, $type, $host, $ownerID) {
+        $sql = "UPDATE input SET name= '$name', type= '$type', host= '$host', last_modified_user = '$ownerID', date_modified = now() WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    
+    
      // ------- Project Pipelines  ------
     public function insertProjectPipeline($name, $project_id, $pipeline_id, $summary, $output_dir, $profile, $interdel, $cmd, $exec_each, $exec_all, $exec_all_settings, $exec_each_settings, $docker_check, $docker_img, $singu_check, $singu_img, $exec_next_settings, $docker_opt, $singu_opt, $amazon_cre_id, $publish_dir, $publish_dir_check, $ownerID) {
         $sql = "INSERT INTO project_pipeline(name, project_id, pipeline_id, summary, output_dir, profile, interdel, cmd, exec_each, exec_all, exec_all_settings, exec_each_settings, docker_check, docker_img, singu_check, singu_img, exec_next_settings, docker_opt, singu_opt, amazon_cre_id, publish_dir, publish_dir_check, owner_id, date_created, date_modified, last_modified_user, perms)
@@ -1711,8 +1749,8 @@ class dbfuncs {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id = '$ownerID') AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
-    public function checkInput($name) {
-		$sql = "SELECT id, name FROM input WHERE name = '$name'";
+    public function checkInput($name,$type) {
+		$sql = "SELECT id, name FROM input WHERE name = '$name' AND type='$type'";
 		return self::queryTable($sql);
 	}
     public function checkProjectInput($project_id, $input_id) {

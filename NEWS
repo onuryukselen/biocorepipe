@@ -1,3 +1,8 @@
+29.03.2018 Version 0.1.12
+Adding files/values button is removed in process details page.
+Adding public files/values table is added in process page for admin.
+Selection public files and project files are added in file/val selection modal.
+
 28.03.2018 Version 0.1.11
 Adding files/values modal is finalized in process details page.
 
