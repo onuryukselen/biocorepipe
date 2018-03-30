@@ -44,7 +44,6 @@
 
         </div>
     </div>
-    <div class="panel panel-default">
         <div class="panel-body">
             <table id="runtable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
@@ -60,21 +59,15 @@
                 </thead>
             </table>
         </div>
-    </div>
 </div>
 </br>
 
 <div class="panel panel-default" id="filetablepanel">
     <div class="panel-heading clearfix">
-        <div class="pull-right">
-            <button type="button" class="btn btn-primary btn-sm" title="Add Files" id="addfile" data-toggle="modal" data-target="#fileModal">Add Files/Values</button>
-        </div>
         <div class="pull-left">
             <h5><i class="fa fa-folder-open-o"></i> Project Files/Values</h5>
-
         </div>
     </div>
-    <div class="panel panel-default">
         <div class="panel-body">
             <table id="filetable" class="table table-striped table-bordered" cellspacing="0" width="100%">
                 <thead>
@@ -85,7 +78,6 @@
                 </thead>
             </table>
         </div>
-    </div>
 </div>
 
 
@@ -153,114 +145,6 @@
         </div>
     </div>
 </div>
-
-<div id="fileModal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="filemodaltitle">Modal title</h4>
-            </div>
-            <div class="modal-body">
-                <div id="fileAddOptions" role="tabpanel">
-                    <!-- Nav tabs -->
-                    <ul id="fileNav" class="nav nav-tabs" role="tablist">
-                        <li class="active"><a class="nav-item" data-toggle="tab" href="#manualTab">Manually</a></li>
-                        <li><a class="nav-item" data-toggle="tab" href="#projectFileTab">Project Files</a></li>
-
-                        </li>
-                    </ul>
-                    <!-- Tab panes -->
-                    <div id="fileContent" class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="manualTab">
-                            <div class="panel panel-default">
-                                </br>
-                                <form style="padding-right:10px;" class="form-horizontal">
-                                    <div class="form-group" style="display:none">
-                                        <label for="mIdFile" class="col-sm-2 control-label">ID</label>
-                                        <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="mIdFile" name="id">
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="mFilePath" class="col-sm-2 control-label">File Path</label>
-                                        <div class="col-sm-10">
-                                            <input type="text" class="form-control" id="mFilePath" name="name">
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="projectFileTab">
-                           <div class="row">
-                           <div class="col-sm-4" style="border-right:1px solid lightgrey; padding-top:6px;">
-                                <table id="projectListTable" class="table  table-striped display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Project Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div> 
-                            <div class="col-sm-8" style="padding-top:6px;">
-                                <table id="projectFileTable" class="table  table-striped  display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Check</th>
-                                            <th scope="col">File/Values</th>
-                                            <th scope="col">Modified On</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody style="word-break: break-all; "></tbody>
-                                </table>
-                            </div>
-                            </div> 
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--
-                    
-
-                        <div id="projectFileTab" role="tabpanel" class="tab-pane fade col-sm-12">
-                            <div class="col-sm-4" style="border-right:1px solid lightgrey; padding-top:6px;">
-                                <table id="projectListTable" class="table  table-striped display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Project Name</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                            <div class="col-sm-8" style="padding-top:6px;">
-                                <table id="projectFileTable" class="table  table-striped  display" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Check</th>
-                                            <th scope="col">File/Values</th>
-                                            <th scope="col">Modified On</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody style="word-break: break-all; "></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
--->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="savefile" data-clickedrow="">Add Files</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
 
 <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">

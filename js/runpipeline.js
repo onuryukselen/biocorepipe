@@ -1328,7 +1328,6 @@
 	      if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
 	          var [allProSett, profileData] = getJobData("both");
 	          var executor_job = profileData[0].executor_job;
-	          console.log(executor_job)
 	          if (executor_job === 'local' || executor_job === 'ignite') {
 	              $('#jobSettingsDiv').css('display', 'none');
 	          } else {
@@ -1370,11 +1369,13 @@
 	      if (proCluData && proAmzData) {
 	          if (proCluData.length + proAmzData.length !== 0) {
 	              $.each(proCluData, function (el) {
-	                  var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id);
+	                  var option = new Option(proCluData[el].name + ' (Remote machine: ' + proCluData[el].username + '@' + proCluData[el].hostname + ')', 'cluster-' + proCluData[el].id)
+	                  option.setAttribute("host", proCluData[el].hostname);
 	                  $("#chooseEnv").append(option);
 	              });
 	              $.each(proAmzData, function (el) {
-	                  var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id);
+	                  var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id)
+	                  option.setAttribute("host", "amazon");
 	                  $("#chooseEnv").append(option);
 	              });
 	          }
@@ -1407,18 +1408,23 @@
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
 
-	  function checkInputInsert (data, gNumParam, given_name, qualifier,rowID,sType) {
-	      var nameInput = data[1].value;
-	      var checkInput = getValues({ name: nameInput, p: "checkInput" });
-	      if (checkInput && checkInput != '') {
-	          var input_id = checkInput[0].id;
-	      } else {
-	          //insert into input table
-	          data.push({ name: "p", value: "saveInput" });
-	          var inputGet = getValues(data);
-	          if (inputGet) {
-	              var input_id = inputGet.id;
+	  function checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID) {
+	      if (inputID === null) {
+	          var nameInput = data[1].value;
+	          var checkInput = getValues({ name: nameInput, type: sType, p: "checkInput" });
+	          if (checkInput && checkInput != '') {
+	              var input_id = checkInput[0].id;
+	          } else {
+	              //insert into input table
+	              data.push({ name: "type", value: sType });
+	              data.push({ name: "p", value: "saveInput" });
+	              var inputGet = getValues(data);
+	              if (inputGet) {
+	                  var input_id = inputGet.id;
+	              }
 	          }
+	      } else {
+	          var input_id = inputID;
 	      }
 	      //check if project input is exist
 	      var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
@@ -1463,7 +1469,7 @@
 	              var projectPipelineInputID = propipeInputGet.id;
 	          }
 	      }
-          //get inputdata from input table
+	      //get inputdata from input table
 	      var proInputGet = getValues({ "p": "getInputs", "id": input_id });
 	      if (proInputGet) {
 	          var filePath = proInputGet[0].name;
@@ -1472,19 +1478,29 @@
 	      }
 	  }
 
-function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, proPipeInputID) {
-	      var nameInput = data[1].value;
-	      var checkInput = getValues({ name: nameInput, p: "checkInput" });
-	      if (checkInput && checkInput != '') {
-	          var input_id = checkInput[0].id;
-              
+	  function checkInputEdit(data, gNumParam, given_name, qualifier, rowID, sType, proPipeInputID, inputID) {
+	      if (inputID === null) {
+	          var nameInput = data[1].value;
+	          var checkInput = getValues({ name: nameInput, p: "checkInput" });
+	          if (checkInput && checkInput != '') {
+	              var input_id = checkInput[0].id;
+
+	          } else {
+	              //insert into input table
+	              data[0].value = "";
+	              data.push({ name: "type", value: sType });
+	              data.push({ name: "p", value: "saveInput" });
+	              var inputGet = getValues(data);
+	              if (inputGet) {
+	                  var input_id = inputGet.id;
+	              }
+	          }
 	      } else {
-	          //insert into input table
-              data[0].value = "";
-	          data.push({ name: "p", value: "saveInput" });
-	          var inputGet = getValues(data);
-	          if (inputGet) {
-	              var input_id = inputGet.id;
+	          var input_id = inputID;
+	          //get inputdata from input table
+	          var proInputGet = getValues({ "p": "getInputs", "id": input_id });
+	          if (proInputGet) {
+	              var nameInput = proInputGet[0].name;
 	          }
 	      }
 	      //check if project input is exist
@@ -1498,24 +1514,25 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	              var projectInputID = proInputGet.id;
 	          }
 	      }
-	          //update project_pipeline_input table
-	          var propipeInputGet = getValues({
-	              "id": proPipeInputID,
-	              "p": "saveProPipeInput",
-	              "input_id": input_id,
-	              "project_id": project_id,
-	              "pipeline_id": pipeline_id,
-	              "project_pipeline_id": project_pipeline_id,
-	              "g_num": gNumParam,
-	              "given_name": given_name,
-	              "qualifier": qualifier
-	          });
-          //update file table
+	      //update project_pipeline_input table
+	      var propipeInputGet = getValues({
+	          "id": proPipeInputID,
+	          "p": "saveProPipeInput",
+	          "input_id": input_id,
+	          "project_id": project_id,
+	          "pipeline_id": pipeline_id,
+	          "project_pipeline_id": project_pipeline_id,
+	          "g_num": gNumParam,
+	          "given_name": given_name,
+	          "qualifier": qualifier
+	      });
+	      //update file table
 	      $('#filePath-' + gNumParam).text(nameInput);
 	  }
 
-	  function saveFileSetValModal(data, sType) {
+	  function saveFileSetValModal(data, sType, inputID) {
 	      if (sType === 'file' || sType === 'set') {
+	          sType = 'file'; //for simplification 
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
 	      } else if (sType === 'val') {
 	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -1523,14 +1540,14 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	      var gNumParam = rowID.split('-')[1];
 	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
 	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
-	      //xxxx
 	      //check database if file is exist, if not exist then insert
-	      checkInputInsert(data, gNumParam, given_name, qualifier,rowID,sType);
+	      checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
 	      checkReadytoRun();
 	  }
 
-	  function editFileSetValModal(data, sType) {
+	  function editFileSetValModal(data, sType, inputID) {
 	      if (sType === 'file' || sType === 'set') {
+	          sType = 'file';
 	          var rowID = $('#mIdFile').attr('rowID'); //the id of table-row to be updated #inputTa-3
 	      } else if (sType === 'val') {
 	          var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
@@ -1539,8 +1556,8 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	      var gNumParam = rowID.split('-')[1];
 	      var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
 	      var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
-          //check database if file is exist, if not exist then insert
-	      checkInputEdit(data, gNumParam, given_name, qualifier,rowID,sType, proPipeInputID);
+	      //check database if file is exist, if not exist then insert
+	      checkInputEdit(data, gNumParam, given_name, qualifier, rowID, sType, proPipeInputID, inputID);
 	      checkReadytoRun();
 	  }
 	  checkType = "";
@@ -1987,14 +2004,14 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	          //	          var gNumParam = rowID.split('-')[1];
 	          //	          var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
 	          //	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
-	          data.push({ name: "id", value: "" });
-	          data.push({ name: "name", value: filePath });
-	          data.push({ name: "p", value: "saveInput" });
+	          //	          data.push({ name: "id", value: "" });
+	          //	          data.push({ name: "name", value: filePath });
+	          //	          data.push({ name: "p", value: "saveInput" });
 	          //insert into input table
-	          var inputGet = getValues(data);
-	          if (inputGet) {
-	              var input_id = inputGet.id;
-	          }
+	          //	          var inputGet = getValues(data);
+	          //	          if (inputGet) {
+	          //	              var input_id = inputGet.id;
+	          //	          }
 	          //insert into project_input table
 	          //bug: it adds NA named files after each run
 	          //	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
@@ -2309,6 +2326,7 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	      $('#inputFilemodal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
 	          $(this).find('form').trigger('reset');
+	          $('.nav-tabs a[href="#manualTab"]').tab('show');
 	          var clickedRow = button.closest('tr');
 	          var rowID = clickedRow[0].id; //#inputTa-3
 	          var gNumParam = rowID.split('-')[1];
@@ -2338,36 +2356,202 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	          }
 	      });
 
-	      $('#inputFilemodal').on('click', '#selectfile', function (e) {
+	      $('#inputFilemodal').on('click', '#savefile', function (e) {
 	          e.preventDefault();
 	          var savetype = $('#mIdFile').val();
+              var checkdata = $('#inputFilemodal').find('.active.tab-pane')[0].getAttribute('id');
+	          console.log(checkdata)
 	          if (!savetype.length) { //add item
-	              var checkTab = $('#inputFilemodal').find('.active');
-	              var checkdata = checkTab[1].getAttribute('id');
 	              if (checkdata === 'manualTab') {
 	                  var formValues = $('#inputFilemodal').find('input');
 	                  var data = formValues.serializeArray(); // convert form to array
 	                  // check if name is entered
 	                  data[1].value = $.trim(data[1].value);
 	                  if (data[1].value !== '') {
-	                      saveFileSetValModal(data, 'file');
+	                      saveFileSetValModal(data, 'file', null);
 	                      $('#inputFilemodal').modal('hide');
 	                  }
+	              } else if (checkdata === 'projectFileTab') {
+	                  var rows_selected = projectFileTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      saveFileSetValModal(null, 'file', input_id);
+	                  }
+	                  $('#inputFilemodal').modal('hide');
+	              } else if (checkdata === 'publicFileTab') {
+	                  var rows_selected = publicFileTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      saveFileSetValModal(null, 'file', input_id);
+	                  }
+	                  $('#inputFilemodal').modal('hide');
 	              }
 	          } else { //edit item
-	              var formValues = $('#inputFilemodal').find('input');
-	              var data = formValues.serializeArray(); // convert form to array
-	              // check if file_path is entered 
-	              data[1].value = $.trim(data[1].value);
-	              if (data[1].value !== '') {
-	                  editFileSetValModal(data, 'file');
-	                  $('#inputFilemodal').modal('hide');
+	              if (checkdata === 'manualTab') {
+	                  var formValues = $('#inputFilemodal').find('input');
+	                  var data = formValues.serializeArray(); // convert form to array
+	                  // check if file_path is entered 
+	                  data[1].value = $.trim(data[1].value);
+	                  if (data[1].value !== '') {
+	                      editFileSetValModal(data, 'file', null);
+	                      $('#inputFilemodal').modal('hide');
+	                  }
+	              } else if (checkdata === 'projectFileTab') {
+	                  var rows_selected = projectFileTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      editFileSetValModal(null, 'file', input_id);
+	                      $('#inputFilemodal').modal('hide');
+	                  }
+	              } else if (checkdata === 'publicFileTab') {
+	                  var rows_selected = publicFileTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      editFileSetValModal(null, 'file', input_id);
+	                      $('#inputFilemodal').modal('hide');
+	                  }
 	              }
 	          }
 	      });
 
-	      $('#inputsTab').on('click', '#inputDelDelete, #inputValDelete', function (e) {
+	      //clicking on tabs of select files table
+	      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+	          // header fix of datatabes in add to files/values tab
+	          $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+	          var activatedTab = $(e.target).attr("href")
+	          if (activatedTab === "#projectFileTab") {
+	              var projectRows = $('#projectListTable > tbody >');
+	              // if project is exist click on the first one to show files
+	              if (projectRows && projectRows.length > 0) {
+	                  $('#projectListTable > tbody > tr >').first().trigger("click")
+	              }
+	          } else if (activatedTab === "#projectValTab") {
+	              var projectRows = $('#projectListTableVal > tbody >');
+	              // if project is exist click on the first one to show files
+	              if (projectRows && projectRows.length > 0) {
+	                  $('#projectListTableVal > tbody > tr >').first().trigger("click")
+	              }
+	          } else if (activatedTab === "#publicFileTab") {
+	              var host = $('#chooseEnv').find(":selected").attr("host");
+	              if (host != undefined) {
+	                  if (host != "") {
+	                      $("#publicFileTabWarn").html("")
+	                      $("#publicFileTable").show();
 
+	                      var table_id = "publicFileTable";
+	                      var ajax = { "host": host, "p": "getPublicFiles" }
+	                      $('#' + table_id).dataTable().fnDestroy();
+	                      createFileTable(table_id, ajax);
+	                  }
+	              } else {
+	                  $("#publicFileTabWarn").html("</br> Please select run environments to see public files.")
+	                  $("#publicFileTable").hide();
+
+	              }
+	          } else if (activatedTab === "#publicValTab") {
+	              var host = $('#chooseEnv').find(":selected").attr("host");
+	              console.log(host)
+	              if (host != undefined) {
+	                  console.log(host)
+
+	                  if (host != "") {
+	                      $("#publicValTabWarn").html("")
+	                      $("#publicValTable").show();
+
+	                      var table_id = "publicValTable";
+	                      var ajax = { "host": host, "p": "getPublicValues" }
+	                      $('#' + table_id).dataTable().fnDestroy();
+	                      createFileTable(table_id, ajax);
+	                  }
+	              } else {
+	                  $("#publicValTabWarn").html("</br> Please select run environments to see public files.")
+	                  $("#publicValTable").hide();
+
+	              }
+	          }
+	      });
+
+
+	      function createFileTable(table_id, ajax) {
+	          window[table_id] = $('#' + table_id).DataTable({
+	              scrollY: '42vh',
+	              "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
+	              "bInfo": false,
+	              "autoWidth": false,
+	              "ajax": {
+	                  url: "ajax/ajaxquery.php",
+	                  data: ajax,
+	                  "dataSrc": ""
+	              },
+	              "columns": [{
+	                  "width": "25px",
+	                  "data": "input_id",
+	                  "checkboxes": {
+	                      'targets': 0,
+	                      'selectRow': true
+	                  }
+                }, {
+	                  "data": "name"
+                }, {
+	                  "data": "date_modified",
+	                  "width": "130px"
+                }],
+	              'select': {
+	                  'style': 'single'
+	              },
+	              'order': [[2, 'desc']]
+	          });
+
+	      }
+
+	      function createProjectListTable(table_id) {
+	          table_id = $('#' + table_id).DataTable({
+	              scrollY: '42vh',
+	              "pagingType": "simple",
+	              "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
+	              "bInfo": false,
+	              "searching": false,
+	              "ajax": {
+	                  url: "ajax/ajaxquery.php",
+	                  data: {
+	                      "p": "getProjects"
+	                  },
+	                  "dataSrc": ""
+	              },
+	              "columns": [{
+	                  "data": "name",
+	                  "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+	                      $(nTd).html('<a class="clickproject" projectid="' + oData.id + '">' + oData.name + '</a>');
+	                  }
+            }],
+	              'select': {
+	                  'style': 'single'
+	              }
+	          });
+	      }
+	      //left side project list table on add File/value modals
+	      createProjectListTable('projectListTable');
+	      createProjectListTable('projectListTableVal');
+
+	      //add file modal projectListTable click on project name
+	      $('#projectListTable').on('click', 'td', function (e) {
+	          var sel_project_id = $(this).children().attr("projectid");
+	          var table_id = "projectFileTable";
+	          var ajax = { "project_id": sel_project_id, "p": "getProjectFiles" }
+	          $('#' + table_id).dataTable().fnDestroy();
+	          createFileTable(table_id, ajax);
+	      });
+
+	      //add val modal projectListTableVal click on project name
+	      $('#projectListTableVal').on('click', 'td', function (e) {
+	          var sel_project_id = $(this).children().attr("projectid");
+	          var table_id = "projectValTable";
+	          var ajax = { "project_id": sel_project_id, "p": "getProjectValues" }
+	          $('#' + table_id).dataTable().fnDestroy();
+	          createFileTable(table_id, ajax);
+	      });
+
+	      $('#inputsTab').on('click', '#inputDelDelete, #inputValDelete', function (e) {
 	          var clickedRow = $(this).closest('tr');
 	          var rowID = clickedRow[0].id; //#inputTa-3
 	          var gNumParam = rowID.split('-')[1];
@@ -2381,6 +2565,7 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	      $('#inputValmodal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
 	          $(this).find('form').trigger('reset');
+	          $('.nav-tabs a[href="#manualTabV"]').tab('show');
 	          var clickedRow = button.closest('tr');
 	          var rowID = clickedRow[0].id; //#inputTa-3
 	          var gNumParam = rowID.split('-')[1];
@@ -2412,23 +2597,59 @@ function checkInputEdit (data, gNumParam, given_name, qualifier,rowID,sType, pro
 	      $('#inputValmodal').on('click', '#saveValue', function (e) {
 	          e.preventDefault();
 	          var savetype = $('#mIdVal').val();
+	          var checkdata = $('#inputValmodal').find('.active.tab-pane')[0].getAttribute('id');
+	          console.log(checkdata)
 	          if (!savetype.length) { //add item
-	              var formValues = $('#inputValmodal').find('input');
-	              var data = formValues.serializeArray(); // convert form to array
-	              // check if value is entered
-	              data[1].value = $.trim(data[1].value);
-	              if (data[1].value !== '') {
-	                  saveFileSetValModal(data, 'val');
+	              if (checkdata === 'manualTabV') {
+	                  var formValues = $('#inputValmodal').find('input');
+	                  var data = formValues.serializeArray(); // convert form to array
+	                  // check if name is entered
+	                  data[1].value = $.trim(data[1].value);
+	                  if (data[1].value !== '') {
+	                      saveFileSetValModal(data, 'val', null);
+	                      $('#inputValmodal').modal('hide');
+	                  }
+	              } else if (checkdata === 'projectValTab') {
+	                  var rows_selected = projectValTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      saveFileSetValModal(null, 'val', input_id);
+	                  }
+	                  $('#inputValmodal').modal('hide');
+	              } else if (checkdata === 'publicValTab') {
+	                  var rows_selected = publicValTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      saveFileSetValModal(null, 'val', input_id);
+	                  }
 	                  $('#inputValmodal').modal('hide');
 	              }
 	          } else { //edit item
-	              var formValues = $('#inputValmodal').find('input');
-	              var data = formValues.serializeArray(); // convert form to array
-	              // check if file_path is entered 
-	              data[1].value = $.trim(data[1].value);
-	              if (data[1].value !== '') {
-	                  editFileSetValModal(data, 'val');
-	                  $('#inputValmodal').modal('hide');
+	              if (checkdata === 'manualTabV') {
+	                  var formValues = $('#inputValmodal').find('input');
+	                  var data = formValues.serializeArray(); // convert form to array
+	                  // check if file_path is entered 
+	                  data[1].value = $.trim(data[1].value);
+	                  if (data[1].value !== '') {
+	                      editFileSetValModal(data, 'val', null);
+	                      $('#inputValmodal').modal('hide');
+	                  }
+	              } else if (checkdata === 'projectValTab') {
+                      console.log("ss")
+	                  var rows_selected = projectValTable.column(0).checkboxes.selected();
+	                  console.log( rows_selected)
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      editFileSetValModal(null, 'val', input_id);
+	                      $('#inputValmodal').modal('hide');
+	                  }
+	              } else if (checkdata === 'publicValTab') {
+	                  var rows_selected = publicValTable.column(0).checkboxes.selected();
+	                  if (rows_selected.length === 1) {
+	                      var input_id = rows_selected[0];
+	                      editFileSetValModal(null, 'val', input_id);
+	                      $('#inputValmodal').modal('hide');
+	                  }
 	              }
 	          }
 	      });

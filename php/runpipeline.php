@@ -435,22 +435,26 @@
 
 <!--Select File modal-->
 <div id="inputFilemodal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="filemodaltitle">Modal title</h4>
             </div>
             <div class="modal-body">
-                <div id="fileAddOptions">
-                    <ul id="fileNav" class="nav nav-tabs">
-                        <li class="active"><a class="nav-item" data-toggle="tab" href="#manualTab">Manually</a></li>
-                        <li><a class="nav-item" data-toggle="tab" href="#publicFileTab">Public Files</a></li>
-                        <li><a class="nav-item" data-toggle="tab" href="#projectFileTab">Project Files</a></li>
+                <div id="fileAddOptions" role="tabpanel">
+                    <!-- Nav tabs -->
+                    <ul id="fileNav" class="nav nav-tabs" role="tablist">
+                        <li id="manualTabFile" class="active"><a class="nav-item" data-toggle="tab" href="#manualTab">Manually</a></li>
+                        <li id="publicFileTabFile"><a class="nav-item" data-toggle="tab" href="#publicFileTab">Public Files</a></li>
+                        <li id="projectFileTabFile"><a class="nav-item" data-toggle="tab" href="#projectFileTab">Project Files</a></li>
+
+                        </li>
                     </ul>
-                    <div class="panel panel-default">
-                        <div id="fileContent" class="tab-content">
-                            <div id="manualTab" class="tab-pane fade in active">
+                    <!-- Tab panes -->
+                    <div id="fileContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="manualTab">
+                            <div class="panel panel-default">
                                 </br>
                                 <form style="padding-right:10px;" class="form-horizontal">
                                     <div class="form-group" style="display:none">
@@ -467,61 +471,56 @@
                                     </div>
                                 </form>
                             </div>
-
-                            <div id="publicFileTab" class="tab-pane fade ">
-                                </br>
+                        </div>
+                        <div id="publicFileTab" class="tab-pane ">
+                               <div class="row">
+                               <div class="col-sm-12" style="padding-top:6px;">
+                                <p id="publicFileTabWarn"></p>
                                 <table id="publicFileTable" class="table table-striped table-bordered display" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th scope="col">Check</th>
-                                            <th scope="col">File Name</th>
-                                            <th scope="col">File Type</th>
-                                            <th scope="col">Sample ID</th>
+                                            <th scope="col">File/Values</th>
+                                            <th scope="col">Modified On</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
                                 </table>
                             </div>
-
-                            <div id="projectFileTab" class="tab-pane fade">
-                                <!--                                </br>-->
-                                <div class="col-sm-3" style="border-right:1px solid lightgrey;">
-                                    <table id="projecListTable" class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Project Name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                                <div class="col-sm-7">
-                                    <table id="projectFileTable" class="table">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Check</th>
-                                                <th scope="col">File Name</th>
-                                                <th scope="col">File Type</th>
-                                                <th scope="col">Sample ID</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-
-                                </div>
                             </div>
-
+                            </div>
+                        <div role="tabpanel" class="tab-pane" id="projectFileTab">
+                           <div class="row">
+                           <div class="col-sm-3" style="border-right:1px solid lightgrey; padding-top:6px;">
+                                <table id="projectListTable" class="table  table-striped display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Project Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div> 
+                            <div class="col-sm-9" style="padding-top:6px;">
+                                <table id="projectFileTable" class="table  table-striped  display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Check</th>
+                                            <th scope="col">File/Values</th>
+                                            <th scope="col">Modified On</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="word-break: break-all; "></tbody>
+                                </table>
+                            </div>
+                            </div> 
                         </div>
                     </div>
-
                 </div>
-
-
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="selectfile" data-clickedrow="">Select File</button>
+                <button type="button" class="btn btn-primary" id="savefile" data-clickedrow="">Save File</button>
             </div>
         </div>
     </div>
@@ -529,30 +528,90 @@
 
 
 
-
 <!--Save Value modal-->
 <div id="inputValmodal" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" style="width:1200px;" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="valmodaltitle">Modal title</h4>
             </div>
             <div class="modal-body">
-                <form style="padding-right:10px;" class="form-horizontal">
-                    <div class="form-group" style="display:none">
-                        <label for="mIdVal" class="col-sm-2 control-label">ID</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="mIdVal" name="id">
+                <div id="valAddOptions" role="tabpanel">
+                    <!-- Nav tabs -->
+                    <ul id="ValNav" class="nav nav-tabs" role="tablist">
+                        <li id="manualTabVal" class="active"><a class="nav-item" data-toggle="tab" href="#manualTabV">Manually</a></li>
+                        <li id="publicValTabVal"><a class="nav-item" data-toggle="tab" href="#publicValTab">Public Values</a></li>
+                        <li id="projectValTabVal"><a class="nav-item" data-toggle="tab" href="#projectValTab">Project Values</a></li>
+
+                        </li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div id="fileContent" class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="manualTabV">
+                            <div class="panel panel-default">
+                                </br>
+                                <form style="padding-right:10px;" class="form-horizontal">
+                                    <div class="form-group" style="display:none">
+                                        <label for="mIdVal" class="col-sm-2 control-label">ID</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="mIdVal" name="id">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mValName" class="col-sm-2 control-label">Value</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="mValName" name="name">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div id="publicValTab" class="tab-pane ">
+                               <div class="row">
+                               <div class="col-sm-12" style="padding-top:6px;">
+                               <p id="publicValTabWarn"></p>
+                                <table id="publicValTable" class="table table-striped table-bordered display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Check</th>
+                                            <th scope="col">File/Values</th>
+                                            <th scope="col">Modified On</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            </div>
+                            </div>
+                        <div role="tabpanel" class="tab-pane" id="projectValTab">
+                           <div class="row">
+                           <div class="col-sm-3" style="border-right:1px solid lightgrey; padding-top:6px;">
+                                <table id="projectListTableVal" class="table  table-striped display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Project Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div> 
+                            <div class="col-sm-9" style="padding-top:6px;">
+                                <table id="projectValTable" class="table  table-striped  display" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Check</th>
+                                            <th scope="col">File/Values</th>
+                                            <th scope="col">Modified On</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="word-break: break-all; "></tbody>
+                                </table>
+                            </div>
+                            </div> 
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="mValName" class="col-sm-2 control-label">Value</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="mValName" name="name">
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -561,3 +620,4 @@
         </div>
     </div>
 </div>
+

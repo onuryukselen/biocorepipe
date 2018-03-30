@@ -8,16 +8,49 @@ function updateSideBarProject(project_id, project_name, type) {
     }
 
 }
-  function getProjectOptions(projectOwn){
-        if (projectOwn == "1"){
-              return  getTableButtons("project", EDIT | REMOVE);
-        } else {
-            return "";
-        }
+
+function getProjectOptions(projectOwn) {
+    if (projectOwn == "1") {
+        return getTableButtons("project", EDIT | REMOVE);
+    } else {
+        return "";
     }
+}
 
 
 $(document).ready(function () {
+    if (usRole === "admin") {
+        $('#publicfileValpanel').css('display', 'block');
+        var publicfiletable = $('#publicfiletable').DataTable({
+            "scrollY": "500px",
+            "scrollCollapse": true,
+            "scrollX": true,
+            "ajax": {
+                url: "ajax/ajaxquery.php",
+                data: { "p": "getPublicInputs" },
+                "dataSrc": ""
+            },
+            "columns": [{
+                "data": "name"
+            }, {
+                "data": "type"
+            }, {
+                "data": "host"
+            }, {
+                "data": "username"
+            }, {
+                "data": "date_created"
+            }, {
+                data: null,
+                className: "center",
+                fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
+                    $(nTd).html(getTableButtons("public", EDIT | REMOVE));
+                }
+            }]
+        });
+    } else {
+        $('#publicfileValpanel').css('display', 'none');
+    }
     var projectTable = $('#projecttable').DataTable({
         "scrollY": "500px",
         "scrollCollapse": true,
@@ -40,13 +73,10 @@ $(document).ready(function () {
             data: null,
             className: "center",
             fnCreatedCell: function (nTd, sData, oData, iRow, iCol) {
-                $(nTd).html(getProjectOptions (oData.own));
+                $(nTd).html(getProjectOptions(oData.own));
             }
             }]
     });
-
-  
-
 
 
     $('#projectmodal').on('show.bs.modal', function (event) {
@@ -172,6 +202,150 @@ $(document).ready(function () {
             }
         });
     });
+
+
+    //------------------------ public modal  -----------------------------
+    function loadHostnames() {
+        $('#mInputHost').find('option').not(':disabled').remove();
+        var option = new Option("amazon", "amazon")
+        $("#mInputHost").append(option);
+        //get profiles for user
+        var proCluData = getValues({ p: "getProfileCluster" });
+        if (proCluData) {
+            if (proCluData.length !== 0) {
+                $.each(proCluData, function (el) {
+                    var option = new Option(proCluData[el].hostname, proCluData[el].hostname)
+                    $("#mInputHost").append(option);
+                });
+
+            }
+        }
+    }
+
+    $('#publicmodal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        loadHostnames();
+        $(this).find('form').trigger('reset');
+        if (button.attr('id') === 'addpublicFileVal') {
+            $('#publicmodaltitle').html('Add Public File/Value');
+        } else {
+            $('#publicmodaltitle').html('Edit Public File/Value');
+            var clickedRow = button.closest('tr');
+            var rowData = publicfiletable.row(clickedRow).data();
+            $('#savepublic').data('clickedrow', clickedRow);
+            var formValues = $('#publicmodal').find('input, select');
+            $(formValues[0]).val(rowData.id);
+            $(formValues[1]).val(rowData.name);
+            $(formValues[2]).val(rowData.type);
+            $(formValues[3]).val(rowData.host);
+        }
+    });
+
+    $('#publicmodal').on('click', '#savepublic', function (event) {
+        event.preventDefault();
+        var formValues = $('#publicmodal').find('input, select');
+        if ($('#mInputName').val() !== '' && $('#mInputType').val() !== null && $('#mInputHost').val() !== null) {
+            var savetype = $('#mInputID').val();
+            var data = formValues.serializeArray(); // convert form to array
+            data.push({ name: "p", value: "savePublicInput" });
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxquery.php",
+                data: data,
+                async: true,
+                success: function (s) {
+                    if (savetype.length) { //edit
+                        var clickedRow = $('#savepublic').data('clickedrow');
+                        var getPublicData = [];
+                        getPublicData.push({ name: "id", value: savetype });
+                        getPublicData.push({ name: "p", value: 'getPublicInputs' });
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: getPublicData,
+                            async: true,
+                            success: function (sc) {
+                                var projectDat = sc;
+                                var rowData = {};
+                                var keys = publicfiletable.settings().init().columns;
+                                for (var i = 0; i < keys.length; i++) {
+                                    var key = keys[i].data;
+                                    rowData[key] = projectDat[0][key];
+                                }
+                                rowData.id = projectDat[0].id;
+                                rowData.own = projectDat[0].own;
+                                publicfiletable.row(clickedRow).remove().draw();
+                                publicfiletable.row.add(rowData).draw();
+
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+
+                    } else { //insert
+                        var getPublicData = [];
+                        getPublicData.push({ name: "id", value: s.id });
+                        getPublicData.push({ name: "p", value: 'getPublicInputs' });
+                        $.ajax({
+                            type: "POST",
+                            url: "ajax/ajaxquery.php",
+                            data: getPublicData,
+                            async: true,
+                            success: function (sc) {
+                                var projectDat = sc;
+                                var addData = {};
+                                var keys = publicfiletable.settings().init().columns;
+                                for (var i = 0; i < keys.length; i++) {
+                                    var key = keys[i].data;
+                                    addData[key] = projectDat[0][key];
+                                }
+                                addData.id = projectDat[0].id;
+                                addData.own = projectDat[0].own;
+                                publicfiletable.row.add(addData).draw();
+
+                            },
+                            error: function (errorThrown) {
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+                    $('#publicmodal').modal('hide');
+                },
+                error: function (errorThrown) {
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+    });
+
+    $('#publicfiletable').on('click', '#publicremove', function (e) {
+        e.preventDefault();
+        var clickedRow = $(this).closest('tr');
+        var rowData = publicfiletable.row(clickedRow).data();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxquery.php",
+            data: {
+                id: rowData.id,
+                p: "removeInput"
+            },
+            async: true,
+            success: function (s) {
+                publicfiletable.row(clickedRow).remove().draw();
+            },
+            error: function (errorThrown) {
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
+
+
+
+
+
+
+
 
 
 });

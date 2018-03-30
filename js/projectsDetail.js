@@ -257,7 +257,6 @@
 
             var clickedRow = $(this).closest('tr');
             var rowData = runsTable.row(clickedRow).data();
-            console.log(rowData);
             $.ajax({
                 type: "POST",
                 url: "ajax/ajaxquery.php",
@@ -278,14 +277,10 @@
         });
         $('#runtable').on('click', '#selectRunRun', function (e) {
             e.preventDefault();
-
             var clickedRow = $(this).closest('tr');
             var rowData = runsTable.row(clickedRow).data();
-            console.log(rowData.id);
             var project_pipeline_id = (rowData.id);
             window.location.replace("index.php?np=3&id=" + project_pipeline_id);
-
-
         });
 
         var filesTable = $('#filetable').DataTable({
@@ -310,76 +305,33 @@
                 }
             }]
         });
-
-        var projectListTable = $('#projectListTable').DataTable({
-            scrollY:        '20vh',
-            scrollCollapse: true,
-            //            "scrollX": true,
-            "pagingType": "simple",
-            //            "sDom": "frtp",
-            "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
-            "bInfo": false,
-            "searching": false,
-            "ajax": {
-                url: "ajax/ajaxquery.php",
-                data: {
-                    "id": project_id,
-                    "p": "getProjectsOther"
-                },
-                "dataSrc": ""
-            },
-            "columns": [{
-                "data": "name",
-                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                    $(nTd).html("<a href='index.php?np=3&id=" + oData.id + "'>" + oData.name + "</a>");
+        
+        //check if input exist in project, otherwise insert
+        function checkProjectInputInsert(input_id, project_id) {
+            var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
+            if (checkProjectInput && checkProjectInput != '') {
+                var projectInputID = checkProjectInput[0].id;
+                $('#confirmModal').modal('show');
+            } else {
+                //insert into project_input table
+                var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
+                if (proInputGet) {
+                    var projectInputID = proInputGet.id;
                 }
-            }]
-        });
-
-        var projectFileTable = $('#projectFileTable').DataTable({
-            scrollY:        '20vh',
-            scrollCollapse: true,
-            //            "scrollCollapse": true,
-            //            "sDom": "frtp",
-            "dom": '<"top"i>rt<"pull-left"f><"bottom"p><"clear">',
-            "bInfo": false,
-            "autoWidth": false,
-            "ajax": {
-                url: "ajax/ajaxquery.php",
-                data: {
-                    "project_id": project_id,
-                    "p": "getProjectInputs"
-                },
-                "dataSrc": ""
-            },
-            "columns": [{
-                    "data": "id",
-                    "checkboxes": {
-                        'targets': 0,
-                        'selectRow': true
-                    }
-            }, {
-                    "data": "name"
-                }, {
-                    "data": "date_modified",
-                    "width": "150px"
+                //get inputdata from input table
+                var inputGets = getValues({ "p": "getInputs", "id": input_id });
+                //insert into #filestable
+                var rowData = {};
+                var keys = filesTable.settings().init().columns;
+                for (var i = 0; i < keys.length; i++) {
+                    var key = keys[i].data;
+                    rowData[key] = inputGets[0][key];
                 }
-
-            ],
-            'select': {
-                'style': 'single'
-            },
-            'order': [[2, 'desc']]
-        });
-
-        $('#confirmModal').on('show.bs.modal', function (event) {
-            $('#confirmModalText').html('Entered file/value already exist in table.');
-        });
-
-        $('#fileModal').on('show.bs.modal', function (event) {
-            $(this).find('form').trigger('reset');
-            $('#filemodaltitle').html('Add Files to Project');
-        });
+                rowData.id = projectInputID;
+                rowData.own = inputGets[0].own;
+                filesTable.row.add(rowData).draw();
+            }
+        }
 
 
         $('#fileModal').on('click', '#savefile', function (e) {
@@ -405,31 +357,20 @@
                         }
                     }
                     //check if project input is exist
-                    var checkProjectInput = getValues({ "p": "checkProjectInput", "input_id": input_id, "project_id": project_id });
-                    if (checkProjectInput && checkProjectInput != '') {
-                        var projectInputID = checkProjectInput[0].id;
-                        $('#confirmModal').modal('show');
-                    } else {
-                        //insert into project_input table
-                        var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-                        if (proInputGet) {
-                            var projectInputID = proInputGet.id;
-                        }
-                        //get inputdata from input table
-                        var inputGets = getValues({ "p": "getInputs", "id": input_id });
-                        //insert into #filestable
-                        var rowData = {};
-                        var keys = filesTable.settings().init().columns;
-                        for (var i = 0; i < keys.length; i++) {
-                            var key = keys[i].data;
-                            rowData[key] = inputGets[0][key];
-                        }
-                        rowData.id = projectInputID;
-                        rowData.own = inputGets[0].own;
-                        filesTable.row.add(rowData).draw();
-                    }
+                    checkProjectInputInsert(input_id, project_id);
                     $('#fileModal').modal('hide');
                 }
+                ///xxxxxx
+            } else if (checkdata === 'projectFileTab') {
+                var rows_selected = projectFileTable.column(0).checkboxes.selected();
+                if (rows_selected.length > 0) {
+                    var data = [];
+                    $.each(rows_selected, function (el) {
+                        var input_id = rows_selected[el];
+                        checkProjectInputInsert(input_id, project_id);
+                    });
+                }
+                $('#fileModal').modal('hide');
             }
 
         });
