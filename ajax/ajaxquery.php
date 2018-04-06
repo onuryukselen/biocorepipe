@@ -497,6 +497,7 @@ else if ($p=="saveProcess"){
     $process_group_id = $_REQUEST['process_group_id'];
     $script = addslashes(htmlspecialchars(urldecode($_REQUEST['script']), ENT_QUOTES));
     $script_header = addslashes(htmlspecialchars(urldecode($_REQUEST['script_header']), ENT_QUOTES));
+    $script_footer = addslashes(htmlspecialchars(urldecode($_REQUEST['script_footer']), ENT_QUOTES));
     $script_mode = $_REQUEST['script_mode'];
     $script_mode_header = $_REQUEST['script_mode_header'];
     $rev_id = $_REQUEST['rev_id']; 
@@ -508,12 +509,12 @@ else if ($p=="saveProcess"){
     settype($group_id, 'integer');
     settype($process_gid, "integer");
     if (!empty($id)) {
-        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $script_header, $group_id, $perms, $publish, $script_mode, $script_mode_header, $ownerID);
+        $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $script_header, $script_footer, $group_id, $perms, $publish, $script_mode, $script_mode_header, $ownerID);
         if ($perms !== "3"){
             $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
         }
     } else {
-        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $script_header, $rev_id, $rev_comment, $group_id, $perms, $publish, $script_mode, $script_mode_header, $ownerID);
+        $data = $db->insertProcess($name, $process_gid, $summary, $process_group_id, $script, $script_header, $script_footer, $rev_id, $rev_comment, $group_id, $perms, $publish, $script_mode, $script_mode_header, $ownerID);
         if ($perms !== "3"){
             $obj = json_decode($data,true);
             $id = $obj["id"];

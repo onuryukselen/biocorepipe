@@ -1,26 +1,50 @@
-//ace editor
-var editor = ace.edit("editor");
-editor.setTheme("ace/theme/tomorrow");
-editor.getSession().setMode("ace/mode/sh");
-editor.$blockScrolling = Infinity;
-//template text for editor
+//template text for ace editor
 templategroovy = '//groovy example: \n\n println "Hello, World!"';
 templateperl = '#perl example: \n\n#!/usr/bin/perl \n print \'Hi there!\' . \'\\n\';';
 templatepython = '#python example: \n\n#!/usr/bin/python \nx = \'Hello\'  \ny = \'world!\' \nprint "%s - %s" % (x,y)';
 templatesh = '#shell example: \n\n#!/bin/sh \nmy_variable="Hello World" \necho $my_variable';
 
+createAceEditors("editor", "#script_mode"); //ace process main editor
+createAceEditors("editorProHeader", "#script_mode_header") //ace process header editor
+createAceEditors("editorProFooter", "#script_mode_footer") //ace process header editor
+createAceEditors("editorPipeHeader", "#script_mode_pipe_header") //ace pipeline header editor
+createAceEditors("editorPipeFooter", "#script_mode_pipe_footer") //ace pipeline footer editor
 
-// If template text is not changed or it is blank : set the template text on change
-$(function () {
-    $(document).on('change', '#script_mode', function () {
-        var newMode = $("#script_mode").val();
-        editor.session.setMode("ace/mode/" + newMode);
-        var editorText = editor.getValue();
-        if (editorText === templategroovy || editorText === templateperl || editorText === templatepython || editorText === templatesh || editorText === '') {
-            var newTempText = 'template' + newMode;
-            editor.setValue(window[newTempText]);
-        }
-    })
+function createAceEditors(editorId, script_modeId) {
+    //ace process editor
+    window[editorId] = ace.edit(editorId);
+    window[editorId].setTheme("ace/theme/tomorrow");
+    window[editorId].getSession().setMode("ace/mode/sh");
+    window[editorId].$blockScrolling = Infinity;
+    // If template text is not changed or it is blank : set the template text on change
+    $(function () {
+        $(document).on('change', script_modeId, function () {
+            var newMode = $(script_modeId).val();
+            window[editorId].session.setMode("ace/mode/" + newMode);
+            var editorText = window[editorId].getValue();
+            if (editorText === templategroovy || editorText === templateperl || editorText === templatepython || editorText === templatesh || editorText === '') {
+                var newTempText = 'template' + newMode;
+                window[editorId].setValue(window[newTempText]);
+            }
+        })
+    });
+}
+// To refresh the content of ace editors. Otherwise it doesn't show the text
+$('#advOptPro').on('show.bs.collapse', function () {
+    var scriptProHeader = editorProHeader.getValue();
+    editorProHeader.setValue(scriptProHeader);
+    editorProHeader.clearSelection();
+    var scriptProFooter = editorProFooter.getValue();
+    editorProFooter.setValue(scriptProFooter);
+    editorProFooter.clearSelection();
+});
+$('#advOpt').on('show.bs.collapse', function () {
+    var scriptPipeHeader = editorPipeHeader.getValue();
+    editorPipeHeader.setValue(scriptPipeHeader);
+    editorPipeHeader.clearSelection();
+    var scriptPipeFooter = editorPipeFooter.getValue();
+    editorPipeFooter.setValue(scriptPipeFooter);
+    editorPipeFooter.clearSelection();
 });
 
 function cleanProcessName(proName) {
@@ -40,30 +64,7 @@ function cleanProcessName(proName) {
     return proName;
 }
 
-//ace process header editor
-var editorProHeader = ace.edit("editorProHeader");
-editorProHeader.setTheme("ace/theme/tomorrow");
-editorProHeader.getSession().setMode("ace/mode/sh");
-editorProHeader.$blockScrolling = Infinity;
-$(function () {
-    $(document).on('change', '#script_mode_header', function () {
-        var newMode = $("#script_mode_header").val();
-        editorProHeader.session.setMode("ace/mode/" + newMode);
-        var editorText = editorProHeader.getValue();
-        if (editorText === templategroovy || editorText === templateperl || editorText === templatepython || editorText === templatesh || editorText === '') {
-            var newTempText = 'template' + newMode;
-            editorProHeader.setValue(window[newTempText]);
-        }
-    })
-});
 
-$('#advOptPro').on('show.bs.collapse', function () {
-    //	          $("#editorProHeader").trigger("click");
-    //	          editorProHeader.focus();
-    var scriptProHeader = editorProHeader.getValue();
-    editorProHeader.setValue(scriptProHeader);
-    editorProHeader.clearSelection();
-});
 
 // cleanProcessModal when modal is closed     
 function cleanProcessModal() {
@@ -92,6 +93,7 @@ function cleanProcessModal() {
     $('#outputTitle').after(outBackup);
     editor.setValue("");
     editorProHeader.setValue("");
+    editorProFooter.setValue("");
     $('#mProActionsDiv').css('display', "none");
     $('#mProRevSpan').css('display', "none");
     $('#mName').removeAttr('disabled');
@@ -120,6 +122,7 @@ function cleanInfoModal() {
     $('#selectProcess').removeAttr("yCoor");
     editor.setReadOnly(false);
     editorProHeader.setReadOnly(false);
+    editorProFooter.setReadOnly(false);
     $('#saveprocess').css('display', "inline");
     $('#selectProcess').css('display', "none");
     $('#createRevisionBut').css('display', "none");
@@ -133,7 +136,6 @@ function refreshProcessModal(selProId) {
     cleanProcessModal();
     $('#mProRev').attr("prev", "-1");
     editor.setValue(templatesh);
-    editorProHeader.setValue(templatesh);
     loadModalProGro();
     loadModalParam();
 
@@ -273,6 +275,11 @@ function loadSelectedProcess(selProcessId) {
         editorProHeaderScript = removeDoubleQuote(decodeHtml(showProcess.script_header));
         editorProHeader.setValue(editorProHeaderScript);
         editorProHeader.clearSelection();
+    }
+    if (showProcess.script_footer !== "" && showProcess.script_footer !== null) {
+        editorProFooterScript = removeDoubleQuote(decodeHtml(showProcess.script_footer));
+        editorProFooter.setValue(editorProFooterScript);
+        editorProFooter.clearSelection();
     }
     if (showProcess.process_group_id !== "" && showProcess.process_group_id !== null) {
         $('#mProcessGroup')[0].selectize.setValue(showProcess.process_group_id, false);
@@ -890,6 +897,7 @@ function disableProModal(selProcessId) {
     $('#mProcessGroup')[0].selectize.disable();
     editor.setReadOnly(true);
     editorProHeader.setReadOnly(true);
+    editorProFooter.setReadOnly(true);
     //Ajax for selected process input/outputs
     var inputs = getValues({
         p: "getInputsPP",
@@ -950,6 +958,7 @@ function disableProModalPublic(selProcessId) {
     $('#mProcessGroup')[0].selectize.disable();
     editor.setReadOnly(true);
     editorProHeader.setReadOnly(true);
+    editorProFooter.setReadOnly(true);
     //Ajax for selected process input/outputs
     var inputs = getValues({
         p: "getInputsPP",
@@ -1127,7 +1136,11 @@ function loadPipelineDetails(pipeline_id, usRole) {
                     $('#deletePipeRevision').remove();
                     $('#delPipeline').remove();
                     $('#savePipeline').css('display', 'none');
-                    $('#advOptDiv').css('display', 'none');
+                    editorPipeHeader.setReadOnly(true);
+                    editorPipeFooter.setReadOnly(true);
+                    $('#permsPipeDiv').css('display', 'none');
+                    $('#groupSelPipeDiv').css('display', 'none');
+                    $('#publishPipeDiv').css('display', 'none');
                 }
                 if (usRole === "admin") {
                     $('#advOptDiv').css('display', 'inline');
@@ -1135,6 +1148,24 @@ function loadPipelineDetails(pipeline_id, usRole) {
                     $('#savePipeline').css('display', 'inline');
                     $("#permsPro option[value='63']").attr("disabled", false);
                     $("#permsPipe option[value='63']").attr("disabled", false);
+                }
+                // fill Script_modes
+                if (s[0].script_mode_header) {
+                    $('#script_mode_pipe_header').val(s[0].script_mode_header);
+                }
+                if (s[0].script_mode_footer) {
+                    $('#script_mode_pipe_footer').val(s[0].script_mode_footer);
+                }
+                //load header and foother script
+                if (s[0].script_pipe_header !== "" && s[0].script_pipe_header !== null) {
+                    var editorScriptPipeHeader = removeDoubleQuote(decodeHtml(s[0].script_pipe_header));
+                    editorPipeHeader.setValue(editorScriptPipeHeader);
+                    editorPipeHeader.clearSelection();
+                }
+                if (s[0].script_pipe_footer !== "" && s[0].script_pipe_footer !== null) {
+                    var editorScriptPipeFooter = removeDoubleQuote(decodeHtml(s[0].script_pipe_footer));
+                    editorPipeFooter.setValue(editorScriptPipeFooter);
+                    editorPipeFooter.clearSelection();
                 }
                 //load user groups
                 var allUserGrp = getValues({ p: "getUserGroups" });
@@ -1157,8 +1188,6 @@ function loadPipelineDetails(pipeline_id, usRole) {
                     $('#savePipeline').css('display', 'none');
                     $('#createRevPipeIcon').css('display', 'inline');
                     $('#createRevPipe').css('display', 'inline');
-
-
                 }
                 if (s[0].pin === 'true') {
                     $('#pin').attr('checked', true);
@@ -1170,6 +1199,9 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 }
                 $('#datecreatedPip').text(s[0].date_created);
                 $('.lasteditedPip').text(s[0].date_modified);
+
+
+                // fill the footer script
                 openPipeline(pipeline_id);
                 checkNameUnique(processList);
             }
@@ -1233,12 +1265,22 @@ function duplicateProcessRev() {
     }
 }
 
+function getScriptEditor(editorId) {
+    var scripteditor = window[editorId].getValue();
+    if (editorId !== 'editorPipeHeader' && editorId !== 'editorPipeFooter') {
+        if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
+            scripteditor = "";
+        }
+    }
+    scripteditor = encodeURIComponent(scripteditor);
+    return scripteditor
+}
+
 $(document).ready(function () {
     var usRole = callusRole();
-    var pipeline_id = $('#pipeline-title').attr('pipelineid');
+    pipeline_id = $('#pipeline-title').attr('pipelineid');
     if (pipeline_id !== '') {
         loadPipelineDetails(pipeline_id, usRole);
-
     } else {
         //load user groups
         var allUserGrp = getValues({ p: "getUserGroups" });
@@ -1248,32 +1290,26 @@ $(document).ready(function () {
             $("#groupSelPipe").append(optionGroup);
             $("#groupSelPro").append(optionGroup);
         }
-
     }
-
-
-
-
-
 
     //Make modal draggable    
-    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, button, span, a' });
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, #editorFooterdiv, button, span, a' });
 
 
-    function getValues(data) {
-        var result = null;
-        var s = null;
-        $.ajax({
-            url: "ajax/ajaxquery.php",
-            data: data,
-            async: false,
-            cache: false,
-            success: function (s) {
-                result = s;
-            }
-        });
-        return result;
-    }
+    //    function getValues(data) {
+    //        var result = null;
+    //        var s = null;
+    //        $.ajax({
+    //            url: "ajax/ajaxquery.php",
+    //            data: data,
+    //            async: false,
+    //            cache: false,
+    //            success: function (s) {
+    //                result = s;
+    //            }
+    //        });
+    //        return result;
+    //    }
 
     stateModule = (function () {
         var state = {}; // Private Variable
@@ -1316,11 +1352,6 @@ $(document).ready(function () {
         autosave();
         $('#addProcessModal').modal('hide');
     });
-
-
-
-
-
 
     renderParam = {
         option: function (data, escape) {
@@ -1464,7 +1495,6 @@ $(document).ready(function () {
         stateModule.changeState("menuRevBackup", backUpObj.menuRevBackup);
 
         editor.setValue(templatesh);
-        editorProHeader.setValue(templatesh);
         loadModalProGro();
         loadModalParam();
 
@@ -1666,16 +1696,9 @@ $(document).ready(function () {
             for (var i = 0; i < 5; i++) {
                 dataToProcess.push(data[i]);
             }
-            var scripteditor = editor.getValue();
-            var scripteditorProHeader = editorProHeader.getValue();
-            if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
-                scripteditor = "";
-            }
-            if (scripteditorProHeader === templategroovy || scripteditorProHeader === templateperl || scripteditorProHeader === templatepython || scripteditorProHeader === templatesh) {
-                scripteditorProHeader = "";
-            }
-            var scripteditor = encodeURIComponent(scripteditor);
-            var scripteditorProHeader = encodeURIComponent(scripteditorProHeader);
+            var scripteditor = getScriptEditor('editor');
+            var scripteditorProHeader = getScriptEditor('editorProHeader');
+            var scripteditorProFooter = getScriptEditor('editorProFooter');
             var maxProcess_gid = getValues({ p: "getMaxProcess_gid" })[0].process_gid;
             var newProcess_gid = parseInt(maxProcess_gid) + 1;
             var script_mode = $('#script_mode').val();
@@ -1688,6 +1711,7 @@ $(document).ready(function () {
             dataToProcess.push({ name: "script_mode", value: script_mode });
             dataToProcess.push({ name: "script_mode_header", value: script_mode_header });
             dataToProcess.push({ name: "script_header", value: scripteditorProHeader });
+            dataToProcess.push({ name: "script_footer", value: scripteditorProFooter });
             dataToProcess.push({ name: "p", value: "saveProcess" });
             if (proName === '' || proGroId === '') {
                 dataToProcess = [];
@@ -1739,16 +1763,9 @@ $(document).ready(function () {
                 for (var i = 1; i < 6; i++) {
                     dataToProcess.push(data[i]);
                 }
-                var scripteditor = editor.getValue();
-                var scripteditorProHeader = editorProHeader.getValue();
-                if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
-                    scripteditor = "";
-                }
-                if (scripteditorProHeader === templategroovy || scripteditorProHeader === templateperl || scripteditorProHeader === templatepython || scripteditorProHeader === templatesh) {
-                    scripteditorProHeader = "";
-                }
-                var scripteditor = encodeURIComponent(scripteditor);
-                var scripteditorProHeader = encodeURIComponent(scripteditorProHeader);
+                var scripteditor = getScriptEditor('editor');
+                var scripteditorProHeader = getScriptEditor('editorProHeader');
+                var scripteditorProFooter = getScriptEditor('editorProFooter');
                 var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
                 var script_mode = $('#script_mode').val();
                 var script_mode_header = $('#script_mode_header').val();
@@ -1759,6 +1776,7 @@ $(document).ready(function () {
                 dataToProcess.push({ name: "publish", value: publish });
                 dataToProcess.push({ name: "process_gid", value: process_gid });
                 dataToProcess.push({ name: "script_header", value: scripteditorProHeader });
+                dataToProcess.push({ name: "script_footer", value: scripteditorProFooter });
                 dataToProcess.push({ name: "script", value: scripteditor });
                 dataToProcess.push({ name: "p", value: "saveProcess" });
                 if (proName === '' || proGroId === '') {
@@ -1810,16 +1828,9 @@ $(document).ready(function () {
                     for (var i = 1; i < 6; i++) {
                         dataToProcess.push(data[i]);
                     }
-                    var scripteditor = editor.getValue();
-                    var scripteditorProHeader = editorProHeader.getValue();
-                    if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
-                        scripteditor = "";
-                    }
-                    if (scripteditorProHeader === templategroovy || scripteditorProHeader === templateperl || scripteditorProHeader === templatepython || scripteditorProHeader === templatesh) {
-                        scripteditorProHeader = "";
-                    }
-                    var scripteditor = encodeURIComponent(scripteditor);
-                    var scripteditorProHeader = encodeURIComponent(scripteditorProHeader);
+                    var scripteditor = getScriptEditor('editor');
+                    var scripteditorProHeader = getScriptEditor('editorProHeader');
+                    var scripteditorProFooter = getScriptEditor('editorProFooter');
                     var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
                     var script_mode = $('#script_mode').val();
                     var script_mode_header = $('#script_mode_header').val();
@@ -1830,6 +1841,7 @@ $(document).ready(function () {
                     dataToProcess.push({ name: "publish", value: publish });
                     dataToProcess.push({ name: "process_gid", value: process_gid });
                     dataToProcess.push({ name: "script_header", value: scripteditorProHeader });
+                    dataToProcess.push({ name: "script_footer", value: scripteditorProFooter });
                     dataToProcess.push({ name: "script", value: scripteditor });
                     dataToProcess.push({ name: "p", value: "saveProcess" });
                     if (proName === '' || proGroId === '') {
@@ -1875,16 +1887,9 @@ $(document).ready(function () {
                         for (var i = 2; i < 6; i++) { //not included by process id i=1
                             dataToProcess.push(data[i]);
                         }
-                        var scripteditor = editor.getValue();
-                        var scripteditorProHeader = editorProHeader.getValue();
-                        if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
-                            scripteditor = "";
-                        }
-                        if (scripteditorProHeader === templategroovy || scripteditorProHeader === templateperl || scripteditorProHeader === templatepython || scripteditorProHeader === templatesh) {
-                            scripteditorProHeader = "";
-                        }
-                        var scripteditor = encodeURIComponent(scripteditor);
-                        var scripteditorProHeader = encodeURIComponent(scripteditorProHeader);
+                        var scripteditor = getScriptEditor('editor');
+                        var scripteditorProHeader = getScriptEditor('editorProHeader');
+                        var scripteditorProFooter = getScriptEditor('editorProFooter');
                         var process_gid = getValues({ p: "getProcess_gid", "process_id": proID })[0].process_gid;
                         var maxRev_id = getValues({ p: "getMaxRev_id", "process_gid": process_gid })[0].rev_id;
                         var newRev_id = parseInt(maxRev_id) + 1;
@@ -1899,6 +1904,7 @@ $(document).ready(function () {
                         dataToProcess.push({ name: "rev_id", value: newRev_id });
                         dataToProcess.push({ name: "process_gid", value: process_gid });
                         dataToProcess.push({ name: "script_header", value: scripteditorProHeader });
+                        dataToProcess.push({ name: "script_footer", value: scripteditorProFooter });
                         dataToProcess.push({ name: "script", value: scripteditor });
                         dataToProcess.push({ name: "p", value: "saveProcess" });
 
