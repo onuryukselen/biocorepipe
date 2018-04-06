@@ -149,7 +149,7 @@
 
 <div id="advOptDiv" class="row">
     <div class="col-md-12">
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:5px;">
             <label>Advanced Options</label>
             <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-plus-square-o collapseIcon" style=" font-size:15px; padding-left:5px;" data-toggle="collapse" data-target="#advOpt"></a></i>
         </div>
@@ -157,8 +157,42 @@
 </div>
 
 <!-- collapsed settings-->
-<div id="advOpt" class=" collapse">
-    <div class="col-md-4">
+<div id="advOpt" class="collapse">
+    <div class="col-md-12" style="margin-bottom:15px;">
+        <div class="form-group">
+            <label style="width:150px;" class="col-sm-2 control-label">Pipeline Header Script</label>
+            <div id="editorPipeHeaderdiv" class="col-sm-10">
+                <div id="editorPipeHeader" style="height:200px;"></div>
+                <div class="row">
+                    <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                    <div class="col-sm-3" style="padding-left:0;">
+                        <select id="script_mode_pipe_header" name="script_mode_header" class="form-control">
+                        <option value="groovy" >groovy</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12" style="padding-top:10px; margin-bottom:25px;">
+        <div class="form-group">
+            <label style="width:150px;" class="col-sm-2 control-label">Pipeline Footer Script</label>
+            <div id="editorPipeFooterdiv" class="col-sm-10">
+                <div id="editorPipeFooter" style="height:200px;"></div>
+                <div class="row">
+                    <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                    <div class="col-sm-3" style="padding-left:0;">
+                        <select id="script_mode_pipe_footer" name="script_mode_footer" class="form-control">
+                        <option value="groovy" >groovy</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="permsPipeDiv" class="col-md-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Permissions to View</label>
             <select id="permsPipe" class="fbtn btn-default form-control" name="perms">
@@ -168,7 +202,7 @@
                         </select>
         </div>
     </div>
-    <div class="col-md-4">
+    <div id="groupSelPipeDiv" class="col-md-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Group Selection</label>
             <select id="groupSelPipe" class="fbtn btn-default form-control" name="group_id">
@@ -176,7 +210,7 @@
                         </select>
         </div>
     </div>
-    <div class="col-sm-4">
+    <div id="publishPipeDiv" class="col-sm-4">
         <div class="form-group">
             <label class="col-sm-12 control-label">Publish</label>
             <select id="publishPipe" class="fbtn btn-default form-control" name="publish">
@@ -284,7 +318,7 @@
                             <p style="padding-left:50px;">Input Name <span><a data-toggle="tooltip" data-placement="bottom" title="Name to define input groups according to their qualifier"><i class='glyphicon glyphicon-info-sign' style="font-size:13px;"></i></a></span></p>
                         </div>
                         <div id="mInNamedelT" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0; padding-bottom:22px; border-bottom:1px solid lightgrey;">
-                        <p> </p>
+                            <p> </p>
                         </div>
                         <div id="mInOptButT" class="col-sm-1" style="width:45px; padding-left:5px; padding-right:0; padding-bottom:22px; border-bottom:1px solid lightgrey;">
                             <p> </p>
@@ -382,7 +416,7 @@
                             <p style="padding-left:50px;">Output Name <span><a data-toggle="tooltip" data-placement="bottom" title="Name to define output groups according to their qualifier"><i class='glyphicon glyphicon-info-sign' style="font-size:13px;"></i></a></span></p>
                         </div>
                         <div id="mOutNamedelT" class="col-sm-1" style="width:40px; padding-left:0;padding-right:0; padding-bottom:22px; border-bottom:1px solid lightgrey;">
-                        <p> </p>
+                            <p> </p>
                         </div>
                         <div id="mOutOptButT" class="col-sm-1" style="width:45px; padding-left:5px; padding-right:0; padding-bottom:22px; border-bottom:1px solid lightgrey;">
                             <p> </p>
@@ -514,58 +548,71 @@
                     </div>
                     <!-- collapsed settings-->
                     <div id="advOptPro" class="row collapse">
-                        <div class="form-horizontal" >
-                        <label  style="width:150px;" class="col-sm-2 control-label">Header Script </label>
-                        <div id="editorHeaderdiv" class="col-sm-10" style="margin-top:20px; margin-bottom:25px;">
-                            <div id="editorProHeader" style = "height: 150px;"></div>
-                            <div class="row">
-                                <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
-                                <div class="col-sm-3" style="padding-left:0;">
-                                    <select id="script_mode_header" name="script_mode_header" class="form-control">
-                                    <option value="sh" >shell</option>
+                        <div class="form-horizontal">
+                            <label style="width:150px;" class="col-sm-2 control-label">Header Script </label>
+                            <div id="editorHeaderdiv" class="col-sm-10" style="margin-top:20px; margin-bottom:25px;">
+                                <div id="editorProHeader" style="height:150px;"></div>
+                                <div class="row">
+                                    <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                                    <div class="col-sm-3" style="padding-left:0;">
+                                        <select id="script_mode_header" name="script_mode_header" class="form-control">
                                     <option value="groovy" >groovy</option>
-                                    <option value="perl" >perl</option>
-                                    <option value="python" >python</option>
                                     </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div id="proPermGroPubDiv">
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="col-sm-6 control-label">Permissions to View</label>
-                                <div class="col-sm-6">
-                                    <select id="permsPro" class="fbtn btn-default form-control" name="perms">
+                        <div class="form-horizontal">
+                            <label style="width:150px;" class="col-sm-2 control-label">Footer Script </label>
+                            <div id="editorFooterdiv" class="col-sm-10" style="margin-top:20px; margin-bottom:25px;">
+                                <div id="editorProFooter" style="height:150px;"></div>
+                                <div class="row">
+                                    <p class="col-sm-3" style="padding-top:6px; padding-right:0;">Language Mode:</p>
+                                    <div class="col-sm-3" style="padding-left:0;">
+                                        <select id="script_mode_footer" name="script_mode_footer" class="form-control">
+                                    <option value="groovy" >groovy</option>
+                                    </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-horizontal">
+                            <div id="proPermGroPubDiv">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Permissions to View</label>
+                                        <div class="col-sm-6">
+                                            <select id="permsPro" class="fbtn btn-default form-control" name="perms">
                               <option value="3" selected="">Only me </option>
                               <option value="15">Only my groups</option>
                               <option disabled value="63">Everyone </option>
                         </select>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="col-sm-6 control-label">Group Selection</label>
-                                <div class="col-sm-6">
-                                    <select id="groupSelPro" class="fbtn btn-default form-control" name="group_id">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-6 control-label">Group Selection</label>
+                                        <div class="col-sm-6">
+                                            <select id="groupSelPro" class="fbtn btn-default form-control" name="group_id">
                           <option value="" selected>Choose group </option>
                         </select>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="col-sm-4 control-label">Publish</label>
-                                <div class="col-sm-3">
-                                    <select id="publishPro" class="fbtn btn-default form-control" name="publish">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Publish</label>
+                                        <div class="col-sm-3">
+                                            <select id="publishPro" class="fbtn btn-default form-control" name="publish">
                                       <option value="0">No</option>
                                       <option value="1">Yes</option>
                                     </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        </div>
-                    </div>
 
                     </div>
 

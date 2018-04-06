@@ -7,13 +7,12 @@ function gFormat(gText) {
     return gText
 }
 
-function getMainEdges()
-{
+function getMainEdges() {
     //remove inPro, outPro from edges
     var allEdges = edges;
     var mainEdges = [];
     for (var e = 0; e < allEdges.length; e++) {
-        if (allEdges[e].indexOf("inPro") === -1 && edges[e].indexOf("outPro") === -1) { //if not exist -1, 
+        if (allEdges[e].indexOf("inPro") === -1 && edges[e].indexOf("outPro") === -1) { //if not exist -1,
             //swap to make sure, first node is output (for simplification)
             var nodes = allEdges[e].split("_")
             if (nodes[0][0] === "i") {
@@ -25,11 +24,13 @@ function getMainEdges()
     }
     return mainEdges;
 }
-function sortProcessList(processList,sortGnum) {
+
+
+function sortProcessList(processList, sortGnum) {
     var mainEdges = getMainEdges();
-    if (sortGnum == null){
-    var sortGnum = [];
-    } 
+    if (sortGnum == null) {
+        var sortGnum = [];
+    }
     if (mainEdges.length > 0) {
         for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
             console.log(e)
@@ -53,7 +54,7 @@ function sortProcessList(processList,sortGnum) {
                 console.log("insert")
                 console.log(sortGnum);
             } else {
-                
+
                 //check if the position of outGnum if inGnum is also exist in array
                 //cut inGnum and paste to indexOut position
                 if (sortGnum.includes(inGnum) && sortGnum.includes(outGnum)) {
@@ -131,8 +132,8 @@ function createNextflowFile(nxf_runmode) {
     var sortGnumFirst = [];
     var sortGnumSecond = [];
     //sorting repeated twice to sort distant nodes.
-    [sortedProcessList, sortGnumFirst] = sortProcessList(processList,null);
-    [sortedProcessList, sortGnumSecond] = sortProcessList(processList,sortGnumFirst);
+    [sortedProcessList, sortGnumFirst] = sortProcessList(processList, null);
+    [sortedProcessList, sortGnumSecond] = sortProcessList(processList, sortGnumFirst);
     //initial input data added
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
@@ -141,7 +142,11 @@ function createNextflowFile(nxf_runmode) {
         iniTextSecond = iniTextSecond + iniText.secPart;
         nextText = nextText + iniText.firstPart;
     });
-    nextText = nextText + "\n" + iniTextSecond + "\n"
+    //pipeline scripts
+    var header_pipe_script = "";
+    var footer_pipe_script = "";
+    [header_pipe_script, footer_pipe_script] = getPipelineScript(pipeline_id);
+    nextText += "\n" + iniTextSecond + "\n" + header_pipe_script + "\n";
 
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
@@ -149,12 +154,14 @@ function createNextflowFile(nxf_runmode) {
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
             var body = "";
             var script_header = "";
-            [body, script_header] = IOandScriptForNf(mainProcessId, key);
-            proText = script_header + "\nprocess " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + body + "\n\n}\n" + outputFileName(mainProcessId, key) + "\n\n"
-            nextText = nextText + proText
+            var script_footer = "";
+            [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key);
+            proText = script_header + "\nprocess " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
+            nextText += proText;
         }
     });
-    var endText = 'workflow.onComplete {\n';
+
+    var endText = footer_pipe_script + '\nworkflow.onComplete {\n';
     endText += 'println "##Pipeline execution summary##"\n';
     endText += 'println "---------------------------"\n';
     endText += 'println "##Completed at: $workflow.complete"\n';
@@ -174,30 +181,32 @@ function createNextflowFile(nxf_runmode) {
 }
 
 //g_1_genome_index.subscribe {println "##Output:'genome.index*'## ${it.name}"}
-function outputFileName(id, currgid) {
-    outFileName = "";
-    OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0];
-    for (var o = 0; o < OList.length; o++) {
-        Oid = OList[o].id
-        outputIdSplit = Oid.split("-")
-        //        qual = parametersData.filter(function (el) {
-        //            return el.id == outputIdSplit[3]
-        //        })[0].qualifier
-        outputName = document.getElementById(Oid).getAttribute("name");
-        outputName = outputName.replace(/\"/g, '');
-        outputName = outputName.replace(/\'/g, '');
-        outputName = outputName.replace(/\?/g, '')
-        outputName = outputName.replace(/\${(.*)}/g, '*');
-        genParName = parametersData.filter(function (el) {
-            return el.id == outputIdSplit[3]
-        })[0].name
-        channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
-
-        //        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
-        //        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + "## ${it.name}\"}" + "\n"
-    }
-    return outFileName;
-}
+// outputFileName(mainProcessId, key) called by this function
+// gived error therefore commented
+//function outputFileName(id, currgid) {
+//    outFileName = "";
+//    OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0];
+//    for (var o = 0; o < OList.length; o++) {
+//        Oid = OList[o].id
+//        outputIdSplit = Oid.split("-")
+//        //        qual = parametersData.filter(function (el) {
+//        //            return el.id == outputIdSplit[3]
+//        //        })[0].qualifier
+//        outputName = document.getElementById(Oid).getAttribute("name");
+//        outputName = outputName.replace(/\"/g, '');
+//        outputName = outputName.replace(/\'/g, '');
+//        outputName = outputName.replace(/\?/g, '')
+//        outputName = outputName.replace(/\${(.*)}/g, '*');
+//        genParName = parametersData.filter(function (el) {
+//            return el.id == outputIdSplit[3]
+//        })[0].name
+//        channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName
+//
+//        //        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + outputName + "## ${it.name}\"}" + "\n"
+//        //        outFileName = outFileName + " " + channelName + ".subscribe {println \"##Output:" + "## ${it.name}\"}" + "\n"
+//    }
+//    return outFileName;
+//}
 
 function getChannelNameAll(channelName, Iid) {
     var channelNameAll = "";
@@ -330,7 +339,7 @@ function publishDir(id, currgid) {
     for (var i = 0; i < oList.length; i++) {
         oId = oList[i].id
         for (var e = 0; e < edges.length; e++) {
-            if (edges[e].indexOf(oId) !== -1) { //if not exist -1, 
+            if (edges[e].indexOf(oId) !== -1) { //if not exist -1,
                 nodes = edges[e].split("_")
                 fNode = nodes[0]
                 sNode = nodes[1]
@@ -343,7 +352,7 @@ function publishDir(id, currgid) {
                     outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
                     reg_ex = document.getElementById(oId).getAttribute("reg_ex");
                     if (reg_ex !== "" && reg_ex !== null) {
-                            reg_ex = decodeHtml(reg_ex);
+                        reg_ex = decodeHtml(reg_ex);
                         if (reg_ex.length > 0) {
                             var lastLetter = reg_ex.length - 1;
                             if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
@@ -359,12 +368,12 @@ function publishDir(id, currgid) {
                     }
                     oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
                     tempText = "\tif \(filename =~ " + outputName + "\) " + getParamOutdir(outParUserEntry) + "\n"
-                    // if (filename =~ /^path.8.fastq$/) filename 
+                    // if (filename =~ /^path.8.fastq$/) filename
                     oText = oText + tempText
                 } else if (fNode.split("-")[1] === "outPro" && closePar === true) {
                     reg_ex = document.getElementById(oId).getAttribute("reg_ex");
                     if (reg_ex !== "" && reg_ex !== null) {
-                            reg_ex = decodeHtml(reg_ex);
+                        reg_ex = decodeHtml(reg_ex);
                         if (reg_ex.length > 0) {
                             var lastLetter = reg_ex.length - 1;
                             if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
@@ -398,18 +407,33 @@ function publishDir(id, currgid) {
     return oText
 }
 
-
+function getPipelineScript(pipeline_id) {
+    var pipelineData = getValues({ p: "loadPipeline", "id": pipeline_id });
+    if (pipelineData[0].script_pipe_header !== null) {
+        var script_pipe_header = decodeHtml(pipelineData[0].script_pipe_header);
+    } else {
+        var script_pipe_header = "";
+    }
+    if (pipelineData[0].script_pipe_footer !== null) {
+        var script_pipe_footer = decodeHtml(pipelineData[0].script_pipe_footer);
+    } else {
+        var script_pipe_footer = "";
+    }
+    return [script_pipe_header, script_pipe_footer]
+}
 
 function IOandScriptForNf(id, currgid) {
-    var processData = getValues({
-        p: "getProcessData",
-        "process_id": id
-    })
+    var processData = getValues({ p: "getProcessData", "process_id": id });
     script = decodeHtml(processData[0].script);
-    if (processData[0].script_header !== null){
-    var script_header = decodeHtml(processData[0].script_header);
+    if (processData[0].script_header !== null) {
+        var script_header = decodeHtml(processData[0].script_header);
     } else {
-        script_header = "";
+        var script_header = "";
+    }
+    if (processData[0].script_footer !== null) {
+        var script_footer = decodeHtml(processData[0].script_footer);
+    } else {
+        var script_footer = "";
     }
     var lastLetter = script.length - 1;
     if (script[0] === '"' && script[lastLetter] === '"') {
@@ -554,5 +578,5 @@ function IOandScriptForNf(id, currgid) {
 
     }
     body = bodyInput + "\n" + bodyOutput + "\n" + script
-    return [body, script_header]
+    return [body, script_header, script_footer]
 }

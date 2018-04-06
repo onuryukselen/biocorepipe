@@ -1,3 +1,7 @@
+06.04.2018 Version 0.1.16
+Footer process script section added to process modal.
+Header and Footer pipeline script section added to pipeline page.
+
 04.04.2018 Version 0.1.15
 Pipeline process sorting algorithm improved.
 Project based file selection modal in run pipeline page is improved.
@@ -9,7 +13,7 @@ Cluster options added to jobs settings section in profile and run pipeline page
 02.04.2018 Version 0.1.14
 Save over image option is added for shub external url support.
 Text wrap problem is fixed for long texts. (eg. Summary of public pipeline page and file paths of run pipeline page)
-Channel.fromPath syntax error fixed. 
+Channel.fromPath syntax error fixed.
 "toSortedList" operator is added to Channel.fromPath in order to receive files in sorted format.
 Removal of backslash while saving process script is fixed.
 
