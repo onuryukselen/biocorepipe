@@ -262,7 +262,8 @@
 	      }
 
 	  }
-	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef,procOptDef) {
+
+	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef, procOptDef) {
 	      return '<tr procProId="' + process_id + '" id="procGnum-' + gNum + '"><td><input name="check" id="check-' + gNum + '" type="checkbox" </td><td>' + procName + '</td><td><input name="queue" class="form-control" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procCpuDef + '"></input></td><td><input name="time" class="form-control" type="text" value="' + procTimeDef + '"></input></td><td><input name="opt" class="form-control" type="text" value="' + procOptDef + '"></input></td></tr>'
 	  }
 
@@ -273,7 +274,7 @@
 	      var procCpuDef = '1';
 	      var procTimeDef = '100';
 	      var procOptDef = '';
-	      var proRow = insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef,procOptDef);
+	      var proRow = insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef, procOptDef);
 	      $('#processTable > tbody:last-child').append(proRow);
 	  }
 
@@ -1295,7 +1296,7 @@
 	      $('#chooseEnv').val(pipeData[0].profile);
 	      $('#perms').val(pipeData[0].perms);
 	      $('#runCmd').val(pipeData[0].cmd);
-          $('#docker_img').val(pipeData[0].docker_img);
+	      $('#docker_img').val(pipeData[0].docker_img);
 	      $('#docker_opt').val(pipeData[0].docker_opt);
 	      $('#singu_img').val(pipeData[0].singu_img);
 	      $('#singu_opt').val(pipeData[0].singu_opt);
@@ -1306,11 +1307,11 @@
 	      updateCheckBox('#docker_check', pipeData[0].docker_check);
 	      updateCheckBox('#singu_check', pipeData[0].singu_check);
 	      updateCheckBox('#singu_save', pipeData[0].singu_save);
-          updateCheckBox('#withTrace', pipeData[0].withTrace);
-          updateCheckBox('#withReport', pipeData[0].withReport);
-          updateCheckBox('#withDag', pipeData[0].withDag);
-          updateCheckBox('#withTimeline', pipeData[0].withTimeline);
-          checkShub()
+	      updateCheckBox('#withTrace', pipeData[0].withTrace);
+	      updateCheckBox('#withReport', pipeData[0].withReport);
+	      updateCheckBox('#withDag', pipeData[0].withDag);
+	      updateCheckBox('#withTimeline', pipeData[0].withTimeline);
+	      checkShub()
 	      //load amazon keys for possible s3 connection
 	      loadAmzKeys();
 	      if (pipeData[0].amazon_cre_id !== "0") {
@@ -1647,19 +1648,20 @@
 	      }
 	  }
 
-      //check if singu image path contains shub:// pattern 
-      $("#singu_img").keyup(function () {
+	  //check if singu image path contains shub:// pattern 
+	  $("#singu_img").keyup(function () {
 	      autoCheckShub();
 	  });
-      var timeoutCheckShub = 0;
-      function autoCheckShub() {
+	  var timeoutCheckShub = 0;
+
+	  function autoCheckShub() {
 	      if (timeoutCheckShub) clearTimeout(timeoutCheck);
 	      timeoutCheckShub = setTimeout(function () { checkShub() }, 2000);
 	  }
 
-      //check if singu image path contains shub:// pattern then show "save over image" checkbox
+	  //check if singu image path contains shub:// pattern then show "save over image" checkbox
 	  function checkShub() {
-          var singuPath = $("#singu_img").val()
+	      var singuPath = $("#singu_img").val()
 	      var shubpattern = 'shub://';
 	      var pathCheck = false;
 	      if (singuPath !== '') {
@@ -1671,7 +1673,7 @@
 	          }
 	      } else {
 	          $("#singu_save_div").css('display', "none");
-              $("#singu_save").prop('checked', false);
+	          $("#singu_save").prop('checked', false);
 	      }
 	  }
 
@@ -1687,6 +1689,7 @@
 	  });
 
 	  var timeoutCheck = 0;
+
 	  function autoCheck() {
 	      if (timeoutCheck) clearTimeout(timeoutCheck);
 	      timeoutCheck = setTimeout(function () { checkReadytoRun() }, 2000);
@@ -1738,7 +1741,7 @@
 	  function configTextAllProcess(exec_all_settings, type, proName) {
 	      if (type === "each") {
 	          for (var keyParam in exec_all_settings) {
-                  console.log(keyParam)
+	              console.log(keyParam)
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.$' + proName + '.time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
@@ -1754,7 +1757,7 @@
 
 	      } else {
 	          for (var keyParam in exec_all_settings) {
-                  console.log(keyParam)
+	              console.log(keyParam)
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
@@ -1921,7 +1924,9 @@
 	          if (nextflowLog !== null) {
 	              $('#runLogArea').val(serverLog + nextflowLog);
 	          }
-	          clearInterval(interval_readNextlog);
+	          if (type !== "reload") {
+	              clearInterval(interval_readNextlog);
+	          }
 	          displayButton('terminatedProPipe');
 	      } else if (nextflowLog !== null) {
 	          $('#runLogArea').val(serverLog + nextflowLog);
@@ -1949,8 +1954,8 @@
 	                      clearInterval(interval_readNextlog);
 	                  }
 	                  displayButton('completeProPipe');
-	                  showOutputPath();    
-                      
+	                  showOutputPath();
+
 	              } else if (nextflowLog.match(/error/gi) || nextflowLog.match(/failed/i)) {
 	                  // status completed with error
 	                  if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
@@ -2158,8 +2163,8 @@
 	      var withTrace = $('#withTrace').is(":checked").toString();
 	      var withTimeline = $('#withTimeline').is(":checked").toString();
 	      var withDag = $('#withDag').is(":checked").toString();
-          
-          
+
+
 
 	      if (run_name !== '') {
 	          data.push({ name: "id", value: project_pipeline_id });
@@ -2465,13 +2470,13 @@
 	              var projectRows = $('#projectListTable > tbody >');
 	              // if project is exist click on the first one to show files
 	              if (projectRows && projectRows.length > 0) {
-                      $('#projectListTable > tbody > tr > td ').find('[projectid="'+project_id +'"]').trigger("click")
+	                  $('#projectListTable > tbody > tr > td ').find('[projectid="' + project_id + '"]').trigger("click")
 	              }
 	          } else if (activatedTab === "#projectValTab") {
 	              var projectRows = $('#projectListTableVal > tbody >');
 	              // if project is exist click on the first one to show files
 	              if (projectRows && projectRows.length > 0) {
-                      $('#projectListTableVal > tbody > tr > td ').find('[projectid="'+project_id +'"]').trigger("click")
+	                  $('#projectListTableVal > tbody > tr > td ').find('[projectid="' + project_id + '"]').trigger("click")
 	              }
 	          } else if (activatedTab === "#publicFileTab") {
 	              var host = $('#chooseEnv').find(":selected").attr("host");

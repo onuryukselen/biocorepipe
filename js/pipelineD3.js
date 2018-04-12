@@ -106,7 +106,12 @@
 	  function startzoom() {
 	      d3.select("#container").call(zoom)
 	  }
-
+      $('#editorPipeHeader').keyup(function () {
+	      autosave();
+	  });
+      $('#editorPipeFooter').keyup(function () {
+	      autosave();
+	  });
 	  $('#pipelineSum').keyup(function () {
 	      autosaveDetails();
 	  });
@@ -127,7 +132,7 @@
 	  pipelineOwn = '';
 
 	  function autosave() {
-	      if (pipelineOwn === '' || pipelineOwn === "1" && pipelinePerm !== "63") {
+	      if ((pipelineOwn === '' || pipelineOwn === "1") && pipelinePerm !== "63") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');
@@ -148,12 +153,13 @@
 	      }
 	  }
 
-	  function newPipeline() {
-	      createSVG()
-	      $('#pipeline-title').val('');
-	      $('#pipeline-title').attr('pipelineid', '');
-	      resizeForText.call($inputText, $inputText.attr('placeholder'));
-	  }
+	  //	  function newPipeline() {
+	  //	      createSVG()
+	  //	      $('#pipeline-title').val('');
+	  //	      $('#pipeline-title').attr('pipelineid', '');
+	  //	      resizeForText.call($inputText, $inputText.attr('placeholder'));
+
+	  //	  }
 
 	  function duplicatePipeline() {
 	      dupliPipe = true
@@ -216,6 +222,7 @@
 	      .on("zoom", zoomed);
 
 	  createSVG()
+
 	  function zoomed() {
 	      mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	  }
@@ -1248,7 +1255,7 @@
 
 	  function changeName() {
 	      newName = document.getElementById("mRenName").value;
-          newName = cleanProcessName(newName);
+	      newName = cleanProcessName(newName);
 	      d3.select("#" + renameTextID).attr('name', newName)
 	      newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
 	      d3.select("#" + renameTextID).text(newNameShow)
@@ -1419,17 +1426,17 @@
 	      [duplicates, duplicatesSoFar] = hasDuplicates(processListArray);
 	      if (duplicates === true) {
 	          var warnUserText = "Process and parameter names should be unique in pipeline. Please modify following names: ";
-	              $.each(duplicatesSoFar, function (element) {
-	                  if (element !== 0) {
-	                      warnUserText = warnUserText + ", ";
-	                  }
-	                  warnUserText = warnUserText + duplicatesSoFar[element];
-	              });
+	          $.each(duplicatesSoFar, function (element) {
+	              if (element !== 0) {
+	                  warnUserText = warnUserText + ", ";
+	              }
+	              warnUserText = warnUserText + duplicatesSoFar[element];
+	          });
 	          $('#warnSection').css('display', 'inline');
 	          $('#warnArea').html(warnUserText);
 	      } else {
-              $('#warnSection').css('display', 'none');
-          }
+	          $('#warnSection').css('display', 'none');
+	      }
 	  }
 
 	  //Save pipeline
@@ -1462,6 +1469,10 @@
 	      var pin = $('#pin').is(":checked").toString();
 	      var pin_order = $('#pin_order').val();
 	      var publish = $('#publishPipe').val();
+	      var script_mode_header = $('#script_mode_pipe_header').val();
+	      var script_mode_footer = $('#script_mode_pipe_footer').val();
+	      var script_pipe_header = getScriptEditor('editorPipeHeader');
+          var script_pipe_footer = getScriptEditor('editorPipeFooter');
 	      id = 0
 	      if (sName !== "" && dupliPipe === false) {
 	          id = $("#pipeline-title").attr('pipelineid');
@@ -1491,6 +1502,14 @@
 	          "pin_order": pin_order
 	      }, {
 	          "publish": publish
+	      }, {
+	          "script_pipe_header": script_pipe_header
+	      }, {
+	          "script_pipe_footer": script_pipe_footer
+	      }, {
+	          "script_mode_header": script_mode_header
+	      }, {
+	          "script_mode_footer": script_mode_footer
 	      }];
 	      if (createPipeRev === "true") {
 	          return [savedList, id, sName];
@@ -1520,7 +1539,7 @@
 	              var warnUserPipe = false;
 	              var warnPipeText = '';
 	              var numOfProject = '';
-                  var numOfProjectPublic = '';
+	              var numOfProjectPublic = '';
               [warnUserPipe, warnPipeText, numOfProject, numOfProjectPublic] = checkRevisionPipe(id);
 	              //B.1 allow updating on existing pipeline
 	              if (warnUserPipe === false || saveOnExist === true) {
