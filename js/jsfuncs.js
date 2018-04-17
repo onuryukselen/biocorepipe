@@ -390,13 +390,13 @@ function getTableButtons(name, buttons) {
 // eg. name:run buttons:select
 function getButtonsModal(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="button" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '" data-toggle="modal" data-target="#' + name + 'modal">' + buttons + '</button> &nbsp;';
+    var button = '<button type="button" style= "margin-right:5px;" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '" data-toggle="modal" data-target="#' + name + 'modal">' + buttons + '</button>';
     return button;
 }
 //Default type of buttons
 function getButtonsDef(name, buttons) {
     var buttonId = buttons.split(' ')[0];
-    var button = '<button type="submit" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '">' + buttons + '</button> &nbsp;';
+    var button = '<button type="submit" style= "margin-right:5px;" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '">' + buttons + '</button>';
     return button;
 }
 

@@ -130,6 +130,7 @@
 
 	  var timeoutId = 0;
 	  pipelineOwn = '';
+      pipelinePerm = '';
 
 	  function autosave() {
 	      if ((pipelineOwn === '' || pipelineOwn === "1") && pipelinePerm !== "63") {
@@ -198,8 +199,9 @@
 	                  y = nodes[key][1]
 	                  pId = nodes[key][2]
 	                  name = nodes[key][3]
+	                  var processModules = nodes[key][4];
 	                  gN = key.split("-")[1]
-	                  loadPipeline(x, y, pId, name, gN)
+	                  loadPipeline(x, y, pId, name, processModules, gN)
 	              }
 
 	              ed = sData[0].edges
@@ -228,7 +230,7 @@
 	  }
 
 	  //kind=input/output
-	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
+	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal) {
 	      //gnum uniqe, id same id (Written in class) in same type process
 	      g = d3.select("#mainG").append("g")
 	          .attr("id", "g-" + gNum)
@@ -298,6 +300,7 @@
 	          .attr('font-size', '1em')
 	          .attr('name', name)
 	          .attr('class', 'inOut')
+	          .attr('classType', kind)
 	          .text(truncateName(name, 'inOut'))
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
@@ -305,7 +308,10 @@
 	          .on("mouseover", scMouseOver)
 	          .on("mouseout", scMouseOut)
 	          .call(drag)
-
+          if (defVal){
+              $("#text-" + gNum).attr('defVal', defVal)
+          }
+          
 	      g.append("text").attr("id", "text-" + gNum)
 	          .datum([{
 	              cx: 0,
@@ -372,7 +378,7 @@
 	          x = (xpos - t.translate[0])
 	      y = (ypos - t.translate[1])
 	      z = t.scale[0]
-
+          var defVal = null;
 
 
 	      //var process_id = processData[index].id;
@@ -393,7 +399,7 @@
 	          var init = "o"
 	          var pColor = "orange"
 
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
 	      }
@@ -412,7 +418,7 @@
 	          var classtoparam = classtoparam || "connect_to_output input"
 	          var init = "i"
 	          var pColor = "green"
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
@@ -1233,6 +1239,8 @@
 	  function rename() {
 	      renameTextID = this.id;
 	      renameText = d3.select("#" + this.id).attr('name');
+	      renameTextClassType = d3.select("#" + this.id).attr('classType');
+	      renameTextDefVal = d3.select("#" + this.id).attr('defVal');
 	      body = document.body;
 	      bodyW = body.offsetWidth;
 	      bodyH = body.scrollHeight;
@@ -1451,12 +1459,19 @@
 	          y = t.translate[1]
 	          gClass = document.getElementById(key).className.baseVal
 	          prosessID = gClass.split("-")[1];
+	          var gNum = key.split("-")[1];
 	          //fix bug while saving on dragging
 	          if (prosessID.match(/(.*) dragging/)) {
 	              prosessID = prosessID.match(/(.*) dragging/)[1];
 	          }
+              // save defVal of input parameters if exist
+              var defVal = $("#text-" + gNum).attr("defVal");
+              var processModule = {};
+              if (defVal) {
+                  processModule = {"defVal": defVal};
+              }
 	          processName = processList[key]
-	          saveNodes[key] = [x, y, prosessID, processName]
+	          saveNodes[key] = [x, y, prosessID, processName, processModule]
 	      }
 	      Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
 	          Mainx = Maint.translate[0]
@@ -1621,7 +1636,7 @@
 	      }
 	  }
 
-	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
+	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
 	          x = t.translate[0]
 	      y = t.translate[1]
@@ -1630,8 +1645,14 @@
 	      gNum = parseInt(gN)
 	      var name = sDataName
 	      var id = sDatapId
-	      var process_id = id
-
+	      var process_id = id;
+          var defVal = null;
+          if (processModules != null && processModules != {} && processModules != ""){
+            if (processModules.defVal){
+               defVal = processModules.defVal;
+            }
+          }
+          
 	      //for input parameters
 	      if (id === "inPro") {
 	          ipR = 70 / 2
@@ -1663,8 +1684,7 @@
 	                  break
 	              }
 	          }
-
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
 
@@ -1699,7 +1719,7 @@
 	                  break
 	              }
 	          }
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
 
