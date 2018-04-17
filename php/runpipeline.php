@@ -287,7 +287,7 @@
             </div>
             <div class="col-md-12">
                 <div class="form-group">
-                    <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input>
+                    <label> <input type="checkbox" id="intermeDel" name="interDelete" value="interDel" checked> Delete intermadiate files after run</input></label>
                 </div>
             </div>
             <div class="col-md-12">

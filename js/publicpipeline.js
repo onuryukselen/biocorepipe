@@ -223,7 +223,6 @@
 
 
 	  //kind=input/output
-	  //
 	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
 	      //gnum uniqe, id same id (Written in class) in same type process
 	      g = d3.select("#mainG").append("g")
@@ -294,36 +293,11 @@
 	          .attr('font-size', '1em')
 	          .attr('name', name)
 	          .attr('class', 'inOut')
+              .attr('classType', kind)
 	          .text(truncateName(name, 'inOut'))
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
-	      //	          .on("mouseover", scMouseOver)
-	      //	          .on("mouseout", scMouseOut)
-	      //	          .call(drag)
-
-	      //	      g.append("text").attr("id", "text-" + gNum)
-	      //	          .datum([{
-	      //	              cx: 0,
-	      //	              cy: 0
-	      //                }])
-	      //	          .attr('font-family', "FontAwesome, sans-serif")
-	      //	          .attr('font-size', '0.9em')
-	      //	          .attr("x", -40)
-	      //	          .attr("y", 5)
-	      //	          .text('\uf040')
-	      //	          .on("mousedown", rename)
-
-	      //gnum(written in id): uniqe,
-	      //	      g.append("text")
-	      //	          .attr("id", "del-" + gNum)
-	      //	          .attr('font-family', "FontAwesome, sans-serif")
-	      //	          .attr('font-size', '1em')
-	      //	          .attr("x", +30)
-	      //	          .attr("y", 5)
-	      //	          .text('\uf014')
-	      //	          .style("opacity", 0.2)
-	      //	          .on("mousedown", removeElement)
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName) {
