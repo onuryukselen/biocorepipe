@@ -1972,15 +1972,15 @@ $(document).ready(function () {
                     var idRows = numOutputs; // numInputs or numOutputs
                 }
                 $("#" + col1init).append('<select id="' + col1init + '-' + idRows + '" num="' + idRows + '" class="fbtn btn-default form-control mParChange" style ="margin-bottom: 5px;" prev ="-1"  name="' + col1init + '-' + idRows + '"></select>');
-                $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 5px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
-                $("#" + col3init).append('<button  type="button" class="btn btn-default form-control delRow" style ="margin-bottom: 5px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete Row"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
-                $("#" + col4init).append('<button  type="button" class="btn btn-default form-control addOpt" style ="margin-bottom: 5px;" id="' + col4init + '-' + String(idRows - 1) + '" name="' + col4init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Add/Remove operator"><span><i class="fa fa-wrench"></i></span></a></button>');
-                $("#" + col5init).append('<select class="form-control" style ="visibility:hidden; margin-bottom: 5px;" id="' + col5init + '-' + String(idRows - 1) + '" name="' + col5init + '-' + String(idRows - 1) + '"></button>');
-                $("#" + col6init).append('<input type="text" ppID="" placeholder="Operator content" class="form-control " style ="visibility:hidden; margin-bottom: 5px;" id="' + col6init + '-' + String(idRows - 1) + '" name="' + col6init + '-' + String(idRows - 1) + '">');
-                $("#" + col7init).append('<button type="submit" class="btn btn-default form-control delOpt" style ="visibility:hidden; margin-bottom: 5px;" id="' + col7init + '-' + String(idRows - 1) + '" name="' + col7init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Remove operator"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
-                $("#" + col8init).append('<button  type="button" class="btn btn-default form-control addRegEx" style ="margin-bottom: 5px;" id="' + col8init + '-' + String(idRows - 1) + '" name="' + col8init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Add/Remove Output RegEx"><span><i class="fa fa-code"></i></span></a></button>');
-                $("#" + col9init).append('<input type="text" ppID="" placeholder="Enter RegEx" class="form-control " style ="visibility:hidden; margin-bottom: 5px;" id="' + col9init + '-' + String(idRows - 1) + '" name="' + col9init + '-' + String(idRows - 1) + '">');
-                $("#" + col10init).append('<button type="submit" class="btn btn-default form-control delRegEx" style ="visibility:hidden; margin-bottom: 5px;" id="' + col10init + '-' + String(idRows - 1) + '" name="' + col10init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Remove Output RegEx"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
+                $("#" + col2init).append('<input type="text" ppID="" placeholder="Enter name" class="form-control " style ="margin-bottom: 6px;" id="' + col2init + '-' + String(idRows - 1) + '" name="' + col2init + '-' + String(idRows - 1) + '">');
+                $("#" + col3init).append('<button  type="button" class="btn btn-default form-control delRow" style ="margin-bottom: 6px;" id="' + col3init + '-' + String(idRows - 1) + '" name="' + col3init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Delete Row"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
+                $("#" + col4init).append('<button  type="button" class="btn btn-default form-control addOpt" style ="margin-bottom: 6px;" id="' + col4init + '-' + String(idRows - 1) + '" name="' + col4init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Add/Remove operator"><span><i class="fa fa-wrench"></i></span></a></button>');
+                $("#" + col5init).append('<select class="form-control" style ="visibility:hidden; margin-bottom: 6px;" id="' + col5init + '-' + String(idRows - 1) + '" name="' + col5init + '-' + String(idRows - 1) + '"></button>');
+                $("#" + col6init).append('<input type="text" ppID="" placeholder="Operator content" class="form-control " style ="visibility:hidden; margin-bottom: 6px;" id="' + col6init + '-' + String(idRows - 1) + '" name="' + col6init + '-' + String(idRows - 1) + '">');
+                $("#" + col7init).append('<button type="submit" class="btn btn-default form-control delOpt" style ="visibility:hidden; margin-bottom: 6px;" id="' + col7init + '-' + String(idRows - 1) + '" name="' + col7init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Remove operator"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
+                $("#" + col8init).append('<button  type="button" class="btn btn-default form-control addRegEx" style ="margin-bottom: 6px;" id="' + col8init + '-' + String(idRows - 1) + '" name="' + col8init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Add/Remove Output RegEx"><span><i class="fa fa-code"></i></span></a></button>');
+                $("#" + col9init).append('<input type="text" ppID="" placeholder="Enter RegEx" class="form-control " style ="visibility:hidden; margin-bottom: 6px;" id="' + col9init + '-' + String(idRows - 1) + '" name="' + col9init + '-' + String(idRows - 1) + '">');
+                $("#" + col10init).append('<button type="submit" class="btn btn-default form-control delRegEx" style ="visibility:hidden; margin-bottom: 6px;" id="' + col10init + '-' + String(idRows - 1) + '" name="' + col10init + '-' + String(idRows - 1) + '"><a data-toggle="tooltip" data-placement="bottom" data-original-title="Remove Output RegEx"><span><i class="glyphicon glyphicon-remove"></i></span></a></button>');
                 //refresh tooltips
                 $('[data-toggle="tooltip"]').tooltip();
                 //load closure options
@@ -2381,11 +2381,52 @@ $(document).ready(function () {
         }
     });
     // process group modal 
+    // xxx
+    $(function () {
+        $(document).on('change', '#checkDefVal', function (event) {
+            var checkDefValue = $('#checkDefVal').is(":checked").toString();
+            if (checkDefValue === "true"){
+                $('#defVal').removeAttr('disabled')
+            } else if (checkDefValue === "false"){
+                $('#defVal').attr('disabled','disabled')
+            }
+        })
+    });
     $('#renameModal').on('show.bs.modal', function (event) {
+        $(this).find('form').trigger('reset');
+        if (renameTextClassType === "output"){
+            $('#defValDiv').css("display","none")
+        } else if (renameTextClassType === "input"){
+            $('#defValDiv').css("display","block")
+        }
+        if (renameTextDefVal){
+            console.log("renameTextDefVal")
+            console.log(renameTextDefVal)
+            if (renameTextDefVal !== ""){
+                $('#defVal').removeAttr('disabled')
+                $('#defVal').val(renameTextDefVal)
+                $('#checkDefVal').attr('checked', true);
+            }
+            else {
+                $('#checkDefVal').removeAttr('checked');
+                $('#defVal').attr('disabled','disabled')
+            }
+        } else {
+            $('#checkDefVal').removeAttr('checked');
+                $('#defVal').attr('disabled','disabled')
+            
+        }
         $('#renameModaltitle').html('Change Name');
         $('#mRenName').val(renameText);
     });
     $('#renameModal').on('click', '#renameProPara', function (event) {
+        var defValue = $('#defVal').val();
+        var checkDefValue = $('#checkDefVal').is(":checked").toString();
+        if (checkDefValue === "true" && defValue !== ""){
+            $("#" + renameTextID).attr('defVal', defValue)
+        } else {
+            $("#" + renameTextID).removeAttr('defVal');
+        }
         changeName();
         autosave();
         $('#renameModal').modal("hide");

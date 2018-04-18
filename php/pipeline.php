@@ -803,6 +803,14 @@
                             <input type="text" class="form-control" id="mRenName" name="d3_name">
                         </div>
                     </div>
+                    <div id= "defValDiv" class="form-group">
+                        <div class="col-sm-4 control-label">
+                            <label> <input type="checkbox" id="checkDefVal" name="checkDefVal" > Define Default Value</label>
+                        </div>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="defVal" name="defVal" disabled>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">

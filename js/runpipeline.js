@@ -140,8 +140,9 @@
 	              y = nodes[key][1]
 	              pId = nodes[key][2]
 	              name = nodes[key][3]
+	              var processModules = nodes[key][4];
 	              gN = key.split("-")[1]
-	              loadPipeline(x, y, pId, name, gN)
+	              loadPipeline(x, y, pId, name, processModules, gN)
 	          }
 	          ed = sData[0].edges
 	          ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
@@ -178,7 +179,7 @@
 	  //	  }
 	  //kind=input/output
 	  //
-	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor) {
+	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal) {
 	      //gnum uniqe, id same id (Written in class) in same type process
 	      g = d3.select("#mainG").append("g")
 	          .attr("id", "g-" + gNum)
@@ -248,10 +249,14 @@
 	          .attr('font-size', '1em')
 	          .attr('name', name)
 	          .attr('class', 'inOut')
+	          .attr('classType', kind)
 	          .text(truncateName(name, 'inOut'))
 	          .attr("text-anchor", "middle")
 	          .attr("x", 0)
 	          .attr("y", 28)
+	      if (defVal) {
+	          $("#text-" + gNum).attr('defVal', defVal)
+	      }
 	  }
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
@@ -790,14 +795,19 @@
 	          var paraFileType = "";
 	          var paraQualifier = "";
 	          var paraIdentifier = "";
+	          var paramDefVal = $('#text-' + firGnum).attr("defVal");
 	          if (paraData && paraData != '') {
 	              var paraFileType = paraData[0].file_type;
 	              var paraQualifier = paraData[0].qualifier;
 	              var paraIdentifier = paraData[0].name;
 	          }
+	          // Use default button is added if defVal attr is defined.
+	          if (paramDefVal) {
+	              var defValButton = getButtonsDef('defVal', 'Use Default');
+	          } else {
+	              var defValButton = "";
+	          }
 	          var processName = $('#text-' + secGnum).attr('name');
-
-	          //var givenNamePP = document.getElementById(second).getAttribute("name")
 	          var rowExist = ''
 	          rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
 	          if (rowExist) {
@@ -808,11 +818,11 @@
 	              //inputsTable
 	              if (rowType === 'input') {
 	                  if (paraQualifier === 'file') {
-	                      var selectFileButton = getButtonsModal('inputFile', 'Select File');
+	                      var selectFileButton = getButtonsModal('inputFile', 'Select File') + defValButton;
 	                  } else if (paraQualifier === 'val') {
-	                      var selectFileButton = getButtonsModal('inputVal', 'Enter Value');
+	                      var selectFileButton = getButtonsModal('inputVal', 'Enter Value') + defValButton;
 	                  } else {
-	                      var selectFileButton = getButtonsModal('inputFile', 'Select Set');
+	                      var selectFileButton = getButtonsModal('inputFile', 'Select Set') + defValButton;
 	                  }
 	                  var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
 	                  $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
@@ -1012,7 +1022,7 @@
 	      document.body.removeChild(element);
 	  }
 
-	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, gN) {
+	  function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
 	      t = d3.transform(d3.select('#' + "mainG").attr("transform")),
 	          x = t.translate[0]
 	      y = t.translate[1]
@@ -1023,6 +1033,12 @@
 	      var name = sDataName
 	      var id = sDatapId
 	      var process_id = id
+	      var defVal = null;
+	      if (processModules != null && processModules != {} && processModules != "") {
+	          if (processModules.defVal) {
+	              defVal = processModules.defVal;
+	          }
+	      }
 
 	      //for input parameters
 	      if (id === "inPro") {
@@ -1054,7 +1070,7 @@
 	              }
 	          }
 
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
 
@@ -1089,7 +1105,7 @@
 	                  break
 	              }
 	          }
-	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor)
+	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
 	          gNum = gNum + 1
 
@@ -1388,16 +1404,18 @@
 	          }
 	      }
 	  }
-
+	  //insert selected input to inputs table
 	  function insertSelectInput(rowID, gNumParam, filePath, proPipeInputID, qualifier) {
 	      if (qualifier === 'file' || qualifier === 'set') {
 	          var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
 	          var deleteIcon = getIconButton('inputDel', 'Delete', 'fa fa-trash-o');
 	          $('#' + rowID).find('#inputFileSelect').css('display', 'none');
+	          $('#' + rowID).find('#defValUse').css('display', 'none');
 	      } else {
 	          var editIcon = getIconButtonModal('inputVal', 'Edit', 'fa fa-pencil');
 	          var deleteIcon = getIconButton('inputVal', 'Delete', 'fa fa-trash-o');
 	          $('#' + rowID).find('#inputValEnter').css('display', 'none');
+	          $('#' + rowID).find('#defValUse').css('display', 'none');
 	      }
 	      $('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
 	      $('#' + rowID).attr('propipeinputid', proPipeInputID);
@@ -1406,16 +1424,29 @@
 	  function removeSelectFile(rowID, sType) {
 	      if (sType === 'file' || sType === 'set') {
 	          $('#' + rowID).find('#inputFileSelect').css('display', 'inline');
+	          $('#' + rowID).find('#defValUse').css('display', 'inline');
 	      } else if (sType === 'val') {
 	          $('#' + rowID).find('#inputValEnter').css('display', 'inline');
+	          $('#' + rowID).find('#defValUse').css('display', 'inline');
 	      }
 	      $('#' + rowID + '> :nth-child(6) > span').remove();
-	      $('#' + rowID + '> :nth-child(6) > button')[2].remove();
-	      $('#' + rowID + '> :nth-child(6) > button')[1].remove();
+          var buttonList = $('#' + rowID + '> :nth-child(6) > button');
+	      if (buttonList[3]) {
+	          buttonList[3].remove();
+	      }
+	      if (buttonList[2]) {
+	          buttonList[2].remove();
+	      }
+	      if (buttonList[1]) {
+	          if ($(buttonList[1]).attr("id") == "inputValEdit") {
+	              buttonList[1].remove();
+	          }
+	      }
 	      $('#' + rowID).removeAttr('propipeinputid');
 	  }
 
 	  function checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID) {
+	      //check if input exist?
 	      if (inputID === null) {
 	          var nameInput = data[1].value;
 	          var checkInput = getValues({ name: nameInput, type: sType, p: "checkInput" });
@@ -1444,38 +1475,21 @@
 	              var projectInputID = proInputGet.id;
 	          }
 	      }
-	      //check if project input is exist
-	      var checkProPipeInput = getValues({ "p": "checkProPipeInput", "input_id": input_id, "project_id": project_id, "pipeline_id": pipeline_id, "project_pipeline_id": project_pipeline_id });
-	      if (checkProPipeInput && checkProPipeInput != '') {
-	          var projectPipelineInputID = checkProPipeInput[0].id;
-	          //update project_pipeline_input table
-	          var propipeInputGet = getValues({
-	              "id": projectPipelineInputID,
-	              "p": "saveProPipeInput",
-	              "input_id": input_id,
-	              "project_id": project_id,
-	              "pipeline_id": pipeline_id,
-	              "project_pipeline_id": project_pipeline_id,
-	              "g_num": gNumParam,
-	              "given_name": given_name,
-	              "qualifier": qualifier
-	          });
-	      } else {
-	          //insert into project_pipeline_input table
-	          var propipeInputGet = getValues({
-	              "p": "saveProPipeInput",
-	              "input_id": input_id,
-	              "project_id": project_id,
-	              "pipeline_id": pipeline_id,
-	              "project_pipeline_id": project_pipeline_id,
-	              "g_num": gNumParam,
-	              "given_name": given_name,
-	              "qualifier": qualifier
-	          });
-	          if (propipeInputGet) {
-	              var projectPipelineInputID = propipeInputGet.id;
-	          }
+	      //insert into project_pipeline_input table
+	      var propipeInputGet = getValues({
+	          "p": "saveProPipeInput",
+	          "input_id": input_id,
+	          "project_id": project_id,
+	          "pipeline_id": pipeline_id,
+	          "project_pipeline_id": project_pipeline_id,
+	          "g_num": gNumParam,
+	          "given_name": given_name,
+	          "qualifier": qualifier
+	      });
+	      if (propipeInputGet) {
+	          var projectPipelineInputID = propipeInputGet.id;
 	      }
+	      //	      }
 	      //get inputdata from input table
 	      var proInputGet = getValues({ "p": "getInputs", "id": input_id });
 	      if (proInputGet) {
@@ -1488,10 +1502,9 @@
 	  function checkInputEdit(data, gNumParam, given_name, qualifier, rowID, sType, proPipeInputID, inputID) {
 	      if (inputID === null) {
 	          var nameInput = data[1].value;
-	          var checkInput = getValues({ name: nameInput, p: "checkInput" });
+	          var checkInput = getValues({ name: nameInput, type: sType, p: "checkInput" });
 	          if (checkInput && checkInput != '') {
 	              var input_id = checkInput[0].id;
-
 	          } else {
 	              //insert into input table
 	              data[0].value = "";
@@ -1741,7 +1754,6 @@
 	  function configTextAllProcess(exec_all_settings, type, proName) {
 	      if (type === "each") {
 	          for (var keyParam in exec_all_settings) {
-	              console.log(keyParam)
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.$' + proName + '.time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
@@ -1757,7 +1769,6 @@
 
 	      } else {
 	          for (var keyParam in exec_all_settings) {
-	              console.log(keyParam)
 	              if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
 	                  window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
 	              } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
@@ -2349,6 +2360,29 @@
 	      $('#singu_imgDiv').on('hidden.bs.collapse', function () {
 	          $('#singu_check').removeAttr('onclick');
 	      });
+	      //click on use default button
+	      $('#inputsTab').on('click', '#defValUse', function (e) {
+	          var defValbutton = $(this);
+	          var rowID = defValbutton.parent().parent().attr("id"); //"inputTa-5"
+	          var gNumParam = rowID.split("-")[1];
+	          var defVal = $("#text-" + gNumParam).attr('defVal');
+	          var data = [];
+	          data.push({ name: "id", value: "" });
+	          data.push({ name: "name", value: defVal });
+	          var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
+	          var sType = "";
+	          var inputID = null;
+	          if (qualifier === 'file' || qualifier === 'set') {
+	              sType = 'file'; //for simplification 
+	          } else if (qualifier === 'val') {
+	              sType = qualifier
+	          }
+	          //check database if file is exist, if not exist then insert
+	          checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
+	          defValbutton.css("display", "none");
+              checkReadytoRun();
+	      });
 
 	      $(function () {
 	          $(document).on('change', '#mRunAmzKey', function () {
@@ -2407,7 +2441,6 @@
 	          e.preventDefault();
 	          var savetype = $('#mIdFile').val();
 	          var checkdata = $('#inputFilemodal').find('.active.tab-pane')[0].getAttribute('id');
-	          console.log(checkdata)
 	          if (!savetype.length) { //add item
 	              if (checkdata === 'manualTab') {
 	                  var formValues = $('#inputFilemodal').find('input');
@@ -2415,6 +2448,7 @@
 	                  // check if name is entered
 	                  data[1].value = $.trim(data[1].value);
 	                  if (data[1].value !== '') {
+	                      console.log(data)
 	                      saveFileSetValModal(data, 'file', null);
 	                      $('#inputFilemodal').modal('hide');
 	                  }
@@ -2605,6 +2639,7 @@
 	          checkReadytoRun();
 	      });
 
+
 	      $('#inputValmodal').on('show.bs.modal', function (e) {
 	          var button = $(e.relatedTarget);
 	          $(this).find('form').trigger('reset');
@@ -2641,7 +2676,6 @@
 	          e.preventDefault();
 	          var savetype = $('#mIdVal').val();
 	          var checkdata = $('#inputValmodal').find('.active.tab-pane')[0].getAttribute('id');
-	          console.log(checkdata)
 	          if (!savetype.length) { //add item
 	              if (checkdata === 'manualTabV') {
 	                  var formValues = $('#inputValmodal').find('input');
@@ -2678,9 +2712,7 @@
 	                      $('#inputValmodal').modal('hide');
 	                  }
 	              } else if (checkdata === 'projectValTab') {
-	                  console.log("ss")
 	                  var rows_selected = projectValTable.column(0).checkboxes.selected();
-	                  console.log(rows_selected)
 	                  if (rows_selected.length === 1) {
 	                      var input_id = rows_selected[0];
 	                      editFileSetValModal(null, 'val', input_id);

@@ -1,3 +1,8 @@
+17.04.2018 Version 0.1.18
+Define default value feature for input parameters is added.
+Use default value button in run pipeline page is added.
+Bug while adding same input in the run is fixed.
+
 11.04.2018 Version 0.1.17
 Amazon management console is improved in case of log is not received.
 
