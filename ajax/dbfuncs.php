@@ -1932,7 +1932,7 @@ class dbfuncs {
 		$nodes = json_encode($obj[2]->{"nodes"});
 		$mainG = "{\'mainG\':".json_encode($obj[3]->{"mainG"})."}";
 		$edges = "{\'edges\':".json_encode($obj[4]->{"edges"})."}";
-        $summary = $obj[5]->{"summary"};
+        $summary = addslashes(htmlspecialchars(urldecode($obj[5]->{"summary"}), ENT_QUOTES));
         $group_id = $obj[6]->{"group_id"};
         $perms = $obj[7]->{"perms"};
         $pin = $obj[8]->{"pin"};

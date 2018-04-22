@@ -1164,19 +1164,6 @@
 	      $('#renameModal').modal("show");
 	  }
 
-	  function truncateName(name, type) {
-	      if (type === 'inOut') {
-	          var letterLimit = 7;
-	      } else if (type === 'process') {
-	          var letterLimit = 12;
-	      } else if (type === 'processTable') {
-	          var letterLimit = 300;
-	      }
-	      if (name.length > letterLimit)
-	          return name.substring(0, letterLimit) + '..';
-	      else
-	          return name;
-	  }
 
 	  function changeName() {
 	      newName = document.getElementById("mRenName").value

@@ -582,6 +582,8 @@ function truncateName(name, type) {
         var letterLimit = 120;
     } else if (type === 'processTable') {
         var letterLimit = 300;
+    } else if (type === 'sidebarMenu') {
+        return name.substring(0, 20);
     }
     if (name.length > letterLimit)
         return name.substring(0, letterLimit) + '..';

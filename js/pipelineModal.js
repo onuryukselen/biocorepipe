@@ -252,7 +252,7 @@ function loadSelectedProcess(selProcessId) {
     var formValues = $('#addProcessModal').find('input, select, textarea');
     $(formValues[2]).val(showProcess.id);
     $(formValues[3]).val(showProcess.name);
-    $(formValues[5]).val(showProcess.summary);
+    $(formValues[5]).val(decodeHtml(showProcess.summary));
     $('#permsPro').val(showProcess.perms);
     if (showProcess.group_id !== "" && showProcess.group_id !== null) {
         $('#groupSelPro').val(showProcess.group_id);
@@ -883,10 +883,10 @@ function updateSideBar(sMenuProIdFirst, sMenuProIdFinal, sMenuProGroupIdFirst, s
     document.getElementById(sMenuProIdFirst).setAttribute('id', sMenuProIdFinal);
     var PattMenu = /(.*)@(.*)/; //Map_Tophat2@11
     var nMenuProName = sMenuProIdFinal.replace(PattMenu, '$1');
-    document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + nMenuProName;
+    document.getElementById(sMenuProIdFinal).innerHTML = '<i class="fa fa-angle-double-right"></i>' + truncateName(nMenuProName, 'sidebarMenu');
     if (sMenuProGroupIdFirst !== sMenuProGroupIdFinal) {
         document.getElementById(sMenuProIdFinal).remove();
-        $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + nMenuProName + '</a></li>');
+        $('#side-' + sMenuProGroupIdFinal).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + sMenuProIdFinal + '"> <i class="fa fa-angle-double-right"></i>' + truncateName(nMenuProName, 'sidebarMenu') + '</a></li>');
     }
 }
 
@@ -1128,7 +1128,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
                 $('#creatorInfoPip').css('display', "block");
                 $('#pipeline-title').changeVal(s[0].name);
                 $('#ownUserNamePip').text(s[0].username);
-                $('#pipelineSum').val(s[0].summary);
+                $('#pipelineSum').val(decodeHtml(s[0].summary));
                 pipelineOwn = s[0].own;
                 pipelinePerm = s[0].perms;
                 // if user not own it, cannot change or delete pipeline
@@ -1258,7 +1258,7 @@ function duplicateProcessRev() {
         if (s) {
             var process_id = s.id;
             //add process link into sidebar menu
-            $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+            $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + truncateName(proName, 'sidebarMenu') + '</a></li>');
             refreshDataset();
             $('#addProcessModal').modal('hide');
         }
@@ -1725,7 +1725,7 @@ $(document).ready(function () {
                     success: function (s) {
                         var process_id = s.id;
                         //add process link into sidebar menu
-                        $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + proName + '</a></li>');
+                        $('#side-' + proGroId).append('<li> <a data-toggle="modal" data-target="#addProcessModal" data-backdrop="false" href="" ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="' + proName + '@' + process_id + '"> <i class="fa fa-angle-double-right"></i>' + truncateName(proName, 'sidebarMenu') + '</a></li>');
                         var startPoint = 5; //first object in data array where inputparameters starts.
                         addProParatoDB(data, startPoint, process_id);
                         refreshDataset();
@@ -2394,14 +2394,12 @@ $(document).ready(function () {
     });
     $('#renameModal').on('show.bs.modal', function (event) {
         $(this).find('form').trigger('reset');
-        if (renameTextClassType === "output"){
+        if (renameTextClassType === "output" || renameTextClassType === null){
             $('#defValDiv').css("display","none")
         } else if (renameTextClassType === "input"){
             $('#defValDiv').css("display","block")
         }
         if (renameTextDefVal){
-            console.log("renameTextDefVal")
-            console.log(renameTextDefVal)
             if (renameTextDefVal !== ""){
                 $('#defVal').removeAttr('disabled')
                 $('#defVal').val(renameTextDefVal)

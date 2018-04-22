@@ -1260,7 +1260,7 @@
 	              $('#pipeline-title').text(s[0].name);
 	              $('#pipeline-title').attr('href', 'index.php?np=1&id=' + pipeline_id);
 	              $('#project-title').attr('href', 'index.php?np=2&id=' + project_id);
-	              $('#pipelineSum').val(s[0].summary);
+	              $('#pipelineSum').val(decodeHtml(s[0].summary));
 	              openPipeline(pipeline_id);
 	              $('#pipelineSum').attr('disabled', "disabled");
 
@@ -1306,7 +1306,7 @@
 	      $('#creatorInfoPip').css('display', "block");
 	      $('#project-title').text(pipeData[0].project_name);
 	      $('#run-title').changeVal(pipeData[0].pp_name);
-	      $('#runSum').val(pipeData[0].summary);
+	      $('#runSum').val(decodeHtml(pipeData[0].summary));
 	      $('#rOut_dir').val(pipeData[0].output_dir);
 	      $('#publish_dir').val(pipeData[0].publish_dir);
 	      $('#chooseEnv').val(pipeData[0].profile);
@@ -2134,7 +2134,7 @@
 
 	  function saveRunIcon() {
 	      var data = [];
-	      var runSummary = $('#runSum').val();
+	      var runSummary = encodeURIComponent($('#runSum').val());
 	      var run_name = $('#run-title').val();
 	      if (dupliProPipe === false) {
 	          project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
@@ -2272,7 +2272,7 @@
 
 	  function updateSideBarProPipe(project_id, project_pipeline_id, project_pipeline_name, type) {
 	      if (type === "edit") {
-	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + project_pipeline_name);
+	          $('#propipe-' + project_pipeline_id).html('<i class="fa fa-angle-double-right"></i>' + truncateName(project_pipeline_name, 'sidebarMenu'));
 	      }
 	  }
 

@@ -1,6 +1,6 @@
     function saveProjectIcon() {
         var data = [];
-        var projectSummary = $('#projectSum').val();
+        var projectSummary = encodeURIComponent($('#projectSum').val());
         var project_id = $('#project-title').attr('projectid');
         var project_name = $('#project-title').val();
         data.push({ name: "name", value: project_name });
@@ -34,7 +34,7 @@
             success: function (s) {
                 $('#project-title').val(s[0].name);
                 $('#ownUserName').text(s[0].username);
-                $('#projectSum').val(s[0].summary);
+                $('#projectSum').val(decodeHtml(s[0].summary));
 
                 $('#datecreatedPj').text(s[0].date_created);
                 $('#lasteditedPj').text(s[0].date_modified);
@@ -121,7 +121,7 @@
             }, {
                 "data": "summary",
                 "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                    $(nTd).text(truncateName(oData.summary, 'newTable'));
+                    $(nTd).text(truncateName(decodeHtml(oData.summary), 'newTable'));
                 }
             }, {
                 "data": "username"
@@ -162,7 +162,7 @@
             }, {
                     "data": "summary",
                     "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
-                        $(nTd).text(truncateName(oData.summary, 'newTable'));
+                        $(nTd).text(truncateName(decodeHtml(oData.summary), 'newTable'));
                     }
             }, {
                     "data": "username"

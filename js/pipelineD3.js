@@ -353,7 +353,7 @@
 	      var procData = processData.filter(function (el) { return el.id == id });
 	      if (procData) {
 	          var procName = procData[0].name;
-	          var procDesc = truncateName(procData[0].summary, 'processTable');
+	          var procDesc = truncateName(decodeHtml(procData[0].summary), 'processTable');
 	          var procRev = procData[0].rev_id;
 	          var proRow = insertProRowTable(id, procName, procDesc, procRev);
 	          var rowExistPro = '';
@@ -1247,19 +1247,6 @@
 	      $('#renameModal').modal("show");
 	  }
 
-	  function truncateName(name, type) {
-	      if (type === 'inOut') {
-	          var letterLimit = 7;
-	      } else if (type === 'process') {
-	          var letterLimit = 12;
-	      } else if (type === 'processTable') {
-	          var letterLimit = 300;
-	      }
-	      if (name.length > letterLimit)
-	          return name.substring(0, letterLimit) + '..';
-	      else
-	          return name;
-	  }
 
 	  function changeName() {
 	      newName = document.getElementById("mRenName").value;
@@ -1378,7 +1365,7 @@
 	  //Revision is not required for advanced options, description
 	  function saveDetails() {
 	      var id = $("#pipeline-title").attr('pipelineid');
-	      var summary = $('#pipelineSum').val();
+	      var summary = encodeURIComponent($('#pipelineSum').val());
 	      var group_id = $('#groupSelPipe').val();
 	      var perms = $('#permsPipe').val();
 	      var pin = $('#pin').is(":checked").toString();
@@ -1394,6 +1381,7 @@
 	          pin_order: pin_order,
 	          publish: publish
 	      };
+          console.log(data)
 	      if (id !== '') {
 	          var saveDetails = getValues(data);
 	          if (saveDetails) {
@@ -1478,7 +1466,7 @@
 	      Mainy = Maint.translate[1]
 	      Mainz = Maint.scale[0]
 	      sName = document.getElementById("pipeline-title").value;
-	      var pipelineSummary = $('#pipelineSum').val();
+	      var pipelineSummary = encodeURIComponent($('#pipelineSum').val());
 	      var group_id = $('#groupSelPipe').val();
 	      var perms = $('#permsPipe').val();
 	      var pin = $('#pin').is(":checked").toString();
@@ -1540,7 +1528,7 @@
 	              var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	              $("#pipeline-title").attr('pipelineid', ret.id);
 	              pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	              $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + sName + '</a></li>');
+	              $('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu') + '</a></li>');
 	              if (dupliPipe === true) {
 	                  //	              $("#pipeline-title").changeVal(sName);
 	                  setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 0);
@@ -1567,7 +1555,7 @@
 	                  refreshCreatorData(pipeline_id);
 	                  var numRev = $("#pipeRev option").length;
 	                  if (numRev === 1) { //sidebar name change
-	                      document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	                      document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu');
 	                  }
 	                  $('#autosave').text('All changes saved');
 	                  //
@@ -1599,7 +1587,7 @@
 	                      refreshCreatorData(pipeline_id);
 	                      var numRev = $("#pipeRev option").length;
 	                      if (numRev === 1) { //sidebar name change
-	                          document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + sName;
+	                          document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu');
 	                      }
 	                      saveOnExist = true;
 	                      $('#autosave').text('All changes saved');

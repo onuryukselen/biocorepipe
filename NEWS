@@ -1,3 +1,7 @@
+21.04.2018 Version 0.1.19
+Bug fixed while adding comma or backslash into description sections (process, pipeline, project, run)
+pipeline/run name (for sidebar) is trunctated when duplicated/renamed.
+
 17.04.2018 Version 0.1.18
 Define default value feature for input parameters is added.
 Use default value button in run pipeline page is added.
