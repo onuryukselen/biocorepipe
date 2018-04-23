@@ -493,7 +493,7 @@ else if ($p=="saveProcessGroup"){
 else if ($p=="saveProcess"){
     $name = $_REQUEST['name'];
     $process_gid = $_REQUEST['process_gid'];
-    $summary = $_REQUEST['summary'];
+    $summary = addslashes(htmlspecialchars(urldecode($_REQUEST['summary']), ENT_QUOTES));
     $process_group_id = $_REQUEST['process_group_id'];
     $script = addslashes(htmlspecialchars(urldecode($_REQUEST['script']), ENT_QUOTES));
     $script_header = addslashes(htmlspecialchars(urldecode($_REQUEST['script_header']), ENT_QUOTES));
@@ -524,7 +524,7 @@ else if ($p=="saveProcess"){
 }
 else if ($p=="saveProject"){
     $name = $_REQUEST['name'];
-    $summary = $_REQUEST['summary'];
+    $summary = addslashes(htmlspecialchars(urldecode($_REQUEST['summary']), ENT_QUOTES));
     if (!empty($id)) {
         $data = $db->updateProject($id, $name, $summary, $ownerID);
     } else {
@@ -581,7 +581,7 @@ else if ($p=="saveProjectPipeline"){
     $pipeline_id = $_REQUEST['pipeline_id'];
     $project_id = $_REQUEST['project_id'];
     $name = $_REQUEST['name'];
-    $summary = $_REQUEST['summary'];
+    $summary = addslashes(htmlspecialchars(urldecode($_REQUEST['summary']), ENT_QUOTES));
     $output_dir = $_REQUEST['output_dir'];
     $publish_dir = $_REQUEST['publish_dir'];
     $publish_dir_check = $_REQUEST['publish_dir_check'];
@@ -777,13 +777,14 @@ else if ($p=="saveAllPipeline")
 }
 else if ($p=="savePipelineDetails")
 {
-	$summary = $_REQUEST['summary'];
+	$summary = addslashes(htmlspecialchars(urldecode($_REQUEST['summary']), ENT_QUOTES));
 	$group_id = $_REQUEST['group_id'];
 	$perms = $_REQUEST['perms'];
 	$pin = $_REQUEST['pin'];
 	$pin_order = $_REQUEST['pin_order'];
 	$publish = $_REQUEST['publish'];
     settype($group_id, 'integer');
+    settype($pin_order, "integer");
     $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$ownerID);
 }
 else if ($p=="savePipelineName"){

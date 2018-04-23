@@ -1,8 +1,8 @@
 function updateSideBarProject(project_id, project_name, type) {
     if (type === 'add') {
-        $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + project_name + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + project_id + '" class="treeview-menu"></ul></li>');
+        $('#autocompletes1').append('<li class="treeview"><a href="" draggable="false"><i  class="fa fa-circle-o"></i> <span>' + truncateName(project_name, 'sidebarMenu') + '</span><i class="fa fa-angle-left pull-right"></i></a><ul id="side-' + project_id + '" class="treeview-menu"></ul></li>');
     } else if (type === "edit") {
-        $('#side-' + project_id).parent().find('span').html(project_name);
+        $('#side-' + project_id).parent().find('span').html(truncateName(project_name, 'sidebarMenu'));
     } else if (type === "remove") {
         $('#side-' + project_id).parent().remove();
     }
