@@ -33,7 +33,6 @@ function sortProcessList(processList, sortGnum) {
     }
     if (mainEdges.length > 0) {
         for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
-            console.log(e)
             var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
             var outGnum = '';
             var inGnum = '';
@@ -51,8 +50,6 @@ function sortProcessList(processList, sortGnum) {
                     sortGnum.push(outGnum);
                     var index = sortGnum.indexOf(outGnum);
                 }
-                console.log("insert")
-                console.log(sortGnum);
             } else {
 
                 //check if the position of outGnum if inGnum is also exist in array
@@ -66,8 +63,6 @@ function sortProcessList(processList, sortGnum) {
                     }
                 }
                 var index = sortGnum.indexOf(outGnum);
-                console.log("swap")
-                console.log(sortGnum);
             }
             if (!sortGnum.includes(inGnum)) {
                 sortGnum.splice(index + 1, 0, inGnum);
@@ -75,8 +70,6 @@ function sortProcessList(processList, sortGnum) {
             } else {
                 var index = sortGnum.indexOf(inGnum);
             }
-            console.log("last")
-            console.log(sortGnum);
             //stop for final edge
             if (e + 1 < mainEdges.length) {
                 for (var k = e + 1; k < mainEdges.length; k++) {
@@ -91,8 +84,6 @@ function sortProcessList(processList, sortGnum) {
                     }
                 }
             }
-            console.log("finaledge");
-            console.log(sortGnum);
         }
     }
     var sortProcessList = [];
