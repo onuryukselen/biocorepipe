@@ -1,3 +1,6 @@
+25.04.2018 Version 0.1.21
+Bug fixed while adding inputs to run.
+
 24.04.2018 Version 0.1.20
 Warning about unique process names updated and output parameters are removed from the list.
 Error warning before starting run is fixed. 

@@ -1486,13 +1486,13 @@
 	          "given_name": given_name,
 	          "qualifier": qualifier
 	      });
-	      if (propipeInputGet) {
+	      if (propipeInputGet && propipeInputGet != "") {
 	          var projectPipelineInputID = propipeInputGet.id;
 	      }
 	      //	      }
 	      //get inputdata from input table
 	      var proInputGet = getValues({ "p": "getInputs", "id": input_id });
-	      if (proInputGet) {
+	      if (proInputGet && proInputGet != "") {
 	          var filePath = proInputGet[0].name;
 	          //insert into #inputsTab
 	          insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
@@ -1519,7 +1519,7 @@
 	          var input_id = inputID;
 	          //get inputdata from input table
 	          var proInputGet = getValues({ "p": "getInputs", "id": input_id });
-	          if (proInputGet) {
+	          if (proInputGet && proInputGet != "") {
 	              var nameInput = proInputGet[0].name;
 	          }
 	      }
@@ -1530,7 +1530,7 @@
 	      } else {
 	          //insert into project_input table
 	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-	          if (proInputGet) {
+	          if (proInputGet && proInputGet != "") {
 	              var projectInputID = proInputGet.id;
 	          }
 	      }
