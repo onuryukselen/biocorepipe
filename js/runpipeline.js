@@ -1836,7 +1836,7 @@
 	      if ($('#docker_check').is(":checked") === true) {
 	          var docker_img = $('#docker_img').val();
 	          var docker_opt = $('#docker_opt').val();
-	          configTextRaw += 'process.container = \'' + downDocker_img + '\'\n';
+	          configTextRaw += 'process.container = \'' + docker_img + '\'\n';
 	          configTextRaw += 'docker.enabled = true\n';
 	          if (docker_opt !== '') {
 	              configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
