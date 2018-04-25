@@ -1203,7 +1203,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
 
                 // fill the footer script
                 openPipeline(pipeline_id);
-                checkNameUnique(processList);
+                checkNameUnique(processListNoOutput);
             }
 
         },

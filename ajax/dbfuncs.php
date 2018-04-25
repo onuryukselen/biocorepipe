@@ -1438,9 +1438,9 @@ class dbfuncs {
     }
 //    ----------- Inputs, Project Inputs   ---------
     public function getInputs($id,$ownerID) {
-        $where = " where i.owner_id = '$ownerID' OR i.perms = 63 OR (ug.u_id ='$ownerID' and i.perms = 15)";
+        $where = "";
 		if ($id != ""){
-			$where = " where i.id = '$id' AND (i.owner_id = '$ownerID' OR i.perms = 63 OR (ug.u_id ='$ownerID' and i.perms = 15))";
+			$where = " where i.id = '$id' ";
 		}
 		$sql = "SELECT DISTINCT i.id, i.name, IF(i.owner_id='$ownerID',1,0) as own
         FROM input i

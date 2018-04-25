@@ -1486,13 +1486,13 @@
 	          "given_name": given_name,
 	          "qualifier": qualifier
 	      });
-	      if (propipeInputGet) {
+	      if (propipeInputGet && propipeInputGet != "") {
 	          var projectPipelineInputID = propipeInputGet.id;
 	      }
 	      //	      }
 	      //get inputdata from input table
 	      var proInputGet = getValues({ "p": "getInputs", "id": input_id });
-	      if (proInputGet) {
+	      if (proInputGet && proInputGet != "") {
 	          var filePath = proInputGet[0].name;
 	          //insert into #inputsTab
 	          insertSelectInput(rowID, gNumParam, filePath, projectPipelineInputID, sType);
@@ -1519,7 +1519,7 @@
 	          var input_id = inputID;
 	          //get inputdata from input table
 	          var proInputGet = getValues({ "p": "getInputs", "id": input_id });
-	          if (proInputGet) {
+	          if (proInputGet && proInputGet != "") {
 	              var nameInput = proInputGet[0].name;
 	          }
 	      }
@@ -1530,7 +1530,7 @@
 	      } else {
 	          //insert into project_input table
 	          var proInputGet = getValues({ "p": "saveProjectInput", "input_id": input_id, "project_id": project_id });
-	          if (proInputGet) {
+	          if (proInputGet && proInputGet != "") {
 	              var projectInputID = proInputGet.id;
 	          }
 	      }
@@ -2002,16 +2002,12 @@
 	              }
 
 	          } else {
-	              //error occured
 	              console.log("Nextflow not started");
-	              //gives early error, if job is not started yet
-	              //	              if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
-	              //	                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Error", project_pipeline_id: project_pipeline_id });
-	              //	              }
 	              if (type !== "reload") {
 	                  clearInterval(interval_readNextlog);
 	              }
-	              displayButton('errorProPipe');
+                  var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
+	              displayButton('waitingProPipe');
 
 	          }
 	      } else {

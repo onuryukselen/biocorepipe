@@ -75,6 +75,7 @@
 	      diffy = 0
 
 	      processList = {}
+	      processListNoOutput = {}
 	      edges = []
 	      candidates = []
 	      saveNodes = []
@@ -144,7 +145,7 @@
 	  }
 
 	  function autosaveDetails() {
-	      if (pipelineOwn === '' || pipelineOwn === "1" && pipelinePerm !== "63") {
+	      if (((pipelineOwn === '' || pipelineOwn === "1" ) && pipelinePerm !== "63" ) || usRole === "admin") {
 	          var pipName = $('#pipeline-title').val()
 	          if (pipName !== '') {
 	              $('#autosave').text('Saving...');
@@ -401,6 +402,7 @@
 
 	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
+	          processListNoOutput[("g-" + gNum)] = name
 	          gNum = gNum + 1
 	      }
 	      //for output parameters:  
@@ -574,6 +576,7 @@
 	                  .on("mousedown", IOconnect)
 	          }
 	          processList[("g-" + gNum)] = name
+	          processListNoOutput[("g-" + gNum)] = name
 	          gNum = gNum + 1
 	      }
 
@@ -745,6 +748,7 @@
 
 	          d3.select("#" + g).remove()
 	          delete processList[g]
+	          delete processListNoOutput[g]
 	          removeLines(g)
 	          //	          cancelRemove()
 	      }
@@ -1265,6 +1269,7 @@
 	          $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
 	      }
 	      processList[document.getElementById(renameTextID).parentElement.id] = newName
+	      processListNoOutput[document.getElementById(renameTextID).parentElement.id] = newName
 	      document.getElementById(renameTextID).parentElement.id
 	  }
 
@@ -1408,7 +1413,6 @@
 	      }
 	  }
 
-	  //xxxxxxx
 	  function checkNameUnique(processList) {
 	      var warnUserUnique = false;
 	      var warnUserText = '';
@@ -1421,7 +1425,7 @@
 	      var duplicates = false;
 	      [duplicates, duplicatesSoFar] = hasDuplicates(processListArray);
 	      if (duplicates === true) {
-	          var warnUserText = "Process and parameter names should be unique in pipeline. Please modify following names: ";
+	          var warnUserText = "Process and input parameter names should be unique in pipeline. Please modify following names: ";
 	          $.each(duplicatesSoFar, function (element) {
 	              if (element !== 0) {
 	                  warnUserText = warnUserText + ", ";
@@ -1440,7 +1444,7 @@
 	      saveNodes = {}
 	      saveMainG = {}
 	      //check if process and parameter names are unique in pipeline
-	      checkNameUnique(processList);
+	      checkNameUnique(processListNoOutput);
 	      for (var key in processList) {
 	          t = d3.transform(d3.select('#' + key).attr("transform")),
 	              x = t.translate[0]
@@ -1674,6 +1678,7 @@
 	          }
 	          drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
 	          processList[("g-" + gNum)] = name
+	          processListNoOutput[("g-" + gNum)] = name
 	          gNum = gNum + 1
 
 
@@ -1857,6 +1862,7 @@
 	                  .on("mousedown", IOconnect)
 	          }
 	          processList[("g-" + gNum)] = name
+	          processListNoOutput[("g-" + gNum)] = name
 	          gNum = gNum + 1
 	      }
 	  }
