@@ -2003,8 +2003,8 @@
 
 	          } else {
 	              console.log("Nextflow not started");
-	              if (type !== "reload") {
-	                  clearInterval(interval_readNextlog);
+	              if (type === "reload") {
+	                  readNextflowLogTimer(proType, proId);
 	              }
                   var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
 	              displayButton('waitingProPipe');
