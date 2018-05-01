@@ -132,6 +132,9 @@ else if ($p=="getProjects"){
 else if ($p=="getGroups"){
     $data = $db -> getGroups($id,$ownerID);
 }
+else if ($p=="getAllUsers"){
+    $data = $db -> getAllUsers($ownerID);
+}
 else if ($p=="getUserGroups"){
     $data = $db -> getUserGroups($ownerID);
 }

@@ -45,6 +45,10 @@
                 addAmazonRow(proAmzData[el].id, proAmzData[el].name, proAmzData[el].next_path, proAmzData[el].executor, proAmzData[el].instance_type, proAmzData[el].image_id);
             });
         }
+        //adminTab
+        if (usRole === "admin") {
+            $('#adminTabBut').css('display', 'inline');
+        }
 
         function getProfileButton(type) {
             if (type === "amazon") {
@@ -238,7 +242,7 @@
                 if (selEnvType === "cluster") {
                     var sshID = $('#mEnvSSHKey').val();
                     if (sshID) {
-                         data.push({ name: "p", value: "saveProfileCluster" });
+                        data.push({ name: "p", value: "saveProfileCluster" });
                     } else {
                         data = [];
                     }
@@ -1072,6 +1076,59 @@
         });
 
         //------------   amazon keys section ends -------------
+        //------------   adminTab starts -------------
+
+        $('#impersonModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            $(this).find('option').remove();
+            if (button.attr('id') === 'impersonUser') {
+                $.ajax({
+                    type: "GET",
+                    url: "ajax/ajaxquery.php",
+                    data: {
+                        p: "getAllUsers"
+                    },
+                    async: false,
+                    success: function (s) {
+                        for (var i = 0; i < s.length; i++) {
+                            var param = s[i];
+                            var optionGroup = new Option(param.username, param.id);
+                            $("#mUserList").append(optionGroup);
+                        }
+                    },
+                    error: function (errorThrown) {
+                        alert("Error: " + errorThrown);
+                    }
+                });
+
+            }
+        });
+
+
+        $('#impersonModal').on('click', '#confirmImpersonBut', function (event) {
+            event.preventDefault();
+            var userId = $('#mUserList').val();
+            if (userId !== '') {
+                var userData = [];
+                userData.push({ name: "user_id", value: userId });
+                userData.push({ name: "p", value: 'impersonUser' });
+                $.ajax({
+                    type: "POST",
+                    data: userData,
+                    url: "ajax/login.php",
+                    async: false,
+                    success: function (msg) {
+                        if (msg.error == 1) {
+                            alert('Something Went Wrong!');
+                        } else {
+                            var logInSuccess = true;
+                            window.location.reload('true');
+                        }
+                    }
+                });
+                $('#impersonModal').modal('hide');
+            }
+        });
 
 
 

@@ -940,6 +940,10 @@ class dbfuncs {
         $sql = "SELECT * FROM users WHERE google_id = '$google_id'";
         return self::queryTable($sql);
     }
+    public function getUserById($id) {
+        $sql = "SELECT * FROM users WHERE id = '$id'";
+        return self::queryTable($sql);
+    }
     public function getUserLess($google_id) {
         $sql = "SELECT username, name, email, google_image FROM users WHERE google_id = '$google_id'";
         return self::queryTable($sql);
@@ -1253,6 +1257,18 @@ class dbfuncs {
 		          FROM user_group
 		          WHERE g_id = '$g_id')";
         return self::queryTable($sql);
+    }
+    public function getAllUsers($ownerID) {
+        $userRoleCheck = $this->getUserRole($ownerID);
+        if (isset(json_decode($userRoleCheck)[0])){
+            $userRole = json_decode($userRoleCheck)[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT id, username
+                        FROM users
+                        WHERE id <> '$ownerID'";
+                return self::queryTable($sql);
+            }
+        }
     }
 
     public function getUserGroups($ownerID) {

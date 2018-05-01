@@ -9,6 +9,7 @@
                     <li class=""><a href="#groups" data-toggle="tab" aria-expanded="false">Groups</a></li>
                     <li class=""><a href="#sshKeys" data-toggle="tab" aria-expanded="false">SSH Keys</a></li>
                     <li class=""><a href="#amazonKeys" data-toggle="tab" aria-expanded="false">Amazon Keys</a></li>
+                    <li id="adminTabBut" style="display:none;" class=""><a href="#adminTab" data-toggle="tab" aria-expanded="false">Admin</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane active" id="runEnvDiv">
@@ -117,6 +118,19 @@
                         </div>
                     </div>
                     <!-- /.tab-pane ends -->
+                    <!-- /.tab-pane starts -->
+                    <div class="tab-pane" id="adminTab">
+                        <div class="panel panel-default">
+                            <div class="panel-heading clearfix">
+                                <div class="pull-left">
+                                    <h5><i class="fa fa-group " style="margin-left:0px; margin-right:0px;"></i> Impersonation Page</h5>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <button class="btn btn-primary" type="button" id="impersonUser" data-toggle="modal" href="#impersonModal">Select User</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- /.tab-content -->
             </div>
@@ -506,7 +520,7 @@
                             <input type="text" class="form-control" id="mAmzName" name="name">
                         </div>
                     </div>
-                    <div  class="form-group" >
+                    <div class="form-group">
                         <label for="mAmzDefReg" class="col-sm-3 control-label">Default Region</label>
                         <div class="col-sm-9">
                             <select id="mAmzDefReg" class="fbtn btn-default form-control" name="amz_def_reg">
@@ -530,13 +544,13 @@
                                   </select>
                         </div>
                     </div>
-                    <div class="form-group" >
+                    <div class="form-group">
                         <label for="mAmzAccKey" class="col-sm-3 control-label">Access Key</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="mAmzAccKey" name="amz_acc_key">
                         </div>
                     </div>
-                    <div class="form-group" >
+                    <div class="form-group">
                         <label for="mAmzSucKey" class="col-sm-3 control-label">Secret Key</label>
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="mAmzSucKey" name="amz_suc_key">
@@ -571,7 +585,7 @@
     </div>
 </div>
 
-       <!--Confirm Modal-->
+<!--Confirm Modal-->
 
 <div id="confirmDelModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -583,14 +597,14 @@
             <div class="modal-body" id="confirmDelModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelBtn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 <!--Confirm Modal Ends-->
 
-       <!--Confirm Modal-->
+<!--Confirm Modal-->
 
 <div id="confirmDelAmzModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -602,14 +616,14 @@
             <div class="modal-body" id="confirmDelAmzModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelAmzBtn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 <!--Confirm Modal Ends-->
 
-       <!--Confirm Modal-->
+<!--Confirm Modal-->
 
 <div id="confirmDelProModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -621,9 +635,37 @@
             <div class="modal-body" id="confirmDelProModalText">Text</div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="mDelProBtn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" >Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
 <!--Confirm Modal Ends-->
+
+<!---- impersonModal-->
+<div id="impersonModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">Impersonation</h4>
+            </div>
+            <form role="form" method="post">
+                <div class="modal-body" style="overflow:scroll">
+                    <fieldset>
+                        <label>Select user to impersonate</label>
+                        <div id="mUserListDiv" class="form-group">
+                            <select id="mUserList" class="form-control" size="25"></select></div>
+                    </fieldset>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="confirmImpersonBut" class="btn btn-primary" data-dismiss="">Select</button>
+                    <button type="button" class="btn btn-default" id="cancelImpersonBut" data-dismiss="modal" onclick="">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!---- impersonModal ends-->

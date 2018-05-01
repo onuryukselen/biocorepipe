@@ -1274,6 +1274,7 @@
 	  function updateCheckBox(check_id, status) {
 	      if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check' || check_id === '#publish_dir_check') && status === "true") {
 	          $(check_id).trigger("click");
+              $(check_id).prop('checked', true);
 	      }
 	      if (status === "true") {
 	          $(check_id).attr('checked', true);

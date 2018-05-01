@@ -16,10 +16,7 @@ if ($p=="saveUser"){
     //check if Google ID already exits
     $id = json_decode($db->getUser($google_id))[0]->{'id'};
     $_SESSION['username'] = $username;
-//    $_SESSION['name'] = $name;
     $_SESSION['google_id'] = $google_id;
-//    $_SESSION['email'] = $email;
-//    $_SESSION['google_image'] = $google_image;
     if (!empty($id)) {
 	    $_SESSION['ownerID'] = $id;
         $data = $db->updateUser($id, $google_id, $name, $email, $google_image, $username);  
@@ -30,10 +27,40 @@ if ($p=="saveUser"){
         $id = $ownerIDarr['id'];
 	    $_SESSION['ownerID'] = $id;
     }
-} else if ($p=="logOutUser"){
+} else if ($p=="impersonUser"){
+    $user_id = $_REQUEST['user_id'];
+    $admin_id =$_SESSION['ownerID'];
     session_destroy();
-    $logOutAr = array('logOut' => 1);
-	$data = json_encode($logOutAr);
+    session_start();
+    $userData = json_decode($db->getUserById($user_id))[0];
+    $google_id = $userData->{'google_id'};
+    $username = $userData->{'username'};
+    $_SESSION['username'] = $username;
+    $_SESSION['google_id'] = $google_id;
+    $_SESSION['ownerID'] = $user_id;
+    $_SESSION['admin_id'] = $admin_id;
+    $impersonAr = array('imperson' => 1);
+	$data = json_encode($impersonAr);
+    
+} else if ($p=="logOutUser"){
+    if (isset($_SESSION['admin_id'])) {
+        $admin_id = $_SESSION['admin_id'];
+        $userData = json_decode($db->getUserById($admin_id))[0];
+        $google_id = $userData->{'google_id'};
+        $username = $userData->{'username'};
+        session_destroy();
+        session_start();
+        $_SESSION['username'] = $username;
+        $_SESSION['google_id'] = $google_id;
+        $_SESSION['ownerID'] = $admin_id;
+        $logOutAr = array('logOut' => 1);
+	    $data = json_encode($logOutAr);
+    } else {
+        session_destroy();
+        $logOutAr = array('logOut' => 1);
+	    $data = json_encode($logOutAr); 
+    }
+
     
 } else {
 	$errAr = array('error' => 1);
