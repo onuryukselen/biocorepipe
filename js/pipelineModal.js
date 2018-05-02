@@ -254,6 +254,16 @@ function loadSelectedProcess(selProcessId) {
     $(formValues[3]).val(showProcess.name);
     $(formValues[5]).val(decodeHtml(showProcess.summary));
     $('#permsPro').val(showProcess.perms);
+	if (showProcess.username !== "" && showProcess.username !== null) {
+		$('#creatorInfoPro').css("display", "inline");
+        $('#ownUserNamePro').text(showProcess.username);
+    }
+	if (showProcess.date_created !== "" && showProcess.date_created !== null) {
+        $('#datecreatedPro').text(showProcess.date_created);
+    }
+	if (showProcess.date_modified !== "" && showProcess.date_modified !== null) {
+        $('#lasteditedPro').text(showProcess.date_modified);
+    }
     if (showProcess.group_id !== "" && showProcess.group_id !== null) {
         $('#groupSelPro').val(showProcess.group_id);
     }

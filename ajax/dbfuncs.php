@@ -1162,7 +1162,7 @@ class dbfuncs {
     }
 
     public function updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $script_header, $script_footer, $group, $perms, $publish, $script_mode, $script_mode_header, $ownerID) {
-        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', script_header='$script_header',  script_footer='$script_footer', last_modified_user='$ownerID', group_id='$group', perms='$perms', publish='$publish', script_mode='$script_mode', script_mode_header='$script_mode_header' WHERE id = '$id'";
+        $sql = "UPDATE process SET name= '$name', process_gid='$process_gid', summary='$summary', process_group_id='$process_group_id', script='$script', script_header='$script_header',  script_footer='$script_footer', last_modified_user='$ownerID', group_id='$group', perms='$perms', publish='$publish', script_mode='$script_mode', date_modified = now(), script_mode_header='$script_mode_header' WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProcess($id) {
@@ -1722,14 +1722,18 @@ class dbfuncs {
             if (isset(json_decode($userRoleCheck)[0])){
                 $userRole = json_decode($userRoleCheck)[0]->{'role'};
                 if ($userRole == "admin"){
-                    $sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_footer, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own FROM process p where p.id = '$id'";
+                    $sql = "SELECT DISTINCT p.*, u.username, IF(p.owner_id='$ownerID',1,0) as own 
+					FROM process p 
+					INNER JOIN users u ON p.owner_id = u.id
+					where p.id = '$id'";
                     return self::queryTable($sql);
                 }
             }
 		}
-		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_footer, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own
+		$sql = "SELECT DISTINCT p.*, u.username, IF(p.owner_id='$ownerID',1,0) as own
         FROM process p
         LEFT JOIN user_group ug ON p.group_id=ug.g_id
+		INNER JOIN users u ON p.owner_id = u.id
         where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15))";
 		return self::queryTable($sql);
 	}
