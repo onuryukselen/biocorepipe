@@ -252,6 +252,11 @@
                 <select id="mProRev" class="fbtn btn-default form-control mRevChange" prev="-1" name="process_rev_id"></select>
                     </span>
                 <h4 class="modal-title" id="processmodaltitle">Title</h4>
+                <div class="col-sm-12" id="creatorInfoPro" style="display:none; font-size:12px; padding-left:0px; margin-left:0px;"> Created by 
+                	<span id="ownUserNamePro">admin</span> on 
+                	<span id="datecreatedPro">Jan. 26, 2016     04:12</span> • Last edited on 
+                	<span id="lasteditedPro">Feb. 8, 2017 12:15</span>
+                </div>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal">
@@ -261,6 +266,11 @@
                             <input type="text" class="form-control" id="mIdPro" name="id">
                         </div>
                     </div>
+                    
+                    
+                    
+                    
+                    
                     <div class="form-group">
                         <label for="mName" style="width:150px;" class="col-sm-2 control-label">Name</label>
                         <div class="col-sm-10">
