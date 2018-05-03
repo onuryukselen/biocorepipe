@@ -706,6 +706,11 @@ else if ($p=="checkPipelinePublic")
 	$process_id = $_REQUEST['process_id'];
     $data = $db->checkPipelinePublic($process_id, $ownerID);
 }
+else if ($p=="checkProjectPipelinePublic")
+{
+	$process_id = $_REQUEST['process_id'];
+    $data = $db->checkProjectPipelinePublic($process_id, $ownerID);
+}
 else if ($p=="checkPipelinePerm")
 {
 	$process_id = $_REQUEST['process_id'];
