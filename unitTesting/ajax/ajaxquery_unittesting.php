@@ -819,9 +819,12 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['pin_order'] = '0';
 		$_REQUEST['publish'] = '0';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)->id,'1');
-		$this->assertEquals(json_decode($data)->pin,'true');
-		$this->assertEquals(json_decode($data)->summary,'pipeline_summary_updated2');
+		$_REQUEST['p'] = 'loadPipeline';
+		$_REQUEST['id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->pin,'true');
+		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated2');
 		ob_end_clean();
 	}
 	/**
