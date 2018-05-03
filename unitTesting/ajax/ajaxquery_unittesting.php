@@ -285,6 +285,59 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->script_header,'update_script_header');
 		ob_end_clean();
 	 }
+	/**
+     * @depends testUpdateProcess
+     */
+	public function testcheckMenuGr() {
+		ob_start();
+		$_REQUEST['p'] = 'checkMenuGr';
+		$_REQUEST['id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_menu_before');
+		ob_end_clean();
+	}
+	/**
+     * @depends testUpdateProcess
+     */
+	public function testgetProcessRevision() {
+		ob_start();
+		$_REQUEST['p'] = 'getProcessRevision';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_process');
+		$this->assertEquals(json_decode($data)[0]->rev_id,'0');
+		ob_end_clean();
+	}
+	/**
+     * @depends testgetProcessRevision
+     */
+	public function testgetProcess_gid() {
+		ob_start();
+		$_REQUEST['p'] = 'getProcess_gid';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->process_gid,'0');
+		ob_end_clean();
+	}
+	/**
+     * @depends testgetProcess_gid
+     */
+	public function testgetMaxRev_id() {
+		ob_start();
+		$_REQUEST['p'] = 'getMaxRev_id';
+		$_REQUEST['process_gid'] = '0';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->rev_id,'0');
+		ob_end_clean();
+	}
+	
+	
+	
+	
+	
+	
      /**
      * @depends testUpdateProcessGroup
      * @depends testUpdateProcess
@@ -629,6 +682,18 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
+	/**
+     * @depends testsaveAllPipeline
+     */
+	 public function testsaveAllPipeline2() {
+		ob_start();
+        $_REQUEST['ownerID'] = '2';
+		$_REQUEST['p'] = 'saveAllPipeline';
+		$_REQUEST['dat'] = '[{"name":"test_pipeline2"},{"id":""},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":""},{"group_id":""},{"perms":"3"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'2');
+		ob_end_clean();
+	}
     /**
      * @depends testsaveAllPipeline
      */
@@ -739,6 +804,65 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated');
 		ob_end_clean();
 	}
+	/**
+     * @depends testgetSavedPipelinesPublic
+     */
+	public function testgetPipelineRevision() {
+		ob_start();
+		$_REQUEST['p'] = 'getPipelineRevision';
+		$_REQUEST['pipeline_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_pipeline');
+		$this->assertEquals(json_decode($data)[0]->rev_id,'0');
+		ob_end_clean();
+	}
+	/**
+     * @depends testgetPipelineRevision
+     */
+	public function testgetPublicPipelines() {
+		ob_start();
+		$_REQUEST['p'] = 'getPublicPipelines';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_pipeline');
+		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated');
+		ob_end_clean();
+	}
+	/**
+     * @depends testgetPublicPipelines
+     */
+	public function testsavePipelineDetails() {
+		ob_start();
+		$_REQUEST['p'] = 'savePipelineDetails';
+		$_REQUEST['summary'] = 'pipeline_summary_updated2';
+		$_REQUEST['group_id'] = '0';
+		$_REQUEST['perms'] = '63';
+		$_REQUEST['pin'] = 'true';
+		$_REQUEST['pin_order'] = '0';
+		$_REQUEST['publish'] = '0';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'1');
+		$this->assertEquals(json_decode($data)->pin,'true');
+		$this->assertEquals(json_decode($data)->summary,'pipeline_summary_updated2');
+		ob_end_clean();
+	}
+	/**
+     * @depends testsavePipelineDetails
+     */
+	public function testgetMaxPipRev_id() {
+		ob_start();
+		$_REQUEST['p'] = 'getMaxPipRev_id';
+		$_REQUEST['pipeline_gid'] = '0';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->rev_id,'0');
+		ob_end_clean();
+	}
+	
+	
+
+	
+	
 
     public function testsavefeedback() {
 		ob_start();
@@ -937,6 +1061,20 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->sname, 'filelist.txt');
 		ob_end_clean();
 	}
+	/**
+     * @depends testgetOutputsPP
+     */
+    public function testcheckParameter() {
+		ob_start();
+		$_REQUEST['p'] = 'checkParameter';
+		$_REQUEST['parameter_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_input');
+		ob_end_clean();
+	}
+	
+	
     public function testInsertProPipeInput() {
 		ob_start();
 		$_REQUEST['p'] = 'saveProPipeInput';
@@ -1148,6 +1286,17 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->role, null);
 		ob_end_clean();
 	}
+	/**
+     * @depends testgetUserRole
+     */
+    public function testgetAllUsers() {
+		ob_start();
+		$_REQUEST['p'] = 'getAllUsers';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->username, 'admin');
+		ob_end_clean();
+	}
     /**
      * @depends testInsertProjectPipeline
      */
@@ -1220,6 +1369,43 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
 		ob_end_clean();
 	}
+	/**
+     * @depends testgetProjectPipelineInputs
+     */
+    public function testcheckPipeline() {
+		ob_start();
+		$_REQUEST['p'] = 'checkPipeline';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_pipeline');
+		ob_end_clean();
+	}
+	/**
+     * @depends testcheckPipeline
+     */
+    public function testcheckPipelinePerm() {
+		ob_start();
+		$_REQUEST['p'] = 'checkPipelinePerm';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_pipeline');
+		ob_end_clean();
+	}
+	/**
+     * @depends testgetProjectPipelineInputs
+     */
+    public function testcheckPipelinePublic() {
+		ob_start();
+		$_REQUEST['p'] = 'checkPipelinePublic';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '2');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_pipeline2');
+		ob_end_clean();
+	}
+	
     /**
      * @depends testUpdateInput
      */
@@ -1242,5 +1428,15 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu');
 		ob_end_clean();
 	}
+	
+	
+//#############################	
+//#########   remove  #########
+//#############################	
+	
+	
+	
+	
+	
 }
 ?>
