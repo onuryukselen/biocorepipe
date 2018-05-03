@@ -732,7 +732,7 @@ class ajaxQueryTest extends TestCase
     public function testsaveAllPipelineUpdate() {
 		ob_start();
 		$_REQUEST['p'] = 'saveAllPipeline';
-		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":"1"},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":"pipeline_summary_updated"},{"group_id":""},{"perms":"63"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
+		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":"1"},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":"pipeline_summary_updated"},{"group_id":""},{"perms":"63"},{"pin":"true"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
 		include('ajaxquery.php');
         $_REQUEST['p'] = 'loadPipeline';
 		$_REQUEST['id'] = '1';
@@ -1390,6 +1390,7 @@ class ajaxQueryTest extends TestCase
      */
     public function testcheckPipelinePublic() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'checkPipelinePublic';
 		$_REQUEST['process_id'] = '1';
 		include('ajaxquery.php');
