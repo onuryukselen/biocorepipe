@@ -811,6 +811,7 @@ class ajaxQueryTest extends TestCase
 	public function testsavePipelineDetails() {
 		ob_start();
 		$_REQUEST['p'] = 'savePipelineDetails';
+		$_REQUEST['id'] = '1';
 		$_REQUEST['summary'] = 'pipeline_summary_updated2';
 		$_REQUEST['group_id'] = '0';
 		$_REQUEST['perms'] = '63';
@@ -1407,7 +1408,7 @@ class ajaxQueryTest extends TestCase
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id,'1');
 		$this->assertEquals(json_decode($data)[0]->name,'test_pipeline');
-		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated');
+		$this->assertEquals(json_decode($data)[0]->summary,'pipeline_summary_updated2');
 		ob_end_clean();
 	}
 	
