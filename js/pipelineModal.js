@@ -378,10 +378,16 @@ function checkPipeline(proid) {
     var checkPipe = getValues({ p: "checkPipeline", "process_id": proid });
     return checkPipe
 }
-//Check if process is ever used in pipelines that user not owner
+//Check if process is ever used in pipelines that user not owner 
 function checkPipelinePublic(proid) {
     var checkPipe = getValues({ p: "checkPipelinePublic", "process_id": proid });
     return checkPipe
+}
+//Check if process is ever used in project_pipeline that user not owner 
+function checkProjectPipelinePublic(proid) {
+    var checkProPipePub = getValues({ p: "checkProjectPipelinePublic", "process_id": proid });
+	console.log(checkProPipePub)
+    return checkProPipePub
 }
 
 //Check if pipeline is ever used in projects 
@@ -786,8 +792,10 @@ function checkRevisionProc(data, proID) {
         //has edited process ever used in other pipelines?
         var checkPipe = checkPipeline(proID);
         var checkPipePublic = checkPipelinePublic(proID);
+        var checkProPipePublic = checkProjectPipelinePublic(proID);
         var numOfProcess = checkPipe.length;
         var numOfProcessPublic = checkPipePublic.length;
+        var numOfProPipePublic = checkProPipePublic.length;
         if (numOfProcess > 0 && numOfProcessPublic === 0) {
             warnUser = true;
             infoText = infoText + 'This revision of process already used in following pipeline/pipelines: ';
@@ -800,17 +808,15 @@ function checkRevisionProc(data, proID) {
             infoText = infoText + '</br></br>Your changes may effect the current pipeline. If you still want to save on existing revision, please click on "save on existing" button. </br></br>Otherwise you can save as a new revision by entering revision comment at below and clicking the save button.'
         } else if (numOfProcessPublic > 0) {
             warnUser = true;
-            infoText = infoText + 'This revision of process already used in following group/public pipelines:';
-            $.each(checkPipePublic, function (element) {
-                if (element !== 0) {
-                    infoText = infoText + ', ';
-                }
-                infoText = infoText + '"' + checkPipePublic[element].name + '"';
-            });
+            infoText = infoText + 'This revision of process already used in group/public pipelines.';
+            infoText = infoText + '</br></br>You can save as a new revision by entering revision comment at below and clicking the save button.'
+        } else if (numOfProPipePublic > 0) {
+            warnUser = true;
+            infoText = infoText + 'This revision of process already used in group/public runs.';
             infoText = infoText + '</br></br>You can save as a new revision by entering revision comment at below and clicking the save button.'
         }
     }
-    return [warnUser, infoText, numOfProcess, numOfProcessPublic];
+    return [warnUser, infoText, numOfProcess, numOfProcessPublic, numOfProPipePublic];
 }
 
 function checkPermissionProc(proID) {
@@ -1763,7 +1769,8 @@ $(document).ready(function () {
             var infoText = '';
             var numOfProcess = '';
             var numOfProcessPublic = '';
-            [warnUser, infoText, numOfProcess, numOfProcessPublic] = checkRevisionProc(data, proID);
+            var numOfProPipePublic = '';
+            [warnUser, infoText, numOfProcess, numOfProcessPublic, numOfProPipePublic] = checkRevisionProc(data, proID);
             //B.1)Save on current process
             if (warnUser === false) {
                 var proGroId = data[5].value;
@@ -1823,7 +1830,7 @@ $(document).ready(function () {
                 $('#confirmRevision').on('show.bs.modal', function (event) {
                     $(this).find('form').trigger('reset');
                     $('#confirmYesNoText').html(infoText);
-                    if (numOfProcessPublic === 0) {
+                    if (numOfProcessPublic === 0 && numOfProPipePublic === 0) {
                         $('#saveOnExist').css('display', 'inline');
                     }
                 });
