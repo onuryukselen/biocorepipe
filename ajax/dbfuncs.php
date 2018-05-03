@@ -1806,6 +1806,13 @@ class dbfuncs {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE (owner_id != '$ownerID') AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
+	public function checkProjectPipelinePublic($process_id, $ownerID) {
+		$sql = "SELECT DISTINCT p.id, p.name 
+				FROM biocorepipe_save p
+			    INNER JOIN project_pipeline pp ON p.id = pp.pipeline_id
+				WHERE (pp.owner_id != '$ownerID') AND p.nodes LIKE '%\"$process_id\",\"%'";
+		return self::queryTable($sql);
+	}
     public function checkPipelinePerm($process_id, $ownerID) {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE perms>3 AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
