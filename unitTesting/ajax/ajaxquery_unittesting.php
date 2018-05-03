@@ -806,7 +806,7 @@ class ajaxQueryTest extends TestCase
 	}
 	
 	/**
-     * @depends testgetPublicPipelines
+     * @depends testgetPipelineRevision
      */
 	public function testsavePipelineDetails() {
 		ob_start();
