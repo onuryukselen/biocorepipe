@@ -1198,7 +1198,7 @@ class dbfuncs {
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputByGnum($id, $g_num) {
-        $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id' AND g_num = '$g_num'";
+        $sql = "DELETE FROM project_pipeline_input WHERE pipeline_id = '$id' AND g_num = '$g_num'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputbyInputId($id) {
@@ -1590,6 +1590,10 @@ class dbfuncs {
     }
     public function updateProPipeInput($id, $project_pipeline_id, $input_id, $project_id, $pipeline_id, $g_num, $given_name, $qualifier, $ownerID) {
         $sql = "UPDATE project_pipeline_input SET project_pipeline_id='$project_pipeline_id', input_id='$input_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', given_name='$given_name', qualifier='$qualifier', last_modified_user ='$ownerID'  WHERE id = $id";
+        return self::runSQL($sql);
+    }
+	public function renameProjectPipelineInputByGnum($id, $given_name, $g_num) {
+        $sql = "UPDATE project_pipeline_input SET given_name='$given_name', last_modified_user ='$ownerID', date_modified = now() WHERE pipeline_id = '$id' AND g_num = '$g_num'";
         return self::runSQL($sql);
     }
     public function duplicateProjectPipelineInput($new_id,$old_id,$ownerID) {

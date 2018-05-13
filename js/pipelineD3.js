@@ -191,7 +191,6 @@
 	  	}
 	  	return false
 	  }
-
 	  //edges-> all edge list, nullId-> process input/output id that not exist in the d3 diagrams 
 	  function getNewNodeId(edges, nullId) {
 	  	//nullId: i-24-14-20-1
@@ -199,15 +198,15 @@
 	  	var nullProcessId = nullId.split("-")[1];
 	  	var nullProcessParId = nullId.split("-")[3];
 	  	var nullProcessGnum = nullId.split("-")[4];
-		//check is parameter is unique:
-		  if (nullProcessInOut === "i") {
+	  	//check is parameter is unique:
+	  	if (nullProcessInOut === "i") {
 	  		var nodes = getValues({ p: "getInputsPP", "process_id": nullProcessId })
-			var paraData = nodes.filter(function (el) {return el.parameter_id == nullProcessParId });
+	  		var paraData = nodes.filter(function (el) { return el.parameter_id == nullProcessParId });
 	  	} else if (nullProcessInOut === "o") {
 	  		var nodes = getValues({ p: "getOutputsPP", "process_id": nullProcessId })
-			var paraData = nodes.filter(function (el) {return el.parameter_id == nullProcessParId });
+	  		var paraData = nodes.filter(function (el) { return el.parameter_id == nullProcessParId });
 	  	}
-		//get newNodeID  
+	  	//get newNodeID  
 	  	if (paraData.length === 1 && nullProcessId !== "inPro" && nullProcessId !== "outPro") {
 	  		var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
 	  		var nullIdRegEx = new RegExp(nullId.replace(patt, '$1-$2-' + '(.*)' + '-$4-$5'), 'g')
@@ -251,15 +250,16 @@
 	  			for (var ee = 0; ee < ed.length; ee++) {
 	  				eds = ed[ee].split("_")
 	  				if (!document.getElementById(eds[0]) && document.getElementById(eds[1])) {
-						//if process is updated through process modal, reconnect the uneffected one based on their parameter_id.
+	  					//if process is updated through process modal, reconnect the uneffected one based on their parameter_id.
 	  					var newID = getNewNodeId(ed, eds[0])
 	  					if (newID) {
 	  						eds[0] = newID;
 	  						addCandidates2DictForLoad(eds[0])
 	  						createEdges(eds[0], eds[1])
 	  					}
-						//if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
+	  					//if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
 	  					resetSingleParam(eds[1]);
+
 	  				} else if (!document.getElementById(eds[1]) && document.getElementById(eds[0])) {
 	  					var newID = getNewNodeId(ed, eds[1]);
 	  					if (newID) {
@@ -268,6 +268,7 @@
 	  						createEdges(eds[0], eds[1])
 	  					}
 	  					resetSingleParam(eds[0]);
+
 	  				} else {
 	  					addCandidates2DictForLoad(eds[0])
 	  					createEdges(eds[0], eds[1])
@@ -1399,35 +1400,47 @@
 	  	});
 
 	  }
-
-	  // delete project_pipeline_input if its deleted when saveExistPipeline is active
-	  function checkDelInputParam(pipeline_id) {
-	  	var existProPipe = getValues({ p: "getExistProjectPipelines", pipeline_id: pipeline_id });
-	  	if (existProPipe.length) {
+	  // delete/rename project_pipeline_input if its deleted/renamed when saveExistPipeline is active
+	  function checkDelRenInputParam(pipeline_id) {
+	  	if (!$.isEmptyObject(nodes)) {
+	  		//old lists:
+	  		var gNumKeys = Object.keys(nodes)
+	  		var oldGnumList = [];
+	  		var oldNameList = {};
+	  		for (var el = 0; el < gNumKeys.length; el++) {
+	  			var oldGnumId = gNumKeys[el];
+	  			var oldGnum = oldGnumId.replace(/(.*)-(.*)/, '$2');
+	  			var oldName = nodes[gNumKeys[el]][3]
+	  			oldGnumList.push(oldGnum);
+	  			oldNameList[oldGnum] = oldName;
+	  		}
+	  		//new lists:
 	  		var newGnumListElems = d3.selectAll("circle.sc-inPro")[0];
 	  		var newGnumList = [];
+	  		var newNameList = {};
 	  		for (var el = 0; el < newGnumListElems.length; el++) {
-	  			var newGnumId = newGnumListElems[el].id
+	  			var newGnumId = newGnumListElems[el].id;
 	  			var newGnum = newGnumId.replace(/(.*)-(.*)/, '$2');
+	  			var newName = $('#' + newGnumId).parent().find("text[id=text-" + newGnum + "]").attr('name');
 	  			newGnumList.push(newGnum);
+	  			newNameList[newGnum] = newName;
 	  		};
-	  		$.each(existProPipe, function (element) {
-	  			var project_pipeline_id = existProPipe[element].id;
-	  			var existProPipeInputs = getValues({ p: "getProjectPipelineInputs", project_pipeline_id: project_pipeline_id });
-	  			var oldGnumList = [];
-	  			$.each(existProPipeInputs, function (element) {
-	  				oldGnumList.push(existProPipeInputs[element].g_num);
-	  			});
-	  			//check if any item deleted from oldGnumList
-	  			for (var e = 0; e < oldGnumList.length; e++) {
-	  				if ($.inArray(oldGnumList[e], newGnumList) === -1) {
-	  					var existProPipeInputs = getValues({ p: "removeProjectPipelineInputByGnum", id: project_pipeline_id, g_num: oldGnumList[e] });
-	  				}
+	  		//check if any item deleted from oldGnumList
+	  		for (var e = 0; e < oldGnumList.length; e++) {
+	  			if ($.inArray(oldGnumList[e], newGnumList) === -1) {
+	  				var existProPipeInputs = getValues({ p: "removeProjectPipelineInputByGnum", id: pipeline_id, g_num: oldGnumList[e] });
 	  			}
-
-	  		});
+	  		}
+	  		//check if any item renamed
+	  		var gNumKeys = Object.keys(oldNameList)
+	  		for (var e = 0; e < gNumKeys.length; e++) {
+	  			if (oldNameList[gNumKeys[e]] !== newNameList[gNumKeys[e]]) {
+	  				var renameProPipeInputs = getValues({ p: "renameProjectPipelineInputByGnum", id: pipeline_id, g_num: gNumKeys[e], given_name: newNameList[gNumKeys[e]] });
+	  			}
+	  		}
 	  	}
 	  }
+
 	  //Revision is not required for advanced options, description
 	  function saveDetails() {
 	  	var id = $("#pipeline-title").attr('pipelineid');
@@ -1599,7 +1612,6 @@
 	  				dupliPipe = false;
 	  			}
 	  			$('#autosave').text('All changes saved');
-
 	  		}
 	  		//B. pipeline already exist
 	  		else if (sName !== "" && id !== '') {
@@ -1613,7 +1625,7 @@
 	  				sl = JSON.stringify(savedList);
 	  				var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	  				if (saveOnExist === true) {
-	  					checkDelInputParam(id);
+	  					checkDelRenInputParam(id);
 	  				}
 	  				pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	  				refreshCreatorData(pipeline_id);
@@ -1646,7 +1658,7 @@
 	  				$('#confirmRevision').on('click', '#saveOnExist', function (event) {
 	  					sl = JSON.stringify(savedList);
 	  					var ret = getValues({ p: "saveAllPipeline", dat: sl });
-	  					checkDelInputParam(id);
+	  					checkDelRenInputParam(id);
 	  					pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	  					refreshCreatorData(pipeline_id);
 	  					var numRev = $("#pipeRev option").length;
