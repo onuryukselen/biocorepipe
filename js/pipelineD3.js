@@ -178,12 +178,45 @@
 	  	window.location.replace("index.php?np=1");
 	  }
 
+	  //resets input/output param if its single
 	  function resetSingleParam(paramId) {
 	  	if ($('#' + paramId).attr("connect") === "single") {
 	  		if ($('#' + paramId).parent().attr("class") === "g-inPro") {
 	  			resetOriginal("inPro", paramId)
+	  			return true
 	  		} else if ($('#' + paramId).parent().attr("class") === "g-outPro") {
 	  			resetOriginal("outPro", paramId)
+	  			return true
+	  		}
+	  	}
+	  	return false
+	  }
+	  //xxxx
+	  //edges-> all edge list, nullId-> process input/output id that not exist in the d3 diagrams 
+	  function getNewNodeId(edges, nullId) {
+	  	//nullId: i-24-14-20-1
+	  	var nullProcessInOut = nullId.split("-")[0];
+	  	var nullProcessId = nullId.split("-")[1];
+	  	var nullProcessParId = nullId.split("-")[3];
+	  	var nullProcessGnum = nullId.split("-")[4];
+		//check is parameter is unique:
+		  if (nullProcessInOut === "i") {
+	  		var nodes = getValues({ p: "getInputsPP", "process_id": nullProcessId })
+			var paraData = nodes.filter(function (el) {return el.parameter_id == nullProcessParId });
+	  	} else if (nullProcessInOut === "o") {
+	  		var nodes = getValues({ p: "getOutputsPP", "process_id": nullProcessId })
+			var paraData = nodes.filter(function (el) {return el.parameter_id == nullProcessParId });
+	  	}
+		//get newNodeID  
+	  	if (paraData.length === 1 && nullProcessId !== "inPro" && nullProcessId !== "outPro") {
+	  		var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+	  		var nullIdRegEx = new RegExp(nullId.replace(patt, '$1-$2-' + '(.*)' + '-$4-$5'), 'g')
+	  		var newNode = $('#g-' + nullProcessGnum).find("circle").filter(function () {
+	  			return this.id.match(nullIdRegEx);
+	  		})
+	  		if (newNode.length === 1) {
+	  			var newNodeId = newNode.attr("id");
+	  			return newNodeId;
 	  		}
 	  	}
 	  }
@@ -219,9 +252,22 @@
 	  				eds = ed[ee].split("_")
 	  				//if process is updated through process modal, reset the edge of input/output param and reset the circles
 	  				if (!document.getElementById(eds[0]) && document.getElementById(eds[1])) {
-	  					resetSingleParam(eds[1])
+	  					var newID = getNewNodeId(ed, eds[0])
+	  					if (newID) {
+	  						eds[0] = newID;
+	  						addCandidates2DictForLoad(eds[0])
+	  						createEdges(eds[0], eds[1])
+	  					}
+	  					resetSingleParam(eds[1]);
+
 	  				} else if (!document.getElementById(eds[1]) && document.getElementById(eds[0])) {
-	  					resetSingleParam(eds[0])
+	  					var newID = getNewNodeId(ed, eds[1]);
+	  					if (newID) {
+	  						eds[1] = newID;
+	  						addCandidates2DictForLoad(eds[0])
+	  						createEdges(eds[0], eds[1])
+	  					}
+	  					resetSingleParam(eds[0]);
 	  				} else {
 	  					addCandidates2DictForLoad(eds[0])
 	  					createEdges(eds[0], eds[1])
@@ -1401,7 +1447,6 @@
 	  		pin_order: pin_order,
 	  		publish: publish
 	  	};
-	  	console.log(data)
 	  	if (id !== '') {
 	  		var saveDetails = getValues(data);
 	  		if (saveDetails) {
