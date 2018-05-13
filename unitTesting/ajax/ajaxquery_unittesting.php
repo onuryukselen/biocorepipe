@@ -444,7 +444,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['p'] = 'getPublicFiles';
 		$_REQUEST['host'] = 'testhost';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '3');
+		$this->assertEquals(json_decode($data)[0]->input_id, '3');
 		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinputfile');
 		ob_end_clean();
 	}
