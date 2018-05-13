@@ -796,6 +796,8 @@ function checkRevisionProc(data, proID) {
         var numOfProcess = checkPipe.length;
         var numOfProcessPublic = checkPipePublic.length;
         var numOfProPipePublic = checkProPipePublic.length;
+		console.log(numOfProcessPublic)
+		console.log(numOfProPipePublic)
         if (numOfProcess > 0 && numOfProcessPublic === 0) {
             warnUser = true;
             infoText = infoText + 'This revision of process already used in following pipeline/pipelines: ';
@@ -1830,6 +1832,8 @@ $(document).ready(function () {
                 $('#confirmRevision').on('show.bs.modal', function (event) {
                     $(this).find('form').trigger('reset');
                     $('#confirmYesNoText').html(infoText);
+					console.log(numOfProcessPublic)
+					console.log(numOfProPipePublic)
                     if (numOfProcessPublic === 0 && numOfProPipePublic === 0) {
                         $('#saveOnExist').css('display', 'inline');
                     }
