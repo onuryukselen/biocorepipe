@@ -1488,11 +1488,7 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
 	
-	else if ($p=="checkProjectPublic")
-{
-	$pipeline_id = $_REQUEST['pipeline_id'];
-    $data = $db->checkProjectPublic($pipeline_id, $ownerID);
-}
+
 	
 	
 	
