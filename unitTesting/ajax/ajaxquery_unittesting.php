@@ -388,6 +388,82 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
 		ob_end_clean();
 	}
+	/**
+     * @depends testUpdateInput
+     */
+	public function testinsertPublicInput() {
+		ob_start();
+		$_REQUEST['p'] = 'savePublicInput';
+		$_REQUEST['name'] = "testpublicinputval";
+		$_REQUEST['type'] = "val";
+		$_REQUEST['host'] = "testhost";
+		$_REQUEST['id'] = "";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'2');
+		
+		ob_end_clean();
+	}
+	/**
+     * @depends testinsertPublicInput
+     */
+	public function testinsertPublicInput2() {
+		ob_start();
+		$_REQUEST['p'] = 'savePublicInput';
+		$_REQUEST['name'] = "testpublicinputfile";
+		$_REQUEST['type'] = "file";
+		$_REQUEST['host'] = "testhost";
+		$_REQUEST['id'] = "";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'3');
+		
+		ob_end_clean();
+	}
+	/**
+     * @depends testsavePublicInput
+     */
+	public function testupdatePublicInput() {
+		ob_start();
+		$_REQUEST['p'] = 'savePublicInput';
+		$_REQUEST['name'] = "testpublicinput_after_update";
+		$_REQUEST['type'] = "val";
+		$_REQUEST['host'] = "testhost";
+		$_REQUEST['id'] = "2";
+		include('ajaxquery.php');
+		$_REQUEST['p'] = 'getInputs';
+		$_REQUEST['id'] = '2';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'2');
+		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinput_after_update');
+		ob_end_clean();
+	}
+	 /**
+     * @depends testinsertPublicInput2
+     */
+    public function testgetPublicFiles() {
+		ob_start();
+		$_REQUEST['p'] = 'getPublicFiles';
+		$_REQUEST['host'] = 'testhost';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '3');
+		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinputfile');
+		ob_end_clean();
+	}
+	 /**
+     * @depends testgetPublicFiles
+     */
+    public function testgetPublicValues() {
+		ob_start();
+		$_REQUEST['p'] = 'getPublicValues';
+		$_REQUEST['host'] = 'testhost';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '2');
+		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinputval');
+		ob_end_clean();
+	}
+	
+	
+	
+	
         //***discuss
         //also update version is missing
 //    public function testInsertSSH() {
@@ -1487,11 +1563,48 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name, 'test_run');
 		ob_end_clean();
 	}
+	/**
+     * @depends testcheckProjectPublic
+     */
+    public function testcheckInput() {
+		ob_start();
+		$_REQUEST['p'] = 'checkInput';
+		$_REQUEST['name'] = 'testinput';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
+		ob_end_clean();
+	}
+	/**
+     * @depends testcheckInput
+     */
+    public function testcheckProjectInput() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProjectInput';
+		$_REQUEST['input_id'] = '1';
+		$_REQUEST['project_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		ob_end_clean();
+	}
+	/**
+     * @depends testcheckProjectInput
+     */
+    public function testcheckProPipeInput() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProPipeInput';
+		$_REQUEST['input_id'] = '1';
+		$_REQUEST['project_id'] = '1';
+		$_REQUEST['pipeline_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		ob_end_clean();
+	}
+	
+	
 	
 
-	
-	
-	
+
 	/**
      * @depends testsaveAllPipeline2
      */
@@ -1511,7 +1624,6 @@ class ajaxQueryTest extends TestCase
      */
     public function testrenameProjectPipelineInputByGnum() {
 		ob_start();
-		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'renameProjectPipelineInputByGnum';
 		$_REQUEST['id'] = "1";
 		$_REQUEST['g_num'] = "0";

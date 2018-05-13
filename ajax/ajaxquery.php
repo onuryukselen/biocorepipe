@@ -237,7 +237,7 @@ else if ($p=="renameProjectPipelineInputByGnum"){
     $g_num = $_REQUEST['g_num'];
     $given_name = $_REQUEST['given_name'];
     settype($g_num, 'integer');
-    $data = $db -> renameProjectPipelineInputByGnum($id,$given_name,$g_num);
+    $data = $db -> renameProjectPipelineInputByGnum($id,$given_name,$g_num, $ownerID);
 }
 else if ($p=="removeProjectInput"){   
     $input_id = $_REQUEST['input_id'];
