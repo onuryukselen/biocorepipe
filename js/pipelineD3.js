@@ -191,7 +191,7 @@
 	  	}
 	  	return false
 	  }
-	  //xxxx
+
 	  //edges-> all edge list, nullId-> process input/output id that not exist in the d3 diagrams 
 	  function getNewNodeId(edges, nullId) {
 	  	//nullId: i-24-14-20-1
@@ -250,16 +250,16 @@
 	  			ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
 	  			for (var ee = 0; ee < ed.length; ee++) {
 	  				eds = ed[ee].split("_")
-	  				//if process is updated through process modal, reset the edge of input/output param and reset the circles
 	  				if (!document.getElementById(eds[0]) && document.getElementById(eds[1])) {
+						//if process is updated through process modal, reconnect the uneffected one based on their parameter_id.
 	  					var newID = getNewNodeId(ed, eds[0])
 	  					if (newID) {
 	  						eds[0] = newID;
 	  						addCandidates2DictForLoad(eds[0])
 	  						createEdges(eds[0], eds[1])
 	  					}
+						//if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
 	  					resetSingleParam(eds[1]);
-
 	  				} else if (!document.getElementById(eds[1]) && document.getElementById(eds[0])) {
 	  					var newID = getNewNodeId(ed, eds[1]);
 	  					if (newID) {
