@@ -1293,6 +1293,12 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->pp_name, 'test_run');
 		ob_end_clean();
 	}
+	
+	
+	
+
+	
+	
     /**
      * @depends testUpdateProject
      * @depends testUpdateInput
@@ -1403,6 +1409,18 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
 	/**
+     * @depends testcheckPipelinePublic
+     */
+    public function testcheckProjectPipelinePublic() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProjectPipelinePublic';
+		$_REQUEST['process_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '3');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_pipeline2');
+		ob_end_clean();
+	}
+	/**
      * @depends testsaveAllPipeline2
      */
 	public function testgetPublicPipelines() {
@@ -1421,6 +1439,7 @@ class ajaxQueryTest extends TestCase
      */
     public function testrenameProjectPipelineInputByGnum() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'renameProjectPipelineInputByGnum';
 		$_REQUEST['id'] = "1";
 		$_REQUEST['g_num'] = "0";
@@ -1435,8 +1454,11 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->given_name, 'test_inputparam2');
 		ob_end_clean();
 	}
-	
 
+
+	
+	
+	
 	
 	
 	
