@@ -191,6 +191,7 @@
 	  	}
 	  	return false
 	  }
+
 	  //edges-> all edge list, nullId-> process input/output id that not exist in the d3 diagrams 
 	  function getNewNodeId(edges, nullId) {
 	  	//nullId: i-24-14-20-1
@@ -259,7 +260,6 @@
 	  					}
 						//if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
 	  					resetSingleParam(eds[1]);
-
 	  				} else if (!document.getElementById(eds[1]) && document.getElementById(eds[0])) {
 	  					var newID = getNewNodeId(ed, eds[1]);
 	  					if (newID) {
