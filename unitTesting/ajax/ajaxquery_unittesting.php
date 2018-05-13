@@ -895,12 +895,55 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
 	}
+	/**
+     * @depends testInsertProjectPipeline
+     */
+    public function testInsertProjectPipeline2() {
+		ob_start();
+		$_SESSION['ownerID'] = '2';
+		$_REQUEST['p'] = 'saveProjectPipeline';
+		$_REQUEST['id'] = '';
+		$_REQUEST['pipeline_id'] = '1';
+		$_REQUEST['project_id'] = '1';
+		$_REQUEST['name'] = 'test_run2';
+		$_REQUEST['summary'] = 'test_sum2';
+		$_REQUEST['output_dir'] = '';
+		$_REQUEST['publish_dir'] = '';
+		$_REQUEST['publish_dir_check'] = '';
+		$_REQUEST['perms'] = '15';
+		$_REQUEST['profile'] = '1';
+		$_REQUEST['interdel'] = '';
+		$_REQUEST['group_id'] = '';
+		$_REQUEST['cmd'] = '';
+        $_REQUEST['exec_each'] = "";
+        $_REQUEST['exec_all'] = "";
+        $_REQUEST['exec_all_settings'] = "";
+        $_REQUEST['exec_each_settings'] = "";
+        $_REQUEST['exec_next_settings'] = "";
+        $_REQUEST['docker_check'] = "";
+        $_REQUEST['docker_img'] = "";
+        $_REQUEST['docker_opt'] = "";
+        $_REQUEST['singu_check'] = "";
+        $_REQUEST['singu_save'] = "";
+        $_REQUEST['singu_img'] = "";
+        $_REQUEST['singu_opt'] = "";
+        $_REQUEST['amazon_cre_id'] = "";
+        $_REQUEST['withReport']= "";
+        $_REQUEST['withTrace']= "";
+        $_REQUEST['withTimeline']= "";
+        $_REQUEST['withDag']= "";
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'2');
+		ob_end_clean();
+	}
     /**
      * @depends testInsertProjectPipeline
      * @depends testUpdateProject
+     * @depends testInsertProjectPipeline2
      */
     public function testgetProjectPipelines() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'getProjectPipelines';
 		$_REQUEST['project_id'] = '1';
 		include('ajaxquery.php');
@@ -1420,6 +1463,39 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->name, 'test_pipeline2');
 		ob_end_clean();
 	}
+	/**
+     * @depends testtestcheckProjectPipelinePublic
+     */
+    public function testcheckProject() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProject';
+		$_REQUEST['pipeline_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_run');
+		ob_end_clean();
+	}
+	/**
+     * @depends testcheckProject
+     */
+    public function testcheckProjectPublic() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProjectPublic';
+		$_REQUEST['pipeline_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_run');
+		ob_end_clean();
+	}
+	
+	else if ($p=="checkProjectPublic")
+{
+	$pipeline_id = $_REQUEST['pipeline_id'];
+    $data = $db->checkProjectPublic($pipeline_id, $ownerID);
+}
+	
+	
+	
 	/**
      * @depends testsaveAllPipeline2
      */
