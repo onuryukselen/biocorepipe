@@ -268,7 +268,6 @@
 	  						createEdges(eds[0], eds[1])
 	  					}
 	  					resetSingleParam(eds[0]);
-						
 	  				} else {
 	  					addCandidates2DictForLoad(eds[0])
 	  					createEdges(eds[0], eds[1])
