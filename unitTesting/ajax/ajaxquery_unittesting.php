@@ -973,6 +973,7 @@ class ajaxQueryTest extends TestCase
 	}
 	/**
      * @depends testInsertProjectPipeline
+	 * @depends testsaveAllPipeline2
      */
     public function testInsertProjectPipeline2() {
 		ob_start();
