@@ -419,7 +419,7 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
 	/**
-     * @depends testsavePublicInput
+     * @depends testinsertPublicInput2
      */
 	public function testupdatePublicInput() {
 		ob_start();
