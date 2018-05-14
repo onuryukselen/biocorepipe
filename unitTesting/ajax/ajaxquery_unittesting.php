@@ -433,7 +433,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['id'] = '2';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id,'2');
-		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinputval');
+		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinput_after_update');
 		ob_end_clean();
 	}
 	 /**
@@ -457,7 +457,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['host'] = 'testhost';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->input_id, '2');
-		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinputval');
+		$this->assertEquals(json_decode($data)[0]->name, 'testpublicinput_after_update');
 		ob_end_clean();
 	}
 	
