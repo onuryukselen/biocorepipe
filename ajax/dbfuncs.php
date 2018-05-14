@@ -1198,7 +1198,7 @@ class dbfuncs {
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputByGnum($id, $g_num) {
-        $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id' AND g_num = '$g_num'";
+        $sql = "DELETE FROM project_pipeline_input WHERE pipeline_id = '$id' AND g_num = '$g_num'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputbyInputId($id) {
@@ -1592,6 +1592,10 @@ class dbfuncs {
         $sql = "UPDATE project_pipeline_input SET project_pipeline_id='$project_pipeline_id', input_id='$input_id', project_id='$project_id', pipeline_id='$pipeline_id', g_num='$g_num', given_name='$given_name', qualifier='$qualifier', last_modified_user ='$ownerID'  WHERE id = $id";
         return self::runSQL($sql);
     }
+	public function renameProjectPipelineInputByGnum($id, $given_name, $g_num, $ownerID) {
+        $sql = "UPDATE project_pipeline_input SET given_name='$given_name', last_modified_user ='$ownerID', date_modified = now() WHERE pipeline_id = '$id' AND g_num = '$g_num'";
+        return self::runSQL($sql);
+    }
     public function duplicateProjectPipelineInput($new_id,$old_id,$ownerID) {
         $sql = "INSERT INTO project_pipeline_input(input_id, project_id, pipeline_id, g_num, given_name, qualifier, project_pipeline_id, owner_id, perms, date_created, date_modified, last_modified_user)
                 SELECT input_id, project_id, pipeline_id, g_num, given_name, qualifier, '$new_id', '$ownerID', '3', now(), now(),'$ownerID'
@@ -1813,11 +1817,11 @@ class dbfuncs {
 				WHERE (pp.owner_id != '$ownerID') AND p.nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
-    public function checkPipelinePerm($process_id, $ownerID) {
+    public function checkPipelinePerm($process_id) {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE perms>3 AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
-    public function checkProjectPipePerm($pipeline_id, $ownerID) {
+    public function checkProjectPipePerm($pipeline_id) {
 		$sql = "SELECT id, name FROM project_pipeline WHERE perms>3 AND pipeline_id='$pipeline_id'";
 		return self::queryTable($sql);
 	}

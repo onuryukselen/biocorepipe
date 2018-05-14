@@ -1,4 +1,10 @@
-14.05.2018 Version 0.1.30
+13.05.2018 Version 0.1.32
+10 unit testing function is added.
+
+13.05.2018 Version 0.1.31
+Project_pipeline_input is updated, when given name of the inputparam is changed in pipeline page.
+
+13.05.2018 Version 0.1.30
 Run page is updated for preserved edges. 
 
 13.05.2018 Version 0.1.29

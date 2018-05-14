@@ -233,6 +233,12 @@ else if ($p=="removeProjectPipelineInputByGnum"){
     settype($g_num, 'integer');
     $data = $db -> removeProjectPipelineInputByGnum($id,$g_num);
 }
+else if ($p=="renameProjectPipelineInputByGnum"){  
+    $g_num = $_REQUEST['g_num'];
+    $given_name = $_REQUEST['given_name'];
+    settype($g_num, 'integer');
+    $data = $db -> renameProjectPipelineInputByGnum($id,$given_name,$g_num, $ownerID);
+}
 else if ($p=="removeProjectInput"){   
     $input_id = $_REQUEST['input_id'];
     $db -> removeProjectPipelineInputbyInputId($input_id);
@@ -714,12 +720,12 @@ else if ($p=="checkProjectPipelinePublic")
 else if ($p=="checkPipelinePerm")
 {
 	$process_id = $_REQUEST['process_id'];
-    $data = $db->checkPipelinePerm($process_id, $ownerID);
+    $data = $db->checkPipelinePerm($process_id);
 }
 else if ($p=="checkProjectPipePerm")
 {
 	$pipeline_id = $_REQUEST['pipeline_id'];
-    $data = $db->checkProjectPipePerm($pipeline_id, $ownerID);
+    $data = $db->checkProjectPipePerm($pipeline_id);
 }
 else if ($p=="checkProject")
 {
