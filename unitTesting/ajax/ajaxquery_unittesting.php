@@ -1574,6 +1574,7 @@ class ajaxQueryTest extends TestCase
 		ob_start();
 		$_REQUEST['p'] = 'checkInput';
 		$_REQUEST['name'] = 'testinput';
+		$_REQUEST['type'] = 'val';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id, '1');
 		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
