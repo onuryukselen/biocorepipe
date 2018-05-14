@@ -1530,6 +1530,7 @@ class ajaxQueryTest extends TestCase
 	}
 	/**
      * @depends testcheckPipelinePublic
+	 * @depends testInsertProjectPipeline2
      */
     public function testcheckProjectPipelinePublic() {
 		ob_start();
