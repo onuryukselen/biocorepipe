@@ -1467,7 +1467,7 @@ class ajaxQueryTest extends TestCase
      */
     public function testgetProjectPipelineInputsByGnum() {
 		ob_start();
-		$_REQUEST['p'] = 'getProjectPipelineInputs';
+		$_REQUEST['p'] = 'getProjectPipelineInputsByGnum';
 		$_REQUEST['g_num'] = '0';
 		$_REQUEST['project_pipeline_id'] = '1';
 		include('ajaxquery.php');
