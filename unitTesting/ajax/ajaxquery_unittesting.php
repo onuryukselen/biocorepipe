@@ -947,6 +947,7 @@ class ajaxQueryTest extends TestCase
      */
     public function testInsertProjectPipeline() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'saveProjectPipeline';
 		$_REQUEST['id'] = '';
 		$_REQUEST['pipeline_id'] = '1';
@@ -1031,8 +1032,8 @@ class ajaxQueryTest extends TestCase
      */
     public function testgetProjectPipelines() {
 		ob_start();
-		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'getProjectPipelines';
+		$_REQUEST['id'] = '';
 		$_REQUEST['project_id'] = '1';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id, '1');
