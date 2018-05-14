@@ -720,12 +720,12 @@ else if ($p=="checkProjectPipelinePublic")
 else if ($p=="checkPipelinePerm")
 {
 	$process_id = $_REQUEST['process_id'];
-    $data = $db->checkPipelinePerm($process_id, $ownerID);
+    $data = $db->checkPipelinePerm($process_id);
 }
 else if ($p=="checkProjectPipePerm")
 {
 	$pipeline_id = $_REQUEST['pipeline_id'];
-    $data = $db->checkProjectPipePerm($pipeline_id, $ownerID);
+    $data = $db->checkProjectPipePerm($pipeline_id);
 }
 else if ($p=="checkProject")
 {

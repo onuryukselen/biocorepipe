@@ -1817,11 +1817,11 @@ class dbfuncs {
 				WHERE (pp.owner_id != '$ownerID') AND p.nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
-    public function checkPipelinePerm($process_id, $ownerID) {
+    public function checkPipelinePerm($process_id) {
 		$sql = "SELECT id, name FROM biocorepipe_save WHERE perms>3 AND nodes LIKE '%\"$process_id\",\"%'";
 		return self::queryTable($sql);
 	}
-    public function checkProjectPipePerm($pipeline_id, $ownerID) {
+    public function checkProjectPipePerm($pipeline_id) {
 		$sql = "SELECT id, name FROM project_pipeline WHERE perms>3 AND pipeline_id='$pipeline_id'";
 		return self::queryTable($sql);
 	}

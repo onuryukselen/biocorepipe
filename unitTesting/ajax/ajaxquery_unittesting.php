@@ -1564,7 +1564,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['pipeline_id'] = '3';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id, '2');
-		$this->assertEquals(json_decode($data)[0]->name, 'test_run2');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_project');
 		ob_end_clean();
 	}
 	/**
@@ -1604,10 +1604,22 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->id, '1');
 		ob_end_clean();
 	}
-	
-	
+	/**
+     * @depends testcheckProPipeInput
+     */
+    public function testcheckProjectPipePerm() {
+		ob_start();
+		$_REQUEST['p'] = 'checkProjectPipePerm';
+		$_REQUEST['pipeline_id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'test_run');
+		ob_end_clean();
+	}
 	
 
+	
+	
 
 	/**
      * @depends testsaveAllPipeline2
