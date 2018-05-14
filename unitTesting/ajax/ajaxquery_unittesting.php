@@ -1032,6 +1032,7 @@ class ajaxQueryTest extends TestCase
      */
     public function testgetProjectPipelines() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'getProjectPipelines';
 		$_REQUEST['id'] = '';
 		$_REQUEST['project_id'] = '1';
@@ -1189,6 +1190,7 @@ class ajaxQueryTest extends TestCase
 	
     public function testInsertProPipeInput() {
 		ob_start();
+		$_SESSION['ownerID'] = '1';
 		$_REQUEST['p'] = 'saveProPipeInput';
 		$_REQUEST['id'] = "";
 		$_REQUEST['input_id'] = "1";
@@ -1468,7 +1470,6 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['p'] = 'getProjectPipelineInputs';
 		$_REQUEST['g_num'] = '0';
 		$_REQUEST['project_pipeline_id'] = '1';
-        $_REQUEST['id'] = '';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id, '1');
 		$this->assertEquals(json_decode($data)[0]->input_id, '1');
