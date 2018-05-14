@@ -1544,7 +1544,7 @@ class ajaxQueryTest extends TestCase
 		ob_end_clean();
 	}
 	/**
-     * @depends testtestcheckProjectPipelinePublic
+     * @depends testcheckProjectPipelinePublic
      */
     public function testcheckProject() {
 		ob_start();
