@@ -24,9 +24,9 @@
 	  refreshDataset()
 
 	  function refreshDataset() {
-	  	processData = getValues({
-	  		p: "getProcessData"
-	  	})
+	  	//	  	processData = getValues({
+	  	//	  		p: "getProcessData"
+	  	//	  	})
 	  	parametersData = getValues({
 	  		p: "getAllParameters"
 	  	})
@@ -242,18 +242,8 @@
 
 	  function zoomed() {
 	  	mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	  	//d3.select("#startArea").attr("width", 2*(r+ior)* d3.event.scale).attr("height",2*(r+ior)* d3.event.scale)
 	  }
-	  //	  function addOption2LoadSelect() {
-	  //	      for (var i = 0; i < savedData.length; i++) {
-	  //	          d3.select("#pipelines").append("option")
-	  //	              .attr("value", savedData[i].name)
-	  //	              .attr("id", savedData[i].id)
-	  //	              .text(savedData[i].name)
-	  //	      }
-	  //	  }
-	  //kind=input/output
-	  //
+
 	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal) {
 	  	//gnum uniqe, id same id (Written in class) in same type process
 	  	g = d3.select("#mainG").append("g")
@@ -331,6 +321,152 @@
 	  		.attr("y", 28)
 	  	if (defVal) {
 	  		$("#text-" + gNum).attr('defVal', defVal)
+	  	}
+	  }
+
+	  //inputText = "example" //* @textbox @description:"One inputbox is invented"
+	  //selectText = "sel1" //* @dropdown @options:"none","sel1","sel2" @description:"One text is invented"
+	  //checkBox = "true" //* @checkbox @description:"One checkbox is created"
+
+	  function parseVarPart(varPart) {
+	  	var varName = null;
+	  	var defaultVal = null;
+	  	if (varPart.match(/=/)) {
+	  		var varSplit = varPart.split('=');
+	  		if (varSplit.length == 2) {
+	  			varName = $.trim(varSplit[0]);
+	  			defaultVal = $.trim(varSplit[1]);
+	  			defaultVal = defaultVal.replace(/\"/g, '');
+	  			defaultVal = defaultVal.replace(/\'/g, '');
+	  		}
+	  	}
+	  	return [varName, defaultVal]
+	  }
+
+	  //parse main categories: @checkbox, @textbox, @inputbox, @dropdown, @description, @options 
+	  function parseRegPart(regPart) {
+	  	var type = null;
+	  	var desc = null;
+	  	var opt = null;
+	  	if (regPart.match(/@/)) {
+	  		var regSplit = regPart.split('@');
+	  		for (var i = 0; i < regSplit.length; i++) {
+	  			// find type among types:checkbox|textbox|inputbox|dropdown
+	  			var typeCheck = regSplit[i].match(/checkbox|textbox|inputbox|dropdown/i);
+	  			if (typeCheck) {
+	  				type = typeCheck[0].toLowerCase();
+	  			}
+	  			// find description
+	  			var descCheck = regSplit[i].match(/description:"(.*)"|description:'(.*)'/i);
+	  			if (descCheck) {
+	  				if (descCheck[1]) {
+	  					desc = descCheck[1];
+	  				} else if (descCheck[2]) {
+	  					desc = descCheck[2];
+	  				}
+	  			}
+	  			// find options
+	  			var optCheck = regSplit[i].match(/options:"(.*)"|options:'(.*)'/i);
+	  			if (optCheck) {
+	  				if (optCheck[1]) {
+	  					var allOpt = optCheck[1];
+	  				} else if (optCheck[2]) {
+	  					var allOpt = optCheck[2];
+	  				}
+	  				//seperate options by comma
+	  				if (allOpt) {
+	  					var allOpt = allOpt.split(',');
+	  					if (allOpt.length) {
+	  						for (var k = 0; k < allOpt.length; k++) {
+	  							allOpt[k] = $.trim(allOpt[k]);
+	  							allOpt[k] = allOpt[k].replace(/\"/g, '');
+	  							allOpt[k] = allOpt[k].replace(/\'/g, '');
+	  						}
+	  					}
+	  				}
+	  				opt = allOpt;
+	  			}
+	  		}
+	  	}
+	  	return [type, desc, opt]
+	  }
+
+	  function addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt) {
+	  	var processParamDiv = '<div class="form-group">';
+	  	var label = '<label>' + varName + ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + desc + '"><i class="glyphicon glyphicon-info-sign"></i></a></span></label>';
+	  	if (type === "input") {
+	  		var inputDiv = '<input type="text" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
+	  		processParamDiv += label + inputDiv + '</div>';
+	  	} else if (type === "textbox") {
+	  		var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '"></textarea>';
+	  		processParamDiv += label + inputDiv + '</div>';
+	  	} else if (type === "checkbox") {
+	  		if (defaultVal) {
+	  			if (defaultVal === "true") {
+	  				defaultVal = "checked"
+	  			} else {
+	  				defaultVal = ""
+	  			}
+	  		}
+	  		var inputDiv = '<input type="checkbox" style = "margin-right:5px;" class="form-check-input" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" ' + defaultVal + '>';
+	  		processParamDiv += inputDiv + label + '</div>';
+	  	} else if (type === "dropdown") {
+	  		var inputDiv = '<select class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
+	  		var optionDiv = "";
+	  		if (opt) {
+	  			if (opt.length) {
+	  				for (var k = 0; k < opt.length; k++) {
+						if (defaultVal === opt[k]){
+	  					optionDiv += '<option selected>' + opt[k] +' </option>';
+						} else {
+	  					optionDiv += '<option>' + opt[k] +' </option>';
+						}
+	  				}
+	  			}
+	  		}
+	  		processParamDiv += label + inputDiv + optionDiv +'</select></div>';
+	  	}
+
+	  	$('#addProcessRow-' + gNum).append(processParamDiv)
+	  }
+
+	  function insertProcessPanel(process_id, gNum, name) {
+	  	var processData = getValues({ p: "getProcessData", "process_id": process_id });
+	  	if (processData) {
+	  		if (processData[0].script_header !== "" && processData[0].script_header !== null) {
+	  			var pro_script_header = decodeHtml(processData[0].script_header);
+	  			//check if parameter comment is exist: //*
+	  			if (pro_script_header.match(/\/\/\*/)) {
+	  				//create processHeader
+	  				var processHeader = '<div class="panel-heading collapsible" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title"><a>' + name + ' options <i style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></i></a></h4></div>';
+	  				var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
+	  				//create processPanel
+	  				$('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
+
+	  				var displayProDiv = false;
+	  				var lines = pro_script_header.split('\n');
+	  				for (var i = 0; i < lines.length; i++) {
+	  					var varName = null;
+	  					var defaultVal = null;
+	  					var type = null;
+	  					var desc = null;
+	  					var opt = null;
+	  					var varPart = lines[i].split('\/\/\*')[0];
+	  					var regPart = lines[i].split('\/\/\*')[1];
+	  					[varName, defaultVal] = parseVarPart(varPart);
+	  					[type, desc, opt] = parseRegPart(regPart);
+	  					if (type && varName) {
+	  						displayProDiv = true;
+	  						addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt)
+	  					}
+	  				}
+	  				if (displayProDiv === true) {
+						$('[data-toggle="tooltip"]').tooltip();
+	  					$('#proPanelDiv-' + gNum).css('display', 'inline');
+	  					$('#ProcessPanelTitle').css('display', 'inline');
+	  				}
+	  			}
+	  		}
 	  	}
 	  }
 
@@ -1105,7 +1241,6 @@
 
 	  	gNum = parseInt(gN)
 	  	var name = sDataName
-	  	var name = sDataName
 	  	var id = sDatapId
 	  	var process_id = id
 	  	var defVal = null;
@@ -1187,7 +1322,8 @@
 	  	} else {
 	  		//--Pipeline details table ---
 	  		addProPipeTab(id, gNum, name);
-
+	  		//--ProcessPanel
+	  		insertProcessPanel(id, gNum, name);
 
 	  		inputs = getValues({
 	  			p: "getInputsPP",

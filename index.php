@@ -233,6 +233,11 @@ else { $login = 0;}
             display: flex;
             justify-content: center;
         }
+		
+/*        Hover property for boostrap panel headers */
+        .collapsible:hover {
+    		background-color: #EDF0F5;
+		}
 
     </style>
 
