@@ -19,6 +19,7 @@ function callusRole() {
 usRole = callusRole();
 
 //initialize all tooltips on a page (eg.$('#mFileTypeTool').tooltip("show"))
+//to activste dynamically added tooltips, run the command below
 $(function () {
     $('[data-toggle="tooltip"]').tooltip();
 });
