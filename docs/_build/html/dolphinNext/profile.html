@@ -213,6 +213,15 @@
 <p class="first admonition-title">Warning</p>
 <p class="last">In both of the cases, private key will be used for submiting jobs in the host. Therefore, public key required to be added into <code class="docutils literal notranslate"><span class="pre">~/.ssh/authorized_keys</span></code> in the host by user.</p>
 </div>
+<p>In order to add you private key to the host, you might use the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="o">~/.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_rsa</span><span class="o">.</span><span class="n">pub</span> <span class="o">|</span> <span class="n">ssh</span> <span class="n">USERNAME</span><span class="nd">@HOSTNAME</span> <span class="s2">&quot;mkdir -p ~/.ssh &amp;&amp; cat &gt;&gt; ~/.ssh/authorized_keys&quot;</span>
+</pre></div>
+</div>
+<p>After inserting public key, connect to the host and make sure file permissions of <code class="docutils literal notranslate"><span class="pre">authorized_keys</span></code> and <code class="docutils literal notranslate"><span class="pre">ssh</span></code> folder is correct by following commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">chmod</span> <span class="mi">700</span> <span class="o">~/.</span><span class="n">ssh</span>
+<span class="n">chmod</span> <span class="mi">600</span> <span class="o">~/.</span><span class="n">ssh</span><span class="o">/</span><span class="n">authorized_keys</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="amazon-keys">
 <h2>Amazon Keys<a class="headerlink" href="#amazon-keys" title="Permalink to this headline">¶</a></h2>

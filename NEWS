@@ -1,3 +1,10 @@
+17.05.2018 Version 0.1.35
+New defined parameters in the process options (on the run page) updated on the nextflow text.
+
+17.05.2018 Version 0.1.34
+Documentation section about ssh keys is updated.
+Save/load process options on run page is finalized.
+
 16.05.2018 Version 0.1.33
 Process options added as forms to run page. Feature is not finalized.
 

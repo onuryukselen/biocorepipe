@@ -591,9 +591,10 @@ function truncateName(name, type) {
     else
         return name;
 }
-
 $('.collapseIcon').on('click', function (e) {
     var textClass = $(this).attr('class');
+	console.log(textClass)
+	console.log($(this))
     if (textClass.includes('fa-plus-square-o')) {
         $(this).removeClass('fa-plus-square-o');
         $(this).addClass('fa-minus-square-o');
@@ -601,8 +602,21 @@ $('.collapseIcon').on('click', function (e) {
         $(this).removeClass('fa-minus-square-o');
         $(this).addClass('fa-plus-square-o');
     }
-
 });
+
+function refreshCollapseIconDiv (){
+$('.collapseIconDiv').on('click', function (e) {
+    var textClassPlus = $(this).find('.fa-plus-square-o')[0];
+    var textClassMinus = $(this).find('.fa-minus-square-o')[0];
+    if (textClassPlus) {
+        $(textClassPlus).removeClass('fa-plus-square-o');
+        $(textClassPlus).addClass('fa-minus-square-o');
+    } else if (textClassMinus) {
+        $(textClassMinus).removeClass('fa-minus-square-o');
+        $(textClassMinus).addClass('fa-plus-square-o');
+    }
+});
+}
 
 // fills the from with the object data. find is comma separated string: 'input, p'
 //eg.  fillForm('#execNextSettTable','input', exec_next_settings);

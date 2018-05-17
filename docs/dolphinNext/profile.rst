@@ -38,7 +38,17 @@ You will be prompted to supply a filename and a password. In order to accept the
     chmod -R 600 ~/.ssh/id_rsa_pub
 
 
-.. warning:: In both of the cases, private key will be used for submiting jobs in the host. Therefore, public key required to be added into ``~/.ssh/authorized_keys`` in the host by user.
+.. warning:: In both of the cases, private key will be used for submiting jobs in the host. Therefore, public key required to be added into ``~/.ssh/authorized_keys`` in the host by user. 
+
+In order to add you private key to the host, you might use the following command::
+	
+	cat ~/.ssh/id_rsa.pub | ssh USERNAME@HOSTNAME "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+	
+	
+After inserting public key, connect to the host and make sure file permissions of ``authorized_keys`` and ``ssh`` folder is correct by following commands::
+
+	chmod 700 ~/.ssh
+	chmod 600 ~/.ssh/authorized_keys
 
 Amazon Keys
 ===========
