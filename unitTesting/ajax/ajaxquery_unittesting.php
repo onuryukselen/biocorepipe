@@ -979,6 +979,7 @@ class ajaxQueryTest extends TestCase
         $_REQUEST['withTrace']= "";
         $_REQUEST['withTimeline']= "";
         $_REQUEST['withDag']= "";
+        $_REQUEST['process_opt']= "";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
@@ -1021,6 +1022,7 @@ class ajaxQueryTest extends TestCase
         $_REQUEST['withTrace']= "";
         $_REQUEST['withTimeline']= "";
         $_REQUEST['withDag']= "";
+        $_REQUEST['process_opt']= "";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'2');
 		ob_end_clean();
@@ -1078,6 +1080,7 @@ class ajaxQueryTest extends TestCase
         $_REQUEST['withTrace']= "";
         $_REQUEST['withTimeline']= "";
         $_REQUEST['withDag']= "";
+        $_REQUEST['process_opt']= "";
 		include('ajaxquery.php');
 		$_REQUEST['p'] = 'getProjectPipelines';
 		$_REQUEST['project_id'] = '1';

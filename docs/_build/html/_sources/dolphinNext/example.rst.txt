@@ -26,7 +26,7 @@ Content of the parameterFile.txt is showed at below::
     export piRNA_top=29
 
 
-Explaination of the variables can be found at below::
+Explaination of the variables listed below::
 
     rRNA_MM: Number of mismatches should be allowed for rRNA mapping by bowtie
     hairpin_MM: Number of mismatches should be allowed for microRNA hairping mapping by bowtie

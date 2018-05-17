@@ -351,8 +351,8 @@
 	  	if (regPart.match(/@/)) {
 	  		var regSplit = regPart.split('@');
 	  		for (var i = 0; i < regSplit.length; i++) {
-	  			// find type among types:checkbox|textbox|inputbox|dropdown
-	  			var typeCheck = regSplit[i].match(/checkbox|textbox|inputbox|dropdown/i);
+	  			// find type among types:checkbox|textbox|input|dropdown
+	  			var typeCheck = regSplit[i].match(/checkbox|textbox|input|dropdown/i);
 	  			if (typeCheck) {
 	  				type = typeCheck[0].toLowerCase();
 	  			}
@@ -398,7 +398,7 @@
 	  		var inputDiv = '<input type="text" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
 	  		processParamDiv += label + inputDiv + '</div>';
 	  	} else if (type === "textbox") {
-	  		var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '"></textarea>';
+	  		var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">' + defaultVal + '</textarea>';
 	  		processParamDiv += label + inputDiv + '</div>';
 	  	} else if (type === "checkbox") {
 	  		if (defaultVal) {
@@ -416,15 +416,15 @@
 	  		if (opt) {
 	  			if (opt.length) {
 	  				for (var k = 0; k < opt.length; k++) {
-						if (defaultVal === opt[k]){
-	  					optionDiv += '<option selected>' + opt[k] +' </option>';
-						} else {
-	  					optionDiv += '<option>' + opt[k] +' </option>';
-						}
+	  					if (defaultVal === opt[k]) {
+	  						optionDiv += '<option selected>' + opt[k] + ' </option>';
+	  					} else {
+	  						optionDiv += '<option>' + opt[k] + ' </option>';
+	  					}
 	  				}
 	  			}
 	  		}
-	  		processParamDiv += label + inputDiv + optionDiv +'</select></div>';
+	  		processParamDiv += label + inputDiv + optionDiv + '</select></div>';
 	  	}
 
 	  	$('#addProcessRow-' + gNum).append(processParamDiv)
@@ -438,7 +438,7 @@
 	  			//check if parameter comment is exist: //*
 	  			if (pro_script_header.match(/\/\/\*/)) {
 	  				//create processHeader
-	  				var processHeader = '<div class="panel-heading collapsible" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title"><a>' + name + ' options <i style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></i></a></h4></div>';
+	  				var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
 	  				var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
 	  				//create processPanel
 	  				$('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
@@ -461,9 +461,10 @@
 	  					}
 	  				}
 	  				if (displayProDiv === true) {
-						$('[data-toggle="tooltip"]').tooltip();
+	  					$('[data-toggle="tooltip"]').tooltip();
 	  					$('#proPanelDiv-' + gNum).css('display', 'inline');
 	  					$('#ProcessPanelTitle').css('display', 'inline');
+
 	  				}
 	  			}
 	  		}
@@ -1473,6 +1474,8 @@
 	  			$('#project-title').attr('href', 'index.php?np=2&id=' + project_id);
 	  			$('#pipelineSum').val(decodeHtml(s[0].summary));
 	  			openPipeline(pipeline_id);
+	  			// activate collapse icon for process options
+	  			refreshCollapseIconDiv()
 	  			$('#pipelineSum').attr('disabled', "disabled");
 
 	  		},
@@ -1540,6 +1543,12 @@
 	  	updateCheckBox('#withDag', pipeData[0].withDag);
 	  	updateCheckBox('#withTimeline', pipeData[0].withTimeline);
 	  	checkShub()
+	  	//load process options 
+	  	if (pipeData[0].process_opt) {
+			//wait for the process options table to load
+	  		setTimeout(function () { loadProcessOpt(decodeHtml(pipeData[0].process_opt)); }, 1000);
+	  		
+	  	}
 	  	//load amazon keys for possible s3 connection
 	  	loadAmzKeys();
 	  	if (pipeData[0].amazon_cre_id !== "0") {
@@ -2322,7 +2331,66 @@
 	  	} else {
 	  		return formDataArr;
 	  	}
-
+	  }
+	  //prepare JSON to save db
+	  function getProcessOpt() {
+	  	var processOptAll = {};
+	  	var proOptDiv = $('#ProcessPanel').children();
+	  	$.each(proOptDiv, function (el) {
+	  		var boxId = $(proOptDiv[el]).attr('id')
+	  		var patt = /(.*)-(.*)/;
+	  		var proGnum = boxId.replace(patt, '$2');
+	  		var formGroup = $('#addProcessRow-' + proGnum).find('.form-group');
+	  		var formGroupArray = formGroup.toArray();
+	  		var processOptEach = {};
+	  		$.each(formGroupArray, function (el) {
+	  			var labelDiv = $(formGroupArray[el]).find("label")[0];
+	  			var inputDiv = $(formGroupArray[el]).find("input,textarea,select")[0];
+	  			var inputDivType = $(inputDiv).attr("type");
+	  			if (labelDiv && inputDiv) {
+	  				// variable name stored at label
+	  				var label = $.trim($(labelDiv).text());
+	  				//userInput stored at inputDiv. If type of the input is checkbox different method is use to learn whether it is checked
+	  				if (inputDivType === "checkbox") {
+	  					var input = $(inputDiv).is(":checked").toString();
+	  				} else {
+	  					var input = $.trim($(inputDiv).val());
+	  				}
+	  				processOptEach[label] = input;
+	  			}
+	  		});
+	  		processOptAll[proGnum] = processOptEach
+	  	});
+	  	return encodeURIComponent(JSON.stringify(processOptAll))
+	  }
+	  //get JSON from db and fill the process options
+	  function loadProcessOpt(allProcessOpt) {
+	  	if (allProcessOpt) {
+	  		allProcessOpt = JSON.parse(allProcessOpt);
+	  		$.each(allProcessOpt, function (el) {
+	  			var proGnum = el;
+	  			var eachProcessOpt = allProcessOpt[el];
+	  			// find all form-groups for each process by proGnum
+	  			var formGroup = $('#addProcessRow-' + proGnum).find('.form-group');
+	  			var formGroupArray = formGroup.toArray();
+	  			$.each(formGroupArray, function (el) {
+	  				var labelDiv = $(formGroupArray[el]).find("label")[0];
+	  				var inputDiv = $(formGroupArray[el]).find("input,textarea,select")[0];
+	  				var inputDivType = $(inputDiv).attr("type");
+					// fill each form if label exist in eachProcessOpt object
+	  				if (labelDiv && inputDiv) {
+	  					var label = $.trim($(labelDiv).text());
+	  					if (eachProcessOpt[label]) {
+	  						if (inputDivType === "checkbox") {
+								updateCheckBox(inputDiv, eachProcessOpt[label]);
+	  						} else {
+	  							$(inputDiv).val(eachProcessOpt[label]);
+	  						}
+	  					}
+	  				}
+	  			});
+	  		});
+	  	}
 	  }
 
 	  function formToJsonEachPro() {
@@ -2382,9 +2450,7 @@
 	  	var withTrace = $('#withTrace').is(":checked").toString();
 	  	var withTimeline = $('#withTimeline').is(":checked").toString();
 	  	var withDag = $('#withDag').is(":checked").toString();
-
-
-
+	  	var process_opt = getProcessOpt();
 	  	if (run_name !== '') {
 	  		data.push({ name: "id", value: project_pipeline_id });
 	  		data.push({ name: "name", value: run_name });
@@ -2415,6 +2481,7 @@
 	  		data.push({ name: "withTrace", value: withTrace });
 	  		data.push({ name: "withTimeline", value: withTimeline });
 	  		data.push({ name: "withDag", value: withDag });
+	  		data.push({ name: "process_opt", value: process_opt });
 	  		data.push({ name: "p", value: "saveProjectPipeline" });
 	  		$.ajax({
 	  			type: "POST",
@@ -2656,7 +2723,6 @@
 	  				// check if name is entered
 	  				data[1].value = $.trim(data[1].value);
 	  				if (data[1].value !== '') {
-	  					console.log(data)
 	  					saveFileSetValModal(data, 'file', null);
 	  					$('#inputFilemodal').modal('hide');
 	  				}
