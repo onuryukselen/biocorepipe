@@ -168,406 +168,430 @@ function createNextflowFile(nxf_runmode) {
 	nextText += "\n" + iniTextSecond + "\n" + header_pipe_script + "\n";
 
 	sortedProcessList.forEach(function (key) {
-			className = document.getElementById(key).getAttribute("class");
-			mainProcessId = className.split("-")[1]
-			var gNum = key.split("-")[1];
-			if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
-				var body = "";
-				var script_header = "";
-				var script_footer = "";
+		className = document.getElementById(key).getAttribute("class");
+		mainProcessId = className.split("-")[1]
+		var gNum = key.split("-")[1];
+		if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
+			var body = "";
+			var script_header = "";
+			var script_footer = "";
             [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key);
-				// add process options after the process script_header to overwite them
-				if (nxf_runmode === "run" && process_opt) {
-					//check if parameter comment  //* and process_opt[gNum] are exist:
-					if (script_header.match(/\/\/\*/) && process_opt[gNum]) {
-						script_header = getNewScriptHeader(script_header, process_opt, gNum);
-					}
-				}
-					proText = script_header + "\nprocess " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
-					nextText += proText;
-				}
-			});
-
-		var endText = footer_pipe_script + '\nworkflow.onComplete {\n'; endText += 'println "##Pipeline execution summary##"\n'; endText += 'println "---------------------------"\n'; endText += 'println "##Completed at: $workflow.complete"\n'; endText += 'println "##Duration: ${workflow.duration}"\n'; endText += 'println "##Success: ${workflow.success ? \'OK\' : \'failed\' }"\n'; endText += 'println "##Exit status: ${workflow.exitStatus}"\n'; endText += '}\n';
-
-
-		if (nxf_runmode === "run") {
-			var interdel = $('#intermeDel').is(":checked");
-			if (interdel && interdel === true) {
-				endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
-			}
-		}
-		return nextText + endText
-	}
-
-	function getChannelNameAll(channelName, Iid) {
-		var channelNameAll = "";
-		for (var c = 0; c < edges.length; c++) {
-			if (edges[c].indexOf(Iid) !== -1) {
-				var secNode = edges[c].split("_")[1];
-				if (channelNameAll === "") {
-					channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-				} else {
-					channelNameAll = channelNameAll + "; " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-				}
-
-			}
-		}
-		return channelNameAll
-	}
-
-	//Input parameters and channels with file paths
-	function InputParameters(id, currgid) {
-		IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0];
-		iText = {};
-		firstPart = "";
-		secPart = "";
-
-		for (var i = 0; i < IList.length; i++) {
-			Iid = IList[i].id
-			inputIdSplit = Iid.split("-")
-			ProId = inputIdSplit[1]
-			userEntryId = "text-" + inputIdSplit[4];
-
-			if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
-				qual = parametersData.filter(function (el) {
-					return el.id == inputIdSplit[3]
-				})[0].qualifier
-				inputParamName = document.getElementById(userEntryId).getAttribute('name')
-
-				for (var e = 0; e < edges.length; e++) {
-					if (edges[e].indexOf(Iid) !== -1) { //if not exist: -1
-						nodes = edges[e].split("_")
-						fNode = nodes[0]
-						sNode = nodes[1]
-						inputIdSplit = sNode.split("-")
-						genParName = parametersData.filter(function (el) {
-							return el.id == inputIdSplit[3]
-						})[0].name
-						channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
-
-						//check proId had a mate inputparameter
-						if (qual === "set") {
-							var sNodeProId = inputIdSplit[1];
-							var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
-							var inputParMate = inputParAll.filter(function (el) {
-								return el.sname == "mate"
-							}).length
-						}
-
-						if (qual === "file") {
-							firstPartTemp = "params." + inputParamName + " =\"\" \n"
-							secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
-							firstPart = firstPart + firstPartTemp
-							secPart = secPart + secPartTemp
-							break
-							//if mate defined in process use fromFilePairs
-						} else if (qual === "set" && inputParMate > 0) {
-							firstPartTemp = "params." + inputParamName + " =\"\" \n";
-							//all processes that are connected to
-							var channelNameAll = "";
-							channelNameAll = getChannelNameAll(channelName, Iid);
-							secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
-							firstPart = firstPart + firstPartTemp
-							secPart = secPart + secPartTemp
-							break
-							//if mate not defined in process use fromPath
-						} else if (qual === "set" && inputParMate === 0) {
-							firstPartTemp = "params." + inputParamName + " =\"\" \n";
-							//all processes that are connected to
-							var channelNameAll = "";
-							channelNameAll = getChannelNameAll(channelName, Iid);
-							secPartTemp = channelNameAll + " = " + "Channel.fromPath(params." + inputParamName + ").toSortedList() \n"
-							firstPart = firstPart + firstPartTemp
-							secPart = secPart + secPartTemp
-							break
-						} else if (qual === "val") {
-							firstPartTemp = "params." + inputParamName + " =\"\" \n"
-							secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
-							firstPart = firstPart + firstPartTemp
-							secPart = secPart + secPartTemp
-							break
-
-						}
-
-					}
+			// add process options after the process script_header to overwite them
+			if (nxf_runmode === "run" && process_opt) {
+				//check if parameter comment  //* and process_opt[gNum] are exist:
+				if (script_header.match(/\/\/\*/) && process_opt[gNum]) {
+					script_header = getNewScriptHeader(script_header, process_opt, gNum);
 				}
 			}
+			proText = script_header + "\nprocess " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
+			nextText += proText;
 		}
-		iText.firstPart = firstPart
-		iText.secPart = secPart
+	});
 
-		return iText
-	}
+	var endText = footer_pipe_script + '\nworkflow.onComplete {\n';
+	endText += 'println "##Pipeline execution summary##"\n';
+	endText += 'println "---------------------------"\n';
+	endText += 'println "##Completed at: $workflow.complete"\n';
+	endText += 'println "##Duration: ${workflow.duration}"\n';
+	endText += 'println "##Success: ${workflow.success ? \'OK\' : \'failed\' }"\n';
+	endText += 'println "##Exit status: ${workflow.exitStatus}"\n';
+	endText += '}\n';
 
-	function getParamOutdir(outParUserEntry) {
-		return '"' + outParUserEntry + '/$filename"';
-		// "paired/$filename"
-	}
 
-	//
-	function getPublishDirRegex(outputName) {
-		//eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
-		if (outputName.match(/file\((.*)\)/)) {
-			var outputName = outputName.match(/file\((.*)\)/)[1];
+	if (nxf_runmode === "run") {
+		var interdel = $('#intermeDel').is(":checked");
+		if (interdel && interdel === true) {
+			endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
 		}
-		//if name contains path and separated by '/' then take the last part
-		if (outputName.match(/\//)) {
-			var outArr = outputName.split("/");
-			outputName = outArr[outArr.length - 1];
-		}
-		outputName = outputName.replace(/\*/g, '')
-		outputName = outputName.replace(/\?/g, '')
-		outputName = outputName.replace(/\'/g, '')
-		outputName = outputName.replace(/\"/g, '')
-		return outputName;
 	}
+	return nextText + endText
+}
 
-	function publishDir(id, currgid) {
-		oText = ""
-		var closePar = false
-		oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-		for (var i = 0; i < oList.length; i++) {
-			oId = oList[i].id
+function getChannelNameAll(channelName, Iid) {
+	var channelNameAll = "";
+	for (var c = 0; c < edges.length; c++) {
+		if (edges[c].indexOf(Iid) !== -1) {
+			var secNode = edges[c].split("_")[1];
+			if (channelNameAll === "") {
+				channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+			} else {
+				channelNameAll = channelNameAll + "; " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+			}
+
+		}
+	}
+	return channelNameAll
+}
+
+//Input parameters and channels with file paths
+function InputParameters(id, currgid) {
+	IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0];
+	iText = {};
+	firstPart = "";
+	secPart = "";
+
+	for (var i = 0; i < IList.length; i++) {
+		Iid = IList[i].id
+		inputIdSplit = Iid.split("-")
+		ProId = inputIdSplit[1]
+		userEntryId = "text-" + inputIdSplit[4];
+
+		if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
+			qual = parametersData.filter(function (el) {
+				return el.id == inputIdSplit[3]
+			})[0].qualifier
+			inputParamName = document.getElementById(userEntryId).getAttribute('name')
+
 			for (var e = 0; e < edges.length; e++) {
-				if (edges[e].indexOf(oId) !== -1) { //if not exist -1,
+				if (edges[e].indexOf(Iid) !== -1) { //if not exist: -1
 					nodes = edges[e].split("_")
 					fNode = nodes[0]
 					sNode = nodes[1]
-					//publishDir Section
-					if (fNode.split("-")[1] === "outPro" && closePar === false) {
-						closePar = true
-						//outPro node : get userEntryId and userEntryText
-						var parId = fNode.split("-")[4]
-						var userEntryId = "text-" + fNode.split("-")[4]
-						outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
-						reg_ex = document.getElementById(oId).getAttribute("reg_ex");
-						if (reg_ex !== "" && reg_ex !== null) {
-							reg_ex = decodeHtml(reg_ex);
-							if (reg_ex.length > 0) {
-								var lastLetter = reg_ex.length - 1;
-								if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
-									outputName = reg_ex;
-								} else {
-									outputName = "\/" + reg_ex + "\/";
-								}
-							}
+					inputIdSplit = sNode.split("-")
+					genParName = parametersData.filter(function (el) {
+						return el.id == inputIdSplit[3]
+					})[0].name
+					channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
 
-						} else {
-							outputName = document.getElementById(oId).getAttribute("name")
-							outputName = "/" + getPublishDirRegex(outputName) + "/";
-						}
-						oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
-						tempText = "\tif \(filename =~ " + outputName + "\) " + getParamOutdir(outParUserEntry) + "\n"
-						// if (filename =~ /^path.8.fastq$/) filename
-						oText = oText + tempText
-					} else if (fNode.split("-")[1] === "outPro" && closePar === true) {
-						reg_ex = document.getElementById(oId).getAttribute("reg_ex");
-						if (reg_ex !== "" && reg_ex !== null) {
-							reg_ex = decodeHtml(reg_ex);
-							if (reg_ex.length > 0) {
-								var lastLetter = reg_ex.length - 1;
-								if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
-									outputName = reg_ex;
-								} else {
-									outputName = "\/" + reg_ex + "\/";
-								}
-							}
-						} else {
-							outputName = document.getElementById(oId).getAttribute("name")
-							outputName = "/" + getPublishDirRegex(outputName) + "/";
-						}
-						var parId = fNode.split("-")[4]
-						var userEntryId = "text-" + fNode.split("-")[4]
-						outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
-						tempText = "\telse if \(filename =~ " + outputName + "\) " + getParamOutdir(outParUserEntry) + "\n"
-						oText = oText + tempText
+					//check proId had a mate inputparameter
+					if (qual === "set") {
+						var sNodeProId = inputIdSplit[1];
+						var inputParAll = getValues({ p: "getInputsPP", "process_id": sNodeProId });
+						var inputParMate = inputParAll.filter(function (el) {
+							return el.sname == "mate"
+						}).length
+					}
+
+					if (qual === "file") {
+						firstPartTemp = "params." + inputParamName + " =\"\" \n"
+						secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
+						firstPart = firstPart + firstPartTemp
+						secPart = secPart + secPartTemp
+						break
+						//if mate defined in process use fromFilePairs
+					} else if (qual === "set" && inputParMate > 0) {
+						firstPartTemp = "params." + inputParamName + " =\"\" \n";
+						//all processes that are connected to
+						var channelNameAll = "";
+						channelNameAll = getChannelNameAll(channelName, Iid);
+						secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
+						firstPart = firstPart + firstPartTemp
+						secPart = secPart + secPartTemp
+						break
+						//if mate not defined in process use fromPath
+					} else if (qual === "set" && inputParMate === 0) {
+						firstPartTemp = "params." + inputParamName + " =\"\" \n";
+						//all processes that are connected to
+						var channelNameAll = "";
+						channelNameAll = getChannelNameAll(channelName, Iid);
+						secPartTemp = channelNameAll + " = " + "Channel.fromPath(params." + inputParamName + ").toSortedList() \n"
+						firstPart = firstPart + firstPartTemp
+						secPart = secPart + secPartTemp
+						break
+					} else if (qual === "val") {
+						firstPartTemp = "params." + inputParamName + " =\"\" \n"
+						secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
+						firstPart = firstPart + firstPartTemp
+						secPart = secPart + secPartTemp
+						break
 
 					}
+
 				}
 			}
 		}
-		if (closePar === true) {
-			oText = oText + "}\n\n";
-			if (outputName === '' && reg_ex === "") {
-				oText = "publishDir \"${params.outdir}/" + outParUserEntry + "\", mode: 'copy'\n\n";
-			}
-			closePar = false
-		}
-
-		return oText
 	}
+	iText.firstPart = firstPart
+	iText.secPart = secPart
 
-	function getPipelineScript(pipeline_id) {
-		var pipelineData = getValues({ p: "loadPipeline", "id": pipeline_id });
-		if (pipelineData[0].script_pipe_header !== null) {
-			var script_pipe_header = decodeHtml(pipelineData[0].script_pipe_header);
+	return iText
+}
+
+function getParamOutdir(outParUserEntry) {
+	return '"' + outParUserEntry + '/$filename"';
+	// "paired/$filename"
+}
+
+//if name contains regular expression with curly brackets: {a,b,c} then turn into (a|b|c) format
+function fixCurlyBrackets(outputName) {
+	if (outputName.match(/(.*){(.*?),(.*?)}(.*)/)) {
+		var patt = /(.*){(.*?),(.*?)}(.*)/;
+		var insideBrackets = outputName.replace(patt, '$2' + "," + '$3');
+		insideBrackets = insideBrackets.replace(/\,/g, '|')
+		var outputNameFix = outputName.replace(patt, '$1' + "(" + insideBrackets + ")" + '$4');
+		if (outputNameFix.match(/(.*){(.*?),(.*?)}(.*)/)) {
+			return fixCurlyBrackets(outputNameFix);
 		} else {
-			var script_pipe_header = "";
+			return outputNameFix;
 		}
-		if (pipelineData[0].script_pipe_footer !== null) {
-			var script_pipe_footer = decodeHtml(pipelineData[0].script_pipe_footer);
-		} else {
-			var script_pipe_footer = "";
-		}
-		return [script_pipe_header, script_pipe_footer]
 	}
+}
 
-	function IOandScriptForNf(id, currgid) {
-		var processData = getValues({ p: "getProcessData", "process_id": id });
-		script = decodeHtml(processData[0].script);
-		if (processData[0].script_header !== null) {
-			var script_header = decodeHtml(processData[0].script_header);
-		} else {
-			var script_header = "";
-		}
-		if (processData[0].script_footer !== null) {
-			var script_footer = decodeHtml(processData[0].script_footer);
-		} else {
-			var script_footer = "";
-		}
-		var lastLetter = script.length - 1;
-		if (script[0] === '"' && script[lastLetter] === '"') {
-			script = script.substring(1, script.length - 1); //remove first and last duble quote
-		}
-		//insert """ for script if not exist
-		if (script.search('"""') === -1 && script.search('\'\'\'') === -1) {
-			script = '"""\n' + script + '\n"""'
-		}
+//
+function getPublishDirRegex(outputName) {
+	//eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
+	if (outputName.match(/file\((.*)\)/)) {
+		var outputName = outputName.match(/file\((.*)\)/)[1];
+	}
+	//if name contains path and separated by '/' then take the last part
+	if (outputName.match(/\//)) {
+		var outArr = outputName.split("/");
+		outputName = outArr[outArr.length - 1];
+	}
+	//if name contains regular expression with curly brackets: {a,b,c} then turn into (a|b|c) format
+	var outputName = fixCurlyBrackets(outputName);
+	outputName = outputName.replace(/\*/g, '')
+	outputName = outputName.replace(/\?/g, '')
+	outputName = outputName.replace(/\'/g, '')
+	outputName = outputName.replace(/\"/g, '')
+	return outputName;
+}
 
-
-
-		bodyInput = ""
-		bodyOutput = ""
-		IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
-		OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-		for (var i = 0; i < IList.length; i++) {
-			if (bodyInput == "") {
-				bodyInput = "input:\n"
-			}
-			Iid = IList[i].id //i-11-0-9-0
-			var inputIdSplit = Iid.split("-")
-			var qual = parametersData.filter(function (el) {
-				return el.id == inputIdSplit[3]
-			})[0].qualifier
-
-			var inputName = document.getElementById(Iid).getAttribute("name");
-			var inputClosure = document.getElementById(Iid).getAttribute("closure");
-			var inputOperator = document.getElementById(Iid).getAttribute("operator");
-			inputClosure = decodeHtml(inputClosure);
-			var inputOperatorText = '';
-			if (inputOperator === 'mode flatten') {
-				inputOperatorText = ' ' + inputOperator + inputClosure;
-			} else if (inputOperator !== '') {
-				if (inputClosure !== '') {
-					inputOperatorText = '.' + inputOperator + inputClosure;
-				} else if (inputClosure === '') {
-					inputOperatorText = '.' + inputOperator + "()";
-				}
-			}
-			find = false
-			for (var e = 0; e < edges.length; e++) {
-				if (edges[e].indexOf(Iid) > -1) { //if not exist: -1
-					find = true
-					var nodes = edges[e].split("_")
-					var fNode = nodes[0];
-					var sNode = nodes[1];
-
-					//output node clicked first
-					if (fNode[0] === 'o') {
-						var inputIdSplit = fNode.split("-")
-						var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
-						var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
-
-						if (qualNode === 'set') {
-							var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(sNode).getAttribute("parentG"));
-						} else {
-							var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName;
+function publishDir(id, currgid) {
+	oText = ""
+	var closePar = false
+	oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
+	for (var i = 0; i < oList.length; i++) {
+		oId = oList[i].id
+		for (var e = 0; e < edges.length; e++) {
+			if (edges[e].indexOf(oId) !== -1) { //if not exist -1,
+				nodes = edges[e].split("_")
+				fNode = nodes[0]
+				sNode = nodes[1]
+				//publishDir Section
+				if (fNode.split("-")[1] === "outPro" && closePar === false) {
+					closePar = true
+					//outPro node : get userEntryId and userEntryText
+					var parId = fNode.split("-")[4]
+					var userEntryId = "text-" + fNode.split("-")[4]
+					outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
+					reg_ex = document.getElementById(oId).getAttribute("reg_ex");
+					if (reg_ex !== "" && reg_ex !== null) {
+						reg_ex = decodeHtml(reg_ex);
+						if (reg_ex.length > 0) {
+							var lastLetter = reg_ex.length - 1;
+							if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
+								outputName = reg_ex;
+							} else {
+								outputName = "\/" + reg_ex + "\/";
+							}
 						}
 
 					} else {
-						var inputIdSplit = sNode.split("-");
-						var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
-						var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
-						if (qualNode === 'set') {
-							var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(fNode).getAttribute("parentG"));
-						} else {
-							var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName;
-						}
+						outputName = document.getElementById(oId).getAttribute("name")
+						outputName = "/" + getPublishDirRegex(outputName) + "/";
 					}
-					bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
+					oText = "publishDir params.outdir, mode: 'copy',\n\tsaveAs: {filename ->\n"
+					tempText = "\tif \(filename =~ " + outputName + "\) " + getParamOutdir(outParUserEntry) + "\n"
+					// if (filename =~ /^path.8.fastq$/) filename
+					oText = oText + tempText
+				} else if (fNode.split("-")[1] === "outPro" && closePar === true) {
+					reg_ex = document.getElementById(oId).getAttribute("reg_ex");
+					if (reg_ex !== "" && reg_ex !== null) {
+						reg_ex = decodeHtml(reg_ex);
+						if (reg_ex.length > 0) {
+							var lastLetter = reg_ex.length - 1;
+							if (reg_ex[0] === "\/" && reg_ex[lastLetter] === "\/") {
+								outputName = reg_ex;
+							} else {
+								outputName = "\/" + reg_ex + "\/";
+							}
+						}
+					} else {
+						outputName = document.getElementById(oId).getAttribute("name")
+						outputName = "/" + getPublishDirRegex(outputName) + "/";
+					}
+					var parId = fNode.split("-")[4]
+					var userEntryId = "text-" + fNode.split("-")[4]
+					outParUserEntry = document.getElementById(userEntryId).getAttribute('name');
+					tempText = "\telse if \(filename =~ " + outputName + "\) " + getParamOutdir(outParUserEntry) + "\n"
+					oText = oText + tempText
+
 				}
-			}
-			if (find == false) {
-				bodyInput = bodyInput + " " + qual + " " + inputName + " from " + "param" + "\n"
 			}
 		}
+	}
+	if (closePar === true) {
+		oText = oText + "}\n\n";
+		if (outputName === '' && reg_ex === "") {
+			oText = "publishDir \"${params.outdir}/" + outParUserEntry + "\", mode: 'copy'\n\n";
+		}
+		closePar = false
+	}
 
-		for (var o = 0; o < OList.length; o++) {
-			if (bodyOutput == "") {
-				bodyOutput = "output:\n"
+	return oText
+}
+
+function getPipelineScript(pipeline_id) {
+	var pipelineData = getValues({ p: "loadPipeline", "id": pipeline_id });
+	if (pipelineData[0].script_pipe_header !== null) {
+		var script_pipe_header = decodeHtml(pipelineData[0].script_pipe_header);
+	} else {
+		var script_pipe_header = "";
+	}
+	if (pipelineData[0].script_pipe_footer !== null) {
+		var script_pipe_footer = decodeHtml(pipelineData[0].script_pipe_footer);
+	} else {
+		var script_pipe_footer = "";
+	}
+	return [script_pipe_header, script_pipe_footer]
+}
+
+function IOandScriptForNf(id, currgid) {
+	var processData = getValues({ p: "getProcessData", "process_id": id });
+	script = decodeHtml(processData[0].script);
+	if (processData[0].script_header !== null) {
+		var script_header = decodeHtml(processData[0].script_header);
+	} else {
+		var script_header = "";
+	}
+	if (processData[0].script_footer !== null) {
+		var script_footer = decodeHtml(processData[0].script_footer);
+	} else {
+		var script_footer = "";
+	}
+	var lastLetter = script.length - 1;
+	if (script[0] === '"' && script[lastLetter] === '"') {
+		script = script.substring(1, script.length - 1); //remove first and last duble quote
+	}
+	//insert """ for script if not exist
+	if (script.search('"""') === -1 && script.search('\'\'\'') === -1) {
+		script = '"""\n' + script + '\n"""'
+	}
+
+
+
+	bodyInput = ""
+	bodyOutput = ""
+	IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
+	OList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
+	for (var i = 0; i < IList.length; i++) {
+		if (bodyInput == "") {
+			bodyInput = "input:\n"
+		}
+		Iid = IList[i].id //i-11-0-9-0
+		var inputIdSplit = Iid.split("-")
+		var qual = parametersData.filter(function (el) {
+			return el.id == inputIdSplit[3]
+		})[0].qualifier
+
+		var inputName = document.getElementById(Iid).getAttribute("name");
+		var inputClosure = document.getElementById(Iid).getAttribute("closure");
+		var inputOperator = document.getElementById(Iid).getAttribute("operator");
+		inputClosure = decodeHtml(inputClosure);
+		var inputOperatorText = '';
+		if (inputOperator === 'mode flatten') {
+			inputOperatorText = ' ' + inputOperator + inputClosure;
+		} else if (inputOperator !== '') {
+			if (inputClosure !== '') {
+				inputOperatorText = '.' + inputOperator + inputClosure;
+			} else if (inputClosure === '') {
+				inputOperatorText = '.' + inputOperator + "()";
 			}
-			Oid = OList[o].id
-			outputIdSplit = Oid.split("-")
-			qual = parametersData.filter(function (el) {
-				return el.id == outputIdSplit[3]
-			})[0].qualifier
-			outputName = document.getElementById(Oid).getAttribute("name");
-			var outputClosure = document.getElementById(Oid).getAttribute("closure");
-			var outputOperator = document.getElementById(Oid).getAttribute("operator");
-			outputClosure = decodeHtml(outputClosure);
-			var outputOperatorText = '';
-			if (outputOperator === 'mode flatten') {
-				outputOperatorText = ' ' + outputOperator + outputClosure;
-			} else if (outputOperator !== '') {
-				if (outputClosure !== '') {
-					outputOperatorText = '.' + outputOperator + outputClosure;
-				} else if (outputClosure === '') {
-					outputOperatorText = '.' + outputOperator + "()";
+		}
+		find = false
+		for (var e = 0; e < edges.length; e++) {
+			if (edges[e].indexOf(Iid) > -1) { //if not exist: -1
+				find = true
+				var nodes = edges[e].split("_")
+				var fNode = nodes[0];
+				var sNode = nodes[1];
+
+				//output node clicked first
+				if (fNode[0] === 'o') {
+					var inputIdSplit = fNode.split("-")
+					var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
+					var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
+
+					if (qualNode === 'set') {
+						var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(sNode).getAttribute("parentG"));
+					} else {
+						var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName;
+					}
+
+				} else {
+					var inputIdSplit = sNode.split("-");
+					var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
+					var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
+					if (qualNode === 'set') {
+						var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(fNode).getAttribute("parentG"));
+					} else {
+						var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName;
+					}
 				}
+				bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
 			}
-			genParName = parametersData.filter(function (el) {
-				return el.id == outputIdSplit[3]
-			})[0].name
-			channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName;
+		}
+		if (find == false) {
+			bodyInput = bodyInput + " " + qual + " " + inputName + " from " + "param" + "\n"
+		}
+	}
 
-			//find all edges emerges from this output
-			if (qual === "set") {
-				var channelNameAll = "";
-				for (var c = 0; c < edges.length; c++) {
-					if (edges[c].indexOf(Oid) == 0) {
-						var secNode = edges[c].split("_")[1];
-						var secProType = secNode.split("-")[1];
-						if (secProType !== "outPro") {
-							if (channelNameAll === "") {
-								channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-							} else {
-								channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-							}
+	for (var o = 0; o < OList.length; o++) {
+		if (bodyOutput == "") {
+			bodyOutput = "output:\n"
+		}
+		Oid = OList[o].id
+		outputIdSplit = Oid.split("-")
+		qual = parametersData.filter(function (el) {
+			return el.id == outputIdSplit[3]
+		})[0].qualifier
+		outputName = document.getElementById(Oid).getAttribute("name");
+		var outputClosure = document.getElementById(Oid).getAttribute("closure");
+		var outputOperator = document.getElementById(Oid).getAttribute("operator");
+		outputClosure = decodeHtml(outputClosure);
+		var outputOperatorText = '';
+		if (outputOperator === 'mode flatten') {
+			outputOperatorText = ' ' + outputOperator + outputClosure;
+		} else if (outputOperator !== '') {
+			if (outputClosure !== '') {
+				outputOperatorText = '.' + outputOperator + outputClosure;
+			} else if (outputClosure === '') {
+				outputOperatorText = '.' + outputOperator + "()";
+			}
+		}
+		genParName = parametersData.filter(function (el) {
+			return el.id == outputIdSplit[3]
+		})[0].name
+		channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName;
+
+		//find all edges emerges from this output
+		if (qual === "set") {
+			var channelNameAll = "";
+			for (var c = 0; c < edges.length; c++) {
+				if (edges[c].indexOf(Oid) == 0) {
+					var secNode = edges[c].split("_")[1];
+					var secProType = secNode.split("-")[1];
+					if (secProType !== "outPro") {
+						if (channelNameAll === "") {
+							channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+						} else {
+							channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
 						}
+					}
 
-					} else if (edges[c].indexOf(Oid) > 0) {
-						var fstNode = edges[c].split("_")[0];
-						var fstProType = fstNode.split("-")[1];
-						if (fstProType !== "outPro") {
-							if (channelNameAll === "") {
-								channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
-							} else {
-								channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
-							}
+				} else if (edges[c].indexOf(Oid) > 0) {
+					var fstNode = edges[c].split("_")[0];
+					var fstProType = fstNode.split("-")[1];
+					if (fstProType !== "outPro") {
+						if (channelNameAll === "") {
+							channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
+						} else {
+							channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
 						}
 					}
 				}
-				// if output node is not connected to input node.
-				if (channelNameAll === '') {
-					channelNameAll = channelName;
-				}
-			} else if (qual !== "set") {
+			}
+			// if output node is not connected to input node.
+			if (channelNameAll === '') {
 				channelNameAll = channelName;
 			}
-			bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
-
+		} else if (qual !== "set") {
+			channelNameAll = channelName;
 		}
-		body = bodyInput + "\n" + bodyOutput + "\n" + script
-		return [body, script_header, script_footer]
+		bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
+
 	}
+	body = bodyInput + "\n" + bodyOutput + "\n" + script
+	return [body, script_header, script_footer]
+}
