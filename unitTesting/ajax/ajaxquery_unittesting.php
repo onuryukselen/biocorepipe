@@ -205,6 +205,41 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu');
 		ob_end_clean();
 	}
+	public function testInsertPipelineGroup() {
+		ob_start();
+		$_REQUEST['p'] = 'savePipelineGroup';
+		$_REQUEST['group_name'] = 'test_menu_pipe_before';
+		$_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)->id,'1');
+		ob_end_clean();
+	}
+    /**
+     * @depends testInsertPipelineGroup
+     */
+    public function testUpdatePipelineGroup() {
+		ob_start();
+		$_REQUEST['p'] = 'savePipelineGroup';
+		$_REQUEST['id'] = '1';
+		$_REQUEST['group_name'] = 'test_menu_pipe';
+		include('ajaxquery.php');
+        $_REQUEST['p'] = 'getPipelineGroup';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
+		ob_end_clean();
+	}
+	/**
+     * @depends testUpdatePipelineGroup
+     */
+    public function testgetPipelineGroup() {
+		ob_start();
+		$_REQUEST['p'] = 'getPipelineGroup';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
+		ob_end_clean();
+	}
     /**
      * @depends testgetMaxProcess_gid
      */
@@ -752,7 +787,7 @@ class ajaxQueryTest extends TestCase
     public function testsaveAllPipeline() {
 		ob_start();
 		$_REQUEST['p'] = 'saveAllPipeline';
-		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":""},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":""},{"group_id":""},{"perms":"3"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
+		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":""},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":""},{"group_id":""},{"perms":"3"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_group_id":"1"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'1');
 		ob_end_clean();
@@ -808,7 +843,7 @@ class ajaxQueryTest extends TestCase
     public function testsaveAllPipelineUpdate() {
 		ob_start();
 		$_REQUEST['p'] = 'saveAllPipeline';
-		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":"1"},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":"pipeline_summary_updated"},{"group_id":""},{"perms":"63"},{"pin":"true"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
+		$_REQUEST['dat'] = '[{"name":"test_pipeline"},{"id":"1"},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":"pipeline_summary_updated"},{"group_id":""},{"perms":"63"},{"pin":"true"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_group_id":"1"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
 		include('ajaxquery.php');
         $_REQUEST['p'] = 'loadPipeline';
 		$_REQUEST['id'] = '1';
@@ -894,6 +929,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['pin'] = 'true';
 		$_REQUEST['pin_order'] = '0';
 		$_REQUEST['publish'] = '0';
+		$_REQUEST['pipeline_group_id'] = '1';
 		include('ajaxquery.php');
 		$_REQUEST['p'] = 'loadPipeline';
 		$_REQUEST['id'] = '1';
@@ -921,7 +957,7 @@ class ajaxQueryTest extends TestCase
 		ob_start();
 		$_SESSION['ownerID'] = '2';
 		$_REQUEST['p'] = 'saveAllPipeline';
-		$_REQUEST['dat'] = '[{"name":"test_pipeline2"},{"id":""},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":""},{"group_id":""},{"perms":"3"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
+		$_REQUEST['dat'] = '[{"name":"test_pipeline2"},{"id":""},{"nodes":{"g-0":[318.6666564941406,106.66666412353516,"1","test_process"]}},{"mainG":[0,0,1]},{"edges":[]},{"summary":""},{"group_id":""},{"perms":"3"},{"pin":"false"},{"pin_order":""},{"publish":"0"},{"script_pipe_header":""},{"script_pipe_footer":"0"},{"script_mode_header":"0"},{"script_mode_footer":"0"},{"pipeline_group_id":"1"},{"pipeline_gid":null},{"rev_comment":""},{"rev_id":0}]';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->id,'3');
 		ob_end_clean();
@@ -1688,6 +1724,30 @@ class ajaxQueryTest extends TestCase
 		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu');
 		ob_end_clean();
 	}
+	/**
+     * @depends testUpdatePipelineGroup
+     */
+    public function testgetEditDelPipelineGroups() {
+		ob_start();
+		$_REQUEST['p'] = 'getEditDelPipelineGroups';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
+		ob_end_clean();
+	}
+	/**
+     * @depends testUpdatePipelineGroup
+     * @depends testsaveAllPipelineUpdate
+     */
+	public function testcheckPipeMenuGr() {
+		ob_start();
+		$_REQUEST['p'] = 'checkPipeMenuGr';
+		$_REQUEST['id'] = '1';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id,'1');
+		$this->assertEquals(json_decode($data)[0]->name,'test_pipeline');
+		ob_end_clean();
+	}
 	
 	
 //#############################	
@@ -1695,7 +1755,23 @@ class ajaxQueryTest extends TestCase
 //#############################	
 	
 	
-	
+	/**
+     * @depends testrenameProjectPipelineInputByGnum
+     */
+    public function testremoveProjectPipelineInput() {
+		ob_start();
+		$_REQUEST['p'] = 'removeProjectPipelineInput';
+		$_REQUEST['id'] = "1";
+		include('ajaxquery.php');
+		$_REQUEST['p'] = 'getProjectPipelineInputs';
+		$_REQUEST['project_pipeline_id'] = '1';
+		$_REQUEST['id'] = '';
+		include('ajaxquery.php');
+		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->input_id, '1');
+		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
+		ob_end_clean();
+	}
 	
 	
 }

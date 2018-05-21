@@ -48,18 +48,30 @@ return $html;
 }
 
 $parentMenus = json_decode($db->getParentSideBar($ownerID));
+$parentMenusPipeline = json_decode($db->getParentSideBarPipeline($ownerID));
 $menuhtml='<ul id="autocompletes1" class="sidebar-menu" data-widget="tree">';
-//add initial input parameters
-$menuhtml.='<li id="Pipelines" class="treeview">  <a href="" draggable="false"><i  class="fa fa-spinner"></i><span> Pipelines </span><i class="fa fa-angle-left pull-right"></i></a><ul id="allPipelines" class="treeview-menu">';    
-    $items = json_decode($db->getPipelineSideBar($ownerID));
+//add input/output parameters
+$menuhtml.='<li class="header">INPUT/OUTPUT PARAMETERS</li>';
+$menuhtml.='<li id="inputs" >  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
+$menuhtml.='<li id="outputs" class="treeview">  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>'; 
+//Add pipelines
+$menuhtml.='<li class="header">PIPELINES</li>';
+foreach ($parentMenusPipeline as $parentitem):
+    $nameSub = substr($parentitem->{'name'}, 0, 20);
+//
+    $menuhtml.='<li class="treeview">';
+    $menuhtml.='<a href="" draggable="false"><i class="fa fa-spinner"></i> <span p="'.$parentitem->{'perms'}.'" g="'.$parentitem->{'group_id'}.'" >'.$nameSub.'</span>';
+
+    $items = json_decode($db->getSubMenuFromSideBarPipe($parentitem->{'name'}, $ownerID));
+    
+	$menuhtml.='<i class="fa fa-angle-left pull-right"></i></a>';
+    $menuhtml.='<ul id="pipeGr-'.$parentitem->{'id'}.'" class="treeview-menu">';
     $menuhtml.= getSideMenuPipelineItem($items);
     $menuhtml.='</ul>';
     $menuhtml.='</li>';
-$menuhtml.='<li class="header">INPUT/OUTPUT PARAMETERS</li>';
-
-$menuhtml.='<li id="inputs" >  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="inputparam@inPro"> <i class="fa fa-plus"></i>  <text id="text-inPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Input Parameters </span> </a></li>';  
-$menuhtml.='<li id="outputs" class="treeview">  <a ondragstart="dragStart(event)" ondrag="dragging(event)" draggable="true" id="outputparam@outPro"> <i class="fa fa-plus"></i>  <text id="text-outPro" font-family="FontAwesome" font-size="0.9em" x="-6" y="15"></text> <span> Output Parameters </span> </a></li>';  
-$menuhtml.='<li class="header">PROCESSES</li>';
+endforeach;
+ 
+$menuhtml.='<li id="processSideHeader" class="header">PROCESSES</li>';
 foreach ($parentMenus as $parentitem):
     $nameSub = substr($parentitem->{'name'}, 0, 15);
 
