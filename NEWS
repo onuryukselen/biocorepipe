@@ -1,3 +1,6 @@
+21.05.2018 Version 0.1.38
+Fixed error of fixCurlyBrackets function of nextflowtext.
+
 21.05.2018 Version 0.1.37
 Executor settings are fixed to save and load quotes from db 
 NextflowText is fixed for curly brackets: {bam,bai} turned into (bam|bai) format to publish files with regular expression
