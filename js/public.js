@@ -1,7 +1,7 @@
 //open the pipelines sidebar on entrance.
-var tagElems = $('#autocompletes1').children();
-$(tagElems).closest('li').addClass('menu-open');
-$(tagElems).closest('li').children('ul.treeview-menu').show();
+//var tagElems = $('#autocompletes1').children();
+//$(tagElems).closest('li').addClass('menu-open');
+//$(tagElems).closest('li').children('ul.treeview-menu').show();
 
 //pagination and public page
 $(function () {

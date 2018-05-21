@@ -848,6 +848,24 @@ class dbfuncs {
         }
         return self::queryTable($sql);
     }
+	public function getParentSideBarPipeline($ownerID){
+        if ($ownerID != ''){
+            $userRoleArr = json_decode($this->getUserRole($ownerID));
+            $userRole = $userRoleArr[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
+                FROM pipeline_group pg ";
+                return self::queryTable($sql);
+            }
+        $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
+        FROM pipeline_group pg
+        LEFT JOIN user_group ug ON  pg.group_id=ug.g_id
+        where pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15) ";
+        } else {
+            $sql= "SELECT DISTINCT group_name name, id FROM pipeline_group where perms = 63";
+        }
+        return self::queryTable($sql);
+    }
 
     public function getPipelineSideBar($ownerID){
         if ($ownerID != ''){
@@ -918,6 +936,44 @@ class dbfuncs {
 
       return self::queryTable($sql);
     }
+	//new
+	public function getSubMenuFromSideBarPipe($parent, $ownerID){
+        if ($ownerID != ''){
+            $userRoleArr = json_decode($this->getUserRole($ownerID));
+            $userRole = $userRoleArr[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id, p.owner_id, p.publish
+                FROM biocorepipe_save p
+                INNER JOIN pipeline_group pg
+                ON p.pipeline_group_id = pg.id and pg.group_name='$parent'
+                INNER JOIN (
+                SELECT pr.pipeline_gid, MAX(pr.rev_id) rev_id
+                FROM biocorepipe_save pr
+                GROUP BY pr.pipeline_gid
+                ) b ON p.rev_id = b.rev_id AND p.pipeline_gid=b.pipeline_gid  ";
+            return self::queryTable($sql);
+            }
+            $where_pg = "(pg.owner_id='$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15))";
+            $where_pr = "(pr.owner_id='$ownerID' OR pr.perms = 63 OR (ug.u_id ='$ownerID' and pr.perms = 15))";
+            } else {
+                $where_pg = "pg.perms = 63";
+                $where_pr = "pr.perms = 63";
+            }
+       $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
+             FROM biocorepipe_save p
+             LEFT JOIN user_group ug ON  p.group_id=ug.g_id
+             INNER JOIN pipeline_group pg
+             ON p.pipeline_group_id = pg.id and pg.group_name='$parent' and $where_pg
+             INNER JOIN (
+                SELECT pr.pipeline_gid, MAX(pr.rev_id) rev_id
+                FROM biocorepipe_save pr
+                LEFT JOIN user_group ug ON pr.group_id=ug.g_id where $where_pr
+                GROUP BY pr.pipeline_gid
+                ) b ON p.rev_id = b.rev_id AND p.pipeline_gid=b.pipeline_gid";
+
+      return self::queryTable($sql);
+    }
+	
     public function getParentSideBarProject($ownerID){
         $sql= "SELECT DISTINCT pp.name, pp.id
         FROM project pp
@@ -1122,7 +1178,15 @@ class dbfuncs {
         return self::insTable($sql);
     }
     public function updateProcessGroup($id, $group_name, $ownerID) {
-        $sql = "UPDATE process_group SET group_name='$group_name', last_modified_user ='$ownerID'  WHERE id = '$id'";
+        $sql = "UPDATE process_group SET group_name='$group_name', last_modified_user ='$ownerID', date_modified=now()  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+	public function updateAllProcessGroupByGid($process_gid, $process_group_id,$ownerID) {
+        $sql = "UPDATE process SET process_group_id='$process_group_id', last_modified_user ='$ownerID', date_modified=now()  WHERE process_gid = '$process_gid' AND owner_id = '$ownerID'";
+        return self::runSQL($sql);
+    }
+	public function updateAllPipelineGroupByGid($pipeline_gid, $pipeline_group_id,$ownerID) {
+        $sql = "UPDATE biocorepipe_save SET pipeline_group_id='$pipeline_group_id', last_modified_user ='$ownerID', date_modified=now() WHERE pipeline_gid = '$pipeline_gid' AND owner_id = '$ownerID'";
         return self::runSQL($sql);
     }
 
@@ -1133,6 +1197,10 @@ class dbfuncs {
 
     public function removeProcessGroup($id) {
         $sql = "DELETE FROM process_group WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+	public function removePipelineGroup($id) {
+        $sql = "DELETE FROM pipeline_group WHERE id = '$id'";
         return self::runSQL($sql);
     }
     // --------- Process -----------
@@ -1156,6 +1224,7 @@ class dbfuncs {
         $sql = "SELECT id, group_name FROM process_group WHERE owner_id = '$ownerID'";
         return self::queryTable($sql);
     }
+	
     public function insertProcess($name, $process_gid, $summary, $process_group_id, $script, $script_header, $script_footer, $rev_id, $rev_comment, $group, $perms, $publish, $script_mode, $script_mode_header, $ownerID) {
         $sql = "INSERT INTO process(name, process_gid, summary, process_group_id, script, script_header, script_footer, rev_id, rev_comment, owner_id, date_created, date_modified, last_modified_user, perms, group_id, publish, script_mode, script_mode_header) VALUES ('$name', '$process_gid', '$summary', '$process_group_id', '$script', '$script_header', '$script_footer', '$rev_id','$rev_comment', '$ownerID', now(), now(), '$ownerID', '$perms', '$group', '$publish','$script_mode', '$script_mode_header')";
         return self::insTable($sql);
@@ -1686,9 +1755,39 @@ class dbfuncs {
 			('$email', '$message','$url', now())";
         return self::insTable($sql);
     }
-// --------- New Pipeline -----------
+// --------- Pipeline -----------
+	  public function getPipelineGroup($ownerID) {
+        $userRoleCheck = $this->getUserRole($ownerID);
+        if (isset(json_decode($userRoleCheck)[0])){
+            $userRole = json_decode($userRoleCheck)[0]->{'role'};
+            if ($userRole == "admin"){
+                $sql = "SELECT DISTINCT pg.id, pg.group_name
+                FROM pipeline_group pg";
+                return self::queryTable($sql);
+            }
+        }
+        $sql = "SELECT DISTINCT pg.id, pg.group_name
+        FROM pipeline_group pg
+        LEFT JOIN user_group ug ON pg.group_id=ug.g_id
+        WHERE pg.owner_id = '$ownerID' OR pg.perms = 63 OR (ug.u_id ='$ownerID' and pg.perms = 15)";
+        return self::queryTable($sql);
+    }
+	
+	public function insertPipelineGroup($group_name, $ownerID) {
+        $sql = "INSERT INTO pipeline_group (owner_id, group_name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$group_name', now(), now(), '$ownerID', 3)";
+        return self::insTable($sql);
+    }
+    public function updatePipelineGroup($id, $group_name, $ownerID) {
+        $sql = "UPDATE pipeline_group SET group_name='$group_name', last_modified_user ='$ownerID', date_modified=now()  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+	public function getEditDelPipelineGroups($ownerID) {
+        $sql = "SELECT id, group_name FROM pipeline_group WHERE owner_id = '$ownerID'";
+        return self::queryTable($sql);
+    }
+	
     public function getPublicPipelines() {
-        $sql= "SELECT pip.id, pip.name, pip.summary, pip.pin, pip.pin_order, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer
+        $sql= "SELECT pip.id, pip.name, pip.summary, pip.pin, pip.pin_order, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer, pip.pipeline_group_id
                FROM biocorepipe_save pip
                INNER JOIN (
                 SELECT pipeline_gid, MAX(rev_id) rev_id
@@ -1831,11 +1930,18 @@ class dbfuncs {
         WHERE (pp.owner_id = '$ownerID') AND pp.parameter_id = '$parameter_id'";
 		return self::queryTable($sql);
 	}
-    public function checkMenuGr($id, $ownerID) {
+    public function checkMenuGr($id) {
 		$sql = "SELECT DISTINCT pg.id, p.name
         FROM process p
         INNER JOIN process_group pg ON p.process_group_id = pg.id
-        WHERE (pg.owner_id = '$ownerID') AND pg.id = '$id'";
+        WHERE pg.id = '$id'";
+		return self::queryTable($sql);
+	}
+	public function checkPipeMenuGr($id) {
+		$sql = "SELECT DISTINCT pg.id, p.name
+        FROM biocorepipe_save p
+        INNER JOIN pipeline_group pg ON p.pipeline_group_id = pg.id
+        WHERE pg.id = '$id'";
 		return self::queryTable($sql);
 	}
     public function checkProject($pipeline_id, $ownerID) {
@@ -1949,9 +2055,15 @@ class dbfuncs {
                 SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and perms<'$perms'";
         return self::runSQL($sql);
     }
-     public function updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID) {
+    public function updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE process_group pg
                 INNER JOIN process p ON pg.id=p.process_group_id
+                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms<'$perms'";
+        return self::runSQL($sql);
+    }
+	public function updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID) {
+        $sql = "UPDATE pipeline_group pg
+                INNER JOIN biocorepipe_save p ON pg.id=p.pipeline_group_id
                 SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms<'$perms'";
         return self::runSQL($sql);
     }
@@ -1972,9 +2084,10 @@ class dbfuncs {
         $script_pipe_footer = addslashes(htmlspecialchars(urldecode($obj[12]->{"script_pipe_footer"}), ENT_QUOTES));
         $script_mode_header = $obj[13]->{"script_mode_header"};
         $script_mode_footer = $obj[14]->{"script_mode_footer"};
-        $pipeline_gid = $obj[15]->{"pipeline_gid"};
-        $rev_comment = $obj[16]->{"rev_comment"};
-        $rev_id = $obj[17]->{"rev_id"};
+        $pipeline_group_id = $obj[15]->{"pipeline_group_id"};
+        $pipeline_gid = $obj[16]->{"pipeline_gid"};
+        $rev_comment = $obj[17]->{"rev_comment"};
+        $rev_id = $obj[18]->{"rev_id"};
         settype($rev_id, "integer");
         settype($pipeline_gid, "integer");
         settype($group_id, "integer");
@@ -1992,9 +2105,21 @@ class dbfuncs {
             endforeach;
         }
 	    if ($id > 0){
-            $sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
+			//update all pipeline group_id
+    		$pipeline_gid = json_decode($this->getPipelineGID($id))[0]->{'pipeline_gid'};
+			$this->updateAllPipelineGroupByGid($pipeline_gid,$pipeline_group_id,$ownerID);
+            
+			$sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pipeline_group_id='$pipeline_group_id', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
+			if ($perms !== "3"){
+            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+			}
 		}else{
-            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer' )";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer,pipeline_group_id) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer', '$pipeline_group_id' )";
+			if ($perms !== "3"){
+            	$obj = json_decode($data,true);
+            	$id = $obj["id"];
+            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+        	}
 		}
   		return self::insTable($sql);
 	}
@@ -2006,7 +2131,7 @@ class dbfuncs {
             if (isset(json_decode($userRoleCheck)[0])){
                 $userRole = json_decode($userRoleCheck)[0]->{'role'};
                 if ($userRole == "admin"){
-                    $sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer
+                    $sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer, pip.pipeline_group_id
                     FROM biocorepipe_save pip
                     INNER JOIN users u ON pip.owner_id = u.id";
                     return self::queryTable($sql);
@@ -2014,7 +2139,7 @@ class dbfuncs {
             }
         }
         $where = " where pip.owner_id = '$ownerID' OR pip.perms = 63 OR (ug.u_id ='$ownerID' and pip.perms = 15)";
-		$sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer
+		$sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer, pip.pipeline_group_id
         FROM biocorepipe_save pip
         INNER JOIN users u ON pip.owner_id = u.id
         LEFT JOIN user_group ug ON pip.group_id=ug.g_id
@@ -2050,8 +2175,8 @@ class dbfuncs {
         $sql = "UPDATE biocorepipe_save SET name='$name'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    public function savePipelineDetails($id, $summary,$group_id, $perms, $pin, $pin_order, $publish, $ownerID) {
-        $sql = "UPDATE biocorepipe_save SET summary='$summary', group_id='$group_id', publish='$publish', perms='$perms', pin='$pin', pin_order='$pin_order', last_modified_user = '$ownerID'  WHERE id = '$id'";
+    public function savePipelineDetails($id, $summary,$group_id, $perms, $pin, $pin_order, $publish, $pipeline_group_id, $ownerID) {
+        $sql = "UPDATE biocorepipe_save SET summary='$summary', group_id='$group_id', publish='$publish', perms='$perms', pin='$pin', pin_order='$pin_order', last_modified_user = '$ownerID', pipeline_group_id='$pipeline_group_id'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function insertPipelineName($name,$ownerID) {

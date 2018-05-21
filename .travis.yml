@@ -44,6 +44,7 @@ after_script:
   - mysql -e "use biocorepipe; SELECT * FROM parameter;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM process;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM process_group;" -uroot
+  - mysql -e "use biocorepipe; SELECT * FROM pipeline_group;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM process_parameter;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM project;" -uroot
   - mysql -e "use biocorepipe; SELECT * FROM users;" -uroot

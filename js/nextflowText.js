@@ -571,4 +571,3 @@ function createNextflowFile(nxf_runmode) {
 		body = bodyInput + "\n" + bodyOutput + "\n" + script
 		return [body, script_header, script_footer]
 	}
-

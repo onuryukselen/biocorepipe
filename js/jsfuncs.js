@@ -348,7 +348,7 @@ $('.main-sidebar').on('keyup', '#tags', function (e) {
         $(tagElems2).hide()
         $(tagElems).eq(i).closest('li').children('ul.treeview-menu').hide()
         for (var j = 0; j < tagElems2.length; j++) {
-            if (($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) === 0) {
+            if (($(tagElems2).eq(j).text().toLowerCase()).indexOf($(this).val().toLowerCase()) > -1) {
                 $(tagElems).eq(i).show()
                 if ($(this).val().toLowerCase() !== "") {
                     $(tagElems).eq(i).closest('li').addClass('menu-open')
@@ -593,8 +593,6 @@ function truncateName(name, type) {
 }
 $('.collapseIcon').on('click', function (e) {
     var textClass = $(this).attr('class');
-	console.log(textClass)
-	console.log($(this))
     if (textClass.includes('fa-plus-square-o')) {
         $(this).removeClass('fa-plus-square-o');
         $(this).addClass('fa-minus-square-o');

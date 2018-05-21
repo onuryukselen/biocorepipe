@@ -192,11 +192,17 @@ else if ($p=="getProjectPipelineInputsByGnum"){
 else if ($p=="getInputs"){
     $data = $db -> getInputs($id,$ownerID);
 }
+else if ($p=="getPipelineGroup"){
+    $data = $db -> getPipelineGroup($ownerID);
+}
 else if ($p=="getAllProcessGroups"){
     $data = $db -> getAllProcessGroups($ownerID);
 }
 else if ($p=="getEditDelProcessGroups"){
     $data = $db -> getEditDelProcessGroups($ownerID);
+}
+else if ($p=="getEditDelPipelineGroups"){
+    $data = $db -> getEditDelPipelineGroups($ownerID);
 }
 else if ($p=="removeParameter"){
     $db->removeProcessParameterByParameterID($id);
@@ -206,6 +212,9 @@ else if ($p=="removeProcessGroup"){
     $db->removeProcessParameterByProcessGroupID($id);
     $db->removeProcessByProcessGroupID($id);
     $data = $db->removeProcessGroup($id);
+}
+else if ($p=="removePipelineGroup"){
+    $data = $db->removePipelineGroup($id);
 }
 else if ($p=="removePipelineById"){   
 	$data = $db -> removePipelineById($id);
@@ -491,6 +500,14 @@ else if ($p=="checkLogin"){
 	   $data = json_encode($errAr);
     }
 }
+else if ($p=="savePipelineGroup"){
+    $group_name = $_REQUEST['group_name'];
+    if (!empty($id)) {
+       $data = $db->updatePipelineGroup($id, $group_name, $ownerID);
+    } else {
+       $data = $db->insertPipelineGroup($group_name, $ownerID);
+    }
+}
 else if ($p=="saveProcessGroup"){
     $group_name = $_REQUEST['group_name'];
     if (!empty($id)) {
@@ -518,6 +535,7 @@ else if ($p=="saveProcess"){
     settype($group_id, 'integer');
     settype($process_gid, "integer");
     if (!empty($id)) {
+		$db->updateAllProcessGroupByGid($process_gid, $process_group_id,$ownerID);
         $data = $db->updateProcess($id, $name, $process_gid, $summary, $process_group_id, $script, $script_header, $script_footer, $group_id, $perms, $publish, $script_mode, $script_mode_header, $ownerID);
         if ($perms !== "3"){
             $db->updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID);
@@ -745,7 +763,11 @@ else if ($p=="checkParameter")
 }
 else if ($p=="checkMenuGr")
 {
-    $data = $db->checkMenuGr($id, $ownerID);
+    $data = $db->checkMenuGr($id);
+}
+else if ($p=="checkPipeMenuGr")
+{
+    $data = $db->checkPipeMenuGr($id);
 }
 else if ($p=="getMaxProcess_gid")
 {
@@ -798,9 +820,13 @@ else if ($p=="savePipelineDetails")
 	$pin = $_REQUEST['pin'];
 	$pin_order = $_REQUEST['pin_order'];
 	$publish = $_REQUEST['publish'];
+	$pipeline_group_id = $_REQUEST['pipeline_group_id'];
     settype($group_id, 'integer');
     settype($pin_order, "integer");
-    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$ownerID);
+    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$pipeline_group_id,$ownerID);
+	if ($perms !== "3"){
+    	$db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+	}
 }
 else if ($p=="savePipelineName"){
     $name = $_REQUEST['name'];
