@@ -2111,14 +2111,14 @@ class dbfuncs {
             
 			$sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pipeline_group_id='$pipeline_group_id', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
 			if ($perms !== "3"){
-            	$db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
 			}
 		}else{
             $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer,pipeline_group_id) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer', '$pipeline_group_id' )";
 			if ($perms !== "3"){
             	$obj = json_decode($data,true);
             	$id = $obj["id"];
-            	$db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
         	}
 		}
   		return self::insTable($sql);
