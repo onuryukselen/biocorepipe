@@ -1,5 +1,5 @@
 21.05.2018 Version 0.1.36
-Pipeline groups integrated into left sidebar menu.
+Pipeline groups integrated into left sidebar menu. Related unit testing functions added.
 
 17.05.2018 Version 0.1.35
 New defined parameters in the process options (on the run page) updated on the nextflow text.

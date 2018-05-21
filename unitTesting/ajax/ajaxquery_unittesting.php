@@ -225,8 +225,8 @@ class ajaxQueryTest extends TestCase
 		include('ajaxquery.php');
         $_REQUEST['p'] = 'getPipelineGroup';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '2');
-		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
+		$this->assertEquals(json_decode($data)[1]->id, '2');
+		$this->assertEquals(json_decode($data)[1]->group_name, 'test_menu_pipe');
 		ob_end_clean();
 	}
 	/**
@@ -1731,7 +1731,7 @@ class ajaxQueryTest extends TestCase
 		ob_start();
 		$_REQUEST['p'] = 'getEditDelPipelineGroups';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->id, '2');
 		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
 		ob_end_clean();
 	}
