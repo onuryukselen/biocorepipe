@@ -619,8 +619,10 @@ else if ($p=="saveProjectPipeline"){
     $group_id = $_REQUEST['group_id'];
     $exec_each = $_REQUEST['exec_each'];
     $exec_all = $_REQUEST['exec_all'];
-    $exec_all_settings = $_REQUEST['exec_all_settings'];
-    $exec_each_settings = $_REQUEST['exec_each_settings'];
+//    $exec_all_settings = $_REQUEST['exec_all_settings'];
+    $exec_all_settings = addslashes(htmlspecialchars(urldecode($_REQUEST['exec_all_settings']), ENT_QUOTES));
+//    $exec_each_settings = $_REQUEST['exec_each_settings'];
+    $exec_each_settings = addslashes(htmlspecialchars(urldecode($_REQUEST['exec_each_settings']), ENT_QUOTES));
     $exec_next_settings = $_REQUEST['exec_next_settings'];
     $docker_check = $_REQUEST['docker_check'];
     $docker_img = $_REQUEST['docker_img'];
