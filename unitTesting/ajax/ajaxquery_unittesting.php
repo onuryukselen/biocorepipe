@@ -211,7 +211,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['group_name'] = 'test_menu_pipe_before';
 		$_REQUEST['id'] = '';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)->id,'1');
+		$this->assertEquals(json_decode($data)->id,'2');
 		ob_end_clean();
 	}
     /**
@@ -220,12 +220,12 @@ class ajaxQueryTest extends TestCase
     public function testUpdatePipelineGroup() {
 		ob_start();
 		$_REQUEST['p'] = 'savePipelineGroup';
-		$_REQUEST['id'] = '1';
+		$_REQUEST['id'] = '2';
 		$_REQUEST['group_name'] = 'test_menu_pipe';
 		include('ajaxquery.php');
         $_REQUEST['p'] = 'getPipelineGroup';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '1');
+		$this->assertEquals(json_decode($data)[0]->id, '2');
 		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
 		ob_end_clean();
 	}
@@ -237,7 +237,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['p'] = 'getPipelineGroup';
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)[0]->id, '1');
-		$this->assertEquals(json_decode($data)[0]->group_name, 'test_menu_pipe');
+		$this->assertEquals(json_decode($data)[0]->group_name, 'Public Pipelines');
 		ob_end_clean();
 	}
     /**
@@ -1767,9 +1767,9 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['project_pipeline_id'] = '1';
 		$_REQUEST['id'] = '';
 		include('ajaxquery.php');
-		$this->assertEquals(json_decode($data)[0]->id, '1');
-		$this->assertEquals(json_decode($data)[0]->input_id, '1');
-		$this->assertEquals(json_decode($data)[0]->name, 'testinput');
+		$this->assertEquals(json_decode($data)[0]->id, null);
+		$this->assertEquals(json_decode($data)[0]->input_id, null);
+		$this->assertEquals(json_decode($data)[0]->name, null);
 		ob_end_clean();
 	}
 	
