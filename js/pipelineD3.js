@@ -122,6 +122,9 @@
 	  $('#pin').click(function () {
 	  	autosaveDetails();
 	  });
+	  $('#pipeGroupAll').change(function () {
+	  	autosaveDetails();
+	  });
 	  $('#publishPipe').change(function () {
 	  	autosaveDetails();
 	  });
@@ -136,7 +139,8 @@
 	  function autosave() {
 	  	if ((pipelineOwn === '' || pipelineOwn === "1") && pipelinePerm !== "63") {
 	  		var pipName = $('#pipeline-title').val()
-	  		if (pipName !== '') {
+	  		var pipGroup = $('#pipeGroupAll').val()
+	  		if (pipName !== '' && pipGroup != '') {
 	  			$('#autosave').text('Saving...');
 	  			if (timeoutId) clearTimeout(timeoutId);
 	  			timeoutId = setTimeout(function () { save() }, 2000);
@@ -147,7 +151,8 @@
 	  function autosaveDetails() {
 	  	if (((pipelineOwn === '' || pipelineOwn === "1") && pipelinePerm !== "63") || usRole === "admin") {
 	  		var pipName = $('#pipeline-title').val()
-	  		if (pipName !== '') {
+	  		var pipGroup = $('#pipeGroupAll').val()
+	  		if (pipName !== '' && pipGroup != '') {
 	  			$('#autosave').text('Saving...');
 	  			if (timeoutId) clearTimeout(timeoutId);
 	  			timeoutId = setTimeout(function () { saveDetails() }, 1300);
@@ -155,19 +160,10 @@
 	  	}
 	  }
 
-	  //	  function newPipeline() {
-	  //	      createSVG()
-	  //	      $('#pipeline-title').val('');
-	  //	      $('#pipeline-title').attr('pipelineid', '');
-	  //	      resizeForText.call($inputText, $inputText.attr('placeholder'));
-
-	  //	  }
-
 	  function duplicatePipeline() {
 	  	dupliPipe = true
 	  	save()
 	  }
-
 
 	  function delPipeline() {
 	  	var pipeID = $('#pipeline-title').attr('pipelineid');
@@ -1389,10 +1385,11 @@
 	  		async: true,
 	  		success: function (s) {
 	  			$('#creatorInfoPip').css('display', "block");
-	  			$('#ownUserNamePip').text(s[0].username);
-	  			$('#datecreatedPip').text(s[0].date_created);
-	  			$('.lasteditedPip').text(s[0].date_modified);
-
+	  			if (s[0]) {
+	  				$('#ownUserNamePip').text(s[0].username);
+	  				$('#datecreatedPip').text(s[0].date_created);
+	  				$('.lasteditedPip').text(s[0].date_modified);
+	  			}
 	  		},
 	  		error: function (errorThrown) {
 	  			alert("Error: " + errorThrown);
@@ -1450,6 +1447,7 @@
 	  	var pin = $('#pin').is(":checked").toString();
 	  	var pin_order = $('#pin_order').val();
 	  	var publish = $('#publishPipe').val();
+	  	var pipGroup = $('#pipeGroupAll').val()
 	  	var data = {
 	  		p: "savePipelineDetails",
 	  		id: id,
@@ -1458,7 +1456,8 @@
 	  		perms: perms,
 	  		pin: pin,
 	  		pin_order: pin_order,
-	  		publish: publish
+	  		publish: publish,
+			pipeline_group_id: pipGroup
 	  	};
 	  	if (id !== '') {
 	  		var saveDetails = getValues(data);
@@ -1512,6 +1511,36 @@
 	  	}
 	  }
 
+	  //if checkvalue not exist then create red border 
+	  function warnUserRedBorder(borderId, checkValue) {
+	  	if (!checkValue || checkValue == "") {
+	  		if (!$(borderId).hasClass('borderClass')) {
+	  			$(borderId).addClass('borderClass');
+	  		}
+	  	} else {
+	  		if ($(borderId).hasClass('borderClass')) {
+	  			$(borderId).removeClass('borderClass');
+	  		}
+	  	}
+	  }
+	  //if checkvalue exist clean red border 
+	  function cleanRedBorder(borderId, checkValue) {
+	  	if (checkValue || checkValue != "") {
+	  		if ($(borderId).hasClass('borderClass')) {
+	  			$(borderId).removeClass('borderClass');
+	  		}
+	  	}
+	  }
+	  //clean border in case value is entered
+	  $('#pipeGroupAll').change(function () {
+	  	var checkVal = $('#pipeGroupAll').val();
+	  	cleanRedBorder('#pipeGroupAll', checkVal)
+	  });
+	  $('#pipeline-title').change(function () {
+	  	var checkVal = $('#pipeline-title').val();
+	  	cleanRedBorder('#pipeline-title', checkVal)
+	  });
+
 	  //Save pipeline
 	  function save() {
 	  	saveNodes = {}
@@ -1543,6 +1572,7 @@
 	  	Mainy = Maint.translate[1]
 	  	Mainz = Maint.scale[0]
 	  	sName = document.getElementById("pipeline-title").value;
+	  	warnUserRedBorder('#pipeline-title', sName)
 	  	var pipelineSummary = encodeURIComponent($('#pipelineSum').val());
 	  	var group_id = $('#groupSelPipe').val();
 	  	var perms = $('#permsPipe').val();
@@ -1553,12 +1583,20 @@
 	  	var script_mode_footer = $('#script_mode_pipe_footer').val();
 	  	var script_pipe_header = getScriptEditor('editorPipeHeader');
 	  	var script_pipe_footer = getScriptEditor('editorPipeFooter');
+	  	pipeline_group_id = $('#pipeGroupAll').val();
+	  	var pipeGroupWarn = false;
+	  	if (!pipeline_group_id || pipeline_group_id == "") {
+	  		var pipeGroupWarn = true;
+	  	}
+	  	warnUserRedBorder('#pipeGroupAll', pipeline_group_id)
+
 	  	id = 0
 	  	if (sName !== "" && dupliPipe === false) {
 	  		id = $("#pipeline-title").attr('pipelineid');
 	  	} else if (sName !== "" && dupliPipe === true) {
 	  		id = '';
 	  		sName = sName + '-copy'
+			perms = "3";
 	  	}
 
 	  	saveMainG["mainG"] = [Mainx, Mainy, Mainz]
@@ -1590,12 +1628,14 @@
 	  		"script_mode_header": script_mode_header
 	      }, {
 	  		"script_mode_footer": script_mode_footer
+	      }, {
+	  		"pipeline_group_id": pipeline_group_id
 	      }];
 	  	if (createPipeRev === "true") {
 	  		return [savedList, id, sName];
 	  	} else {
 	  		//A. Add new pipeline
-	  		if (sName !== "" && id === '') {
+	  		if (sName !== "" && id === '' && !pipeGroupWarn) {
 	  			var maxPipeline_gid = getValues({ p: "getMaxPipeline_gid" })[0].pipeline_gid;
 	  			var newPipeline_gid = parseInt(maxPipeline_gid) + 1;
 	  			savedList.push({ "pipeline_gid": newPipeline_gid });
@@ -1605,16 +1645,17 @@
 	  			var ret = getValues({ p: "saveAllPipeline", dat: sl });
 	  			$("#pipeline-title").attr('pipelineid', ret.id);
 	  			pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
-	  			$('#allPipelines').append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu') + '</a></li>');
+	  			$('#pipeGr-' + pipeline_group_id).append('<li><a href="index.php?np=1&id=' + ret.id + '" class="pipelineItems" draggable="false" id="pipeline-' + ret.id + '"><i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu') + '</a></li>');
+	  			//keep record for last group_id
+	  			$('#pipeGroupAll').attr("pipe_group_id", pipeline_group_id);
 	  			if (dupliPipe === true) {
-	  				//	              $("#pipeline-title").changeVal(sName);
 	  				setTimeout(function () { window.location.replace("index.php?np=1&id=" + ret.id); }, 0);
 	  				dupliPipe = false;
 	  			}
 	  			$('#autosave').text('All changes saved');
 	  		}
 	  		//B. pipeline already exist
-	  		else if (sName !== "" && id !== '') {
+	  		else if (sName !== "" && id !== '' && !pipeGroupWarn) {
 	  			var warnUserPipe = false;
 	  			var warnPipeText = '';
 	  			var numOfProject = '';
@@ -1629,13 +1670,19 @@
 	  				}
 	  				pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	  				refreshCreatorData(pipeline_id);
+	  				var oldPipeGroupId = $('#pipeGroupAll').attr("pipe_group_id");
+	  				if (oldPipeGroupId != pipeline_group_id) {
+	  					$('#pipeline-' + pipeline_id).parent().remove();
+	  					$('#pipeGr-' + pipeline_group_id).append('<li><a href="index.php?np=1&id=' + pipeline_id + '" class="pipelineItems" draggable="false" id="pipeline-' + pipeline_id + '"><i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu') + '</a></li>');
+	  				}
+	  				//keep track of latest pipeline_group_id
+	  				$('#pipeGroupAll').attr("pipe_group_id", pipeline_group_id);
+
 	  				var numRev = $("#pipeRev option").length;
-	  				if (numRev === 1) { //sidebar name change
+	  				if (numRev === 0 || numRev === 1) { //sidebar name change
 	  					document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu');
 	  				}
 	  				$('#autosave').text('All changes saved');
-	  				//
-
 	  			}
 	  			//B.2 allow save on new revision
 	  			else if (warnUserPipe === true) {
@@ -1661,8 +1708,16 @@
 	  					checkDelRenInputParam(id);
 	  					pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 	  					refreshCreatorData(pipeline_id);
+	  					var oldPipeGroupId = $('#pipeGroupAll').attr("pipe_group_id");
+	  					if (oldPipeGroupId != pipeline_group_id) {
+	  					$('#pipeline-' + pipeline_id).parent().remove();
+	  						$('#pipeGr-' + pipeline_group_id).append('<li><a href="index.php?np=1&id=' + pipeline_id + '" class="pipelineItems" draggable="false" id="pipeline-' + pipeline_id + '"><i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu') + '</a></li>');
+							
+	  					}
+	  					//keep track of latest pipeline_group_id
+	  					$('#pipeGroupAll').attr("pipe_group_id", pipeline_group_id);
 	  					var numRev = $("#pipeRev option").length;
-	  					if (numRev === 1) { //sidebar name change
+	  					if (numRev === 0 || numRev === 1) { //sidebar name change
 	  						document.getElementById('pipeline-' + pipeline_id).innerHTML = '<i class="fa fa-angle-double-right"></i>' + truncateName(sName, 'sidebarMenu');
 	  					}
 	  					saveOnExist = true;
@@ -1960,21 +2015,21 @@
 	  	}
 	  }
 
-	  function saveReady() {
-	  	document.getElementById("savePipeline").disabled = false;
-	  }
-	  document.getElementsByClassName("tablink")[0].click();
+	  //	  function saveReady() {
+	  //	  	document.getElementById("savePipeline").disabled = false;
+	  //	  }
+	  //	  document.getElementsByClassName("tablink")[0].click();
 
-	  function openPage(evt, name) {
-	  	var i, x, tablinks;
-	  	x = document.getElementsByClassName("nodisp");
-	  	for (i = 0; i < x.length; i++) {
-	  		x[i].style.display = "none";
-	  	}
-	  	tablinks = document.getElementsByClassName("tablink");
-	  	for (i = 0; i < x.length; i++) {
-	  		tablinks[i].classList.remove("w3-light-grey");
-	  	}
-	  	document.getElementById(name).style.display = "block";
-	  	evt.currentTarget.classList.add("w3-light-grey");
-	  }
+	  //	  function openPage(evt, name) {
+	  //	  	var i, x, tablinks;
+	  //	  	x = document.getElementsByClassName("nodisp");
+	  //	  	for (i = 0; i < x.length; i++) {
+	  //	  		x[i].style.display = "none";
+	  //	  	}
+	  //	  	tablinks = document.getElementsByClassName("tablink");
+	  //	  	for (i = 0; i < x.length; i++) {
+	  //	  		tablinks[i].classList.remove("w3-light-grey");
+	  //	  	}
+	  //	  	document.getElementById(name).style.display = "block";
+	  //	  	evt.currentTarget.classList.add("w3-light-grey");
+	  //	  }
