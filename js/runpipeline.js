@@ -1533,8 +1533,8 @@
 	  	$('#singu_opt').val(pipeData[0].singu_opt);
 	  	updateCheckBox('#publish_dir_check', pipeData[0].publish_dir_check);
 	  	updateCheckBox('#intermeDel', pipeData[0].interdel);
-	  	updateCheckBox('#exec_each', pipeData[0].exec_each);
-	  	updateCheckBox('#exec_all', pipeData[0].exec_all);
+	  	updateCheckBox('#exec_each', decodeHtml(pipeData[0].exec_each));
+	  	updateCheckBox('#exec_all', decodeHtml(pipeData[0].exec_all));
 	  	updateCheckBox('#docker_check', pipeData[0].docker_check);
 	  	updateCheckBox('#singu_check', pipeData[0].singu_check);
 	  	updateCheckBox('#singu_save', pipeData[0].singu_save);
@@ -1577,13 +1577,13 @@
 	  		} else {
 	  			$('#jobSettingsDiv').css('display', 'inline');
 	  			//insert exec_all_settings data into allProcessSettTable table
-	  			if (IsJsonString(pipeData[0].exec_all_settings)) {
-	  				var exec_all_settings = JSON.parse(pipeData[0].exec_all_settings);
+	  			if (IsJsonString(decodeHtml(pipeData[0].exec_all_settings))) {
+	  				var exec_all_settings = JSON.parse(decodeHtml(pipeData[0].exec_all_settings));
 	  				fillForm('#allProcessSettTable', 'input', exec_all_settings);
 	  			}
 	  			//insert exec_each_settings data into #processtable
-	  			if (IsJsonString(pipeData[0].exec_each_settings)) {
-	  				var exec_each_settings = JSON.parse(pipeData[0].exec_each_settings);
+	  			if (IsJsonString(decodeHtml(pipeData[0].exec_each_settings))) {
+	  				var exec_each_settings = JSON.parse(decodeHtml(pipeData[0].exec_each_settings));
 	  				$.each(exec_each_settings, function (el) {
 	  					var each_settings = exec_each_settings[el];
 	  					//wait for the table to load
@@ -2327,7 +2327,7 @@
 	  		formDataArr[formDataSerial[el].name] = formDataSerial[el].value;
 	  	});
 	  	if (stringify && stringify === 'stringify') {
-	  		return JSON.stringify(formDataArr);
+	  		return encodeURIComponent(JSON.stringify(formDataArr))
 	  	} else {
 	  		return formDataArr;
 	  	}
@@ -2405,7 +2405,8 @@
 	  		var selectedRowJson = formToJson(selectedRow, 'stringfy');
 	  		formDataArr['procGnum-' + proGnum] = selectedRowJson;
 	  	});
-	  	return JSON.stringify(formDataArr);
+	  	return encodeURIComponent(JSON.stringify(formDataArr))
+		  
 	  }
 
 	  function saveRunIcon() {
