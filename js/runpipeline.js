@@ -1802,7 +1802,7 @@
 	  	checkReadytoRun();
 	  }
 	  checkType = "";
-	  //checkType become "rerun" when rerun button is clicked
+	  //checkType become "rerun" or "resumerun" when rerun or resume button is clicked.
 	  function checkReadytoRun(type) {
 	  	if (checkType === "") {
 	  		checkType = type || "";
@@ -1844,13 +1844,13 @@
 	  	} else {
 	  		var s3status = false;
 	  	}
-
+		//if ready and not running/waiting
 	  	if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
-	  		if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun")) || runStatus === "") {
+	  		if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun")) || runStatus === "") {
 	  			if (amzStatus) {
 	  				if (amzStatus === "running") {
-	  					if (checkType === "rerun") {
-	  						runProjectPipe(runProPipeCall);
+	  					if (checkType === "rerun" || checkType === "resumerun") {
+	  						runProjectPipe(runProPipeCall, checkType);
 	  					} else if (checkType === "newrun") {
 	  						displayButton('runProPipe');
 	  					} else {
@@ -1860,8 +1860,8 @@
 	  					displayButton('statusProPipe');
 	  				}
 	  			} else {
-	  				if (checkType === "rerun") {
-	  					runProjectPipe(runProPipeCall);
+	  				if (checkType === "rerun" || checkType === "resumerun") {
+	  					runProjectPipe(runProPipeCall, checkType);
 	  				} else if (checkType === "newrun") {
 	  					displayButton('runProPipe');
 	  				} else {
@@ -1875,7 +1875,7 @@
 	  		}
 	  	}
 	  	//reset checkType
-	  	if (checkType === "rerun" || checkType === "newrun") {
+	  	if (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun") {
 	  		checkType = "newrun";
 	  	} else {
 	  		checkType = "";
@@ -2022,17 +2022,16 @@
 
 	  }
 
-	  //	  callbackfunction to first change the status of button to connecting
-	  function runProjectPipe(runProPipeCall) {
-	  	checkType = "";
+	  //callbackfunction to first change the status of button to connecting
+	  function runProjectPipe(runProPipeCall, checkType) {
 	  	displayButton('connectingProPipe');
 	  	$('#runLogArea').val("");
 	  	// Call the callback
-	  	setTimeout(function () { runProPipeCall(); }, 1000);
+	  	setTimeout(function () { runProPipeCall(checkType); }, 1000);
 	  }
 
 	  //click on run button (callback function)
-	  function runProPipeCall() {
+	  function runProPipeCall(checkType) {
 	  	saveRunIcon();
 	  	nxf_runmode = true;
 	  	var nextTextRaw = createNextflowFile("run");
@@ -2119,11 +2118,13 @@
 	  		profileType: proType,
 	  		profileId: proId,
 	  		amazon_cre_id: amazon_cre_id,
-	  		project_pipeline_id: project_pipeline_id
+	  		project_pipeline_id: project_pipeline_id,
+			runType: checkType
 	  	});
 	  	readNextflowLogTimer(proType, proId);
 	  	$('#runLogs').css('display', 'inline');
-
+		  //reset the checktype
+	  	window['checkType'] = "";
 	  }
 
 	  //#########read nextflow log file for status  ################################################
