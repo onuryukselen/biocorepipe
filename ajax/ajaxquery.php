@@ -55,15 +55,28 @@ else if ($p=="getRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $data = $db -> getRun($project_pipeline_id,$ownerID);
 }
-
+else if ($p=="terminateRun"){
+	$commandType = "terminateRun";
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+	$profileType = $_REQUEST['profileType'];
+	$profileId = $_REQUEST['profileId'];
+    if ($profileType == 'cluster') {
+		$pid = json_decode($db -> getRunPid($project_pipeline_id))[0]->{'pid'};
+		if (!empty($pid)){
+    		$data = $db -> sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID);
+		} else {
+			$data = json_encode("pidNotExist");	
+		}
+	}
+}
 else if ($p=="checkRunPid"){
+	$commandType = "checkRunPid";
 	$pid = $_REQUEST['pid'];
 	$profileType = $_REQUEST['profileType'];
 	$profileId = $_REQUEST['profileId'];
-    if ($profileType == 'local') {
-    $data = $db -> checkRunPid($pid,$profileType,"","");
-    } else if ($profileType == 'cluster') {
-    $data = $db -> checkRunPid($pid,$profileType,$profileId,$ownerID);
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    if ($profileType == 'cluster') {
+    	$data = $db -> sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID);
     }
 }
 else if ($p=="updateRunPid"){
@@ -86,7 +99,7 @@ else if ($p=="startProAmazon"){
 	$nodes = $_REQUEST['nodes'];
 	$autoscale_check = $_REQUEST['autoscale_check'];
 	$autoscale_maxIns = $_REQUEST['autoscale_maxIns'];
-    $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check,$autoscale_maxIns,$ownerID);
+    $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check, $autoscale_maxIns,$ownerID);
     $data = $db -> startProAmazon($id,$ownerID);
 }
 else if ($p=="stopProAmazon"){

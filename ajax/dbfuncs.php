@@ -276,6 +276,76 @@ class dbfuncs {
         $name = substr($name, 0, 9);
         return $name;
     }
+	
+	function getMemory($next_memory, $executor){
+		if ($executor == "sge"){
+			if (!empty($next_memory)){
+				$memoryText = "#$ -l h_vmem=".$next_memory."G\\n";
+			} else {
+				$memoryText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $memoryText;
+    }
+	function getJobName($jobname, $executor){
+        $jobname = $this->cleanName($jobname);
+		if ($executor == "sge"){
+			if (!empty($jobname)){
+				$jobNameText = "#$ -N $jobname\\n";
+			} else {
+				$jobNameText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $jobNameText;
+    }
+	function getTime($next_time, $executor){
+		if ($executor == "sge"){
+			if (!empty($next_time)){
+            	//$next_time is in minutes convert into hours and minutes.
+        		$next_time = $this->convertToHoursMins($next_time);
+				$timeText = "#$ -l h_rt=$next_time:00\\n";
+			} else {
+				$timeText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $timeText;
+    }
+	function getQueue($next_queue, $executor){
+		if ($executor == "sge"){
+			if (!empty($next_queue)){
+				$queueText = "#$ -q $next_queue\\n";
+			} else {
+				$queueText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $queueText;
+    }
+	function getNextCluOpt($next_clu_opt, $executor){
+		if ($executor == "sge"){
+			if (!empty($next_clu_opt)){
+				$next_clu_optText = "#$ $next_clu_opt\\n";
+			} else {
+				$next_clu_optText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $next_clu_optText;
+    }
+	function getCPU($next_cpu, $executor){
+		if ($executor == "sge"){
+			if (!empty($next_cpu)){
+				$cpuText = "#$ -l slots=$next_cpu\\n";
+			} else {
+				$cpuText = "";
+			}
+		} else if ($executor == "lsf"){
+		}
+        return $cpuText;
+    }
 
     //get all nextflow executor text
     function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job, $reportOptions, $next_clu_opt, $runType) {
@@ -301,13 +371,17 @@ class dbfuncs {
             $exec_string = "bsub $next_clu_opt -q $next_queue -J $jobname -n $next_cpu -W $next_time -R rusage[mem=$next_memory]";
             $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt\\\"";
         } else if ($executor == "sge"){
-            //$next_time is in minutes convert into hours and minutes.
-            $next_time = $this->convertToHoursMins($next_time);
-            $next_memory = $next_memory."G";
-            //-N $jobname
-            $jobname = $this->cleanName($jobname);
-            $exec_string = "qsub $next_clu_opt -N $jobname -q $next_queue -pe smp $next_cpu -l h_rt= $next_time:00 -l h_vmem=$next_memory";
-            $exec_next_all = "cd $dolphin_path_real && $exec_string \\\"$next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt\\\"";
+            $jobnameText = $this->getJobName($jobname, $executor);
+            $memoryText = $this->getMemory($next_memory, $executor);
+            $timeText = $this->getTime($next_time, $executor);
+            $queueText = $this->getQueue($next_queue, $executor);
+            $clu_optText = $this->getNextCluOpt($next_clu_opt, $executor);
+            $cpuText = $this->getCPU($next_cpu, $executor);
+			//-j y ->Specifies whether or not the standard error stream of the job is merged into the standard output stream.
+			$sgeRunFile= "printf '#!/bin/bash \\n#$ -j y\\n#$ -V\\n#$ -notify\\n#$ -wd $dolphin_path_real\\n#$ -o $dolphin_path_real/.dolphinnext.log\\n".$jobnameText.$memoryText.$timeText.$queueText.$clu_optText.$cpuText."$next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt"."'> $dolphin_path_real/.dolphinnext.run";
+            
+			$exec_string = "qsub $dolphin_path_real/.dolphinnext.run";
+            $exec_next_all = "cd $dolphin_path_real && $sgeRunFile && $exec_string";
         } else if ($executor == "slurm"){
         } else if ($executor == "ignite"){
         }
@@ -1454,27 +1528,48 @@ class dbfuncs {
         $sql = "SELECT pid FROM profile_amazon WHERE id = '$id'";
 		return self::queryTable($sql);
     }
-    public function checkRunPid($pid,$profileType,$profileId,$ownerID) {
-        if ($profileType == 'local'){
-            if (file_exists( "/proc/$pid" )){
-            return json_encode("running");
-            } else {
-            return json_encode("completed");
-            }
-        } else if ($profileType == 'cluster'){
+    public function sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID) {
+        if ($profileType == 'cluster'){
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
             $ssh_id = $cluDataArr[0]["ssh_id"];
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
-            $check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'bjobs' 2>&1 &");
-            if (preg_match("/$pid/",$check_run)){
-            return json_encode('running');
-            } else {
-            return json_encode('completed');
-            }
-        }
+			$executor = $cluDataArr[0]['executor'];
+			
+			//get preCmd to load prerequisites (eg: source /etc/bashrc) (to run qstat qdel)
+			$proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+        	$proPipeCmd = $proPipeAll[0]->{'cmd'};
+			$profileCmd = $cluDataArr[0]["cmd"];
+			$imageCmd = "";
+            $preCmd = $this->getPreCmd($profileCmd, $proPipeCmd, $imageCmd);
+			
+			if ($executor == "lsf" && $commandType == "checkRunPid"){
+            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'bjobs' 2>&1 &");
+				if (preg_match("/$pid/",$check_run)){
+            		return json_encode('running');
+            	} else {
+            		return json_encode('done');
+            	}
+			} else if ($executor == "sge" && $commandType == "checkRunPid"){
+            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qstat -j $pid\" 2>&1 &");
+				if (preg_match("/job_number:/",$check_run)){
+            		return json_encode('running');
+            	} else {
+					$this->updateRunPid($project_pipeline_id, "0", $ownerID);
+            		return json_encode('done');
+				} 
+			} else if ($executor == "sge" && $commandType == "terminateRun"){
+            	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qdel $pid\" 2>&1 &");
+				return json_encode('terminateCommandExecuted');
+			}
+    	}
+	}
+	public function terminateRun($pid, $project_pipeline_id, $ownerID) {
+        $sql = "SELECT attempt FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
+        return self::queryTable($sql);
     }
+	
     public function renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID) {
         if ($profileType == 'cluster'){
             //getRun pid
