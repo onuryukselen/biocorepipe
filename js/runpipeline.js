@@ -1545,9 +1545,9 @@
 	  	checkShub()
 	  	//load process options 
 	  	if (pipeData[0].process_opt) {
-			//wait for the process options table to load
+	  		//wait for the process options table to load
 	  		setTimeout(function () { loadProcessOpt(decodeHtml(pipeData[0].process_opt)); }, 1000);
-	  		
+
 	  	}
 	  	//load amazon keys for possible s3 connection
 	  	loadAmzKeys();
@@ -1844,7 +1844,7 @@
 	  	} else {
 	  		var s3status = false;
 	  	}
-		//if ready and not running/waiting
+	  	//if ready and not running/waiting
 	  	if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
 	  		if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun")) || runStatus === "") {
 	  			if (amzStatus) {
@@ -2012,8 +2012,21 @@
 	  	}
 	  	document.getElementById(idButton).style.display = "inline";
 	  }
-	  //xxx
+	  //xxxxx
 	  function terminateProjectPipe() {
+	  	var proType = proTypeWindow;
+	  	var proId = proIdWindow;
+	  	if (runPid && proType == "cluster") {
+			var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
+	  		console.log(terminateRun)
+	  		var pidStatus = checkRunPid(runPid, proType, proId);
+	  		if (pidStatus) { // if true, then it is exist in queue
+	  			console.log("pid exist1")
+	  		} else { //pid not exist
+	  			console.log("give error1")
+	  		}
+	  	}
+
 	  	var setStatus = getValues({ p: "updateRunStatus", run_status: "Terminated", project_pipeline_id: project_pipeline_id });
 	  	if (setStatus) {
 	  		clearInterval(interval_readNextlog);
@@ -2022,6 +2035,46 @@
 
 	  }
 
+	  function parseRunPid(serverLog) {
+	  	runPid = "";
+	  	//for lsf: Job <203477> is submitted to queue <long>.\n"
+	  	//for sge: Your job 2259 ("run_bowtie2") has been submitted
+	  	if (serverLog.match(/Job <(.*)> is submitted/)) {
+	  		runPid = serverLog.match(/Job <(.*)> is submitted/)[1];
+	  		runPid = $.trim(runPid);
+	  		if (runPid && runPid != "") {
+	  			var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	  		} else {
+	  			runPid = null;
+	  		}
+	  	} else if (serverLog.match(/job (.*) \(.*\) .* submitted/)) {
+	  		runPid = serverLog.match(/job (.*) \(.*\) .* submitted/)[1];
+	  		runPid = $.trim(runPid);
+	  		if (runPid && runPid != "") {
+	  			var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
+	  		} else {
+	  			runPid = null;
+	  		}
+	  	} else {
+	  		runPid = null;
+	  	}
+	  	return runPid
+	  }
+
+	  function checkRunPid(runPid, proType, proId) {
+	  	var checkPid = null;
+	  	if (runPid) {
+	  		checkPid = getValues({ p: "checkRunPid", pid: runPid, profileType: proType, profileId: proId, project_pipeline_id: project_pipeline_id });
+	  		if (checkPid == "running") {
+	  			checkPid = true;
+	  		} else if (checkPid == "done") {
+	  			checkPid = false;
+	  		} else {
+	  			checkPid = null;
+	  		}
+	  	}
+	  	return checkPid
+	  }
 	  //callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall, checkType) {
 	  	displayButton('connectingProPipe');
@@ -2042,6 +2095,8 @@
 	  	var patt = /(.*)-(.*)/;
 	  	var proType = profileTypeId.replace(patt, '$1');
 	  	var proId = profileTypeId.replace(patt, '$2');
+	  	proTypeWindow = proType;
+	  	proIdWindow = proId;
 	  	configTextRaw = '';
 
 	  	//check if s3 path is defined in output or file paths
@@ -2119,11 +2174,11 @@
 	  		profileId: proId,
 	  		amazon_cre_id: amazon_cre_id,
 	  		project_pipeline_id: project_pipeline_id,
-			runType: checkType
+	  		runType: checkType
 	  	});
 	  	readNextflowLogTimer(proType, proId);
 	  	$('#runLogs').css('display', 'inline');
-		  //reset the checktype
+	  	//reset the checktype
 	  	window['checkType'] = "";
 	  }
 
@@ -2136,23 +2191,19 @@
 
 	  // type= reload for reload the page
 	  function readNextLog(proType, proId, type) {
+	  	var pidStatus = "";
 	  	serverLog = '';
-	  	if (proType === 'cluster' || proType === 'amazon') {
-	  		serverLog = getServerLog(project_pipeline_id);
-	  		if (serverLog && serverLog !== null && serverLog !== false) {
-	  			$('#runLogArea').val(serverLog);
-	  			//for lsf: Job <203477> is submitted to queue <long>.\n"
-	  			if (serverLog.match(/Job <(.*)> is submitted/)) {
-	  				var runPid = serverLog.match(/Job <(.*)> is submitted/)[1];
-	  				var updateRunPidComp = getValues({ p: "updateRunPid", pid: runPid, project_pipeline_id: project_pipeline_id });
-	  			}
-	  		} else {
-	  			serverLog = "";
-	  		}
+	  	//get server log
+	  	serverLog = getServerLog(project_pipeline_id);
+	  	if (serverLog && serverLog !== null && serverLog !== false) {
+	  		$('#runLogArea').val(serverLog);
+	  		var runPid = parseRunPid(serverLog);
+	  	} else {
+	  		serverLog = "";
 	  	}
-
+	  	//get nextflow log
 	  	nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
-	  	//Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init,Terminated
+	  	// check runStatus to get status //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init,Terminated
 	  	if (runStatus === "Terminated") {
 	  		if (nextflowLog !== null) {
 	  			$('#runLogArea').val(serverLog + nextflowLog);
@@ -2161,6 +2212,7 @@
 	  			clearInterval(interval_readNextlog);
 	  		}
 	  		displayButton('terminatedProPipe');
+	  		// parse nextflow file to get status
 	  	} else if (nextflowLog !== null) {
 	  		$('#runLogArea').val(serverLog + nextflowLog);
 	  		if (nextflowLog.match(/N E X T F L O W/)) {
@@ -2209,30 +2261,28 @@
 	  				}
 	  				displayButton('runningProPipe');
 	  			}
-	  		} else if (nextflowLog.match(/downloading/i)) {
-	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
-	  			displayButton('waitingProPipe');
-	  			if (type === "reload") {
-	  				readNextflowLogTimer(proType, proId);
-	  			}
-
-	  		} else if (nextflowLog.match(/No such file or directory/i)) {
-	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
-	  			displayButton('waitingProPipe');
-	  			if (type === "reload") {
-	  				readNextflowLogTimer(proType, proId);
-	  			}
-
-	  		} else {
+	  		}
+	  		//Nextflow log file exist but /N E X T F L O W/ not printed yet
+	  		else {
 	  			console.log("Nextflow not started");
+//	  			pidStatus = checkRunPid(runPid, proType, proId);
+//	  			if (pidStatus) { // if true, then it is exist in queue
+//	  				console.log("pid exist1")
+//	  			} else { //pid not exist
+//	  				console.log("give error1")
+//	  			}
+	  			// below is need to be updated according tho pidStatus
+	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
+	  			displayButton('waitingProPipe');
 	  			if (type === "reload") {
 	  				readNextflowLogTimer(proType, proId);
 	  			}
-	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
-	  			displayButton('waitingProPipe');
+
 
 	  		}
 	  	} else {
+	  		console.log("Nextflow log is not exist yet.")
+
 	  		if (serverLog.match(/error/gi)) {
 	  			console.log("Error");
 	  			if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
@@ -2250,6 +2300,15 @@
 	  			}
 	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
 	  			displayButton('waitingProPipe');
+				if (runPid && proType === "cluster"){
+	  			pidStatus = checkRunPid(runPid, proType, proId);
+	  			if (pidStatus) { // if true, then it is exist in queue
+	  				console.log("pid exist2")
+	  			} else { //pid not exist
+	  				console.log("give error2")
+	  			}
+				}
+
 	  		}
 
 	  	}
@@ -2378,12 +2437,12 @@
 	  				var labelDiv = $(formGroupArray[el]).find("label")[0];
 	  				var inputDiv = $(formGroupArray[el]).find("input,textarea,select")[0];
 	  				var inputDivType = $(inputDiv).attr("type");
-					// fill each form if label exist in eachProcessOpt object
+	  				// fill each form if label exist in eachProcessOpt object
 	  				if (labelDiv && inputDiv) {
 	  					var label = $.trim($(labelDiv).text());
 	  					if (eachProcessOpt[label]) {
 	  						if (inputDivType === "checkbox") {
-								updateCheckBox(inputDiv, eachProcessOpt[label]);
+	  							updateCheckBox(inputDiv, eachProcessOpt[label]);
 	  						} else {
 	  							$(inputDiv).val(eachProcessOpt[label]);
 	  						}
@@ -2407,7 +2466,7 @@
 	  		formDataArr['procGnum-' + proGnum] = selectedRowJson;
 	  	});
 	  	return encodeURIComponent(JSON.stringify(formDataArr))
-		  
+
 	  }
 
 	  function saveRunIcon() {
@@ -2573,6 +2632,7 @@
 	  	project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
 	  	pipeData = getValues({ p: "getProjectPipelines", id: project_pipeline_id });
 	  	projectpipelineOwn = pipeData[0].own;
+	  	runPid = "";
 	  	// if user not own it, cannot change or delete run
 	  	if (projectpipelineOwn === "0") {
 	  		$('#deleteRun').remove();
@@ -2598,6 +2658,8 @@
 	  		var patt = /(.*)-(.*)/;
 	  		var profileType = profileTypeId.replace(patt, '$1');
 	  		var profileId = profileTypeId.replace(patt, '$2');
+	  		proTypeWindow = profileType;
+	  		proIdWindow = profileId;
 	  		setTimeout(function () { readNextLog(profileType, profileId, "reload"); }, 100);
 	  	}
 	  	//not allow to check both docker and singularity

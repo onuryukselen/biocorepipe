@@ -1,3 +1,8 @@
+23.05.2018 Version 0.1.40
+Submitting nextflow job into SGE is updated.
+Terminating nextflow job by PID is added to SGE platform.
+Related documentation updated in run and profile page.
+
 22.05.2018 Version 0.1.39
 Resume run feature is added.
 

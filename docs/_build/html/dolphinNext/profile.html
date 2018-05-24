@@ -257,6 +257,10 @@
 <p class="first admonition-title">Note</p>
 <p class="last">For instance you may initiate nextflow in <code class="docutils literal notranslate"><span class="pre">local</span></code> and allow nextflow to run its jobs <code class="docutils literal notranslate"><span class="pre">local</span></code>, <code class="docutils literal notranslate"><span class="pre">sge</span></code>, <code class="docutils literal notranslate"><span class="pre">lsf</span></code>, <code class="docutils literal notranslate"><span class="pre">slurum</span></code> or <code class="docutils literal notranslate"><span class="pre">ignite</span></code>. Alternatively, selection both options to <code class="docutils literal notranslate"><span class="pre">lsf</span></code> or <code class="docutils literal notranslate"><span class="pre">sge</span></code> would allow both executions to be maintained by <code class="docutils literal notranslate"><span class="pre">lsf</span></code> or <code class="docutils literal notranslate"><span class="pre">sge</span></code> executor.</p>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In case of non-standart resources or settings is required for executor, then you can specify these parameters by using <strong>Other options</strong> box. For instance, to submit SGE job with 3 CPU by using paralel environments, you may enter <code class="docutils literal notranslate"><span class="pre">-pe</span> <span class="pre">orte</span> <span class="pre">3</span></code> (to use MPI for distributed-memory machines) or <code class="docutils literal notranslate"><span class="pre">-pe</span> <span class="pre">smp</span> <span class="pre">3</span></code> (to use OpenMP for shared-memory machines) in the <strong>Other options</strong> box and <strong>just leave the CPU box empty!</strong></p>
+</div>
 </div>
 <div class="section" id="b-defining-amazon-profile">
 <h2>B. Defining Amazon Profile:<a class="headerlink" href="#b-defining-amazon-profile" title="Permalink to this headline">¶</a></h2>
@@ -276,7 +280,7 @@
 </dl>
 </li>
 <li><strong>Run Command (optional):</strong> You may run the command or commands (by seperating each command with <code class="docutils literal notranslate"><span class="pre">&amp;&amp;</span></code> sign) before the nextflow job starts. eg. <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/etc/bashrc</span> <span class="pre">&amp;&amp;</span> <span class="pre">module</span> <span class="pre">load</span> <span class="pre">java/1.8.0_31</span> <span class="pre">&amp;&amp;</span> <span class="pre">module</span> <span class="pre">load</span> <span class="pre">bowtie2/2.3.2</span></code></li>
-<li><strong>Nextflow Path (optional):</strong> If nextflow path is not added to <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> environment, you can define the path in this block. eg.``/project/umw_biocore/bin``</li>
+<li><strong>Nextflow Path (optional):</strong> If nextflow path is not added to <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> environment, you can define the path in this block. eg. <code class="docutils literal notranslate"><span class="pre">/project/umw_biocore/bin</span></code></li>
 <li><strong>Executor of Nextflow/Executor of Nextflow Jobs:</strong> Amazon instances are automatically configured to use the Ignite executors. Therefore, while defining amazon profile, you should select <code class="docutils literal notranslate"><span class="pre">local</span></code> for <strong>Executor of Nextflow</strong> and <code class="docutils literal notranslate"><span class="pre">ignite</span></code> for <strong>Executor of Nextflow Jobs.</strong></li>
 </ul>
 </div>

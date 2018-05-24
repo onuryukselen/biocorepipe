@@ -87,6 +87,8 @@ A. Defining Host Profile:
 
 .. note::  For instance you may initiate nextflow in ``local`` and allow nextflow to run its jobs ``local``, ``sge``, ``lsf``, ``slurum`` or ``ignite``. Alternatively, selection both options to ``lsf`` or ``sge`` would allow both executions to be maintained by ``lsf`` or ``sge`` executor.
 
+.. note::  In case of non-standart resources or settings is required for executor, then you can specify these parameters by using **Other options** box. For instance, to submit SGE job with 3 CPU by using paralel environments, you may enter ``-pe orte 3`` (to use MPI for distributed-memory machines) or ``-pe smp 3`` (to use OpenMP for shared-memory machines) in the **Other options** box and **just leave the CPU box empty!**
+
 B. Defining Amazon Profile:
 ===========================
 * **SSH Keys:** are saved in SSH keys tab and will be used while connecting to host.
@@ -98,6 +100,5 @@ B. Defining Amazon Profile:
     2) The output directory needs to be under this mount location.
     3) The storage system needs to be created in selected region and necessary rights need to be given in the console.
 * **Run Command (optional):** You may run the command or commands (by seperating each command with ``&&`` sign) before the nextflow job starts. eg. ``source /etc/bashrc && module load java/1.8.0_31 && module load bowtie2/2.3.2``
-* **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg.``/project/umw_biocore/bin``
+* **Nextflow Path (optional):** If nextflow path is not added to ``$PATH`` environment, you can define the path in this block. eg. ``/project/umw_biocore/bin``
 * **Executor of Nextflow/Executor of Nextflow Jobs:** Amazon instances are automatically configured to use the Ignite executors. Therefore, while defining amazon profile, you should select ``local`` for **Executor of Nextflow** and ``ignite`` for **Executor of Nextflow Jobs.** 
-
