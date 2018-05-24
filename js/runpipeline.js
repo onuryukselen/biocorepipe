@@ -2075,7 +2075,6 @@
 	  	}
 	  	return checkPid
 	  }
-
 	  //callbackfunction to first change the status of button to connecting
 	  function runProjectPipe(runProPipeCall, checkType) {
 	  	displayButton('connectingProPipe');
