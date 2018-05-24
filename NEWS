@@ -1,3 +1,7 @@
+23.05.2018 Version 0.1.41
+Intermediate files will be kept in case nextflow error occurs.   
+tooltip and description for process options
+
 23.05.2018 Version 0.1.40
 Submitting nextflow job into SGE is updated.
 Terminating nextflow job by PID is added to SGE platform.

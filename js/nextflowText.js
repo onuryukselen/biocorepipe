@@ -201,11 +201,12 @@ function createNextflowFile(nxf_runmode) {
 	if (nxf_runmode === "run") {
 		var interdel = $('#intermeDel').is(":checked");
 		if (interdel && interdel === true) {
-			endText = endText + "workflow.onComplete { file('work').deleteDir() } \n";
+			endText = endText + "workflow.onComplete { if (workflow.success){ file('work').deleteDir() }} \n";
 		}
 	}
 	return nextText + endText
 }
+
 
 function getChannelNameAll(channelName, Iid) {
 	var channelNameAll = "";
