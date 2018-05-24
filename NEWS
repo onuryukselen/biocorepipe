@@ -1,6 +1,9 @@
+24.05.2018 Version 0.1.42
+Use dropdown feature to enter options for input parameters is added.
+
 23.05.2018 Version 0.1.41
 Intermediate files will be kept in case nextflow error occurs.   
-tooltip and description for process options
+tooltip and description for process options is added.
 
 23.05.2018 Version 0.1.40
 Submitting nextflow job into SGE is updated.

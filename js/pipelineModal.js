@@ -1276,7 +1276,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
 				if (s[0].pipeline_group_id && s[0].pipeline_group_id != '') {
 					if ($("#pipeGroupAll option[value='" + s[0].pipeline_group_id + "']").length > 0) {
 						$('#pipeGroupAll').val(s[0].pipeline_group_id);
-						$('#pipeGroupAll').attr("pipe_group_id",s[0].pipeline_group_id);
+						$('#pipeGroupAll').attr("pipe_group_id", s[0].pipeline_group_id);
 					}
 				}
 
@@ -1367,10 +1367,10 @@ $(document).ready(function () {
 		$("#pipeMenuGroupTop").appendTo($("#pipeMenuGroupBottom"));
 		$('#pipeMenuGroupTop').css('display', 'inline');
 		loadPipelineDetails(pipeline_id, usRole);
-		
+
 	} else { // fresh page
 		$('#pipeMenuGroupTop').css('display', 'inline')
-		
+
 		//load user groups
 		var allUserGrp = getValues({ p: "getUserGroups" });
 		for (var i = 0; i < allUserGrp.length; i++) {
@@ -2417,7 +2417,6 @@ $(document).ready(function () {
 							}
 
 						} else { //Add Parameter
-							//$('#mParamAllIn')[0].selectize.addOption({value: s.id, text: selParName });
 							var allBox = $('#addProcessModal').find('select').filter(function () { return this.id.match(/mInputs(.*)|mOutputs(.*)/); });
 							for (var i = 0; i < allBox.length; i++) {
 								var parBoxId = allBox[i].getAttribute('id');
@@ -2429,7 +2428,6 @@ $(document).ready(function () {
 								});
 							}
 						}
-						//                $('#mParamListIn')[0].selectize.destroy();
 						$('#parametermodal').modal('hide');
 						refreshDataset()
 					},
@@ -2440,50 +2438,67 @@ $(document).ready(function () {
 			}
 		}
 	});
-	// process group modal 
-	// xxx
-	$(function () {
-		$(document).on('change', '#checkDefVal', function (event) {
-			var checkDefValue = $('#checkDefVal').is(":checked").toString();
-			if (checkDefValue === "true") {
-				$('#defVal').removeAttr('disabled')
-			} else if (checkDefValue === "false") {
-				$('#defVal').attr('disabled', 'disabled')
+	// "change name" modal for input parameters: remove attr:disabled by click
+	toggleCheckBox('#checkDropDown', '#dropDownOpt');
+	toggleCheckBox('#checkDefVal', '#defVal');
+
+	function toggleCheckBox(checkboxId, inputId) {
+		$(function () {
+			$(document).on('change', checkboxId, function (event) {
+				var checkdropDownOpt = $(checkboxId).is(":checked").toString();
+				if (checkdropDownOpt === "true") {
+					$(inputId).removeAttr('disabled')
+				} else if (checkdropDownOpt === "false") {
+					$(inputId).attr('disabled', 'disabled')
+				}
+			})
+		});
+	}
+	// "change name" modal for input parameters
+	function fillRenameModal(renameTextDefVal, checkID, inputID) {
+		if (renameTextDefVal) {
+			if (renameTextDefVal !== "") {
+				$(inputID).removeAttr('disabled')
+				$(inputID).val(renameTextDefVal)
+				$(checkID).attr('checked', true);
+			} else {
+				$(checkID).removeAttr('checked');
+				$(inputID).attr('disabled', 'disabled')
 			}
-		})
-	});
+		} else {
+			$(checkID).removeAttr('checked');
+			$(inputID).attr('disabled', 'disabled')
+		}
+	}
+	// "change name" modal for input parameters
+	function saveValue(checkId, valueId, attr) {
+		var value = $(valueId).val();
+		var checkValue = $(checkId).is(":checked").toString();
+		if (checkValue === "true" && value !== "") {
+			$("#" + renameTextID).attr(attr, value)
+		} else {
+			$("#" + renameTextID).removeAttr(attr);
+		}
+	}
+
 	$('#renameModal').on('show.bs.modal', function (event) {
 		$(this).find('form').trigger('reset');
 		if (renameTextClassType === "output" || renameTextClassType === null) {
 			$('#defValDiv').css("display", "none")
+			$('#dropdownDiv').css("display", "none")
 		} else if (renameTextClassType === "input") {
 			$('#defValDiv').css("display", "block")
+			$('#dropdownDiv').css("display", "block")
 		}
-		if (renameTextDefVal) {
-			if (renameTextDefVal !== "") {
-				$('#defVal').removeAttr('disabled')
-				$('#defVal').val(renameTextDefVal)
-				$('#checkDefVal').attr('checked', true);
-			} else {
-				$('#checkDefVal').removeAttr('checked');
-				$('#defVal').attr('disabled', 'disabled')
-			}
-		} else {
-			$('#checkDefVal').removeAttr('checked');
-			$('#defVal').attr('disabled', 'disabled')
+		fillRenameModal(renameTextDefVal, "#checkDefVal", '#defVal');
+		fillRenameModal(renameTextDropDown, '#checkDropDown', '#dropDownOpt');
 
-		}
 		$('#renameModaltitle').html('Change Name');
 		$('#mRenName').val(renameText);
 	});
 	$('#renameModal').on('click', '#renameProPara', function (event) {
-		var defValue = $('#defVal').val();
-		var checkDefValue = $('#checkDefVal').is(":checked").toString();
-		if (checkDefValue === "true" && defValue !== "") {
-			$("#" + renameTextID).attr('defVal', defValue)
-		} else {
-			$("#" + renameTextID).removeAttr('defVal');
-		}
+		saveValue('#checkDefVal', '#defVal', "defVal");
+		saveValue('#checkDropDown', '#dropDownOpt', "dropDown");
 		changeName();
 		autosave();
 		$('#renameModal').modal("hide");
@@ -2901,7 +2916,7 @@ $(document).ready(function () {
 						$('#pipeGroupAll').append($('<option>', { value: selPipeGroupID, text: selPipeGroupName }));
 						$("#pipeGroupAll").val(selPipeGroupID);
 						//sidebar menu update
-						$('#pipeGr-'+selPipeGroupID).parent().find('span').html(selPipeGroupName);
+						$('#pipeGr-' + selPipeGroupID).parent().find('span').html(selPipeGroupName);
 					} else { //Add group
 						var pipeGroupID = s.id;
 						$('#pipeGroupAll').append($('<option>', { value: pipeGroupID, text: selPipeGroupName }));

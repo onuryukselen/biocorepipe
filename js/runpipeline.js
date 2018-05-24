@@ -244,7 +244,7 @@
 	  	mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	  }
 
-	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal) {
+	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal, dropDown) {
 	  	//gnum uniqe, id same id (Written in class) in same type process
 	  	g = d3.select("#mainG").append("g")
 	  		.attr("id", "g-" + gNum)
@@ -322,6 +322,9 @@
 	  	if (defVal) {
 	  		$("#text-" + gNum).attr('defVal', defVal)
 	  	}
+	  	if (dropDown) {
+	  		$("#text-" + gNum).attr('dropDown', dropDown)
+	  	}
 	  }
 
 	  //inputText = "example" //* @textbox @description:"One inputbox is invented"
@@ -366,7 +369,7 @@
 	  					desc = descCheck[2];
 	  				}
 	  			}
-				// find tooltip
+	  			// find tooltip
 	  			var toolCheck = regSplit[i].match(/tooltip:"(.*)"|tooltip:'(.*)'/i);
 	  			if (toolCheck) {
 	  				if (toolCheck[1]) {
@@ -402,22 +405,21 @@
 	  }
 
 	  function addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt, tool) {
-		  console.log(desc)
-		if (tool && tool != ""){
-			var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
-		} else {
-			var toolText = "";
-		}
-		if (!desc){
-			var descText = "";
-		} else {
-			var descText = '<p style="font-size:13px">' + desc + '</p>';
-		}
+	  	if (tool && tool != "") {
+	  		var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+	  	} else {
+	  		var toolText = "";
+	  	}
+	  	if (!desc) {
+	  		var descText = "";
+	  	} else {
+	  		var descText = '<p style="font-size:13px">' + desc + '</p>';
+	  	}
 	  	var processParamDiv = '<div class="form-group">';
-	  	var label = '<label>' + varName + toolText +' </label>';
+	  	var label = '<label>' + varName + toolText + ' </label>';
 	  	if (type === "input") {
 	  		var inputDiv = '<input type="text" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
-	  		processParamDiv += label + inputDiv + descText +'</div>';
+	  		processParamDiv += label + inputDiv + descText + '</div>';
 	  	} else if (type === "textbox") {
 	  		var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">' + defaultVal + '</textarea>';
 	  		processParamDiv += label + inputDiv + descText + '</div>';
@@ -445,7 +447,7 @@
 	  				}
 	  			}
 	  		}
-	  		processParamDiv += label + inputDiv + optionDiv + '</select>'+ descText +'</div>';
+	  		processParamDiv += label + inputDiv + optionDiv + '</select>' + descText + '</div>';
 	  	}
 
 	  	$('#addProcessRow-' + gNum).append(processParamDiv)
@@ -983,6 +985,22 @@
 	  	return secClassName
 	  }
 
+	  function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton) {
+	  	var buttons = ""
+	  	if (!dropDownQual) {
+	  		if (paraQualifier === 'file') {
+	  			var buttons = getButtonsModal('inputFile', 'Select File') + defValButton;
+	  		} else if (paraQualifier === 'val') {
+	  			var buttons = getButtonsModal('inputVal', 'Enter Value') + defValButton;
+	  		} else {
+	  			var buttons = getButtonsModal('inputFile', 'Select Set') + defValButton;
+	  		}
+	  	} else {
+	  		var buttons = dropDownMenu + defValButton;
+	  	}
+	  	return buttons
+	  }
+
 	  function createEdges(first, second) {
 	  	d3.selectAll("#" + first).attr("connect", 'mate')
 	  	d3.selectAll("#" + second).attr("connect", 'mate')
@@ -1029,17 +1047,30 @@
 	  		var paraFileType = "";
 	  		var paraQualifier = "";
 	  		var paraIdentifier = "";
+	  		var dropDownQual = false;
 	  		var paramDefVal = $('#text-' + firGnum).attr("defVal");
+	  		var paramDropDown = $('#text-' + firGnum).attr("dropDown");
+
 	  		if (paraData && paraData != '') {
 	  			var paraFileType = paraData[0].file_type;
 	  			var paraQualifier = paraData[0].qualifier;
 	  			var paraIdentifier = paraData[0].name;
 	  		}
-	  		// Use default button is added if defVal attr is defined.
+	  		// "Use default" button is added if defVal attr is defined.
 	  		if (paramDefVal) {
 	  			var defValButton = getButtonsDef('defVal', 'Use Default');
 	  		} else {
 	  			var defValButton = "";
+	  		}
+	  		// dropdown is added if dropdown attr is defined.
+	  		if (paramDropDown && paramDropDown != "") {
+	  			var paramDropDownArray = paramDropDown.split(",");
+	  			if (paramDropDownArray) {
+	  				var dropDownMenu = getDropdownDef('dropDown', paramDropDownArray, "Choose Value");
+	  				dropDownQual = true;
+	  			}
+	  		} else {
+	  			var dropDownMenu = "";
 	  		}
 	  		var processName = $('#text-' + secGnum).attr('name');
 	  		var rowExist = ''
@@ -1051,13 +1082,7 @@
 	  		} else {
 	  			//inputsTable
 	  			if (rowType === 'input') {
-	  				if (paraQualifier === 'file') {
-	  					var selectFileButton = getButtonsModal('inputFile', 'Select File') + defValButton;
-	  				} else if (paraQualifier === 'val') {
-	  					var selectFileButton = getButtonsModal('inputVal', 'Enter Value') + defValButton;
-	  				} else {
-	  					var selectFileButton = getButtonsModal('inputFile', 'Select Set') + defValButton;
-	  				}
+	  				var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
 	  				var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
 	  				$('#' + rowType + 'sTable > tbody:last-child').append(inRow);
 	  				//get project_pipeline_inputs:
@@ -1267,9 +1292,13 @@
 	  	var id = sDatapId
 	  	var process_id = id
 	  	var defVal = null;
+	  	var dropDown = null;
 	  	if (processModules != null && processModules != {} && processModules != "") {
 	  		if (processModules.defVal) {
 	  			defVal = processModules.defVal;
+	  		}
+	  		if (processModules.dropDown) {
+	  			dropDown = processModules.dropDown;
 	  		}
 	  	}
 
@@ -1303,7 +1332,7 @@
 	  			}
 	  		}
 
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 	  		processList[("g-" + gNum)] = name
 	  		gNum = gNum + 1
 
@@ -1338,7 +1367,7 @@
 	  				break
 	  			}
 	  		}
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 	  		processList[("g-" + gNum)] = name
 	  		gNum = gNum + 1
 
@@ -1649,43 +1678,56 @@
 	  }
 	  //insert selected input to inputs table
 	  function insertSelectInput(rowID, gNumParam, filePath, proPipeInputID, qualifier) {
-	  	if (qualifier === 'file' || qualifier === 'set') {
-	  		var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
-	  		var deleteIcon = getIconButton('inputDel', 'Delete', 'fa fa-trash-o');
-	  		$('#' + rowID).find('#inputFileSelect').css('display', 'none');
+	  	var checkDropDown = $('#' + rowID).find('#dropDown')[0];
+	  	if (checkDropDown) {
+	  		$(checkDropDown).val(filePath);
+	  		$('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  		$('#' + rowID).find('#defValUse').css('display', 'none');
 	  	} else {
-	  		var editIcon = getIconButtonModal('inputVal', 'Edit', 'fa fa-pencil');
-	  		var deleteIcon = getIconButton('inputVal', 'Delete', 'fa fa-trash-o');
-	  		$('#' + rowID).find('#inputValEnter').css('display', 'none');
-	  		$('#' + rowID).find('#defValUse').css('display', 'none');
+	  		if (qualifier === 'file' || qualifier === 'set') {
+	  			var editIcon = getIconButtonModal('inputFile', 'Edit', 'fa fa-pencil');
+	  			var deleteIcon = getIconButton('inputDel', 'Delete', 'fa fa-trash-o');
+	  			$('#' + rowID).find('#inputFileSelect').css('display', 'none');
+	  			$('#' + rowID).find('#defValUse').css('display', 'none');
+	  		} else {
+	  			var editIcon = getIconButtonModal('inputVal', 'Edit', 'fa fa-pencil');
+	  			var deleteIcon = getIconButton('inputVal', 'Delete', 'fa fa-trash-o');
+	  			$('#' + rowID).find('#inputValEnter').css('display', 'none');
+	  			$('#' + rowID).find('#defValUse').css('display', 'none');
+	  		}
+	  		$('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
+	  		$('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  	}
-	  	$('#' + rowID + '> :nth-child(6)').append('<span style="padding-right:7px;" id=filePath-' + gNumParam + '>' + filePath + '</span>' + editIcon + deleteIcon);
-	  	$('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  }
 
 	  function removeSelectFile(rowID, sType) {
-	  	if (sType === 'file' || sType === 'set') {
-	  		$('#' + rowID).find('#inputFileSelect').css('display', 'inline');
+	  	var checkDropDown = $('#' + rowID).find('#dropDown')[0];
+	  	if (checkDropDown) {
 	  		$('#' + rowID).find('#defValUse').css('display', 'inline');
-	  	} else if (sType === 'val') {
-	  		$('#' + rowID).find('#inputValEnter').css('display', 'inline');
-	  		$('#' + rowID).find('#defValUse').css('display', 'inline');
-	  	}
-	  	$('#' + rowID + '> :nth-child(6) > span').remove();
-	  	var buttonList = $('#' + rowID + '> :nth-child(6) > button');
-	  	if (buttonList[3]) {
-	  		buttonList[3].remove();
-	  	}
-	  	if (buttonList[2]) {
-	  		buttonList[2].remove();
-	  	}
-	  	if (buttonList[1]) {
-	  		if ($(buttonList[1]).attr("id") == "inputValEdit") {
-	  			buttonList[1].remove();
+	  		$('#' + rowID).removeAttr('propipeinputid');
+	  	} else {
+	  		if (sType === 'file' || sType === 'set') {
+	  			$('#' + rowID).find('#inputFileSelect').css('display', 'inline');
+	  			$('#' + rowID).find('#defValUse').css('display', 'inline');
+	  		} else if (sType === 'val') {
+	  			$('#' + rowID).find('#inputValEnter').css('display', 'inline');
+	  			$('#' + rowID).find('#defValUse').css('display', 'inline');
 	  		}
+	  		$('#' + rowID + '> :nth-child(6) > span').remove();
+	  		var buttonList = $('#' + rowID + '> :nth-child(6) > button');
+	  		if (buttonList[3]) {
+	  			buttonList[3].remove();
+	  		}
+	  		if (buttonList[2]) {
+	  			buttonList[2].remove();
+	  		}
+	  		if (buttonList[1]) {
+	  			if ($(buttonList[1]).attr("id") == "inputValEdit") {
+	  				buttonList[1].remove();
+	  			}
+	  		}
+	  		$('#' + rowID).removeAttr('propipeinputid');
 	  	}
-	  	$('#' + rowID).removeAttr('propipeinputid');
 	  }
 
 	  function checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID) {
@@ -2039,7 +2081,7 @@
 	  	var proType = proTypeWindow;
 	  	var proId = proIdWindow;
 	  	if (runPid && proType == "cluster") {
-			var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
+	  		var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 	  		console.log(terminateRun)
 	  		var pidStatus = checkRunPid(runPid, proType, proId);
 	  		if (pidStatus) { // if true, then it is exist in queue
@@ -2288,12 +2330,12 @@
 	  		//Nextflow log file exist but /N E X T F L O W/ not printed yet
 	  		else {
 	  			console.log("Nextflow not started");
-//	  			pidStatus = checkRunPid(runPid, proType, proId);
-//	  			if (pidStatus) { // if true, then it is exist in queue
-//	  				console.log("pid exist1")
-//	  			} else { //pid not exist
-//	  				console.log("give error1")
-//	  			}
+	  			//	  			pidStatus = checkRunPid(runPid, proType, proId);
+	  			//	  			if (pidStatus) { // if true, then it is exist in queue
+	  			//	  				console.log("pid exist1")
+	  			//	  			} else { //pid not exist
+	  			//	  				console.log("give error1")
+	  			//	  			}
 	  			// below is need to be updated according tho pidStatus
 	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
 	  			displayButton('waitingProPipe');
@@ -2323,14 +2365,14 @@
 	  			}
 	  			var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
 	  			displayButton('waitingProPipe');
-				if (runPid && proType === "cluster"){
-	  			pidStatus = checkRunPid(runPid, proType, proId);
-	  			if (pidStatus) { // if true, then it is exist in queue
-	  				console.log("pid exist2")
-	  			} else { //pid not exist
-	  				console.log("give error2")
+	  			if (runPid && proType === "cluster") {
+	  				pidStatus = checkRunPid(runPid, proType, proId);
+	  				if (pidStatus) { // if true, then it is exist in queue
+	  					console.log("pid exist2")
+	  				} else { //pid not exist
+	  					console.log("give error2")
+	  				}
 	  			}
-				}
 
 	  		}
 
@@ -2722,28 +2764,69 @@
 	  	$('#singu_imgDiv').on('hidden.bs.collapse', function () {
 	  		$('#singu_check').removeAttr('onclick');
 	  	});
-	  	//click on use default button
-	  	$('#inputsTab').on('click', '#defValUse', function (e) {
-	  		var defValbutton = $(this);
-	  		var rowID = defValbutton.parent().parent().attr("id"); //"inputTa-5"
+
+	  	function getInputVariables(button) {
+	  		var rowID = button.parent().parent().attr("id"); //"inputTa-5"
 	  		var gNumParam = rowID.split("-")[1];
-	  		var defVal = $("#text-" + gNumParam).attr('defVal');
-	  		var data = [];
-	  		data.push({ name: "id", value: "" });
-	  		data.push({ name: "name", value: defVal });
 	  		var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
 	  		var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
 	  		var sType = "";
-	  		var inputID = null;
 	  		if (qualifier === 'file' || qualifier === 'set') {
 	  			sType = 'file'; //for simplification 
 	  		} else if (qualifier === 'val') {
 	  			sType = qualifier
 	  		}
+	  		return [rowID, gNumParam, given_name, qualifier, sType]
+	  	}
+
+	  	//click on "use default" button
+	  	$('#inputsTab').on('click', '#defValUse', function (e) {
+	  		var button = $(this);
+	  		var rowID = "";
+	  		var gNumParam = "";
+	  		var given_name = "";
+	  		var qualifier = "";
+	  		var sType = "";
+			[rowID, gNumParam, given_name, qualifier, sType] = getInputVariables(button);
+	  		var value = $("#text-" + gNumParam).attr('defVal');
+	  		var data = [];
+	  		data.push({ name: "id", value: "" });
+	  		data.push({ name: "name", value: value });
+	  		var inputID = null;
 	  		//check database if file is exist, if not exist then insert
 	  		checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
-	  		defValbutton.css("display", "none");
+	  		button.css("display", "none");
 	  		checkReadytoRun();
+	  	});
+	  	//change on dropDown button
+	  	$(function () {
+	  		$(document).on('change', '#dropDown', function () {
+	  			var button = $(this);
+	  			var value = $(this).val();
+	  			var rowID = "";
+	  			var gNumParam = "";
+	  			var given_name = "";
+	  			var qualifier = "";
+	  			var sType = "";
+				[rowID, gNumParam, given_name, qualifier, sType] = getInputVariables(button);
+	  			var proPipeInputID = $('#' + rowID).attr('propipeinputid');
+				// if proPipeInputID exist, then first remove proPipeInputID.
+				if (proPipeInputID){
+	  				var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+				}
+	  			// insert into project pipeline input table
+	  			if (value && value != "") {
+	  				var data = [];
+	  				data.push({ name: "id", value: "" });
+	  				data.push({ name: "name", value: value });
+	  				var inputID = null;
+	  				checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
+	  			} else { // remove from project pipeline input table
+	  				var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+	  				removeSelectFile(rowID, qualifier);
+	  			}
+				checkReadytoRun();
+	  		});
 	  	});
 
 	  	$(function () {
@@ -2764,8 +2847,11 @@
 	  				$('#exec_all').trigger("click");
 	  			}
 	  			fillForm('#allProcessSettTable', 'input', allProSett);
-	  		})
+	  			checkReadytoRun();
+	  		});
 	  	});
+
+
 	  	$('#inputFilemodal').on('show.bs.modal', function (e) {
 	  		var button = $(e.relatedTarget);
 	  		$(this).find('form').trigger('reset');
@@ -3090,12 +3176,7 @@
 	  		}
 	  	});
 
-	  	$(function () {
-	  		$(document).on('change', '#chooseEnv', function (event) {
-	  			var selPipeRev = $('#chooseEnv option:selected').val();
-	  			checkReadytoRun();
-	  		})
-	  	});
+
 
 	  	$('#confirmModal').on('show.bs.modal', function (e) {
 	  		var button = $(e.relatedTarget);

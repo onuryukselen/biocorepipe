@@ -289,7 +289,7 @@
 	  }
 
 	  //kind=input/output
-	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal) {
+	  function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal, dropDown) {
 	  	//gnum uniqe, id same id (Written in class) in same type process
 	  	g = d3.select("#mainG").append("g")
 	  		.attr("id", "g-" + gNum)
@@ -370,6 +370,9 @@
 	  	if (defVal) {
 	  		$("#text-" + gNum).attr('defVal', defVal)
 	  	}
+		if (dropDown) {
+	  		$("#text-" + gNum).attr('dropDown', dropDown)
+	  	}
 
 	  	g.append("text").attr("id", "text-" + gNum)
 	  		.datum([{
@@ -438,6 +441,7 @@
 	  	y = (ypos - t.translate[1])
 	  	z = t.scale[0]
 	  	var defVal = null;
+	  	var dropDown = null;
 
 
 	  	//var process_id = processData[index].id;
@@ -458,7 +462,7 @@
 	  		var init = "o"
 	  		var pColor = "orange"
 
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 	  		processList[("g-" + gNum)] = name
 	  		processListNoOutput[("g-" + gNum)] = name
 	  		gNum = gNum + 1
@@ -478,7 +482,7 @@
 	  		var classtoparam = classtoparam || "connect_to_output input"
 	  		var init = "i"
 	  		var pColor = "green"
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 
 	  		processList[("g-" + gNum)] = name
 	  		gNum = gNum + 1
@@ -1303,6 +1307,7 @@
 	  	renameText = d3.select("#" + this.id).attr('name');
 	  	renameTextClassType = d3.select("#" + this.id).attr('classType');
 	  	renameTextDefVal = d3.select("#" + this.id).attr('defVal');
+	  	renameTextDropDown = d3.select("#" + this.id).attr('dropDown');
 	  	body = document.body;
 	  	bodyW = body.offsetWidth;
 	  	bodyH = body.scrollHeight;
@@ -1558,11 +1563,15 @@
 	  		if (prosessID.match(/(.*) dragging/)) {
 	  			prosessID = prosessID.match(/(.*) dragging/)[1];
 	  		}
-	  		// save defVal of input parameters if exist
+	  		// save defVal and dropDown of input parameters if exist
 	  		var defVal = $("#text-" + gNum).attr("defVal");
+	  		var dropDown = $("#text-" + gNum).attr("dropDown");
 	  		var processModule = {};
 	  		if (defVal) {
-	  			processModule = { "defVal": defVal };
+	  			processModule["defVal"] = defVal;
+	  		}
+			if (dropDown) {
+	  			processModule["dropDown"] = dropDown;
 	  		}
 	  		processName = processList[key]
 	  		saveNodes[key] = [x, y, prosessID, processName, processModule]
@@ -1766,9 +1775,13 @@
 	  	var id = sDatapId
 	  	var process_id = id;
 	  	var defVal = null;
+	  	var dropDown = null;
 	  	if (processModules != null && processModules != {} && processModules != "") {
 	  		if (processModules.defVal) {
 	  			defVal = processModules.defVal;
+	  		}
+			if (processModules.dropDown) {
+	  			dropDown = processModules.dropDown;
 	  		}
 	  	}
 
@@ -1803,7 +1816,7 @@
 	  				break
 	  			}
 	  		}
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 	  		processList[("g-" + gNum)] = name
 	  		processListNoOutput[("g-" + gNum)] = name
 	  		gNum = gNum + 1
@@ -1839,7 +1852,7 @@
 	  				break
 	  			}
 	  		}
-	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal)
+	  		drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
 	  		processList[("g-" + gNum)] = name
 	  		gNum = gNum + 1
 

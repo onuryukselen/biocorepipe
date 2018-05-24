@@ -897,6 +897,14 @@
 							<input type="text" class="form-control" id="defVal" name="defVal" disabled>
 						</div>
 					</div>
+					<div id="dropdownDiv" class="form-group">
+						<div class="col-sm-4 control-label">
+							<label> <input type="checkbox" id="checkDropDown" name="checkDropDown" > Dropdown Options <span><a data-toggle="tooltip" data-placement="bottom" title="Please click checkbox to use drop down menu in the run pipeline page. Options need to be entered in comma separated format. eg. single, pair"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+						</div>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="dropDownOpt" name="dropDownOpt" disabled>
+						</div>
+					</div>
 				</form>
 			</div>
 			<div class="modal-footer">
