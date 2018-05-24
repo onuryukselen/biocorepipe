@@ -27,10 +27,11 @@ if (isset($_REQUEST['id'])) {
     $nextText = urldecode($nextTextRaw);
 	$configTextRaw = $_REQUEST['configText'];
     $configText = urldecode($configTextRaw);
+	$runType = $_REQUEST['runType'];
     //create file and folders
     $log_array = $db ->initRun($project_pipeline_id, $configText, $nextText, $profileType, $profileId, $amazon_cre_id, $ownerID);
     //run the script
-    $data = $db->runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $ownerID);
+    $data = $db->runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $runType, $ownerID);
     //add run into run table and increase the run attempt
     //$status = "init";
     $db->updateRunAttemptLog("init", $project_pipeline_id, $ownerID);

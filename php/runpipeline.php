@@ -49,6 +49,7 @@
                   </button>
 				<ul class="dropdown-menu" role="menu">
 					<li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
+					<li><a href="#" onclick="checkReadytoRun(&#34;resumerun&#34;);return false;">Resume</a></li>
 				</ul>
 			</div>
 			<div id="completeProPipe" style="display:none; float:right; " class="btn-group">
