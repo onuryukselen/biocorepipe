@@ -347,6 +347,7 @@
 	  function parseRegPart(regPart) {
 	  	var type = null;
 	  	var desc = null;
+	  	var tool = null;
 	  	var opt = null;
 	  	if (regPart.match(/@/)) {
 	  		var regSplit = regPart.split('@');
@@ -363,6 +364,15 @@
 	  					desc = descCheck[1];
 	  				} else if (descCheck[2]) {
 	  					desc = descCheck[2];
+	  				}
+	  			}
+				// find tooltip
+	  			var toolCheck = regSplit[i].match(/tooltip:"(.*)"|tooltip:'(.*)'/i);
+	  			if (toolCheck) {
+	  				if (toolCheck[1]) {
+	  					tool = toolCheck[1];
+	  				} else if (toolCheck[2]) {
+	  					tool = toolCheck[2];
 	  				}
 	  			}
 	  			// find options
@@ -388,18 +398,29 @@
 	  			}
 	  		}
 	  	}
-	  	return [type, desc, opt]
+	  	return [type, desc, tool, opt]
 	  }
 
-	  function addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt) {
+	  function addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt, tool) {
+		  console.log(desc)
+		if (tool && tool != ""){
+			var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+		} else {
+			var toolText = "";
+		}
+		if (!desc){
+			var descText = "";
+		} else {
+			var descText = '<p style="font-size:13px">' + desc + '</p>';
+		}
 	  	var processParamDiv = '<div class="form-group">';
-	  	var label = '<label>' + varName + ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + desc + '"><i class="glyphicon glyphicon-info-sign"></i></a></span></label>';
+	  	var label = '<label>' + varName + toolText +' </label>';
 	  	if (type === "input") {
 	  		var inputDiv = '<input type="text" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
-	  		processParamDiv += label + inputDiv + '</div>';
+	  		processParamDiv += label + inputDiv + descText +'</div>';
 	  	} else if (type === "textbox") {
 	  		var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">' + defaultVal + '</textarea>';
-	  		processParamDiv += label + inputDiv + '</div>';
+	  		processParamDiv += label + inputDiv + descText + '</div>';
 	  	} else if (type === "checkbox") {
 	  		if (defaultVal) {
 	  			if (defaultVal === "true") {
@@ -409,7 +430,7 @@
 	  			}
 	  		}
 	  		var inputDiv = '<input type="checkbox" style = "margin-right:5px;" class="form-check-input" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" ' + defaultVal + '>';
-	  		processParamDiv += inputDiv + label + '</div>';
+	  		processParamDiv += inputDiv + label + descText + '</div>';
 	  	} else if (type === "dropdown") {
 	  		var inputDiv = '<select class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
 	  		var optionDiv = "";
@@ -424,7 +445,7 @@
 	  				}
 	  			}
 	  		}
-	  		processParamDiv += label + inputDiv + optionDiv + '</select></div>';
+	  		processParamDiv += label + inputDiv + optionDiv + '</select>'+ descText +'</div>';
 	  	}
 
 	  	$('#addProcessRow-' + gNum).append(processParamDiv)
@@ -450,14 +471,15 @@
 	  					var defaultVal = null;
 	  					var type = null;
 	  					var desc = null;
+	  					var tool = null;
 	  					var opt = null;
 	  					var varPart = lines[i].split('\/\/\*')[0];
 	  					var regPart = lines[i].split('\/\/\*')[1];
 	  					[varName, defaultVal] = parseVarPart(varPart);
-	  					[type, desc, opt] = parseRegPart(regPart);
+	  					[type, desc, tool, opt] = parseRegPart(regPart);
 	  					if (type && varName) {
 	  						displayProDiv = true;
-	  						addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt)
+	  						addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt, tool)
 	  					}
 	  				}
 	  				if (displayProDiv === true) {
@@ -1323,7 +1345,7 @@
 	  	} else {
 	  		//--Pipeline details table ---
 	  		addProPipeTab(id, gNum, name);
-	  		//--ProcessPanel
+	  		//--ProcessPanel (where process options defined)
 	  		insertProcessPanel(id, gNum, name);
 
 	  		inputs = getValues({
