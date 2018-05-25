@@ -24,9 +24,6 @@
 	  refreshDataset()
 
 	  function refreshDataset() {
-	  	//	  	processData = getValues({
-	  	//	  		p: "getProcessData"
-	  	//	  	})
 	  	parametersData = getValues({
 	  		p: "getAllParameters"
 	  	})
@@ -195,6 +192,7 @@
 	  			name = nodes[key][3]
 	  			var processModules = nodes[key][4];
 	  			gN = key.split("-")[1]
+	  			//--Pipeline details table & ProcessPanel (where processOpt defined) is created in loadPipeline
 	  			loadPipeline(x, y, pId, name, processModules, gN)
 	  		}
 	  		ed = sData[0].edges
@@ -404,7 +402,7 @@
 	  	return [type, desc, tool, opt]
 	  }
 
-	  function addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt, tool) {
+	  function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool) {
 	  	if (tool && tool != "") {
 	  		var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
 	  	} else {
@@ -453,47 +451,45 @@
 	  	$('#addProcessRow-' + gNum).append(processParamDiv)
 	  }
 
-	  function insertProcessPanel(process_id, gNum, name) {
-	  	var processData = getValues({ p: "getProcessData", "process_id": process_id });
-	  	if (processData) {
-	  		if (processData[0].script_header !== "" && processData[0].script_header !== null) {
-	  			var pro_script_header = decodeHtml(processData[0].script_header);
-	  			//check if parameter comment is exist: //*
-	  			if (pro_script_header.match(/\/\/\*/)) {
-	  				//create processHeader
-	  				var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
-	  				var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
-	  				//create processPanel
-	  				$('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
+	  //--Insert Process and Pipeline Panel (where pipelineOpt processOpt defined)
+	  function insertProPipePanel(script, gNum, name) {
+	  	if (script) {
+	  		//check if parameter comment is exist: //*
+	  		if (script.match(/\/\/\*/)) {
+	  			//create processHeader
+	  			var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
+	  			var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
+	  			//create processPanel
+	  			$('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
 
-	  				var displayProDiv = false;
-	  				var lines = pro_script_header.split('\n');
-	  				for (var i = 0; i < lines.length; i++) {
-	  					var varName = null;
-	  					var defaultVal = null;
-	  					var type = null;
-	  					var desc = null;
-	  					var tool = null;
-	  					var opt = null;
-	  					var varPart = lines[i].split('\/\/\*')[0];
-	  					var regPart = lines[i].split('\/\/\*')[1];
+	  			var displayProDiv = false;
+	  			var lines = script.split('\n');
+	  			for (var i = 0; i < lines.length; i++) {
+	  				var varName = null;
+	  				var defaultVal = null;
+	  				var type = null;
+	  				var desc = null;
+	  				var tool = null;
+	  				var opt = null;
+	  				var varPart = lines[i].split('\/\/\*')[0];
+	  				var regPart = lines[i].split('\/\/\*')[1];
 	  					[varName, defaultVal] = parseVarPart(varPart);
 	  					[type, desc, tool, opt] = parseRegPart(regPart);
-	  					if (type && varName) {
-	  						displayProDiv = true;
-	  						addProcessPanelRow(process_id, gNum, name, varName, defaultVal, type, desc, opt, tool)
-	  					}
+	  				if (type && varName) {
+	  					displayProDiv = true;
+	  					addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool)
 	  				}
-	  				if (displayProDiv === true) {
-	  					$('[data-toggle="tooltip"]').tooltip();
-	  					$('#proPanelDiv-' + gNum).css('display', 'inline');
-	  					$('#ProcessPanelTitle').css('display', 'inline');
+	  			}
+	  			if (displayProDiv === true) {
+	  				$('[data-toggle="tooltip"]').tooltip();
+	  				$('#proPanelDiv-' + gNum).css('display', 'inline');
+	  				$('#ProcessPanelTitle').css('display', 'inline');
 
-	  				}
 	  			}
 	  		}
 	  	}
 	  }
+
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
 	  	if (paraQualifier !== "val") {
@@ -1375,7 +1371,13 @@
 	  		//--Pipeline details table ---
 	  		addProPipeTab(id, gNum, name);
 	  		//--ProcessPanel (where process options defined)
-	  		insertProcessPanel(id, gNum, name);
+	  		var processData = getValues({ p: "getProcessData", "process_id": process_id });
+	  		if (processData) {
+	  			if (processData[0].script_header !== "" && processData[0].script_header !== null) {
+	  				var pro_script_header = decodeHtml(processData[0].script_header);
+	  				insertProPipePanel(pro_script_header, gNum, name);
+	  			}
+	  		}
 
 	  		inputs = getValues({
 	  			p: "getInputsPP",
@@ -1524,6 +1526,9 @@
 	  			$('#pipeline-title').attr('href', 'index.php?np=1&id=' + pipeline_id);
 	  			$('#project-title').attr('href', 'index.php?np=2&id=' + project_id);
 	  			$('#pipelineSum').val(decodeHtml(s[0].summary));
+	  			if (s[0].script_pipe_header !== null) {
+	  				insertProPipePanel(decodeHtml(s[0].script_pipe_header), "pipe", "Pipeline");
+	  			}
 	  			openPipeline(pipeline_id);
 	  			// activate collapse icon for process options
 	  			refreshCollapseIconDiv()
@@ -2810,10 +2815,10 @@
 	  			var sType = "";
 				[rowID, gNumParam, given_name, qualifier, sType] = getInputVariables(button);
 	  			var proPipeInputID = $('#' + rowID).attr('propipeinputid');
-				// if proPipeInputID exist, then first remove proPipeInputID.
-				if (proPipeInputID){
+	  			// if proPipeInputID exist, then first remove proPipeInputID.
+	  			if (proPipeInputID) {
 	  				var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
-				}
+	  			}
 	  			// insert into project pipeline input table
 	  			if (value && value != "") {
 	  				var data = [];
@@ -2825,7 +2830,7 @@
 	  				var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
 	  				removeSelectFile(rowID, qualifier);
 	  			}
-				checkReadytoRun();
+	  			checkReadytoRun();
 	  		});
 	  	});
 
