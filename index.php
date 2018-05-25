@@ -311,7 +311,7 @@ else { $login = 0;}
 					<div class="user-panel" style="padding-bottom:5px;">
 						<div id="googleSignIn" class="g-signin2" data-longtitle="true" data-onsuccess="Google_signIn" data-theme="dark" data-width="200"></div>
 						<div id="userAvatar" style="display:none" class="pull-left image">
-							<img id="userAvatarImg" src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+							<img id="userAvatarImg" src="dist/img/user-orange.png" class="img-circle" alt="User Image">
 						</div>
 						<div id="userInfo" style="display:none" class="info">
 							<p id="userName">Alper Kucukural</p>

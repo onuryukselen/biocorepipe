@@ -2220,7 +2220,7 @@
 	  			configTextAllProcess(allProSett);
 	  		}
 	  		if ($('#exec_each').is(":checked") === true) {
-	  			var exec_each_settings = formToJsonEachPro();
+	  			var exec_each_settings = decodeURIComponent(formToJsonEachPro());
 	  			if (IsJsonString(exec_each_settings)) {
 	  				var exec_each_settings = JSON.parse(exec_each_settings);
 	  				$.each(exec_each_settings, function (el) {
