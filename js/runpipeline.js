@@ -473,8 +473,10 @@
 	  				var opt = null;
 	  				var varPart = lines[i].split('\/\/\*')[0];
 	  				var regPart = lines[i].split('\/\/\*')[1];
+					if (varPart && regPart){
 	  					[varName, defaultVal] = parseVarPart(varPart);
 	  					[type, desc, tool, opt] = parseRegPart(regPart);
+					}
 	  				if (type && varName) {
 	  					displayProDiv = true;
 	  					addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool)
