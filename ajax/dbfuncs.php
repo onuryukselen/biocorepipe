@@ -1334,6 +1334,10 @@ class dbfuncs {
         $sql = "DELETE FROM project_pipeline WHERE id = '$id'";
         return self::runSQL($sql);
     }
+	public function removeRun($id) {
+        $sql = "DELETE FROM run WHERE project_pipeline_id = '$id'";
+        return self::runSQL($sql);
+    }
     public function removeInput($id) {
         $sql = "DELETE FROM input WHERE id = '$id'";
         return self::runSQL($sql);
@@ -1360,6 +1364,13 @@ class dbfuncs {
     }
     public function removeProjectPipelinebyProjectID($id) {
         $sql = "DELETE FROM project_pipeline WHERE project_id = '$id'";
+        return self::runSQL($sql);
+    }
+	public function removeRunByProjectID($id) {
+        $sql = "DELETE run 
+				FROM run
+                JOIN project_pipeline ON project_pipeline.id = run.project_pipeline_id
+                WHERE project_pipeline.project_id = '$id'";
         return self::runSQL($sql);
     }
     public function removeProjectPipelineInputbyProjectID($id) {

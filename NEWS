@@ -1,3 +1,10 @@
+29.05.2018 Version 0.1.46
+Update of script style is fixed while opening process and pipeline.
+Nextflow test is filled based on pipeline options.
+Variables which start with "params." prefix (defined in the pipeline header section) transfered into inputs section.
+Autofill feature is added which allows to fill inputs based on hostname.
+Remove run from run table while deleting project_pipeline. 
+
 25.05.2018 Version 0.1.45
 Minor bug while parsing Pipeline options is fixed.
 

@@ -395,9 +395,14 @@ function getButtonsModal(name, buttons) {
 	return button;
 }
 //Default type of buttons
-function getButtonsDef(name, buttons) {
+function getButtonsDef(name, buttons, defVal) {
+	if (defVal){
+		var defValText = 'defval="'+ defVal + '" '; 
+	} else {
+		var defValText = "";
+	}
 	var buttonId = buttons.split(' ')[0];
-	var button = '<button type="submit" style= "margin-right:5px;" class="btn btn-primary btn-sm" title="' + buttons + '" id="' + name + buttonId + '">' + buttons + '</button>';
+	var button = '<button type="submit" style= "margin-right:5px;" class="btn btn-primary btn-sm" '+ defValText +' title="' + buttons + '" id="' + name + buttonId + '">' + buttons + '</button>';
 	return button;
 }
 //Default type of dropdown. 

@@ -99,7 +99,9 @@ function sortProcessList(processList, sortGnum) {
 	return [sortProcessList, sortGnum];
 }
 
+// gnum used for processes.  gNum="pipe" is used for pipeline header
 function getNewScriptHeader(script_header, process_opt, gNum) {
+	console.log(process_opt)
 	var newScriptHeader = "";
 	var lines = script_header.split('\n');
 	for (var i = 0; i < lines.length; i++) {
@@ -108,7 +110,7 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
 		var pattern = /(.*)=(.*)\/\/\*(.*)/;
 		var re = new RegExp(pattern);
 		var checkParam = lines[i].match(re);
-		if (checkParam[0] && checkParam[1]) {
+		if (checkParam && checkParam[0] && checkParam[1]) {
 			var newLine = "";
 			var varName = $.trim(checkParam[1]);
 			if (process_opt[gNum][varName]) {
@@ -128,6 +130,10 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
 function createNextflowFile(nxf_runmode) {
 	nextText = "";
 	if (nxf_runmode === "run") {
+		var hostname = $('#chooseEnv').find('option:selected').attr('host');
+		if (hostname) {
+			nextText += '$HOSTNAME = "' + hostname + '"\n';
+		}
 		var publish_dir_check = $('#publish_dir_check').is(":checked").toString();
 		if (publish_dir_check === "true") {
 			var output_dir = $('#publish_dir').val();
@@ -135,7 +141,7 @@ function createNextflowFile(nxf_runmode) {
 			var output_dir = $('#rOut_dir').val();
 		}
 		if (output_dir) {
-			nextText = "params.outdir = '" + output_dir + "' " + " \n\n";
+			nextText += "params.outdir = '" + output_dir + "' " + " \n\n";
 		}
 		var proOptDiv = $('#ProcessPanel').children()[0];
 		if (proOptDiv) {
@@ -165,6 +171,9 @@ function createNextflowFile(nxf_runmode) {
 	var header_pipe_script = "";
 	var footer_pipe_script = "";
     [header_pipe_script, footer_pipe_script] = getPipelineScript(pipeline_id);
+	if (header_pipe_script.match(/\/\/\*/) && process_opt["pipe"]) {
+		header_pipe_script = getNewScriptHeader(header_pipe_script, process_opt, "pipe");
+	}
 	nextText += "\n" + iniTextSecond + "\n" + header_pipe_script + "\n";
 
 	sortedProcessList.forEach(function (key) {

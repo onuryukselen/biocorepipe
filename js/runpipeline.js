@@ -329,11 +329,16 @@
 	  //selectText = "sel1" //* @dropdown @options:"none","sel1","sel2" @description:"One text is invented"
 	  //checkBox = "true" //* @checkbox @description:"One checkbox is created"
 
-	  function parseVarPart(varPart) {
+	  function parseVarPart(varPart, type) {
+	  	var splitType = type || "";
 	  	var varName = null;
 	  	var defaultVal = null;
 	  	if (varPart.match(/=/)) {
-	  		var varSplit = varPart.split('=');
+	  		if (splitType === "condition") {
+	  			var varSplit = varPart.split('==');
+	  		} else {
+	  			var varSplit = varPart.split('=');
+	  		}
 	  		if (varSplit.length == 2) {
 	  			varName = $.trim(varSplit[0]);
 	  			defaultVal = $.trim(varSplit[1]);
@@ -447,9 +452,272 @@
 	  		}
 	  		processParamDiv += label + inputDiv + optionDiv + '</select>' + descText + '</div>';
 	  	}
-
 	  	$('#addProcessRow-' + gNum).append(processParamDiv)
 	  }
+
+	  // check if all conditions match	
+	  function checkConds(conds) {
+	  	var checkConditionsFalse = [];
+	  	var checkConditionsTrue = [];
+	  	$.each(conds, function (co) {
+	  		//check if condtion is $HOSTNAME specific
+	  		if (co === "$HOSTNAME") {
+	  			var hostname = conds[co];
+	  			var chooseEnvHost = $('#chooseEnv').find(":selected").attr("host");
+	  			if (hostname && chooseEnvHost && hostname === chooseEnvHost) {
+	  				checkConditionsTrue.push(true)
+	  			} else {
+	  				checkConditionsFalse.push(false)
+	  			}
+	  		} else {
+	  			var varName = co.match(/params\.(.*)/)[1]; //variable Name
+	  			var defName = conds[co]; // expected Value
+	  			var checkVarName = $("#inputsTab").find("td[given_name='" + varName + "']")[0];
+	  			if (checkVarName) {
+	  				var varNameBut = $(checkVarName).children()[0];
+	  				if (varNameBut) {
+	  					var varNameVal = $(varNameBut).val();
+	  				}
+	  				if (varNameVal && defName && varNameVal === defName) {
+	  					checkConditionsTrue.push(true)
+	  				} else {
+	  					checkConditionsFalse.push(false)
+	  				}
+	  			}
+	  		}
+	  	});
+	  	// if all conditions match, length==0 for checkConditionsFalse
+	  	if (checkConditionsFalse.length === 0 && checkConditionsTrue.length > 0) {
+	  		return true
+	  	} else {
+	  		return false
+	  	}
+	  }
+
+	  function getInputVariables(button) {
+	  	var rowID = button.parent().parent().attr("id"); //"inputTa-5"
+	  	var gNumParam = rowID.split("Ta-")[1];
+	  	var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
+	  	var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
+	  	var sType = "";
+	  	if (qualifier === 'file' || qualifier === 'set') {
+	  		sType = 'file'; //for simplification 
+	  	} else if (qualifier === 'val') {
+	  		sType = qualifier
+	  	}
+	  	return [rowID, gNumParam, given_name, qualifier, sType]
+	  }
+
+	  //fill file/Val buttons
+	  function autoFillButton(buttonText, value) {
+	  	var button = $(buttonText);
+	  	var checkDropDown = button.attr("id") == "dropDown";
+	  	var checkFileExist = button.css("display") == "none";
+	  	//if  checkDropDown == false and checkFileExist == true then edit
+	  	//if  checkDropDown == false and checkFileExist == false then insert
+	  	var rowID = "";
+	  	var gNumParam = "";
+	  	var given_name = "";
+	  	var qualifier = "";
+	  	var sType = "";
+		[rowID, gNumParam, given_name, qualifier, sType] = getInputVariables(button);
+	  	var proPipeInputID = $('#' + rowID).attr('propipeinputid');
+	  	var inputID = null;
+
+	  	var data = [];
+	  	data.push({ name: "id", value: "" });
+	  	data.push({ name: "name", value: value });
+	  	// insert into project pipeline input table
+	  	if (value && value != "") {
+	  		if (checkDropDown == false && checkFileExist == false) {
+	  			checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
+	  		} else if (checkDropDown == false && checkFileExist == true) {
+	  			checkInputEdit(data, gNumParam, given_name, qualifier, rowID, sType, proPipeInputID, inputID);
+	  		} else if (checkDropDown == true) {
+	  			// if proPipeInputID exist, then first remove proPipeInputID.
+	  			if (proPipeInputID) {
+	  				var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+	  			}
+	  			checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
+	  		}
+	  	} else { // if value is empty:"" then remove from project pipeline input table
+	  		var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+	  		removeSelectFile(rowID, qualifier);
+	  	}
+	  }
+
+	  //change propipeinputs in case all conds are true
+	  function fillStates(states) {
+	  	$.each(states, function (st) {
+	  		var defName = states[st]; // expected Value
+	  		//if variable start with "params." then check #inputsTab
+	  		if (st.match(/params\.(.*)/)) {
+	  			var varName = st.match(/params\.(.*)/)[1]; //variable Name
+	  			var checkVarName = $("#inputsTab").find("td[given_name='" + varName + "']")[0];
+	  			if (checkVarName) {
+	  				var varNameButAr = $(checkVarName).children();
+	  				if (varNameButAr && varNameButAr[0]) {
+	  					autoFillButton(varNameButAr[0], defName);
+	  				}
+	  			}
+	  		} else { //if variable not start with "params." then check pipeline options:
+	  			var varName = st;
+	  			var checkVarName = $("#var_pipe-" + varName)[0];
+	  			if (checkVarName) {
+	  				$(checkVarName).val(defName);
+	  			}
+	  		}
+	  		checkReadytoRun();
+	  	});
+	  }
+	  // to execute autofill function, binds event handlers
+	  function bindEveHandler(autoFillJSON) {
+	  	$.each(autoFillJSON, function (el) {
+	  		var conds = autoFillJSON[el].condition;
+	  		var states = autoFillJSON[el].statement;
+	  		//bind eventhandler to #chooseEnv
+	  		if (conds.$HOSTNAME) {
+	  			$("#chooseEnv").change(function () {
+	  				var statusCond = checkConds(conds);
+	  				if (statusCond === true) {
+	  					fillStates(states)
+	  				}
+	  			});
+	  		}
+	  		//if condition exist other than $HOSTNAME then bind eventhandler to #params. button (eg. dropdown or inputValEnter)
+	  		$.each(conds, function (el) {
+	  			if (el !== "$HOSTNAME") {
+	  				//if variable start with "params." then check #inputsTab
+	  				if (el.match(/params\.(.*)/)) {
+	  					var varName = el.match(/params\.(.*)/)[1]; //variable Name
+	  					var checkVarName = $("#inputsTab").find("td[given_name='" + varName + "']")[0];
+	  					if (checkVarName) {
+	  						var varNameButAr = $(checkVarName).children();
+	  						if (varNameButAr && varNameButAr[0]) {
+	  							//bind eventhandler to #dropdown button
+	  							$(varNameButAr[0]).change(function () {
+	  								var statusCond = checkConds(conds);
+	  								if (statusCond === true) {
+	  									fillStates(states)
+	  								}
+	  							});
+	  						}
+	  					}
+	  				}
+	  			}
+	  		});
+	  	});
+	  }
+
+	  //parses header_script and create autoFill array. 
+	  //eg. [condition:{hostname:ghpcc, var:mm10},statement:{indexPath:"/path"}] 
+	  function parseAutofill(script) {
+	  	if (script) {
+	  		//check if autofill comment is exist: /* autofill
+	  		if (script.match(/\/\* autofill/i)) {
+	  			var lines = script.split('\n');
+	  			var blockStart = null; // beginning of autofill block
+	  			var ifBlockStart = null; // beginning of if block
+	  			var conds = {}; //keep all conditions for if block
+	  			var autoFill = [];
+	  			var states = {}; //keep all statements for if block
+	  			for (var i = 0; i < lines.length; i++) {
+	  				var varName = null;
+	  				var defaultVal = null;
+	  				var cond = null; // each condition
+	  				//first find the line of autofill
+	  				if (lines[i].match(/\/\* autofill/i)) {
+	  					var blockStart = i;
+	  				}
+	  				// parse statements after first line of autofill
+	  				if (blockStart && i > blockStart) {
+	  					//find if condition
+	  					if (lines[i].match(/.*if *\((.*)\).*/i)) {
+	  						if (ifBlockStart) {
+	  							if (conds && states && !$.isEmptyObject(conds) && !$.isEmptyObject(states)) {
+	  								autoFill.push({ condition: conds, statement: states })
+	  							}
+	  						}
+	  						conds = {};
+	  						states = {}; //new statement object. It will be filled with following statements until next if condition
+	  						var ifBlockStart = i;
+	  						cond = lines[i].match(/.*if *\((.*)\).*/i)[1]
+	  						if (cond) {
+	  							var condsplit = cond.split("&&");
+	  							$.each(condsplit, function (el) {
+									[varName, defaultVal] = parseVarPart(condsplit[el], "condition");
+	  								if (varName && defaultVal) {
+	  									conds[varName] = defaultVal;
+	  								}
+	  							});
+	  						}
+	  						//end of the block
+	  					} else if (lines[i].match(/\*\//i)) {
+	  						blockStart = null;
+	  						if (conds && states && !$.isEmptyObject(conds) && !$.isEmptyObject(states)) {
+	  							autoFill.push({ condition: conds, statement: states })
+	  						}
+	  						//lines of statements 
+	  					} else {
+	  					[varName, defaultVal] = parseVarPart(lines[i]);
+	  						if (varName && defaultVal) {
+	  							states[varName] = defaultVal;
+	  						}
+	  					}
+	  				}
+	  			}
+	  		}
+	  	}
+	  	return autoFill
+	  }
+
+	  function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
+	  	var dropDownQual = false;
+	  	var paraQualifier = "val"
+	  	var paramGivenName = varName;
+	  	var processName = "-";
+	  	var paraIdentifier = "-"
+	  	var paraFileType = "-"
+	  	var firGnum = pipeGnum;
+	  	var secGnum = "";
+	  	var rowType = "input";
+
+	  	// "Use default" button is added if defVal attr is defined.
+	  	if (defaultVal && defaultVal != "") {
+	  		var defValButton = getButtonsDef('defVal', 'Use Default', defaultVal);
+	  	} else {
+	  		var defValButton = "";
+	  	}
+	  	// dropdown is added if dropdown attr is defined.
+	  	if (type == "dropdown" && opt && opt != "") {
+	  		var dropDownMenu = getDropdownDef('dropDown', opt, "Choose Value");
+	  		dropDownQual = true;
+	  	} else {
+	  		var dropDownMenu = "";
+	  	}
+	  	var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
+	  	var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
+	  	setTimeout(function () { $('#' + rowType + 'sTable > tbody:last-child').append(inRow); }, 1);
+
+	  	//check if project_pipeline_inputs exist and fill:
+	  	var getProPipeInputs = getValues({
+	  		p: "getProjectPipelineInputsByGnum",
+	  		project_pipeline_id: project_pipeline_id,
+	  		g_num: pipeGnum
+	  	});
+	  	if (getProPipeInputs && getProPipeInputs != "") {
+	  		if (getProPipeInputs.length === 1) {
+	  			var rowID = rowType + 'Ta-' + firGnum;
+	  			var filePath = getProPipeInputs[0].name; //value for val type
+	  			var proPipeInputID = getProPipeInputs[0].id;
+	  			setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
+	  		}
+	  	}
+
+	  }
+
+
+
 
 	  //--Insert Process and Pipeline Panel (where pipelineOpt processOpt defined)
 	  function insertProPipePanel(script, gNum, name) {
@@ -473,11 +741,16 @@
 	  				var opt = null;
 	  				var varPart = lines[i].split('\/\/\*')[0];
 	  				var regPart = lines[i].split('\/\/\*')[1];
-					if (varPart && regPart){
+	  				if (varPart && regPart) {
 	  					[varName, defaultVal] = parseVarPart(varPart);
 	  					[type, desc, tool, opt] = parseRegPart(regPart);
-					}
-	  				if (type && varName) {
+	  				}
+	  				// if variable start with "params." then insert into inputs table
+	  				if (type && varName && varName.match(/params\./)) {
+	  					varName = varName.match(/params\.(.*)/)[1];
+	  					pipeGnum = pipeGnum - 1;
+	  					insertInputRow(defaultVal, opt, pipeGnum, varName, type, name);
+	  				} else if (type && varName) {
 	  					displayProDiv = true;
 	  					addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool)
 	  				}
@@ -495,11 +768,10 @@
 
 	  function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, button) {
 	  	if (paraQualifier !== "val") {
-	  		return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
+	  		return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + paraFileType + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td given_name="' + paramGivenName + '">' + button + '</td></tr>'
 	  	} else {
-	  		return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + "-" + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td>' + button + '</td></tr>'
+	  		return '<tr id=' + rowType + 'Ta-' + firGnum + '><td id="' + rowType + '-PName-' + firGnum + '" scope="row">' + paramGivenName + '</td><td>' + paraIdentifier + '</td><td>' + "-" + '</td><td>' + paraQualifier + '</td><td> <span id="proGName-' + secGnum + '">' + processName + '</span></td><td given_name="' + paramGivenName + '">' + button + '</td></tr>'
 	  	}
-
 	  }
 
 	  function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef, procOptDef) {
@@ -1056,7 +1328,7 @@
 	  		}
 	  		// "Use default" button is added if defVal attr is defined.
 	  		if (paramDefVal) {
-	  			var defValButton = getButtonsDef('defVal', 'Use Default');
+	  			var defValButton = getButtonsDef('defVal', 'Use Default', paramDefVal);
 	  		} else {
 	  			var defValButton = "";
 	  		}
@@ -1529,7 +1801,10 @@
 	  			$('#project-title').attr('href', 'index.php?np=2&id=' + project_id);
 	  			$('#pipelineSum').val(decodeHtml(s[0].summary));
 	  			if (s[0].script_pipe_header !== null) {
+	  				pipeGnum = 0;
 	  				insertProPipePanel(decodeHtml(s[0].script_pipe_header), "pipe", "Pipeline");
+	  				//generate json for autofill by using script of pipeline header
+	  				autoFillJSON = parseAutofill(decodeHtml(s[0].script_pipe_header));
 	  			}
 	  			openPipeline(pipeline_id);
 	  			// activate collapse icon for process options
@@ -1607,6 +1882,12 @@
 	  		setTimeout(function () { loadProcessOpt(decodeHtml(pipeData[0].process_opt)); }, 1000);
 
 	  	}
+	  	// bind event handlers for autofill
+	  	setTimeout(function () {
+	  		if (autoFillJSON) {
+	  			bindEveHandler(autoFillJSON);
+	  		}
+	  	}, 1000);
 	  	//load amazon keys for possible s3 connection
 	  	loadAmzKeys();
 	  	if (pipeData[0].amazon_cre_id !== "0") {
@@ -1706,7 +1987,7 @@
 	  		$('#' + rowID).attr('propipeinputid', proPipeInputID);
 	  	}
 	  }
-
+	  //remove for both dropdown and file/val options
 	  function removeSelectFile(rowID, sType) {
 	  	var checkDropDown = $('#' + rowID).find('#dropDown')[0];
 	  	if (checkDropDown) {
@@ -1729,7 +2010,7 @@
 	  			buttonList[2].remove();
 	  		}
 	  		if (buttonList[1]) {
-	  			if ($(buttonList[1]).attr("id") == "inputValEdit") {
+	  			if ($(buttonList[1]).attr("id") == "inputValEdit" || $(buttonList[1]).attr("id") == "inputFileEdit") {
 	  				buttonList[1].remove();
 	  			}
 	  		}
@@ -2277,7 +2558,7 @@
 	  	nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
 	  	// check runStatus to get status //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init,Terminated
 	  	if (runStatus === "Terminated") {
-	  		if (nextflowLog !== null) {
+	  		if (nextflowLog !== null && nextflowLog !== undefined) {
 	  			$('#runLogArea').val(serverLog + nextflowLog);
 	  		}
 	  		if (type !== "reload") {
@@ -2512,7 +2793,7 @@
 	  				// fill each form if label exist in eachProcessOpt object
 	  				if (labelDiv && inputDiv) {
 	  					var label = $.trim($(labelDiv).text());
-	  					if (eachProcessOpt[label]) {
+	  					if (eachProcessOpt[label] != null && eachProcessOpt[label] != undefined) {
 	  						if (inputDivType === "checkbox") {
 	  							updateCheckBox(inputDiv, eachProcessOpt[label]);
 	  						} else {
@@ -2772,19 +3053,7 @@
 	  		$('#singu_check').removeAttr('onclick');
 	  	});
 
-	  	function getInputVariables(button) {
-	  		var rowID = button.parent().parent().attr("id"); //"inputTa-5"
-	  		var gNumParam = rowID.split("-")[1];
-	  		var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
-	  		var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
-	  		var sType = "";
-	  		if (qualifier === 'file' || qualifier === 'set') {
-	  			sType = 'file'; //for simplification 
-	  		} else if (qualifier === 'val') {
-	  			sType = qualifier
-	  		}
-	  		return [rowID, gNumParam, given_name, qualifier, sType]
-	  	}
+
 
 	  	//click on "use default" button
 	  	$('#inputsTab').on('click', '#defValUse', function (e) {
@@ -2795,7 +3064,7 @@
 	  		var qualifier = "";
 	  		var sType = "";
 			[rowID, gNumParam, given_name, qualifier, sType] = getInputVariables(button);
-	  		var value = $("#text-" + gNumParam).attr('defVal');
+	  		var value = $(button).attr('defVal');
 	  		var data = [];
 	  		data.push({ name: "id", value: "" });
 	  		data.push({ name: "name", value: value });
@@ -2806,6 +3075,7 @@
 	  		checkReadytoRun();
 	  	});
 	  	//change on dropDown button
+	  	//xxxxxx
 	  	$(function () {
 	  		$(document).on('change', '#dropDown', function () {
 	  			var button = $(this);
