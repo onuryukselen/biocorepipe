@@ -16,6 +16,11 @@ function createAceEditors(editorId, script_modeId) {
 	window[editorId].setTheme("ace/theme/tomorrow");
 	window[editorId].getSession().setMode("ace/mode/sh");
 	window[editorId].$blockScrolling = Infinity;
+	//If mode is exist, then apply it
+	var mode = $(script_modeId).val();
+	if (mode && mode != ""){
+		window[editorId].session.setMode("ace/mode/" + mode);
+	}
 	// If template text is not changed or it is blank : set the template text on change
 	$(function () {
 		$(document).on('change', script_modeId, function () {
@@ -304,17 +309,17 @@ function loadSelectedProcess(selProcessId) {
 	if (showProcess.script_mode_header !== "" && showProcess.script_mode_header !== null) {
 		$('#script_mode_header').val(showProcess.script_mode_header);
 	}
-	if (showProcess.script !== "" && showProcess.script !== null) {
+	if (showProcess.script !== null) {
 		editorScript = removeDoubleQuote(decodeHtml(showProcess.script));
 		editor.setValue(editorScript);
 		editor.clearSelection();
 	}
-	if (showProcess.script_header !== "" && showProcess.script_header !== null) {
+	if (showProcess.script_header !== null) {
 		editorProHeaderScript = removeDoubleQuote(decodeHtml(showProcess.script_header));
 		editorProHeader.setValue(editorProHeaderScript);
 		editorProHeader.clearSelection();
 	}
-	if (showProcess.script_footer !== "" && showProcess.script_footer !== null) {
+	if (showProcess.script_footer !== null) {
 		editorProFooterScript = removeDoubleQuote(decodeHtml(showProcess.script_footer));
 		editorProFooter.setValue(editorProFooterScript);
 		editorProFooter.clearSelection();
@@ -1346,11 +1351,6 @@ function duplicateProcessRev() {
 
 function getScriptEditor(editorId) {
 	var scripteditor = window[editorId].getValue();
-	if (editorId !== 'editorPipeHeader' && editorId !== 'editorPipeFooter') {
-		if (scripteditor === templategroovy || scripteditor === templateperl || scripteditor === templatepython || scripteditor === templatesh) {
-			scripteditor = "";
-		}
-	}
 	scripteditor = encodeURIComponent(scripteditor);
 	return scripteditor
 }

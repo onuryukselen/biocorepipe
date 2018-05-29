@@ -239,6 +239,7 @@ else if ($p=="removeProcess"){
 }
 else if ($p=="removeProject"){   
     $db -> removeProjectPipelineInputbyProjectID($id);
+    $db -> removeRunByProjectID($id);
     $db -> removeProjectPipelinebyProjectID($id);
     $db -> removeProjectInputbyProjectID($id);
     $data = $db -> removeProject($id);
@@ -248,6 +249,7 @@ else if ($p=="removeGroup"){
     $data = $db -> removeGroup($id);
 }
 else if ($p=="removeProjectPipeline"){  
+    $db -> removeRun($id);
     $db -> removeProjectPipelineInputByPipe($id);
     $data = $db -> removeProjectPipeline($id);
 }
