@@ -101,7 +101,6 @@ function sortProcessList(processList, sortGnum) {
 
 // gnum used for processes.  gNum="pipe" is used for pipeline header
 function getNewScriptHeader(script_header, process_opt, gNum) {
-	console.log(process_opt)
 	var newScriptHeader = "";
 	var lines = script_header.split('\n');
 	for (var i = 0; i < lines.length; i++) {
