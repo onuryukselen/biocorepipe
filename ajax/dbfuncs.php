@@ -1556,7 +1556,7 @@ class dbfuncs {
             $preCmd = $this->getPreCmd($profileCmd, $proPipeCmd, $imageCmd);
 			
 			if ($executor == "lsf" && $commandType == "checkRunPid"){
-            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'bjobs' 2>&1 &");
+            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bjobs\" 2>&1 &");
 				if (preg_match("/$pid/",$check_run)){
             		return json_encode('running');
             	} else {
@@ -1572,6 +1572,9 @@ class dbfuncs {
 				} 
 			} else if ($executor == "sge" && $commandType == "terminateRun"){
             	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qdel $pid\" 2>&1 &");
+				return json_encode('terminateCommandExecuted');
+			} else if ($executor == "lsf" && $commandType == "terminateRun"){
+            	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bkill $pid\" 2>&1 &");
 				return json_encode('terminateCommandExecuted');
 			}
     	}

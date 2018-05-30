@@ -1,3 +1,6 @@
+30.05.2018 Version 0.1.47
+Terminating nextflow job by PID is added for LSF platform.
+
 29.05.2018 Version 0.1.46
 Update of script style is fixed while opening process and pipeline.
 Nextflow test is filled based on pipeline options.
