@@ -32,6 +32,7 @@
 	  var sData = "";
 	  var svg = "";
 	  var mainG = "";
+	  var autoFillJSON;
 
 	  function createSVG() {
 	  	edges = []
@@ -1884,7 +1885,7 @@
 	  	}
 	  	// bind event handlers for autofill
 	  	setTimeout(function () {
-	  		if (autoFillJSON) {
+	  		if (autoFillJSON !== null && autoFillJSON !== undefined) {
 	  			bindEveHandler(autoFillJSON);
 	  		}
 	  	}, 1000);

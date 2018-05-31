@@ -1,3 +1,6 @@
+30.05.2018 Version 0.1.48
+Minor bug fixed regarding to Autofill feature.
+
 30.05.2018 Version 0.1.47
 Terminating nextflow job by PID is added for LSF platform.
 
