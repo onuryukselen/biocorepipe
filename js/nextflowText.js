@@ -269,6 +269,9 @@ function InputParameters(id, currgid) {
 						var inputParMate = inputParAll.filter(function (el) {
 							return el.sname == "mate"
 						}).length
+						var inputParMateFlat = inputParAll.filter(function (el) {
+							return el.sname == "mateFlat"
+						}).length
 					}
 
 					if (qual === "file") {
@@ -287,8 +290,19 @@ function InputParameters(id, currgid) {
 						firstPart = firstPart + firstPartTemp
 						secPart = secPart + secPartTemp
 						break
-						//if mate not defined in process use fromPath
-					} else if (qual === "set" && inputParMate === 0) {
+					} //if mateFlat defined in process use fromFilePairs and flat=true
+					else if (qual === "set" && inputParMateFlat > 0) {
+						firstPartTemp = "params." + inputParamName + " =\"\" \n";
+						//all processes that are connected to
+						var channelNameAll = "";
+						channelNameAll = getChannelNameAll(channelName, Iid);
+						secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , flat:true, size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
+						firstPart = firstPart + firstPartTemp
+						secPart = secPart + secPartTemp
+						break
+					}
+					//if mate not defined in process use fromPath
+					else if (qual === "set" && inputParMate === 0) {
 						firstPartTemp = "params." + inputParamName + " =\"\" \n";
 						//all processes that are connected to
 						var channelNameAll = "";
