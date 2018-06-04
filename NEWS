@@ -1,3 +1,6 @@
+4.06.2018 Version 0.1.50
+Pipeline process sorting algorithm improved by recursive approach.
+
 3.06.2018 Version 0.1.49
 Flat feature of fromFilePairs supported by "mateFlat" keyword in inputs section of process. 
 
