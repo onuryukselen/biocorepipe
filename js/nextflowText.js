@@ -108,7 +108,7 @@ function sortProcessList(processList, gnumList) {
             sortProcessList.push(key);
         }
     }
-    return {processList:sortProcessList, gnumList:sortGnum};
+    return { processList: sortProcessList, gnumList: sortGnum };
 }
 
 // gnum used for processes.  gNum="pipe" is used for pipeline header
@@ -124,8 +124,15 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
         if (checkParam && checkParam[0] && checkParam[1]) {
             var newLine = "";
             var varName = $.trim(checkParam[1]);
+            var oldDefVal = $.trim(checkParam[2]);
+            var quoteType = "";
             if (process_opt[gNum][varName]) {
-                var newLine = lines[i].replace(pattern, '$1' + ' = "' + process_opt[gNum][varName] + '" //*' + '$3' + '\n');
+                if (oldDefVal[0] === "'"){
+                    quoteType  = "'";
+                } else if (oldDefVal[0] === '"'){
+                    quoteType  = '"';
+                } 
+                var newLine = lines[i].replace(pattern, '$1' + ' = '+ quoteType +process_opt[gNum][varName]+ quoteType +' //*' + '$3' + '\n');
                 newScriptHeader += newLine;
             } else {
                 newScriptHeader += lines[i] + "\n";
@@ -138,19 +145,20 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
 }
 
 // in case error occured, use recursiveCounter to stop recursive loop
-var recursiveCounter =0;
+var recursiveCounter = 0;
+
 function recursiveSort(sortedProcessList, initGnumList) {
     recursiveCounter++;
     var sortResult = {};
     sortResult = sortProcessList(processList, initGnumList);
     if (checkArraysEqual(initGnumList, sortResult.gnumList)) {
-        recursiveCounter=0;
-        return {processList:sortResult.processList, gnumList:sortResult.gnumList}
+        recursiveCounter = 0;
+        return { processList: sortResult.processList, gnumList: sortResult.gnumList }
     } else {
-        if (recursiveCounter >50){
-        return {processList:sortResult.processList, gnumList:sortResult.gnumList}
+        if (recursiveCounter > 50) {
+            return { processList: sortResult.processList, gnumList: sortResult.gnumList }
         } else {
-        return recursiveSort(sortResult.processList, sortResult.gnumList)
+            return recursiveSort(sortResult.processList, sortResult.gnumList)
         }
     }
 }
@@ -180,10 +188,22 @@ function createNextflowFile(nxf_runmode) {
     } else {
         nextText = "params.outdir = 'results' " + " \n\n";
     }
+    
+    //pipeline scripts
+    var header_pipe_script = "";
+    var footer_pipe_script = "";
+    [header_pipe_script, footer_pipe_script] = getPipelineScript(pipeline_id);
+    if (process_opt != undefined && process_opt != null) {
+        if (header_pipe_script.match(/\/\/\*/) && process_opt["pipe"]) {
+            header_pipe_script = getNewScriptHeader(header_pipe_script, process_opt, "pipe");
+        }
+    }
+    nextText += header_pipe_script + "\n";
+    
     iniTextSecond = ""
     //sortProcessList
-    var initialSort ={};
-    var lastSort ={};
+    var initialSort = {};
+    var lastSort = {};
     // recursive sorting to sort distant nodes.
     initialSort = sortProcessList(processList, null);
     lastSort = recursiveSort(initialSort.processList, initialSort.gnumList)
@@ -197,14 +217,8 @@ function createNextflowFile(nxf_runmode) {
         iniTextSecond = iniTextSecond + iniText.secPart;
         nextText = nextText + iniText.firstPart;
     });
-    //pipeline scripts
-    var header_pipe_script = "";
-    var footer_pipe_script = "";
-    [header_pipe_script, footer_pipe_script] = getPipelineScript(pipeline_id);
-    if (header_pipe_script.match(/\/\/\*/) && process_opt["pipe"]) {
-        header_pipe_script = getNewScriptHeader(header_pipe_script, process_opt, "pipe");
-    }
-    nextText += "\n" + iniTextSecond + "\n" + header_pipe_script + "\n";
+
+    nextText += "\n" + iniTextSecond + "\n";
 
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
@@ -300,9 +314,6 @@ function InputParameters(id, currgid) {
                         var inputParMate = inputParAll.filter(function (el) {
                             return el.sname == "mate"
                         }).length
-                        var inputParMateFlat = inputParAll.filter(function (el) {
-                            return el.sname == "mateFlat"
-                        }).length
                     }
 
                     if (qual === "file") {
@@ -318,16 +329,6 @@ function InputParameters(id, currgid) {
                         var channelNameAll = "";
                         channelNameAll = getChannelNameAll(channelName, Iid);
                         secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
-                        firstPart = firstPart + firstPartTemp
-                        secPart = secPart + secPartTemp
-                        break
-                    } //if mateFlat defined in process use fromFilePairs and flat=true
-                    else if (qual === "set" && inputParMateFlat > 0) {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n";
-                        //all processes that are connected to
-                        var channelNameAll = "";
-                        channelNameAll = getChannelNameAll(channelName, Iid);
-                        secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , flat:true, size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
@@ -480,7 +481,7 @@ function publishDir(id, currgid) {
 
 function getPipelineScript(pipeline_id) {
     var pipelineData = getValues({ p: "loadPipeline", "id": pipeline_id });
-    if (pipelineData[0] && pipelineData[0].script_pipe_header !== null ) {
+    if (pipelineData[0] && pipelineData[0].script_pipe_header !== null) {
         var script_pipe_header = decodeHtml(pipelineData[0].script_pipe_header);
     } else {
         var script_pipe_header = "";
