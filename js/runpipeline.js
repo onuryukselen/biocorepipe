@@ -1932,6 +1932,7 @@ function loadPipelineDetails(pipeline_id) {
                 //generate json for autofill by using script of pipeline header
                 autoFillJSON = parseAutofill(decodeHtml(s[0].script_pipe_header));
                 autoFillJSON = decodeGenericCond(autoFillJSON);
+                console.log(autoFillJSON)
             }
             openPipeline(pipeline_id);
             // activate collapse icon for process options
