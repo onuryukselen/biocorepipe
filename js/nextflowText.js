@@ -315,16 +315,16 @@ function InputParameters(id, currgid) {
                             return el.sname == "mate"
                         }).length
                     }
-
+                    
+                    firstPartTemp = 'if (!params.' + inputParamName + '){params.'+ inputParamName +' = ""} \n'
+                    
                     if (qual === "file") {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n"
                         secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
                         //if mate defined in process use fromFilePairs
                     } else if (qual === "set" && inputParMate > 0) {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n";
                         //all processes that are connected to
                         var channelNameAll = "";
                         channelNameAll = getChannelNameAll(channelName, Iid);
@@ -335,7 +335,6 @@ function InputParameters(id, currgid) {
                     }
                     //if mate not defined in process use fromPath
                     else if (qual === "set" && inputParMate === 0) {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n";
                         //all processes that are connected to
                         var channelNameAll = "";
                         channelNameAll = getChannelNameAll(channelName, Iid);
@@ -344,12 +343,10 @@ function InputParameters(id, currgid) {
                         secPart = secPart + secPartTemp
                         break
                     } else if (qual === "val") {
-                        firstPartTemp = "params." + inputParamName + " =\"\" \n"
                         secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
-
                     }
 
                 }
