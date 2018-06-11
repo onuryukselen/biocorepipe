@@ -64,7 +64,9 @@ else { $login = 0;}
 		<link type="text/css" href="css/pagination.css" rel="stylesheet" />
 		<!-- jQuery 3 -->
 		<script src="bower_components/jquery/dist/jquery.min.js"></script>
-
+        <!-- d3 pdf export -->
+		<script src="dist/js/css-to-pdf/js/xepOnline.jqPlugin.js"></script>
+		
 		<style>
 			/* Ace Editor scroll problem fix */
 
