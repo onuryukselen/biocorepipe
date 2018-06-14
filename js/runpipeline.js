@@ -555,6 +555,7 @@ function autoFillButton(buttonText, value) {
 
 //change propipeinputs in case all conds are true
 function fillStates(states) {
+    $("#inputsTab").loading('start');
     $.each(states, function (st) {
         var defName = states[st]; // expected Value
         //if variable start with "params." then check #inputsTab
@@ -574,8 +575,10 @@ function fillStates(states) {
                 $(checkVarName).val(defName);
             }
         }
-        checkReadytoRun();
     });
+    checkReadytoRun();
+    $("#inputsTab").loading('stop');
+
 }
 // to execute autofill function, binds event handlers
 function bindEveHandler(autoFillJSON) {
@@ -1932,7 +1935,6 @@ function loadPipelineDetails(pipeline_id) {
                 //generate json for autofill by using script of pipeline header
                 autoFillJSON = parseAutofill(decodeHtml(s[0].script_pipe_header));
                 autoFillJSON = decodeGenericCond(autoFillJSON);
-                console.log(autoFillJSON)
             }
             openPipeline(pipeline_id);
             // activate collapse icon for process options
@@ -3291,6 +3293,9 @@ $(document).ready(function () {
     });
 
     $('#inputFilemodal').on('click', '#savefile', function (e) {
+        $('#inputFilemodal').loading({
+            message: 'Working...'
+        });
         e.preventDefault();
         var savetype = $('#mIdFile').val();
         var checkdata = $('#inputFilemodal').find('.active.tab-pane')[0].getAttribute('id');
@@ -3302,6 +3307,7 @@ $(document).ready(function () {
                 data[1].value = $.trim(data[1].value);
                 if (data[1].value !== '') {
                     saveFileSetValModal(data, 'file', null);
+                    $('#inputFilemodal').loading("stop");
                     $('#inputFilemodal').modal('hide');
                 }
             } else if (checkdata === 'projectFileTab') {
@@ -3310,6 +3316,7 @@ $(document).ready(function () {
                     var input_id = rows_selected[0];
                     saveFileSetValModal(null, 'file', input_id);
                 }
+                $('#inputFilemodal').loading("stop");
                 $('#inputFilemodal').modal('hide');
             } else if (checkdata === 'publicFileTab') {
                 var rows_selected = publicFileTable.column(0).checkboxes.selected();
@@ -3317,6 +3324,7 @@ $(document).ready(function () {
                     var input_id = rows_selected[0];
                     saveFileSetValModal(null, 'file', input_id);
                 }
+                $('#inputFilemodal').loading("stop");
                 $('#inputFilemodal').modal('hide');
             }
         } else { //edit item
@@ -3327,6 +3335,7 @@ $(document).ready(function () {
                 data[1].value = $.trim(data[1].value);
                 if (data[1].value !== '') {
                     editFileSetValModal(data, 'file', null);
+                    $('#inputFilemodal').loading("stop");
                     $('#inputFilemodal').modal('hide');
                 }
             } else if (checkdata === 'projectFileTab') {
@@ -3334,6 +3343,7 @@ $(document).ready(function () {
                 if (rows_selected.length === 1) {
                     var input_id = rows_selected[0];
                     editFileSetValModal(null, 'file', input_id);
+                    $('#inputFilemodal').loading("stop");
                     $('#inputFilemodal').modal('hide');
                 }
             } else if (checkdata === 'publicFileTab') {
@@ -3341,6 +3351,7 @@ $(document).ready(function () {
                 if (rows_selected.length === 1) {
                     var input_id = rows_selected[0];
                     editFileSetValModal(null, 'file', input_id);
+                    $('#inputFilemodal').loading("stop");
                     $('#inputFilemodal').modal('hide');
                 }
             }
@@ -3526,6 +3537,9 @@ $(document).ready(function () {
 
     $('#inputValmodal').on('click', '#saveValue', function (e) {
         e.preventDefault();
+        $('#inputValmodal').loading({
+            message: 'Working...'
+        });
         var savetype = $('#mIdVal').val();
         var checkdata = $('#inputValmodal').find('.active.tab-pane')[0].getAttribute('id');
         if (!savetype.length) { //add item
@@ -3536,6 +3550,7 @@ $(document).ready(function () {
                 data[1].value = $.trim(data[1].value);
                 if (data[1].value !== '') {
                     saveFileSetValModal(data, 'val', null);
+                    $('#inputValmodal').loading("stop");
                     $('#inputValmodal').modal('hide');
                 }
             } else if (checkdata === 'projectValTab') {
@@ -3544,6 +3559,7 @@ $(document).ready(function () {
                     var input_id = rows_selected[0];
                     saveFileSetValModal(null, 'val', input_id);
                 }
+                $('#inputValmodal').loading("stop");
                 $('#inputValmodal').modal('hide');
             } else if (checkdata === 'publicValTab') {
                 var rows_selected = publicValTable.column(0).checkboxes.selected();
@@ -3551,6 +3567,7 @@ $(document).ready(function () {
                     var input_id = rows_selected[0];
                     saveFileSetValModal(null, 'val', input_id);
                 }
+                $('#inputValmodal').loading("stop");
                 $('#inputValmodal').modal('hide');
             }
         } else { //edit item
@@ -3561,6 +3578,7 @@ $(document).ready(function () {
                 data[1].value = $.trim(data[1].value);
                 if (data[1].value !== '') {
                     editFileSetValModal(data, 'val', null);
+                    $('#inputValmodal').loading("stop");
                     $('#inputValmodal').modal('hide');
                 }
             } else if (checkdata === 'projectValTab') {
@@ -3568,6 +3586,7 @@ $(document).ready(function () {
                 if (rows_selected.length === 1) {
                     var input_id = rows_selected[0];
                     editFileSetValModal(null, 'val', input_id);
+                    $('#inputValmodal').loading("stop");
                     $('#inputValmodal').modal('hide');
                 }
             } else if (checkdata === 'publicValTab') {
@@ -3575,6 +3594,7 @@ $(document).ready(function () {
                 if (rows_selected.length === 1) {
                     var input_id = rows_selected[0];
                     editFileSetValModal(null, 'val', input_id);
+                    $('#inputValmodal').loading("stop");
                     $('#inputValmodal').modal('hide');
                 }
             }

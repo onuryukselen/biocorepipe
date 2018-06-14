@@ -216,7 +216,7 @@
 				</div>
 			</div>
 		</div>
-
+		
 		<!-- collapsed settings-->
 		<div id="advOpt" class="row collapse">
 			<div class="col-md-12">
@@ -656,3 +656,5 @@
 		</div>
 	</div>
 </div>
+
+
