@@ -784,9 +784,13 @@ function checkDeletionPipe(pipeline_id) {
     var warnPipeText = '';
     //has selected pipeline ever used in projects?
     var checkProj = checkProject(pipeline_id);
-    if (checkProj.length > 0) {
+    //has selected pipeline ever used in projects that user not owns?
+    var checkProjPublic = checkProjectPublic(pipeline_id);
+    var numOfProject = checkProj.length;
+    var numOfProjectPublic = checkProjPublic.length;
+    if (numOfProject > 0 && numOfProjectPublic === 0) {
         warnUserPipe = true;
-        warnPipeText = warnPipeText + 'It is not allowed to remove this revision, since this revision of pipeline exists in the following projects: '
+        warnPipeText = warnPipeText + 'It is not allowed to remove this revision, since this revision of pipeline exists in the following projects: ';
         $.each(checkProj, function (element) {
             if (element !== 0) {
                 warnPipeText = warnPipeText + ', ';
@@ -794,9 +798,10 @@ function checkDeletionPipe(pipeline_id) {
             warnPipeText = warnPipeText + '"' + checkProj[element].name + '"';
         });
         warnPipeText = warnPipeText + '</br></br>In order to delete this revision, you may remove the pipeline from above project/projects.'
-
+    } else if (numOfProjectPublic > 0) {
+        warnUserPipe = true;
+        warnPipeText = warnPipeText + 'This revision of pipeline already used in group/public projects, therefore it is not allowed to delete.';
     }
-
     return [warnUserPipe, warnPipeText];
 }
 
