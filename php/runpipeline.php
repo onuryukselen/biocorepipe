@@ -95,6 +95,7 @@
                   </button>
 				<ul class="dropdown-menu" role="menu">
 					<li><a href="#" onclick="checkReadytoRun(&#34;rerun&#34;);return false;">ReRun</a></li>
+					<li><a href="#" onclick="checkReadytoRun(&#34;resumerun&#34;);return false;">Resume</a></li>
 				</ul>
 			</div>
 			<button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
