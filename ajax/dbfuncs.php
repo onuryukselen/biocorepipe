@@ -24,6 +24,7 @@ class dbfuncs {
         }
     }
 
+// __destruct removed for unit testing
 //    function __destruct() {
 //        if (isset(self::$link)) {
 //            self::$link->close();
