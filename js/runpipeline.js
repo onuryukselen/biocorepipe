@@ -343,8 +343,10 @@ function parseVarPart(varPart, type) {
         if (varSplit.length == 2) {
             varName = $.trim(varSplit[0]);
             defaultVal = $.trim(varSplit[1]);
-            defaultVal = defaultVal.replace(/\"/g, '');
-            defaultVal = defaultVal.replace(/\'/g, '');
+            // if defaultVal starts and ends with single or double quote, remove these. (keep other quotes)
+            if ((defaultVal.charAt(0) === '"' || defaultVal.charAt(0) === "'") && (defaultVal.charAt(defaultVal.length - 1) === '"' || defaultVal.charAt(defaultVal.length - 1) === "'")) {
+                defaultVal = defaultVal.substr(1, defaultVal.length - 2);
+            }
         }
     } // if /=/ not exist then genericCond is defined   
     else {
@@ -472,9 +474,9 @@ function checkConds(conds) {
             var hostname = conds[co];
             var chooseEnvHost = $('#chooseEnv').find(":selected").attr("host");
             if (hostname && chooseEnvHost && hostname === chooseEnvHost) {
-                checkConditionsTrue.push(true)
+                checkConditionsTrue.push(true);
             } else {
-                checkConditionsFalse.push(false)
+                checkConditionsFalse.push(false);
             }
         } else {
             var varName = co.match(/params\.(.*)/)[1]; //variable Name
@@ -552,6 +554,25 @@ function autoFillButton(buttonText, value) {
         removeSelectFile(rowID, qualifier);
     }
 }
+// fill pipeline or process executor settings
+function fillExecSettings(id, defName, type, inputName) {
+    if (type === "pipeline") {
+        setTimeout(function () {
+            updateCheckBox('#exec_all', "true");
+            fillFormById('#allProcessSettTable', id, defName);
+        }, 1);
+    } else if (type === "process") {
+        setTimeout(function () {
+            var findCheckBox = $('#processTable >tbody> tr[procproid=' + id + ']').find("input[name=check]")
+            if (findCheckBox && findCheckBox[0]) {
+                var checkBoxId = $(findCheckBox[0]).attr("id")
+            }
+            updateCheckBox("#" + checkBoxId, "true");
+            updateCheckBox('#exec_each', "true");
+            fillFormById('#processTable >tbody> tr[procproid=' + id + ']', "input[name=" + inputName + "]", defName)
+        }, 1);
+    }
+}
 
 //change propipeinputs in case all conds are true
 function fillStates(states) {
@@ -568,7 +589,48 @@ function fillStates(states) {
                     autoFillButton(varNameButAr[0], defName);
                 }
             }
-        } else { //if variable not start with "params." then check pipeline options:
+            //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
+        } else if (st.match(/\$(.*)/)) {
+            var varName = st.match(/\$(.*)/)[1]; //variable Name
+            if (varName === "SINGULARITY_IMAGE") {
+                $('#singu_img').val(defName);
+                updateCheckBox('#singu_check', "true");
+            } else if (varName === "DOCKER_IMAGE") {
+                $('#docker_img').val(defName);
+                updateCheckBox('#docker_check', "true");
+            } else if (varName === "SINGULARITY_OPTIONS") {
+                $('#singu_opt').val(defName);
+                updateCheckBox('#singu_check', "true");
+            } else if (varName === "DOCKER_OPTIONS") {
+                $('#docker_opt').val(defName);
+                updateCheckBox('#docker_check', "true");
+            } else if (varName === "TIME") {
+                fillExecSettings("#job_time", defName, "pipeline");
+            } else if (varName === "QUEUE") {
+                fillExecSettings("#job_queue", defName, "pipeline");
+            } else if (varName === "MEMORY") {
+                fillExecSettings("#job_memory", defName, "pipeline");
+            } else if (varName === "CPU") {
+                fillExecSettings("#job_cpu", defName, "pipeline");
+            } else if (varName === "EXEC_OPTIONS") {
+                fillExecSettings("#job_clu_opt", defName, "pipeline");
+            } else if (varName.match(/TIME@(.*)/)) {
+                var processId = varName.match(/TIME@(.*)/)[1];
+                fillExecSettings(processId, defName, "process", "time");
+            } else if (varName.match(/QUEUE@(.*)/)) {
+                var processId = varName.match(/QUEUE@(.*)/)[1]
+                fillExecSettings(processId, defName, "process", "queue");
+            } else if (varName.match(/MEMORY@(.*)/)) {
+                var processId = varName.match(/MEMORY@(.*)/)[1]
+                fillExecSettings(processId, defName, "process", "memory");
+            } else if (varName.match(/CPU@(.*)/)) {
+                var processId = varName.match(/CPU@(.*)/)[1]
+                fillExecSettings(processId, defName, "process", "cpu");
+            } else if (varName.match(/EXEC_OPTIONS@(.*)/)) {
+                var processId = varName.match(/EXEC_OPTIONS@(.*)/)[1]
+                fillExecSettings(processId, defName, "process", "opt");
+            }
+        } else { //if variable not start with "params." or "$" then check pipeline options:
             var varName = st;
             var checkVarName = $("#var_pipe-" + varName)[0];
             if (checkVarName) {
@@ -626,8 +688,8 @@ function bindEveHandler(autoFillJSON) {
 //or generic condition eg. [genCondition:{hostname:null, params.genomeTypePipeline:null}, library:{_species:"human"}] 
 function parseAutofill(script) {
     if (script) {
-        //check if autofill comment is exist: /* autofill
-        if (script.match(/\/\* autofill/i)) {
+        //check if autofill comment is exist: //* autofill
+        if (script.match(/\/\/\* autofill/i)) {
             var lines = script.split('\n');
             var blockStart = null; // beginning of autofill block
             var ifBlockStart = null; // beginning of if block
@@ -670,7 +732,7 @@ function parseAutofill(script) {
                                 }
                             });
                         }
-                        //end of the block
+                        //end of the autofill block: //*
                     } else if (lines[i].match(/\/\/\*/i)) {
                         blockStart = null;
                         if (conds && states && library && genConds && (!$.isEmptyObject(conds) || !$.isEmptyObject(genConds)) && (!$.isEmptyObject(states) || !$.isEmptyObject(library))) {
@@ -874,14 +936,17 @@ function insertProPipePanel(script, gNum, name) {
 	  					[varName, defaultVal] = parseVarPart(varPart);
 	  					[type, desc, tool, opt] = parseRegPart(regPart);
                 }
-                // if variable start with "params." then insert into inputs table
-                if (type && varName && varName.match(/params\./)) {
-                    varName = varName.match(/params\.(.*)/)[1];
-                    pipeGnum = pipeGnum - 1;
-                    insertInputRow(defaultVal, opt, pipeGnum, varName, type, name);
-                } else if (type && varName) {
-                    displayProDiv = true;
-                    addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool)
+                if (type && varName) {
+                    // if variable start with "params." then insert into inputs table
+                    if (varName.match(/params\./)) {
+                        varName = varName.match(/params\.(.*)/)[1];
+                        pipeGnum = pipeGnum - 1;
+                        insertInputRow(defaultVal, opt, pipeGnum, varName, type, name);
+                        //if variable starts with "$" then run parameters for processes are defined. Fill run parameters for each process.
+                    } else {
+                        displayProDiv = true;
+                        addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool)
+                    }
                 }
             }
             if (displayProDiv === true) {
@@ -1779,6 +1844,28 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
             if (processData[0].script_header !== "" && processData[0].script_header !== null) {
                 var pro_script_header = decodeHtml(processData[0].script_header);
                 insertProPipePanel(pro_script_header, gNum, name);
+                //generate json for autofill by using script of process header
+                var pro_autoFillJSON = parseAutofill(pro_script_header);
+                // bind event handlers for autofill
+                setTimeout(function () {
+                    if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
+                        //add $PROCESS=name for each condition -> will effect only process specific execution parameters.
+                        $.each(pro_autoFillJSON, function (el) {
+                            var stateObj = pro_autoFillJSON[el].statement;
+                            $.each(stateObj, function (old_key) {
+                                var new_key = old_key + "@" + id;
+                                //add process id to each statement after @ sign (eg.$CPU@52)
+                                if (old_key !== new_key) {
+                                    Object.defineProperty(stateObj, new_key,
+                                        Object.getOwnPropertyDescriptor(stateObj, old_key));
+                                    delete stateObj[old_key];
+                                }
+                            });
+                        });
+                        bindEveHandler(pro_autoFillJSON);
+                    }
+                }, 1000);
+
             }
         }
 
@@ -1950,8 +2037,10 @@ function loadPipelineDetails(pipeline_id) {
 
 function updateCheckBox(check_id, status) {
     if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check' || check_id === '#publish_dir_check') && status === "true") {
-        $(check_id).trigger("click");
-        $(check_id).prop('checked', true);
+        if ($(check_id).is(":checked") === false) {
+            $(check_id).trigger("click");
+            $(check_id).prop('checked', true);
+        }
     }
     if (status === "true") {
         $(check_id).attr('checked', true);
@@ -3241,6 +3330,7 @@ $(document).ready(function () {
             checkReadytoRun();
         })
     });
+    //xxxxx
     $(function () {
         $(document).on('change', '#chooseEnv', function () {
             var [allProSett, profileData] = getJobData("both");
@@ -3252,6 +3342,9 @@ $(document).ready(function () {
             }
             if ($('#exec_all').is(":checked") === true) {
                 $('#exec_all').trigger("click");
+            }
+            if ($('#exec_each').is(":checked") === true) {
+                $('#exec_each').trigger("click");
             }
             fillForm('#allProcessSettTable', 'input', allProSett);
             checkReadytoRun();

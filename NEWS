@@ -1,3 +1,6 @@
+20.06.2018 Version 0.1.56
+Autofill feature for docker, singularity, pipeline and process executor settings are added. 
+
 18.06.2018 Version 0.1.55
 Show warning modal when user tries to delete pipeline which has used by other users.
 Resume button added when process terminated

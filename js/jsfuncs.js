@@ -141,8 +141,6 @@ function checkAmazonStatus(proId) {
 
 }
 
-
-
 $(document).ready(function () {
 	function addAmzRow(id, name, executor, instance_type, image_id, subnet_id) {
 		$('#amzTable > thead').append('<tr id="amazon-' + id + '"> <td>' + name + '</td><td>Instance_type: ' + instance_type + '<br>  Image id: ' + image_id + '<br>  Subnet Id: ' + subnet_id + '<br> Executor: ' + executor + '<br>  </td><td id="status-' + id + '"><i class="fa fa-hourglass-half"></i></td><td>' + getButtonsDef('amz', 'Start') + getButtonsDef('amz', 'Stop') + '</td></tr>');
@@ -652,7 +650,7 @@ function refreshCollapseIconDiv() {
 	});
 }
 
-// fills the from with the object data. find is comma separated string: 'input, p'
+// fills the from with the object data. find is comma separated string for form types such as: 'input, p'
 //eg.  fillForm('#execNextSettTable','input', exec_next_settings);
 function fillForm(formId, find, data) {
 	var formValues = $(formId).find(find);
@@ -664,6 +662,13 @@ function fillForm(formId, find, data) {
 			$(formValues[i]).val(data[keys[i]]);
 		}
 	}
+}
+
+function fillFormById(formId, find, data) {
+	var formValues = $(formId).find(find);
+    if(formValues[0]){
+        $(formValues[0]).val(data);
+    }
 }
 
 $(function () {
