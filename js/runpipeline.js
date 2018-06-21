@@ -592,7 +592,6 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
-            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
@@ -615,7 +614,7 @@ function fillStates(states) {
                 fillExecSettings("#job_cpu", defName, "pipeline");
             } else if (varName === "EXEC_OPTIONS") {
                 fillExecSettings("#job_clu_opt", defName, "pipeline");
-            //two conditions covers both process and pipeline run_commands
+                //two conditions covers both process and pipeline run_commands
             } else if (varName.match(/RUN_COMMAND@(.*)/) || varName === "RUN_COMMAND") {
                 setTimeout(function () {
                     var initialText = $('#runCmd').val();
@@ -2658,16 +2657,98 @@ function checkRunPid(runPid, proType, proId) {
     return checkPid
 }
 
+function parseMountPath(path) {
+    if (path != null && path != "") {
+        if (path.match(/\//)) {
+            var allDir = path.split("/");
+            if (allDir.length > 1) {
+                return "/" + allDir[1] + "/" + allDir[2]
+            }
+        }
+    }
+    return null;
+}
+//when -E is not defined add paths, If -E defined then replace the content of -E "paths"
+function getNewExecOpt(oldExecOpt, newPaths) {
+    var newExecAll = "";
+    if (!oldExecOpt.match(/\-E/)) {
+        newExecAll = oldExecOpt + newPaths;
+    } else if (oldExecOpt.match(/\-E "(.*)"/)) {
+        var patt = /(.*)-E \"(.*)\"(.*)/;
+        newExecAll = oldExecOpt.replace(patt, '$1' + newPaths + '$3');
+    }
+    return newExecAll
+}
+//xxxxxxx
+function autofillMountPath() {
+    var pathArray = [];
+    var workDir = $('#rOut_dir').val();
+    workDir = parseMountPath(workDir);
+    if (workDir) {
+        pathArray.push(workDir);
+    }
+    //get all input paths
+    var inputPaths = $('#inputsTab > table > tbody >tr').find("span[id*='filePath']");
+    if (inputPaths && inputPaths != null) {
+        $.each(inputPaths, function (el) {
+            var inputPath = $(inputPaths[el]).text();
+            var parsedPath = parseMountPath(inputPath);
+            if (parsedPath) {
+                if (pathArray.indexOf(parsedPath) === -1) {
+                    pathArray.push(parsedPath)
+                }
+            }
+        });
+    }
+    //turn into lsf command (use -E to define scripts which will be executed just before the main job)
+    if (pathArray.length > 0) {
+        var execOtherOpt = '-E "file ' + pathArray.join(' && file ') + '"'
+    } else {
+        var execOtherOpt = '';
+    }
+
+    //check if exec_all or exec_each checkboxes are clicked.
+    if ($('#exec_all').is(":checked") === true) {
+        var oldExecAll = $('#job_clu_opt').val();
+        var newExecAll = getNewExecOpt(oldExecAll, execOtherOpt);
+        $('#job_clu_opt').val(newExecAll);
+
+    }
+    if ($('#exec_each').is(":checked") === true) {
+        var checkedBox = $('#processTable').find('input:checked');
+        var checkedBoxArray = checkedBox.toArray();
+        var formDataArr = {};
+        $.each(checkedBoxArray, function (el) {
+            var boxId = $(checkedBoxArray[el]).attr('id')
+            var patt = /(.*)-(.*)/;
+            var proGnum = boxId.replace(patt, '$2');
+            var oldExecEachDiv = $('#procGnum-' + proGnum).find('input[name=opt]')[0];
+            var oldExecEach = $(oldExecEachDiv).val();
+            var newExecEach = getNewExecOpt(oldExecEach, execOtherOpt);
+            $(oldExecEachDiv).val(newExecEach);
+        });
+    }
+    return execOtherOpt
+}
+
 //callbackfunction to first change the status of button to connecting
 function runProjectPipe(runProPipeCall, checkType) {
+    execOtherOpt = "";
     displayButton('connectingProPipe');
     $('#runLogArea').val("");
+    //autofill for ghpcc06 cluster to mount all directories before run executed.
+    var hostname = $('#chooseEnv').find('option:selected').attr('host');
+    if (hostname === "ghpcc06.umassrc.org") {
+        execOtherOpt = autofillMountPath()
+    }
     // Call the callback
     setTimeout(function () { runProPipeCall(checkType); }, 1000);
 }
 
 //click on run button (callback function)
 function runProPipeCall(checkType) {
+
+
     saveRunIcon();
     nxf_runmode = true;
     var nextTextRaw = createNextflowFile("run");
@@ -2730,6 +2811,13 @@ function runProPipeCall(checkType) {
             var exec_all_settings = formToJson(exec_all_settingsRaw);
             configTextAllProcess(exec_all_settings);
         } else {
+            if (execOtherOpt != "" && execOtherOpt != null) {
+                var oldJobCluOpt = allProSett.job_clu_opt;
+                var newJobCluOpt = getNewExecOpt(oldJobCluOpt, execOtherOpt);
+                if (newJobCluOpt != "" && newJobCluOpt != null) {
+                    allProSett.job_clu_opt = newJobCluOpt;
+                }
+            }
             configTextAllProcess(allProSett);
         }
         if ($('#exec_each').is(":checked") === true) {
@@ -3149,9 +3237,6 @@ function saveRunIcon() {
                 alert("Error: " + errorThrown);
             }
         });
-    } else {
-        //xxx
-        //Changes are not saved. Please enter the run name.
     }
 }
 
@@ -3305,7 +3390,6 @@ $(document).ready(function () {
         checkReadytoRun();
     });
     //change on dropDown button
-    //xxxxxx
     $(function () {
         $(document).on('change', '#dropDown', function () {
             var button = $(this);
@@ -3341,9 +3425,10 @@ $(document).ready(function () {
             checkReadytoRun();
         })
     });
-    //xxxxx
     $(function () {
         $(document).on('change', '#chooseEnv', function () {
+            //reset before autofill feature actived for #runCmd
+            $('#runCmd').val("");
             var [allProSett, profileData] = getJobData("both");
             var executor_job = profileData[0].executor_job;
             if (executor_job === 'local' || executor_job === 'ignite') {
