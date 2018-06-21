@@ -592,6 +592,7 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
+            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
@@ -614,6 +615,16 @@ function fillStates(states) {
                 fillExecSettings("#job_cpu", defName, "pipeline");
             } else if (varName === "EXEC_OPTIONS") {
                 fillExecSettings("#job_clu_opt", defName, "pipeline");
+            //two conditions covers both process and pipeline run_commands
+            } else if (varName.match(/RUN_COMMAND@(.*)/) || varName === "RUN_COMMAND") {
+                setTimeout(function () {
+                    var initialText = $('#runCmd').val();
+                    if (initialText == "") {
+                        $('#runCmd').val(defName);
+                    } else {
+                        $('#runCmd').val(initialText + " && " + defName);
+                    }
+                }, 1);
             } else if (varName.match(/TIME@(.*)/)) {
                 var processId = varName.match(/TIME@(.*)/)[1];
                 fillExecSettings(processId, defName, "process", "time");
@@ -630,6 +641,7 @@ function fillStates(states) {
                 var processId = varName.match(/EXEC_OPTIONS@(.*)/)[1]
                 fillExecSettings(processId, defName, "process", "opt");
             }
+
         } else { //if variable not start with "params." or "$" then check pipeline options:
             var varName = st;
             var checkVarName = $("#var_pipe-" + varName)[0];
@@ -1849,12 +1861,11 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
                 // bind event handlers for autofill
                 setTimeout(function () {
                     if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
-                        //add $PROCESS=name for each condition -> will effect only process specific execution parameters.
                         $.each(pro_autoFillJSON, function (el) {
                             var stateObj = pro_autoFillJSON[el].statement;
                             $.each(stateObj, function (old_key) {
                                 var new_key = old_key + "@" + id;
-                                //add process id to each statement after @ sign (eg.$CPU@52)
+                                //add process id to each statement after @ sign (eg.$CPU@52) -> will effect only process specific execution parameters.
                                 if (old_key !== new_key) {
                                     Object.defineProperty(stateObj, new_key,
                                         Object.getOwnPropertyDescriptor(stateObj, old_key));
