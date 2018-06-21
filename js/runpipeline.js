@@ -794,6 +794,7 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters. $SINGULARITY_IMAGE, $SINGULARITY_OPTIONS, $DOCKER_IMAGE, $DOCKER_OPTIONS, $MEMORY, $TIME, $QUEUE, $CPU, $EXEC_OPTIONS 
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
+            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
