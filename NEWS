@@ -1,3 +1,6 @@
+21.06.2018 Version 0.1.57
+Autofill feature for run command is added for both pipeline and process.
+
 20.06.2018 Version 0.1.56
 Autofill feature for docker, singularity, pipeline and process executor settings are added. 
 
