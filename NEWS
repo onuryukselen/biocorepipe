@@ -1,3 +1,6 @@
+22.06.2018 Version 0.1.59
+System and user inputs are separated in run pipeline.
+
 21.06.2018 Version 0.1.58
 Autofill feature  is added for ghpcc06 cluster to mount all directories before run executed.
 
