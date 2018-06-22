@@ -592,6 +592,7 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
+            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
@@ -614,7 +615,8 @@ function fillStates(states) {
                 fillExecSettings("#job_cpu", defName, "pipeline");
             } else if (varName === "EXEC_OPTIONS") {
                 fillExecSettings("#job_clu_opt", defName, "pipeline");
-                //two conditions covers both process and pipeline run_commands
+            //two conditions covers both process and pipeline run_commands
+
             } else if (varName.match(/RUN_COMMAND@(.*)/) || varName === "RUN_COMMAND") {
                 setTimeout(function () {
                     var initialText = $('#runCmd').val();
