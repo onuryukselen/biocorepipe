@@ -1,3 +1,6 @@
+23.06.2018 Version 0.1.60
+Minor bug fixed regarding to number of inputs in run pipeline.
+
 22.06.2018 Version 0.1.59
 System and user inputs are separated in run pipeline.
 

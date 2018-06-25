@@ -2426,7 +2426,7 @@ function checkReadytoRun(type) {
         p: "getProjectPipelineInputs",
         project_pipeline_id: project_pipeline_id,
     });
-    var numInputRows = $('#inputsTable > tbody').find('tr').length;
+    var numInputRows = $('#inputsTable > tbody').find('tr[id*=input]').length; //find input rows
     var profileNext = $('#chooseEnv').find(":selected").val();
     var profileNextText = $('#chooseEnv').find(":selected").html();
     if (profileNextText.match(/Amazon: Status:/)) {
