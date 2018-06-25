@@ -33,6 +33,7 @@ var sData = "";
 var svg = "";
 var mainG = "";
 var autoFillJSON;
+var systemInputs = [];
 
 function createSVG() {
     edges = []
@@ -64,7 +65,7 @@ function createSVG() {
 
     d3.select("#svg").remove();
     //--Pipeline details table clean --
-    $('#inputsTable').find("tr:gt(0)").remove();
+    //    $('#inputsTable').find("tr:gt(0)").remove();
     $('#outputsTable').find("tr:gt(0)").remove();
     $('#processTable').find("tr:gt(0)").remove();
 
@@ -592,7 +593,6 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
-            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
@@ -615,8 +615,7 @@ function fillStates(states) {
                 fillExecSettings("#job_cpu", defName, "pipeline");
             } else if (varName === "EXEC_OPTIONS") {
                 fillExecSettings("#job_clu_opt", defName, "pipeline");
-            //two conditions covers both process and pipeline run_commands
-
+                //two conditions covers both process and pipeline run_commands
             } else if (varName.match(/RUN_COMMAND@(.*)/) || varName === "RUN_COMMAND") {
                 setTimeout(function () {
                     var initialText = $('#runCmd').val();
@@ -759,6 +758,15 @@ function parseAutofill(script) {
                                 library[varName] = defaultVal;
                             } else {
                                 states[varName] = defaultVal;
+                                //check if params.VARNAME is defined and return all VARNAMES to fill them as system inputs
+                                if (varName.match(/params\.(.*)/)) {
+                                    var sysInput = varName.match(/params\.(.*)/)[1];
+                                    if (sysInput && sysInput != "") {
+                                        if (systemInputs.indexOf(sysInput) === -1) {
+                                            systemInputs.push(sysInput)
+                                        }
+                                    }
+                                }
                             }
 
                         }
@@ -875,6 +883,7 @@ function decodeGenericCond(autoFillJSON) {
     return autoFillJSON
 }
 
+// if variable start with "params." then insert into inputs table
 function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
     var dropDownQual = false;
     var paraQualifier = "val"
@@ -901,7 +910,11 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
     }
     var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
     var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-    setTimeout(function () { $('#' + rowType + 'sTable > tbody:last-child').append(inRow); }, 1);
+    // fill as user input
+    setTimeout(function () { $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow); }, 1);
+    if ($("#userInputs").css("display") === "none") {
+        $("#userInputs").css("display", "table-row")
+    }
 
     //check if project_pipeline_inputs exist and fill:
     var getProPipeInputs = getValues({
@@ -1478,6 +1491,7 @@ function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValBu
     return buttons
 }
 
+
 function createEdges(first, second) {
     d3.selectAll("#" + first).attr("connect", 'mate')
     d3.selectAll("#" + second).attr("connect", 'mate')
@@ -1560,8 +1574,21 @@ function createEdges(first, second) {
             //inputsTable
             if (rowType === 'input') {
                 var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
+                //insert both system and user inputs
                 var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-                $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+                //get SystemInputs if they defined as params.VARNAME in the autofill section of pipeline header.
+                // fill as system input
+                if (systemInputs.indexOf(paramGivenName) > -1) {
+                    $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+                    if ($("#systemInputs").css("display") === "none") {
+                        $("#systemInputs").css("display", "table-row")
+                    }
+                } else { // fill as user input
+                    $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
+                    if ($("#userInputs").css("display") === "none") {
+                        $("#userInputs").css("display", "table-row")
+                    }
+                }
                 //get project_pipeline_inputs:
                 var getProPipeInputs = getValues({
                     p: "getProjectPipelineInputsByGnum",
@@ -2030,9 +2057,11 @@ function loadPipelineDetails(pipeline_id) {
             $('#pipelineSum').val(decodeHtml(s[0].summary));
             if (s[0].script_pipe_header !== null) {
                 pipeGnum = 0;
-                insertProPipePanel(decodeHtml(s[0].script_pipe_header), "pipe", "Pipeline");
+                script_pipe_header = decodeHtml(s[0].script_pipe_header);
+                //check if params.VARNAME is defined in the autofill section of pipeline header. Then return all VARNAMES to define as system inputs
+                insertProPipePanel(script_pipe_header, "pipe", "Pipeline");
                 //generate json for autofill by using script of pipeline header
-                autoFillJSON = parseAutofill(decodeHtml(s[0].script_pipe_header));
+                autoFillJSON = parseAutofill(script_pipe_header);
                 autoFillJSON = decodeGenericCond(autoFillJSON);
             }
             openPipeline(pipeline_id);
@@ -2046,6 +2075,7 @@ function loadPipelineDetails(pipeline_id) {
         }
     });
 };
+
 
 function updateCheckBox(check_id, status) {
     if ((check_id === '#exec_all' || check_id === '#exec_each' || check_id === '#singu_check' || check_id === '#docker_check' || check_id === '#publish_dir_check') && status === "true") {
@@ -2681,7 +2711,7 @@ function getNewExecOpt(oldExecOpt, newPaths) {
     }
     return newExecAll
 }
-//xxxxxxx
+
 function autofillMountPath() {
     var pathArray = [];
     var workDir = $('#rOut_dir').val();
