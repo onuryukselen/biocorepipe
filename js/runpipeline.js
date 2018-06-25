@@ -719,7 +719,7 @@ function parseAutofill(script) {
                     var blockStart = i;
                 }
                 // parse statements after first line of autofill
-                if (blockStart && i > blockStart) {
+                if (blockStart != null && i > blockStart) {
                     //find if condition
                     if (lines[i].match(/.*if *\((.*)\).*/i)) {
                         if (ifBlockStart) {
