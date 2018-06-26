@@ -413,7 +413,7 @@ function insertProRowTable(process_id, procName, procDesc, procRev) {
 //--Pipeline details table --
 function addProPipeTab(id) {
 	var procData = processData.filter(function (el) { return el.id == id });
-	if (procData) {
+	if (procData && procData[0]) {
 		var procName = procData[0].name;
 		var procDesc = truncateName(decodeHtml(procData[0].summary), 'processTable');
 		var procRev = procData[0].rev_id;
