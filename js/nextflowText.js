@@ -111,7 +111,7 @@ function sortProcessList(processList, gnumList) {
     return { processList: sortProcessList, gnumList: sortGnum };
 }
 
-// gnum used for processes.  gNum="pipe" is used for pipeline header
+// gnum numbers used for process header.  gNum="pipe" is used for pipeline header
 function getNewScriptHeader(script_header, process_opt, gNum) {
     var newScriptHeader = "";
     var lines = script_header.split('\n');
@@ -132,7 +132,9 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
                 } else if (oldDefVal[0] === '"'){
                     quoteType  = '"';
                 } 
-                var newLine = lines[i].replace(pattern, '$1' + ' = '+ quoteType +process_opt[gNum][varName]+ quoteType +' //*' + '$3' + '\n');
+                var fillVal = process_opt[gNum][varName];
+                fillVal = fillVal.replace(/(\r\n|\n|\r)/gm, "\\n");
+                var newLine = lines[i].replace(pattern, '$1' + ' = '+ quoteType + fillVal + quoteType +' //*' + '$3' + '\n');
                 newScriptHeader += newLine;
             } else {
                 newScriptHeader += lines[i] + "\n";
