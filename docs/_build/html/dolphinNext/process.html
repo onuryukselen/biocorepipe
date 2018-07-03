@@ -103,6 +103,9 @@
 <li class="toctree-l3"><a class="reference internal" href="#id5">Operators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Regular Expressions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#header-script">Header Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#process-options">Process Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#styles-for-process-options">Styles for Process Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#autofill-feature-for-process">Autofill Feature for Process</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#permissions-groups-and-publish">Permissions, Groups and Publish</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#copying-and-revisions">Copying and Revisions</a></li>
 </ul>
@@ -415,6 +418,142 @@ tophat2 -o . ${indexPath} $reads
 <h2>Header Script<a class="headerlink" href="#header-script" title="Permalink to this headline">¶</a></h2>
 <p>This section allows you to add additional scripts or comments before process block starts. This way you may recall same function several times in the script section.</p>
 <img alt="../_images/process_headerscript.png" class="align-center" src="../_images/process_headerscript.png" />
+</div>
+<div class="section" id="process-options">
+<h2>Process Options<a class="headerlink" href="#process-options" title="Permalink to this headline">¶</a></h2>
+<p>You may separate your main process inputs and optional parameters by using <strong>Process Options</strong> feature. On the run page, these parameters will be asked separately in the Process Options section as in the image shown at below:</p>
+<img alt="../_images/process_processopt.png" class="align-center" src="../_images/process_processopt.png" />
+<p>In order to create these form, you need to use following syntax in the <strong>process header</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">variableName</span> <span class="o">=</span> <span class="n">defaultValue</span> <span class="o">//*</span> <span class="nd">@formType</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;...&quot;</span> <span class="nd">@tooltip</span><span class="p">:</span><span class="s2">&quot;...&quot;</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;...&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can define defaultValue with single/double quotes (for strings) or without any quotes (for numbers).</p>
+</div>
+<ul>
+<li><p class="first"><strong>&#64;formType:</strong> Four type of form fields are available in DolphinNext (<code class="docutils literal notranslate"><span class="pre">&#64;input</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;textbox</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;checkbox</span></code>, <code class="docutils literal notranslate"><span class="pre">&#64;dropdown</span></code>):</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first"><strong>&#64;input:</strong> It creates single-line text field. Example usage and created form field in run page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">readsPerFile</span> <span class="o">=</span> <span class="mi">5000000</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;The number of reads per file&quot;</span>
+<span class="n">params_tophat</span> <span class="o">=</span> <span class="s2">&quot;-N 4&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;Tophat parameters&quot;</span> <span class="nd">@tooltip</span><span class="p">:</span><span class="s2">&quot;parameters for Tophat2 version 2.6&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<img alt="../_images/process_input.png" class="align-center" src="../_images/process_input.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ol class="arabic" start="2">
+<li><p class="first"><strong>&#64;textbox:</strong> It creates multi-line text field. Example usage and created form field in run page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Adapter_Sequence</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@textbox</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;You can enter a single sequence or multiple sequences in different lines.&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<img alt="../_images/process_textbox.png" class="align-center" src="../_images/process_textbox.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ol class="arabic" start="3">
+<li><p class="first"><strong>&#64;checkbox:</strong> It creates checkbox for the user and their available options are defined as <code class="docutils literal notranslate"><span class="pre">true</span></code> or <code class="docutils literal notranslate"><span class="pre">false</span></code> by default. Example usage and created form field in run page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_rRNA_Mapping</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span> <span class="o">//*</span> <span class="nd">@checkbox</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;Check the box to activate rRNA mapping.&quot;</span>
+<span class="n">rRNA_filtering</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span> <span class="o">//*</span> <span class="nd">@checkbox</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;Check the box to filter rRNA reads.&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<img alt="../_images/process_checkbox.png" class="align-center" src="../_images/process_checkbox.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<ol class="arabic" start="4">
+<li><p class="first"><strong>&#64;dropdown:</strong> It create dropdown menu and their options can be specified by entering <code class="docutils literal notranslate"><span class="pre">&#64;options</span></code> feature. Example usage and created form field in run page:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">genomeType</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;Genome type for pipeline&quot;</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;hg19&quot;</span><span class="p">,</span><span class="s2">&quot;mm10&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<img alt="../_images/process_dropdown.png" class="align-center" src="../_images/process_dropdown.png" />
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>&#64;description:</strong> You can describe inputs by using <code class="docutils literal notranslate"><span class="pre">&#64;description</span></code> tag. Please check the examples at above.</p>
+</li>
+<li><p class="first"><strong>&#64;tooltip:</strong> You can also create tooltip to add detailed explanation by using <code class="docutils literal notranslate"><span class="pre">&#64;tooltip</span></code> tag. See the example at below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params_tophat</span> <span class="o">=</span> <span class="s2">&quot;-N 4&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@tooltip</span><span class="p">:</span><span class="s2">&quot;parameters for Tophat2 version 2.6&quot;</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;Tophat parameters&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><strong>&#64;options:</strong> When you define &#64;dropdown as a formType, then you should define available options by using <code class="docutils literal notranslate"><span class="pre">&#64;options</span></code> tag. Please check the example dropdown at above.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="styles-for-process-options">
+<h2>Styles for Process Options<a class="headerlink" href="#styles-for-process-options" title="Permalink to this headline">¶</a></h2>
+<p>You might use additional tags to give specific shapes to form fields: A. <code class="docutils literal notranslate"><span class="pre">&#64;multicolumn</span></code> B. <code class="docutils literal notranslate"><span class="pre">&#64;array</span></code> C. <code class="docutils literal notranslate"><span class="pre">condition</span></code>.</p>
+<p><strong>A. &#64;multicolumn:</strong></p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var1</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var1&quot;</span>
+<span class="n">var2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var2&quot;</span>
+<span class="n">var3</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var3&quot;</span>
+<span class="n">var4</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var4&quot;</span>
+<span class="n">var5</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var5&quot;</span>
+<span class="n">var6</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var6&quot;</span>
+<span class="o">//*</span> <span class="nd">@style</span> <span class="nd">@multicolumn</span><span class="p">:{</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">,</span> <span class="n">var3</span><span class="p">},</span> <span class="p">{</span><span class="n">var5</span><span class="p">,</span> <span class="n">var6</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example, var1, var2 and var3 will be located in the same row, by default var4 gonna fill single row and var5 and var6 gonna share same row as shown at below.</p>
+<p><strong>B. &#64;array:</strong></p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var1</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var1&quot;</span>
+<span class="n">var2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var2&quot;</span>
+<span class="n">var3</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var3&quot;</span>
+<span class="n">var4</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var4&quot;</span>
+<span class="o">//*</span> <span class="nd">@style</span> <span class="nd">@array</span><span class="p">:{</span><span class="n">var1</span><span class="p">,</span> <span class="n">var2</span><span class="p">},</span> <span class="p">{</span><span class="n">var4</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example, var1, var2 are grouped together and linked to plus/minus buttons. When plus button is clicked new var1, var2 fields will be created just below var1 and var2. Similarly minus button gonna remove generated copies of form fields. Similar features exist for just var4 variable. Please see the image at below:</p>
+<p><strong>C. &#64;condition:</strong></p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">var1</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var1&quot;</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="s2">&quot;no&quot;</span>
+<span class="n">var2</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var2&quot;</span>
+<span class="n">var3</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var3&quot;</span>
+<span class="n">var4</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var4&quot;</span>
+<span class="n">var5</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@input</span> <span class="nd">@description</span><span class="p">:</span><span class="s2">&quot;description of var5&quot;</span>
+<span class="o">//*</span> <span class="nd">@style</span> <span class="nd">@condition</span><span class="p">:{</span><span class="n">var1</span><span class="o">=</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span> <span class="n">var2</span><span class="p">},</span> <span class="p">{</span><span class="n">var1</span><span class="o">=</span><span class="s2">&quot;no&quot;</span><span class="p">,</span> <span class="n">var3</span><span class="p">,</span> <span class="n">var4</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>In this example, var1 value is binded to other form fields. When var1 is selected as “yes”, field of var2 will be shown. Whereas when var1 is changed to “no”, then var2 field will disappear and var3 and var4 fields will appear. Since var5 is not defined in &#64;condition tag, it will be always seen while changes happening in other fields. Please see the example at below:</p>
+</div>
+<div class="section" id="autofill-feature-for-process">
+<h2>Autofill Feature for Process<a class="headerlink" href="#autofill-feature-for-process" title="Permalink to this headline">¶</a></h2>
+<p>You might define hostname specific executor properties and create autofill feature by using following syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+&lt;executor properties&gt;
+}
+//*
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">$HOSTNAME</span></code> is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all <code class="docutils literal notranslate"><span class="pre">&lt;executor</span> <span class="pre">properties&gt;</span></code> will be active in case of pipeline is going to run on ghpcc06.umassrc.org.</p>
+<p><strong>Executor Properties:</strong></p>
+<p>Five type of executor properties are available to autofill <strong>Executor Settings for Each Process</strong>: <code class="docutils literal notranslate"><span class="pre">$TIME</span></code>, <code class="docutils literal notranslate"><span class="pre">$CPU</span></code>, <code class="docutils literal notranslate"><span class="pre">$MEMORY</span></code>, <code class="docutils literal notranslate"><span class="pre">$QUEUE</span></code>, <code class="docutils literal notranslate"><span class="pre">$EXEC_OPTIONS</span></code> which defines Time, CPU, Memory, Queue and Other Options. See the example below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+    $TIME = 3000
+    $CPU  = 4
+    $MEMORY = 100
+    $QUEUE = &quot;long&quot;
+    $EXEC_OPTIONS = &#39;-E &quot;file /home/garberlab&quot;&#39;
+}
+//*
+</pre></div>
+</div>
 </div>
 <div class="section" id="permissions-groups-and-publish">
 <h2>Permissions, Groups and Publish<a class="headerlink" href="#permissions-groups-and-publish" title="Permalink to this headline">¶</a></h2>

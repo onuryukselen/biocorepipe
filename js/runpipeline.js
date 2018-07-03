@@ -359,7 +359,7 @@ function parseVarPart(varPart, type) {
     return [varName, defaultVal]
 }
 
-//parse main categories: @checkbox, @textbox, @inputbox, @dropdown, @description, @options 
+//parse main categories: @checkbox, @textbox, @input, @dropdown, @description, @options 
 function parseRegPart(regPart) {
     var type = null;
     var desc = null;
@@ -590,7 +590,7 @@ function fillStates(states) {
                     autoFillButton(varNameButAr[0], defName);
                 }
             }
-            //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters.
+            //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters. $SINGULARITY_IMAGE, $SINGULARITY_OPTIONS, $DOCKER_IMAGE, $DOCKER_OPTIONS, $MEMORY, $TIME, $QUEUE, $CPU, $EXEC_OPTIONS 
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
             if (varName === "SINGULARITY_IMAGE") {
