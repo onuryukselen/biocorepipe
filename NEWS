@@ -1,4 +1,7 @@
-25.06.2018 Version 0.1.62.
+02.07.2018 Version 0.1.63
+Documentation is upgraded for process options and autofill feature of process.
+
+25.06.2018 Version 0.1.62
 Error messages are suppressed from cat command of the log file when job submitted but run not started.
 New line character of textarea is replaced with \n while filling nextflow file.
 

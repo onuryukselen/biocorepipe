@@ -188,6 +188,140 @@ This section allows you to add additional scripts or comments before process blo
 .. image:: dolphinnext_images/process_headerscript.png
 	:align: center
 
+
+Process Options
+===============
+
+You may separate your main process inputs and optional parameters by using **Process Options** feature. On the run page, these parameters will be asked separately in the Process Options section as in the image shown at below:
+
+.. image:: dolphinnext_images/process_processopt.png
+	:align: center
+
+In order to create these form, you need to use following syntax in the **process header**::
+    
+    variableName = defaultValue //* @formType @description:"..." @tooltip:"..." @options:"..."
+
+.. note:: You can define defaultValue with single/double quotes (for strings) or without any quotes (for numbers).
+
+
+* **@formType:** Four type of form fields are available in DolphinNext (``@input``, ``@textbox``, ``@checkbox``, ``@dropdown``):  
+    
+    1) **@input:** It creates single-line text field. Example usage and created form field in run page::
+    
+        readsPerFile = 5000000 //* @input @description:"The number of reads per file"
+        params_tophat = "-N 4" //* @input @description:"Tophat parameters" @tooltip:"parameters for Tophat2 version 2.6"
+    
+    .. image:: dolphinnext_images/process_input.png
+	:align: center
+    |
+
+    2) **@textbox:** It creates multi-line text field. Example usage and created form field in run page::
+    
+        Adapter_Sequence = "" //* @textbox @description:"You can enter a single sequence or multiple sequences in different lines." 
+    
+    .. image:: dolphinnext_images/process_textbox.png
+	:align: center
+    |
+    
+    3) **@checkbox:** It creates checkbox for the user and their available options are defined as ``true`` or ``false`` by default. Example usage and created form field in run page::
+    
+        run_rRNA_Mapping = "false" //* @checkbox @description:"Check the box to activate rRNA mapping."
+        rRNA_filtering = "true" //* @checkbox @description:"Check the box to filter rRNA reads."
+    
+    .. image:: dolphinnext_images/process_checkbox.png
+	:align: center
+    |
+    
+    4) **@dropdown:** It create dropdown menu and their options can be specified by entering ``@options`` feature. Example usage and created form field in run page::
+    
+        genomeType = "" //* @dropdown @description:"Genome type for pipeline" @options:"hg19","mm10", "custom"
+        
+    .. image:: dolphinnext_images/process_dropdown.png
+	:align: center
+    |
+    
+* **@description:** You can describe inputs by using ``@description`` tag. Please check the examples at above.
+        
+* **@tooltip:** You can also create tooltip to add detailed explanation by using ``@tooltip`` tag. See the example at below::
+
+    params_tophat = "-N 4" //* @input @tooltip:"parameters for Tophat2 version 2.6" @description:"Tophat parameters"
+
+* **@options:** When you define @dropdown as a formType, then you should define available options by using ``@options`` tag. Please check the example dropdown at above.
+
+Styles for Process Options
+==========================
+
+You might use additional tags to give specific shapes to form fields: A. ``@multicolumn`` B. ``@array`` C. ``condition``. 
+
+**A. @multicolumn:**
+
+Example::
+
+    var1 = "" //* @input @description:"description of var1"
+    var2 = "" //* @input @description:"description of var2"
+    var3 = "" //* @input @description:"description of var3"
+    var4 = "" //* @input @description:"description of var4"
+    var5 = "" //* @input @description:"description of var5"
+    var6 = "" //* @input @description:"description of var6"
+    //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
+
+In this example, var1, var2 and var3 will be located in the same row, by default var4 gonna fill single row and var5 and var6 gonna share same row as shown at below.
+
+**B. @array:**
+
+Example::
+
+    var1 = "" //* @input @description:"description of var1"
+    var2 = "" //* @input @description:"description of var2"
+    var3 = "" //* @input @description:"description of var3"
+    var4 = "" //* @input @description:"description of var4"
+    //* @style @array:{var1, var2}, {var4}
+    
+In this example, var1, var2 are grouped together and linked to plus/minus buttons. When plus button is clicked new var1, var2 fields will be created just below var1 and var2. Similarly minus button gonna remove generated copies of form fields. Similar features exist for just var4 variable. Please see the image at below:
+
+
+**C. @condition:**
+
+Example::
+
+    var1 = "" //* @dropdown @description:"description of var1" @options:"yes", "no"
+    var2 = "" //* @input @description:"description of var2"
+    var3 = "" //* @input @description:"description of var3"
+    var4 = "" //* @input @description:"description of var4"
+    var5 = "" //* @input @description:"description of var5"
+    //* @style @condition:{var1="yes", var2}, {var1="no", var3, var4}
+    
+In this example, var1 value is binded to other form fields. When var1 is selected as "yes", field of var2 will be shown. Whereas when var1 is changed to "no", then var2 field will disappear and var3 and var4 fields will appear. Since var5 is not defined in @condition tag, it will be always seen while changes happening in other fields. Please see the example at below:
+
+
+Autofill Feature for Process
+============================
+You might define hostname specific executor properties and create autofill feature by using following syntax::
+
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+    <executor properties>
+    }
+    //*
+
+Here, ``$HOSTNAME`` is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all ``<executor properties>`` will be active in case of pipeline is going to run on ghpcc06.umassrc.org.
+
+**Executor Properties:**
+
+Five type of executor properties are available to autofill **Executor Settings for Each Process**: ``$TIME``, ``$CPU``, ``$MEMORY``, ``$QUEUE``, ``$EXEC_OPTIONS`` which defines Time, CPU, Memory, Queue and Other Options. See the example below::
+    
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+        $TIME = 3000
+        $CPU  = 4
+        $MEMORY = 100
+        $QUEUE = "long"
+        $EXEC_OPTIONS = '-E "file /home/garberlab"'
+    }
+    //*
+
+
+
 Permissions, Groups and Publish
 ===============================
 
