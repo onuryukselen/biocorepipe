@@ -122,22 +122,42 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
         var re = new RegExp(pattern);
         var checkParam = lines[i].match(re);
         if (checkParam && checkParam[0] && checkParam[1]) {
+            var checkArrFill = false;
             var newLine = "";
             var varName = $.trim(checkParam[1]);
             var oldDefVal = $.trim(checkParam[2]);
             var quoteType = "";
-            if (process_opt[gNum][varName]) {
-                if (oldDefVal[0] === "'"){
-                    quoteType  = "'";
-                } else if (oldDefVal[0] === '"'){
-                    quoteType  = '"';
-                } 
-                var fillVal = process_opt[gNum][varName];
+            if (oldDefVal[0] === "'") {
+                quoteType = "'";
+            } else if (oldDefVal[0] === '"') {
+                quoteType = '"';
+            }
+            //check if varName_indx is defined in eachProcessOpt for form arrays
+            //then fill as array format
+            var re = new RegExp(varName + "_ind" + "(.*)$", "g");
+            var filt_keys = filterKeys(process_opt[gNum], re);
+            var num_filt_keys = parseInt(filt_keys.length);
+            if (num_filt_keys != 0) {
+                var fillValArray = [];
+                for (var k = 0; k < num_filt_keys; k++) {
+                    fillValArray.push(process_opt[gNum][filt_keys[k]]);
+                }
+                var fillVal = "[" + quoteType+ fillValArray.join(quoteType+","+quoteType) + quoteType+ "]";
                 fillVal = fillVal.replace(/(\r\n|\n|\r)/gm, "\\n");
-                var newLine = lines[i].replace(pattern, '$1' + ' = '+ quoteType + fillVal + quoteType +' //*' + '$3' + '\n');
+                var newLine = lines[i].replace(pattern, varName + ' = ' + fillVal + ' //*' + '$3' + '\n');
                 newScriptHeader += newLine;
-            } else {
-                newScriptHeader += lines[i] + "\n";
+                checkArrFill = true;
+            }
+            //fill original format in not filled as array format
+            if (!checkArrFill) {
+                if (process_opt[gNum][varName]) {
+                    var fillVal = process_opt[gNum][varName];
+                    fillVal = fillVal.replace(/(\r\n|\n|\r)/gm, "\\n");
+                    var newLine = lines[i].replace(pattern, '$1' + ' = ' + quoteType + fillVal + quoteType + ' //*' + '$3' + '\n');
+                    newScriptHeader += newLine;
+                } else {
+                    newScriptHeader += lines[i] + "\n";
+                }
             }
         } else {
             newScriptHeader += lines[i] + "\n";
@@ -190,7 +210,7 @@ function createNextflowFile(nxf_runmode) {
     } else {
         nextText = "params.outdir = 'results' " + " \n\n";
     }
-    
+
     //pipeline scripts
     var header_pipe_script = "";
     var footer_pipe_script = "";
@@ -201,7 +221,7 @@ function createNextflowFile(nxf_runmode) {
         }
     }
     nextText += header_pipe_script + "\n";
-    
+
     iniTextSecond = ""
     //sortProcessList
     var initialSort = {};
@@ -317,9 +337,9 @@ function InputParameters(id, currgid) {
                             return el.sname == "mate"
                         }).length
                     }
-                    
-                    firstPartTemp = 'if (!params.' + inputParamName + '){params.'+ inputParamName +' = ""} \n'
-                    
+
+                    firstPartTemp = 'if (!params.' + inputParamName + '){params.' + inputParamName + ' = ""} \n'
+
                     if (qual === "file") {
                         secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
                         firstPart = firstPart + firstPartTemp
