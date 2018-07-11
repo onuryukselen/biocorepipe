@@ -417,7 +417,10 @@ function parseRegPart(regPart) {
             if (condCheck) {
                 if (condCheck[1]) {
                     var condContent = condCheck[1];
-                    cond = parseBrackets(condContent);
+                    if (!cond) {
+                        cond = [];
+                    }
+                    cond.push(parseBrackets(condContent));
                 }
             }
             if (typeCheck) {
@@ -480,22 +483,26 @@ function parseRegPart(regPart) {
 function removeParentDiv(button) {
     $(button).parent().parent().remove();
 }
-//remove parent div
+//add array div
 function appendBeforeDiv(button) {
     var div = $(button).parent().prev();
     var divID = div.attr("id"); //var1_var2_var3_var4_ind1
     var groupID = divID.match(/(.*)_ind(.*)$/)[1]; //var1_var2_var3_var4
     var divNum = divID.match(/(.*)_ind(.*)$/)[2]; //ind1
     divNum = parseInt(divNum) + 1;
-    $(div).clone().insertAfter($(div));
+    //clone with event handlers
+    $(div).clone(true, true).insertAfter($(div));
     var newDiv = $(button).parent().prev().attr("id", groupID + "_ind" + divNum).css("display", "inline");
-    newDiv.find("input[type=text], select, textarea").val("");
-    newDiv.find('input:radio, input:checkbox').removeAttr('checked').removeAttr('selected').prop('checked', false);;
+    newDiv.find("input[type=text], textarea").val("");
+    newDiv.find('input:checkbox').removeAttr('checked').removeAttr('selected').prop('checked', false);
+    newDiv.find("select").trigger("change");
+    newDiv.find("input:checkbox").trigger("change");
+
 }
 
 
 //insert form fields into panels of process options 
-function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, condi, title) {
+function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title) {
     var arrayCheck = false; //is it belong to array
     var arrayId = "";
     var columnPercent = 100;
@@ -519,7 +526,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
                 arrayCheck = true;
                 if (!$('#addProcessRow-' + gNum).find("#" + arrayId + '_ind0')[0]) {
                     //insert array group div
-                    $('#addProcessRow-' + gNum).append('<div id="' + arrayId + '_ind0" style="display:none; float:left; background-color: #F5F5F5; padding:10px; margin-bottom:8px; width:100%;">  <div id="delDiv" style="float:left;" >' + getButtonsDef(gNum + "_", 'Remove', arrayId) + '</div></div>');
+                    $('#addProcessRow-' + gNum).append('<div id="' + arrayId + '_ind0" style="display:none; float:left; background-color: #F5F5F5; padding:10px; margin-bottom:8px; width:100%;">  <div id="delDiv" style="width:100%; float:left;" >' + getButtonsDef(gNum + "_", 'Remove', arrayId) + '</div></div>');
                     //append add button
                     $('#addProcessRow-' + gNum).append('<div id="addDiv" style="float:left; margin-bottom:8px; width:100%; class="form-group">' + getButtonsDef(gNum + "_", 'Add', arrayId) + '</div>');
                     //add onclick remove div feature 
@@ -540,7 +547,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
     } else {
         var descText = '<p style="font-size:13px">' + desc + '</p>';
     }
-    var processParamDiv = '<div  style="class="form-group"; float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
+    var processParamDiv = '<div  class="form-group" style="float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
     var label = '<label>' + varName + toolText + ' </label>';
     if (type === "input") {
         var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
@@ -559,7 +566,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         var inputDiv = '<input type="checkbox" style = "margin-right:5px;" class="form-check-input" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" ' + defaultVal + '>';
         processParamDiv += inputDiv + label + descText + '</div>';
     } else if (type === "dropdown") {
-        var inputDiv = '<select class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
+        var inputDiv = '<select type="dropdown" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
         var optionDiv = "";
         if (opt) {
             if (opt.length) {
@@ -581,6 +588,81 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         // if array defined then append each element into that arraydiv.
         $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0').append(processParamDiv);
         $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv').insertAfter($('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 div:last')); //keep remove button at last
+    }
+
+}
+
+//xxxx
+// if @condi is exist, then create event binders
+//eg condi = ["var2", "var1=yes"], ["var1=no", "var3", "var4"]
+function addProcessPanelCondi(gNum, name, varName, type, condi) {
+    var allCondForms = []; //all condition dependent forms
+    var allUniCondForms = []; //all unique condition dependent forms
+    var showFormVarArr = [];
+    var dataGroup = {};
+    if (condi) {
+        //find all condition dependent forms
+        $.each(condi, function (elem) {
+            var condArr = condi[elem];
+            // check if condArr has element like "var1=yes" where varName=var1
+            var filt = condArr.find(a => (new RegExp("^" + varName + "\\s*=")).test(a));
+            if (filt) {
+                //remove the elements where condition is defined
+                showFormVarArr = condArr.filter(a => { return a !== filt });
+                allCondForms = allCondForms.concat(showFormVarArr);
+            }
+        });
+        // push all unique form names as array
+        allUniCondForms = allCondForms.filter(function (item, pos, self) { return self.indexOf(item) == pos; });
+        //bind event handlers
+        $.each(condi, function (el) {
+            var newdataGroup = $.extend(true, {}, dataGroup);
+            var condArr = condi[el];
+            // check if condArr has element like "var1=yes" where varName=var1
+            var filt = condArr.find(a => (new RegExp("^" + varName + "\\s*=")).test(a));
+            if (filt) {
+                //trigger when selOpt is selected
+                var selOpt = $.trim(filt.split("=")[1]);
+                //find condition dependent forms
+                showFormVarArr = condArr.filter(a => { return a !== filt });
+                //initially hide all condition dependent forms
+                for (var k = 0; k < showFormVarArr.length; k++) {
+                    var showHideDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + showFormVarArr[k])[0];
+                    $(showHideDiv).parent().css("display", "none");
+                }
+                //find dropdown where condition based changes are created.
+                var dropdownDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varName)[0];
+                //bind change event to dropdown
+                newdataGroup.showFormVarArr = showFormVarArr
+                newdataGroup.allUniCondForms = allUniCondForms
+                newdataGroup.selOpt = selOpt
+
+                $(dropdownDiv).change(newdataGroup, function () {
+                    var lastdataGroup = $.extend(true, {}, newdataGroup);
+                    var selectedVal = this.value;
+                    var parentDiv = $(this).parent().parent();
+                    var showForms = lastdataGroup.showFormVarArr;
+                    var allUniqForms = lastdataGroup.allUniCondForms;
+                    var selOpt = lastdataGroup.selOpt;
+                    var hideForms = $(allUniqForms).not(showForms).get();
+                    if (selectedVal === selOpt) {
+                        for (var i = 0; i < showForms.length; i++) {
+                            var showDiv = parentDiv.find("#var_" + gNum + "-" + showForms[i])[0];
+                            if (showDiv) {
+                                $(showDiv).parent().css("display", "inline");
+                            }
+                        }
+                        for (var i = 0; i < hideForms.length; i++) {
+                            var hideDiv = parentDiv.find("#var_" + gNum + "-" + hideForms[i])[0];
+                            if (hideDiv) {
+                                $(hideDiv).parent().css("display", "none");
+                            }
+                        }
+                    }
+                });
+                $(dropdownDiv).trigger("change")
+            }
+        });
     }
 }
 
@@ -1124,7 +1206,15 @@ function insertProPipePanel(script, gNum, name) {
             var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
             //create processPanel
             $('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
-
+            var multicol = null;
+            var array = null;
+            var condi = null;
+            //only one array for each(multicol, array, condi) tag is expected
+            if (!$.isEmptyObject(panelObj.style[0])) {
+                multicol = panelObj.style[0].multicol;
+                array = panelObj.style[0].array;
+                condi = panelObj.style[0].condi;
+            }
             var displayProDiv = false;
             for (var i = 0; i < panelObj.schema.length; i++) {
                 var varName = panelObj.schema[i].varName;
@@ -1134,15 +1224,6 @@ function insertProPipePanel(script, gNum, name) {
                 var tool = panelObj.schema[i].tool;
                 var opt = panelObj.schema[i].opt;
                 var title = panelObj.schema[i].title;
-                var multicol = null;
-                var array = null;
-                var condi = null;
-                //only one array for each(multicol, array, condi) tag is expected
-                if (!$.isEmptyObject(panelObj.style[0])) {
-                    multicol = panelObj.style[0].multicol;
-                    array = panelObj.style[0].array;
-                    condi = panelObj.style[0].condi;
-                }
                 if (type && varName) {
                     // if variable start with "params." then insert into inputs table
                     if (varName.match(/params\./)) {
@@ -1151,7 +1232,17 @@ function insertProPipePanel(script, gNum, name) {
                         insertInputRow(defaultVal, opt, pipeGnum, varName, type, name);
                     } else {
                         displayProDiv = true;
-                        addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, condi, title);
+                        addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
+                    }
+                }
+            }
+            if (condi) {
+                for (var k = 0; k < condi.length; k++) {
+                    for (var i = 0; i < panelObj.schema.length; i++) {
+                        varName = panelObj.schema[i].varName;
+                        type = panelObj.schema[i].type;
+                        var each_condi = condi[k];
+                        addProcessPanelCondi(gNum, name, varName, type, each_condi);
                     }
                 }
             }
@@ -3338,6 +3429,10 @@ function fillEachProcessOpt(eachProcessOpt, label, inputDiv, inputDivType) {
     if (eachProcessOpt[label] != null && eachProcessOpt[label] != undefined) {
         if (inputDivType === "checkbox") {
             updateCheckBox(inputDiv, eachProcessOpt[label]);
+            $(inputDiv).trigger("change");
+        } else if (inputDivType === "dropdown") {
+            $(inputDiv).val(eachProcessOpt[label]);
+            $(inputDiv).trigger("change");
         } else {
             $(inputDiv).val(eachProcessOpt[label]);
         }
@@ -3380,6 +3475,8 @@ function addArrForms(allProcessOpt) {
     });
 }
 
+
+
 //xxxxxxx
 //get JSON from db and fill the process options
 function loadProcessOpt(allProcessOpt) {
@@ -3394,7 +3491,6 @@ function loadProcessOpt(allProcessOpt) {
             var formGroup = $('#addProcessRow-' + proGnum).find('.form-group');
             var formGroupArray = formGroup.toArray();
             $.each(formGroupArray, function (elem) {
-                var arrayCounter = 0;
                 var labelDiv = $(formGroupArray[elem]).find("label")[0];
                 var inputDiv = $(formGroupArray[elem]).find("input,textarea,select")[0];
                 var inputDivType = $(inputDiv).attr("type");
@@ -3410,13 +3506,13 @@ function loadProcessOpt(allProcessOpt) {
                             var re = new RegExp(labelArr + "_ind" + "(.*)$", "g");
                             var filt_keys = filterKeys(eachProcessOpt, re);
                             //fill according to sequence in filt_keys array
-                            var newlabelArr = filt_keys[parseInt(outerDivIndNo)-1];
-                            if (newlabelArr){
-                            fillEachProcessOpt(eachProcessOpt, newlabelArr, inputDiv, inputDivType);
+                            var newlabelArr = filt_keys[parseInt(outerDivIndNo) - 1];
+                            if (newlabelArr) {
+                                fillEachProcessOpt(eachProcessOpt, newlabelArr, inputDiv, inputDivType);
                             }
                         }
+                        return true;
                     }
-                    return true;
                 }
                 // fill each form if label exist in eachProcessOpt object
                 if (labelDiv && inputDiv) {
