@@ -641,9 +641,11 @@ function refreshCollapseIconDiv() {
 		var textClassPlus = $(this).find('.fa-plus-square-o')[0];
 		var textClassMinus = $(this).find('.fa-minus-square-o')[0];
 		if (textClassPlus) {
+            $(this).css("background-color","lightgrey")
 			$(textClassPlus).removeClass('fa-plus-square-o');
 			$(textClassPlus).addClass('fa-minus-square-o');
 		} else if (textClassMinus) {
+            $(this).css("background-color","")
 			$(textClassMinus).removeClass('fa-minus-square-o');
 			$(textClassMinus).addClass('fa-plus-square-o');
 		}

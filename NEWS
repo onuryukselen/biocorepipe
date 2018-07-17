@@ -1,3 +1,6 @@
+17.07.2018 Version 0.1.67
+Default input parameter creation for file return back to "file(param)" from "Channel.fromPath(param)" since it created problem when multiple channels used in same process.
+
 12.07.2018 Version 0.1.66
 Default input parameter creation for file is changed from "file(param)" to "Channel.fromPath(param)"
 

@@ -507,7 +507,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
     var arrayId = "";
     var columnPercent = 100;
     if (title) {
-        $('#addProcessRow-' + gNum).append('<div style="font-size:16px; font-weight:bold; float:left; padding:5px; margin-bottom:8px; width:100%;">' + title + '<div  style="margin-top:5px; border-bottom:1px solid #d5d5d5;" ></div></div>');
+        $('#addProcessRow-' + gNum).append('<div style="font-size:16px; font-weight:bold; background-color:#F5F5F5; float:left; padding:5px; margin-bottom:8px; width:100%;">' + title + '<div  style="border-bottom:1px solid #d5d5d5;" ></div></div>');
     }
     // if multicol defined then calc columnPercent based on amount of element
     if (multicol) {
@@ -545,10 +545,10 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
     if (!desc) {
         var descText = "";
     } else {
-        var descText = '<p style="font-size:13px">' + desc + '</p>';
+        var descText = '<p style=" font-style:italic; color:darkslategray; font-weight: 300; font-size:13px">' + desc + '</p>';
     }
     var processParamDiv = '<div  class="form-group" style="float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
-    var label = '<label>' + varName + toolText + ' </label>';
+    var label = '<label style="font-weight:600;">' + varName + toolText + ' </label>';
     if (type === "input") {
         var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
         processParamDiv += label + inputDiv + descText + '</div>';
@@ -794,7 +794,6 @@ function fillStates(states) {
             //if variable starts with "$" then run parameters for pipeline are defined. Fill run parameters. $SINGULARITY_IMAGE, $SINGULARITY_OPTIONS, $DOCKER_IMAGE, $DOCKER_OPTIONS, $MEMORY, $TIME, $QUEUE, $CPU, $EXEC_OPTIONS 
         } else if (st.match(/\$(.*)/)) {
             var varName = st.match(/\$(.*)/)[1]; //variable Name
-            console.log(varName)
             if (varName === "SINGULARITY_IMAGE") {
                 $('#singu_img').val(defName);
                 updateCheckBox('#singu_check', "true");
