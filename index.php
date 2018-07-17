@@ -240,7 +240,7 @@ else { $login = 0;}
             /*        Hover property for boostrap panel headers */
 
             .collapsible:hover {
-                background-color: #EDF0F5;
+                background-color: lightgray;
             }
 
             /*        Red warning for empty form sections */

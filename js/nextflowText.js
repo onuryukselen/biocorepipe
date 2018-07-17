@@ -341,7 +341,7 @@ function InputParameters(id, currgid) {
                     firstPartTemp = 'if (!params.' + inputParamName + '){params.' + inputParamName + ' = ""} \n'
 
                     if (qual === "file") {
-                        secPartTemp = channelName + " = " + "Channel.fromPath(params." + inputParamName + ") \n"
+                        secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break

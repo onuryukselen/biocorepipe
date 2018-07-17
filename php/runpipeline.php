@@ -362,10 +362,10 @@
                     </thead>
                     <tbody style="word-break: break-all;">
                        <tr id="userInputs" style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
-                            <td colspan="6" >User Inputs</td>
+                            <td colspan="6" >~ User Inputs ~</td>
                         </tr>
                         <tr id="systemInputs"  style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
-                            <td colspan="6" >System Inputs</td>
+                            <td colspan="6" >~ System Inputs ~</td>
                         </tr>
                     </tbody>
                 </table>
