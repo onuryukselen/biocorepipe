@@ -1,5 +1,11 @@
+21.07.2018 Version 0.1.68
+Keep completed and error occured run status in case log files are deleted.
+Fixed minor bugs of checking run status.
+Input parameter creation for file depends on the existance of regex character in the inputs. If it has these characters "Channel.fromPath(param)" otherwise "file(param)" are used.
+
 17.07.2018 Version 0.1.67
 Default input parameter creation for file return back to "file(param)" from "Channel.fromPath(param)" since it created problem when multiple channels used in same process.
+Added CSS changes in form fields.
 
 12.07.2018 Version 0.1.66
 Default input parameter creation for file is changed from "file(param)" to "Channel.fromPath(param)"

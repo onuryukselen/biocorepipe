@@ -142,7 +142,7 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
                 for (var k = 0; k < num_filt_keys; k++) {
                     fillValArray.push(process_opt[gNum][filt_keys[k]]);
                 }
-                var fillVal = "[" + quoteType+ fillValArray.join(quoteType+","+quoteType) + quoteType+ "]";
+                var fillVal = "[" + quoteType + fillValArray.join(quoteType + "," + quoteType) + quoteType + "]";
                 fillVal = fillVal.replace(/(\r\n|\n|\r)/gm, "\\n");
                 var newLine = lines[i].replace(pattern, varName + ' = ' + fillVal + ' //*' + '$3' + '\n');
                 newScriptHeader += newLine;
@@ -207,8 +207,11 @@ function createNextflowFile(nxf_runmode) {
             var process_opt = getProcessOpt();
             process_opt = JSON.parse(decodeURIComponent(process_opt))
         }
+        //get all the proPipeInputs to check glob(*,?{,} characters)
+        var getProPipeInputs = getValues({ p: "getProjectPipelineInputs", project_pipeline_id: project_pipeline_id });
     } else {
         nextText = "params.outdir = 'results' " + " \n\n";
+        var getProPipeInputs = null;
     }
 
     //pipeline scripts
@@ -235,7 +238,7 @@ function createNextflowFile(nxf_runmode) {
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1];
-        iniText = InputParameters(mainProcessId, key);
+        iniText = InputParameters(mainProcessId, key, getProPipeInputs);
         iniTextSecond = iniTextSecond + iniText.secPart;
         nextText = nextText + iniText.firstPart;
     });
@@ -300,12 +303,11 @@ function getChannelNameAll(channelName, Iid) {
 }
 
 //Input parameters and channels with file paths
-function InputParameters(id, currgid) {
+function InputParameters(id, currgid, getProPipeInputs) {
     IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0];
     iText = {};
     firstPart = "";
     secPart = "";
-
     for (var i = 0; i < IList.length; i++) {
         Iid = IList[i].id
         inputIdSplit = Iid.split("-")
@@ -326,8 +328,20 @@ function InputParameters(id, currgid) {
                     inputIdSplit = sNode.split("-")
                     genParName = parametersData.filter(function (el) {
                         return el.id == inputIdSplit[3]
-                    })[0].name
-                    channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName //g-0-genome
+                    })[0].name;
+                    var gTxt = document.getElementById(fNode).getAttribute("parentG"); //g-0 
+                    var gNumIn = gTxt.replace(/(.*)-(.*)/, '$2'); //6
+                    channelName = gFormat(gTxt) + "_" + genParName; //g_0_genome
+                    //check if input has glob(*,?{,}) characters
+                    var checkRegex = false;
+                    if (getProPipeInputs) {
+                        var inputName = getProPipeInputs.filter(function (el) {
+                            return el.g_num == gNumIn
+                        })[0].name;
+                        if (inputName) {
+                            checkRegex = /(\{|\*|\?|\})/.test(inputName);
+                        }
+                    }
 
                     //check proId had a mate inputparameter
                     if (qual === "set") {
@@ -339,9 +353,12 @@ function InputParameters(id, currgid) {
                     }
 
                     firstPartTemp = 'if (!params.' + inputParamName + '){params.' + inputParamName + ' = ""} \n'
-
                     if (qual === "file") {
-                        secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n"
+                        if (checkRegex === false) {
+                            secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n";
+                        } else if (checkRegex === true) {
+                            secPartTemp = channelName + " = " + "Channel.fromPath(params." + inputParamName + ") \n";
+                        }
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
                         break
