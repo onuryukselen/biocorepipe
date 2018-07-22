@@ -227,7 +227,6 @@ function openPipeline(id) {
             }
         }
     }
-    checkReadytoRun();
 }
 
 d3.select("#container").style("background-image", "url(https://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
@@ -2465,7 +2464,7 @@ function loadProjectPipeline(pipeData) {
     } else {
         $('#jobSettingsDiv').css('display', 'none');
     }
-
+    setTimeout(function () { checkReadytoRun(); }, 1000);
     $('#ownUserNamePip').text(pipeData[0].username);
     $('#datecreatedPip').text(pipeData[0].date_created);
     $('.lasteditedPip').text(pipeData[0].date_modified);
@@ -2728,7 +2727,7 @@ function checkReadytoRun(type) {
     } else {
         var s3status = false;
     }
-    //if ready and not running/waiting
+    //if ready and not running/waits/error
     if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
         if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun")) || runStatus === "") {
             if (amzStatus) {
@@ -3050,9 +3049,7 @@ function runProjectPipe(runProPipeCall, checkType) {
 
 //click on run button (callback function)
 function runProPipeCall(checkType) {
-
-
-    saveRunIcon();
+    saveRun();
     nxf_runmode = true;
     var nextTextRaw = createNextflowFile("run");
     nxf_runmode = false;
@@ -3178,15 +3175,23 @@ function readNextLog(proType, proId, type) {
     //get nextflow log
     nextflowLog = getNextflowLog(project_pipeline_id, proType, proId);
     // check runStatus to get status //Available Run_status States: NextErr,NextSuc,NextRun,Error,Waiting,init,Terminated
-    if (runStatus === "Terminated") {
+    // if runStatus equal to  Terminated, NextSuc, Error,NextErr, it means run already stopped. Show the status based on these status.
+    if (runStatus === "Terminated" || runStatus === "NextSuc" || runStatus === "Error" || runStatus === "NextErr") {
         if (nextflowLog !== null && nextflowLog !== undefined) {
             $('#runLogArea').val(serverLog + nextflowLog);
         }
         if (type !== "reload") {
             clearInterval(interval_readNextlog);
         }
-        displayButton('terminatedProPipe');
-        // parse nextflow file to get status
+        if (runStatus === "NextSuc") {
+            displayButton('completeProPipe');
+            showOutputPath();
+        } else if (runStatus === "Error" || runStatus === "NextErr") {
+            displayButton('errorProPipe');
+        } else if (runStatus === "Terminated") {
+            displayButton('terminatedProPipe');
+        }
+        // otherwise parse nextflow file to get status
     } else if (nextflowLog !== null) {
         $('#runLogArea').val(serverLog + nextflowLog);
         if (nextflowLog.match(/N E X T F L O W/)) {
@@ -3541,6 +3546,11 @@ function formToJsonEachPro() {
 }
 
 function saveRunIcon() {
+    saveRun();
+    checkReadytoRun();
+}
+
+function saveRun() {
     var data = [];
     var runSummary = encodeURIComponent($('#runSum').val());
     var run_name = $('#run-title').val();
@@ -3622,7 +3632,6 @@ function saveRunIcon() {
             async: true,
             success: function (s) {
                 if (dupliProPipe === false) {
-                    checkReadytoRun();
                     refreshCreatorData(project_pipeline_id);
                     updateSideBarProPipe("", project_pipeline_id, run_name, "edit")
                 } else if (dupliProPipe === true) {
@@ -3693,7 +3702,7 @@ dupliProPipe = false;
 
 function duplicateProPipe() {
     dupliProPipe = true;
-    saveRunIcon();
+    saveRun();
 }
 
 $(document).ready(function () {
