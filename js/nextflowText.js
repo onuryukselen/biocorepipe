@@ -276,12 +276,12 @@ function createNextflowFile(nxf_runmode) {
     endText += '}\n';
 
 
-    if (nxf_runmode === "run") {
-        var interdel = $('#intermeDel').is(":checked");
-        if (interdel && interdel === true) {
-            endText = endText + "workflow.onComplete { if (workflow.success){ file('work').deleteDir() }} \n";
-        }
-    }
+//    if (nxf_runmode === "run") {
+//        var interdel = $('#intermeDel').is(":checked");
+//        if (interdel && interdel === true) {
+//            endText = endText + "workflow.onComplete { if (workflow.success){ file('work').deleteDir() }} \n";
+//        }
+//    }
     return nextText + endText
 }
 
