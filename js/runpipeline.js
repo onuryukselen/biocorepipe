@@ -2763,6 +2763,7 @@ function checkReadytoRun(type) {
     } else {
         checkType = "";
     }
+    
 }
 
 //check if singu image path contains shub:// pattern 
@@ -3162,6 +3163,7 @@ function readNextflowLogTimer(proType, proId) {
 
 // type= reload for reload the page
 function readNextLog(proType, proId, type) {
+    runStatus = getRunStatus(project_pipeline_id);
     var pidStatus = "";
     serverLog = '';
     //get server log
