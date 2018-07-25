@@ -2763,7 +2763,7 @@ function checkReadytoRun(type) {
     } else {
         checkType = "";
     }
-    
+
 }
 
 //check if singu image path contains shub:// pattern 
@@ -3071,8 +3071,10 @@ function runProPipeCall(checkType) {
     } else {
         var amazon_cre_id = "";
     }
-
-
+    //check if Deletion for intermediate files  is checked
+    if ($('#intermeDel').is(":checked") === true) {
+        configTextRaw += "cleanup = true \n";
+    }
     if ($('#docker_check').is(":checked") === true) {
         var docker_img = $('#docker_img').val();
         var docker_opt = $('#docker_opt').val();
