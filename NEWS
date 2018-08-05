@@ -1,3 +1,7 @@
+05.08.2018 Version 0.1.71
+Publish regex is fixed for outputs contains "*".
+Publish regex is fixed by adding "$" sign at the end pattern.
+
 24.07.2018 Version 0.1.70
 Rare error of cleanup intermediate files fixed by adding "cleanup = true" command in the config file. 
 
