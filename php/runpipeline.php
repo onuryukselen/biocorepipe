@@ -98,7 +98,7 @@
                     <li><a href="#" onclick="checkReadytoRun(&#34;resumerun&#34;);return false;">Resume</a></li>
                 </ul>
             </div>
-            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall);return false;" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
+            <button class="btn btn-success" type="button" id="runProPipe" onclick="runProjectPipe(runProPipeCall,&#34;newrun&#34;);return false;" title="Ready to run pipeline" data-placement="bottom" data-toggle="tooltip" style="display:none; vertical-align:middle;">Ready to Run</button>
             <button class="btn btn-warning" type="submit" id="statusProPipe" style="vertical-align:middle;" title="Waiting for input parameters, output directory and selection of active environment (if s3 path is defined then waiting for the amazon keys)" data-placement="bottom" data-toggle="tooltip">Waiting</button>
         </div>
     </div>

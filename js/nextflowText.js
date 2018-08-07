@@ -433,10 +433,11 @@ function getPublishDirRegex(outputName) {
     }
     //if name contains regular expression with curly brackets: {a,b,c} then turn into (a|b|c) format
     var outputName = fixCurlyBrackets(outputName);
-    outputName = outputName.replace(/\*/g, '')
+    outputName = outputName.replace(/\*/g, '.*')
     outputName = outputName.replace(/\?/g, '')
     outputName = outputName.replace(/\'/g, '')
     outputName = outputName.replace(/\"/g, '')
+    outputName = outputName +"$";
     return outputName;
 }
 
