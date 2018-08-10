@@ -1,3 +1,6 @@
+09.08.2018 Version 0.1.72
+Publish regex is fixed with escape character if pattern contains "/".
+
 05.08.2018 Version 0.1.71
 Publish regex is fixed for outputs contains "*".
 Publish regex is fixed by adding "$" sign at the end pattern.

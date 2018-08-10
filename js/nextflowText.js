@@ -426,15 +426,12 @@ function getPublishDirRegex(outputName) {
     if (outputName.match(/file\((.*)\)/)) {
         var outputName = outputName.match(/file\((.*)\)/)[1];
     }
-    //if name contains path and separated by '/' then take the last part
-    if (outputName.match(/\//)) {
-        var outArr = outputName.split("/");
-        outputName = outArr[outArr.length - 1];
-    }
+    //if name contains path and separated by '/' then replace with escape character '\/'
+    outputName = outputName.replace(/\//g, '\\\/')
     //if name contains regular expression with curly brackets: {a,b,c} then turn into (a|b|c) format
     var outputName = fixCurlyBrackets(outputName);
     outputName = outputName.replace(/\*/g, '.*')
-    outputName = outputName.replace(/\?/g, '')
+    outputName = outputName.replace(/\?/g, '.?')
     outputName = outputName.replace(/\'/g, '')
     outputName = outputName.replace(/\"/g, '')
     outputName = outputName +"$";
