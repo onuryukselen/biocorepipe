@@ -1,3 +1,6 @@
+12.08.2018 Version 0.1.73
+Documentation updated for form builder and autofill feature of pipeline.
+
 09.08.2018 Version 0.1.72
 Publish regex is fixed with escape character if pattern contains "/".
 

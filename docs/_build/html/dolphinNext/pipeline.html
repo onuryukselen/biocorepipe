@@ -100,6 +100,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#input-parameters">Input Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#output-parameters">Output Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#edges">Edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pipeline-header-script">Pipeline Header Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-pipeline-inputs-by-pipeline-header-script">Adding Pipeline Inputs by Pipeline Header Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#autofill-feature-for-pipeline-inputs">Autofill Feature for Pipeline Inputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#autofill-feature-for-pipeline-properties">Autofill Feature for Pipeline Properties</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pipeline-details">Pipeline Details</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#permissions-groups-and-publish">Permissions, Groups and Publish</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#copying-and-revisions">Copying and Revisions</a></li>
@@ -242,6 +246,153 @@
 </div>
 <p>This feature is also available while connecting input parameters to multiple processes.</p>
 <img alt="../_images/pipeline_hover.png" class="align-center" src="../_images/pipeline_hover.png" />
+</div>
+<div class="section" id="pipeline-header-script">
+<h2>Pipeline Header Script<a class="headerlink" href="#pipeline-header-script" title="Permalink to this headline">¶</a></h2>
+<p>This section allows you to add additional inputs, scripts or comments before pipeline starts. This way you may recall same function several times in the other processes.</p>
+<img alt="../_images/pipeline_headerscript.png" class="align-center" src="../_images/pipeline_headerscript.png" />
+</div>
+<div class="section" id="adding-pipeline-inputs-by-pipeline-header-script">
+<h2>Adding Pipeline Inputs by Pipeline Header Script<a class="headerlink" href="#adding-pipeline-inputs-by-pipeline-header-script" title="Permalink to this headline">¶</a></h2>
+<p>You can use <strong>pipeline header script</strong> to add pipeline inputs which is very much similar to adding dropdown for process options. In order to create inputs, you need to use following syntax in the <strong>pipeline header script</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">variableName</span> <span class="o">=</span> <span class="n">defaultValue</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;...&quot;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Please note that you need to use <code class="docutils literal notranslate"><span class="pre">params.</span></code> at the beginning of <code class="docutils literal notranslate"><span class="pre">variableName</span></code>. You can define defaultValue with single/double quotes (for strings) or without any quotes (for numbers).</p>
+</div>
+<p>On the run page, these input parameters will be asked separately in the <strong>Inputs</strong> section as in the image shown at below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">genome_build</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;human_hg19, mouse_mm10, custom&quot;</span>
+<span class="n">params</span><span class="o">.</span><span class="n">run_Tophat</span> <span class="o">=</span> <span class="s2">&quot;no&quot;</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;yes&quot;</span><span class="p">,</span><span class="s2">&quot;no&quot;</span>
+</pre></div>
+</div>
+<img alt="../_images/pipeline_alt_input.png" class="align-center" src="../_images/pipeline_alt_input.png" />
+</div>
+<div class="section" id="autofill-feature-for-pipeline-inputs">
+<h2>Autofill Feature for Pipeline Inputs<a class="headerlink" href="#autofill-feature-for-pipeline-inputs" title="Permalink to this headline">¶</a></h2>
+<p><strong>A.Based on Hostname:</strong></p>
+<p>DolphinNext allows you to enter hostname specific input parameters by using following syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+&lt;input parameters&gt;
+}
+//*
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">$HOSTNAME</span></code> is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, <code class="docutils literal notranslate"><span class="pre">&lt;input</span> <span class="pre">parameters&gt;</span></code> will be filled in case of pipeline is going to run on <strong>ghpcc06.umassrc.org</strong>. Please check following example in which TrimPath parameter is filled automatically:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;garberwiki.umassmed.edu&quot;){
+    params.TrimPath =&quot;/project/Trimmomatic/trimmomatic-0.32.jar&quot;
+    }
+//*
+</pre></div>
+</div>
+<img alt="../_images/pipeline_autofill_input_host.png" class="align-center" src="../_images/pipeline_autofill_input_host.png" />
+<p><strong>B.Based on Selected Input:</strong></p>
+<p>It is possible autofill based on the selected parameters on the running page. In the following example, path of the program will be changed according to selected pipeline parameter:<code class="docutils literal notranslate"><span class="pre">method</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="o">//*</span> <span class="nd">@dropdown</span> <span class="nd">@options</span><span class="p">:</span><span class="s2">&quot;trimmomatic, fastqx&quot;</span>
+<span class="o">//*</span> <span class="n">autofill</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;trimmomatic&quot;</span><span class="p">){</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">TrimPath</span> <span class="o">=</span><span class="s2">&quot;/project/Trimmomatic/trimmomatic-0.32.jar&quot;</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;fastqx&quot;</span><span class="p">){</span>
+    <span class="n">params</span><span class="o">.</span><span class="n">TrimPath</span> <span class="o">=</span><span class="s2">&quot;/project/fastqx/fastqx&quot;</span>
+<span class="p">}</span>
+<span class="o">//*</span>
+</pre></div>
+</div>
+<img alt="../_images/pipeline_autofill_input_param.png" class="align-center" src="../_images/pipeline_autofill_input_param.png" />
+<p><strong>C.Dynamic Autofill:</strong></p>
+<p>In order to autofill parameters that have kind of pattern, you can use dynamic autofill feature. To do so, you need to define variable parts of the pattern by using underscore such as <code class="docutils literal notranslate"><span class="pre">_species</span></code> or <code class="docutils literal notranslate"><span class="pre">_build</span></code>. Afterwards, you can define these variable based on if conditions. Finally, you can activate the autofill feature by checking the existance by following syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>if (params.variableName &amp;&amp; $HOSTNAME){
+    &lt;input parameters&gt;
+}
+
+or
+
+if ($HOSTNAME){
+    &lt;input parameters&gt;
+}
+</pre></div>
+</div>
+<p>Please check the example below where <code class="docutils literal notranslate"><span class="pre">params.genome</span></code> and <code class="docutils literal notranslate"><span class="pre">params.genomeIndexPath</span></code> filled according to selected parameters of <code class="docutils literal notranslate"><span class="pre">params.genome_build</span></code> and <code class="docutils literal notranslate"><span class="pre">$HOSTNAME</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>params.genome_build = &quot;&quot; //* @dropdown @options:&quot;human_hg19, mouse_mm10&quot;
+def _species;
+def _build;
+def _share;
+//* autofill
+if (params.genome_build == &quot;human_hg19&quot;){
+    _species = &quot;human&quot;
+    _build = &quot;hg19&quot;
+} else if (params.genome_build == &quot;mouse_mm10&quot;){
+    _species = &quot;mouse&quot;
+    _build = &quot;mm10&quot;
+}
+
+if ($HOSTNAME == &quot;garberwiki.umassmed.edu&quot;){
+    _share = &quot;/share/dolphin_data/genome_data&quot;
+} else if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+    _share = &quot;/project/data/genome_data&quot;
+}
+if (params.genome_build &amp;&amp; $HOSTNAME){
+    params.genome =&quot;${_share}/${_species}/${_build}/${_build}.fa&quot;
+    params.genomeIndexPath =&quot;${_share}/${_species}/${_build}/${_build}&quot;
+}
+if ($HOSTNAME){
+    params.TrimPath =&quot;${_share}/Trimmomatic/trimmomatic-0.32.jar&quot;
+}
+//*
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/pipeline_autofill_input_dynamic.png"><img alt="../_images/pipeline_autofill_input_dynamic.png" class="align-center" src="../_images/pipeline_autofill_input_dynamic.png" style="width: 99%;" /></a>
+</div>
+<div class="section" id="autofill-feature-for-pipeline-properties">
+<h2>Autofill Feature for Pipeline Properties<a class="headerlink" href="#autofill-feature-for-pipeline-properties" title="Permalink to this headline">¶</a></h2>
+<p>You might define hostname specific executor properties and create autofill feature by using following syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+&lt;executor properties&gt;
+}
+//*
+</pre></div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">$HOSTNAME</span></code> is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all <code class="docutils literal notranslate"><span class="pre">&lt;executor</span> <span class="pre">properties&gt;</span></code> will be active in case of pipeline is going to run on <strong>ghpcc06.umassrc.org</strong>.</p>
+<p><strong>Executor Properties:</strong></p>
+<p>Five type of executor properties are available to autofill <strong>Executor Settings for All Processes</strong>: <code class="docutils literal notranslate"><span class="pre">$TIME</span></code>, <code class="docutils literal notranslate"><span class="pre">$CPU</span></code>, <code class="docutils literal notranslate"><span class="pre">$MEMORY</span></code>, <code class="docutils literal notranslate"><span class="pre">$QUEUE</span></code>, <code class="docutils literal notranslate"><span class="pre">$EXEC_OPTIONS</span></code> which defines Time, CPU, Memory, Queue and Other Options. See the example below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+    $TIME = 3000
+    $CPU  = 4
+    $MEMORY = 100
+    $QUEUE = &quot;long&quot;
+    $EXEC_OPTIONS = &#39;-E &quot;file /home/garberlab&quot;&#39;
+}
+//*
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/pipeline_autofill.png"><img alt="../_images/pipeline_autofill.png" class="align-center" src="../_images/pipeline_autofill.png" style="width: 99%;" /></a>
+<p><strong>Singilarity/Docker Images:</strong></p>
+<p>Four type of image properties are available to autofill : <code class="docutils literal notranslate"><span class="pre">$DOCKER_IMAGE</span></code>, <code class="docutils literal notranslate"><span class="pre">$DOCKER_OPTIONS</span></code>, <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_IMAGE</span></code>, <code class="docutils literal notranslate"><span class="pre">$SINGULARITY_OPTIONS</span></code> which automatically fills the <code class="docutils literal notranslate"><span class="pre">image</span> <span class="pre">path</span></code> and <code class="docutils literal notranslate"><span class="pre">RunOptions</span></code> fields of docker and singularity. See the example below for docker:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+    $DOCKER_IMAGE = &quot;docker://UMMS-Biocore/docker&quot;
+    $DOCKER_OPTIONS = &quot;-v /export:/export&quot;
+}
+//*
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/pipeline_autofill_docker.png"><img alt="../_images/pipeline_autofill_docker.png" class="align-center" src="../_images/pipeline_autofill_docker.png" style="width: 99%;" /></a>
+<p>Singularity image example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>//* autofill
+if ($HOSTNAME == &quot;ghpcc06.umassrc.org&quot;){
+    $SINGULARITY_IMAGE = &quot;shub://UMMS-Biocore/singularity&quot;
+        $SINGULARITY_OPTIONS = &quot;--bind /project&quot;
+}
+//*
+</pre></div>
+</div>
+<a class="reference internal image-reference" href="../_images/pipeline_autofill_singu.png"><img alt="../_images/pipeline_autofill_singu.png" class="align-center" src="../_images/pipeline_autofill_singu.png" style="width: 99%;" /></a>
 </div>
 <div class="section" id="pipeline-details">
 <h2>Pipeline Details<a class="headerlink" href="#pipeline-details" title="Permalink to this headline">¶</a></h2>
