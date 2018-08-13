@@ -34,24 +34,17 @@ function getJS($np, $login, $id)
 {
   $js = "<script src=\"js/jsfuncs.js\"></script>";
     
-  if ($np==1 && $login==1){$js .= "<script src=\"//d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script> 
-  <script src=\"./dist/ace/ace.js\" type=\"text/javascript\" charset=\"utf-8\"></script>
+  if ($np==1 && $login==1){$js .= "<script src=\"bower_components/d3/d3.v3.min.js\" charset=\"utf-8\"></script> 
   <script src=\"js/pipelineModal.js\"></script>
-  <script src=\"js/pipelineD3.js\"></script><script src=\"js/nextflowText.js\"></script>
-  <script src=\"//cdn.datatables.net/select/1.2.4/js/dataTables.select.min.js\" charset=\"utf-8\"></script>
-  <script type=\"text/javascript\" src=\"./dist/js/dataTables.checkboxes.js\"></script>";}
-  else if ($np==1 && $login!=1 && !empty($id)){$js .= "<script src=\"//d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script> 
+  <script src=\"js/pipelineD3.js\"></script><script src=\"js/nextflowText.js\"></script>";}
+  else if ($np==1 && $login!=1 && !empty($id)){$js .= "<script src=\"bower_components/d3/d3.v3.min.js\" charset=\"utf-8\"></script> 
   <script src=\"js/publicpipeline.js\"></script>";}
   else if ($np==2 && $login==1 && empty($id)){$js .= "<script src=\"js/projects.js\"></script>"; }
-  else if ($np==2 && $login==1 && !empty($id)){$js .= "<script src=\"js/projectsDetail.js\"></script><script src=\"//cdn.datatables.net/select/1.2.4/js/dataTables.select.min.js\" charset=\"utf-8\"></script>
-  <script type=\"text/javascript\" src=\"./dist/js/dataTables.checkboxes.js\"></script>"; }
-  else if ($np==3 && $login==1 && !empty($id)){$js .= "<script src=\"//d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script> 
-  <script src=\"js/runpipeline.js\"></script><script src=\"js/nextflowText.js\"></script>
-  <script src=\"//cdn.datatables.net/select/1.2.4/js/dataTables.select.min.js\" charset=\"utf-8\"></script>
-  <script type=\"text/javascript\" src=\"./dist/js/dataTables.checkboxes.js\"></script>";}
+  else if ($np==2 && $login==1 && !empty($id)){$js .= "<script src=\"js/projectsDetail.js\"></script>"; }
+  else if ($np==3 && $login==1 && !empty($id)){$js .= "<script src=\"bower_components/d3/d3.v3.min.js\" charset=\"utf-8\"></script> 
+  <script src=\"js/runpipeline.js\"></script><script src=\"js/nextflowText.js\"></script>";}
   else if ($np==4 && $login==1){$js .= "<script src=\"js/profile.js\"></script>"; }
     else {$js .= "<script src=\"js/public.js\"></script>";}
-
   return $js;
 }
 

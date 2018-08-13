@@ -28,36 +28,16 @@ else { $login = 0;}
         <!-- AdminLTE Skins. Choose a skin from the css/skins
        folder instead of downloading all of them to reduce the load. -->
         <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
-        <!-- Morris chart -->
-        <link rel="stylesheet" href="bower_components/morris.js/morris.css">
-        <!-- jvectormap -->
-        <link rel="stylesheet" href="bower_components/jvectormap/jquery-jvectormap.css">
-        <!-- Date Picker -->
-        <link rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-        <!-- Daterange picker -->
-        <link rel="stylesheet" href="bower_components/bootstrap-daterangepicker/daterangepicker.css">
-        <!-- bootstrap wysihtml5 - text editor -->
-        <!--    <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">-->
         <!-- selectize style -->
         <link rel="stylesheet" href="css/selectize.bootstrap3.css">
         <!-- feedback modal style -->
         <link rel="stylesheet" href="css/feedback.css">
-        <!--    bigger fonts-->
-        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-
+        <!--  w3 fonts-->
+        <link rel="stylesheet" type="text/css" href="css/w3.css">
         <!-- Google Font -->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-        <link href="//cdn.datatables.net/tabletools/2.2.3/css/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
-        <link href="//cdn.datatables.net/select/1.2.4/css/select.dataTables.min.css" rel="stylesheet" type="text/css" />
-        <link href="//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet" type="text/css" />
-        <link href="//editor.datatables.net/examples/resources/bootstrap/editor.bootstrap.css" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="css/googleApiSourceSans.css"/>
+        <!-- Datatables-->
+        <link rel="stylesheet" type="text/css" href="bower_components/DataTables/datatables.min.css"/>
         <!--    dataTables.checkboxes-->
         <link type="text/css" href="css/dataTables.checkboxes.css" rel="stylesheet" />
         <!--    pagination-->
@@ -67,17 +47,13 @@ else { $login = 0;}
 
         <style>
             /* Ace Editor scroll problem fix */
-
             .ace_text-input {
                 position: absolute!important
             }
-
             /*glyphicon-stack    */
-
             .glyphicon-stack {
                 position: relative;
             }
-
             .glyphicon-stack-2x {
                 position: absolute;
                 left: 14px;
@@ -87,14 +63,12 @@ else { $login = 0;}
             }
 
             /*Pipeline Name Dynamic Input Box */
-
             .width-dynamic {
                 padding: 5px;
                 font-size: 20px;
                 font-family: Sans-serif;
                 white-space: pre;
             }
-
             .box-dynamic:hover {
                 border: 1px solid lightgrey;
             }
@@ -104,23 +78,19 @@ else { $login = 0;}
             }
 
             /*Combobox Menu*/
-
             .selectize-control .option .title {
                 display: block;
             }
-
             .selectize-control .option .url {
                 font-size: 12px;
                 display: block;
                 color: #a0a0a0;
             }
-
             .selectize-dropdown {
                 width: 350px !important;
             }
 
             /*    D3 tooltip*/
-
             div.tooltip-svg {
                 position: absolute;
                 text-align: left;
@@ -134,36 +104,28 @@ else { $login = 0;}
             }
 
             /*    NavBar process details*/
-
             .nav-tabs {
                 background-color: #F9F9F9 !important;
                 color: #428bca;
                 font-weight: 600;
-
             }
-
             .nav-tabs>li>a {
                 border: medium none;
             }
-
             .nav-tabs>li>a:hover {
                 border: medium none;
                 border-radius: 0;
                 color: #0570c1;
             }
-
             .active a {
                 color: #428bca !important;
             }
-
             /*        table links should appear blue*/
-
             #projecttable a,
             #runtable a,
             #allpipelinestable a {
                 color: #0570c1;
             }
-
             #projecttable a:hover,
             #runtable a:hover,
             #allpipelinestable a:hover {
@@ -172,7 +134,6 @@ else { $login = 0;}
             }
 
             /*        public pipelines page*/
-
             .boxheader {
                 font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 padding: 1% 0;
@@ -189,7 +150,6 @@ else { $login = 0;}
                 padding: 20px;
                 padding-top: 5px;
             }
-
             .movebox {
                 min-width: 100%;
                 min-height: 100%;
@@ -202,7 +162,6 @@ else { $login = 0;}
                 box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.15);
                 transition: all 0.3s ease-in-out;
             }
-
             .movebox::after {
                 position: absolute;
                 z-index: -1;
@@ -213,38 +172,32 @@ else { $login = 0;}
             }
 
             /* Scale up the box */
-
             .movebox:hover {
                 box-shadow: 0 0 20px rgba(33, 33, 33, .2);
             }
 
             /* Fade in the pseudo-element with the bigger shadow */
-
             .movebox:hover::after {
                 opacity: 1;
             }
 
             /* In order to fix textarea width*/
-
             textarea {
                 resize: vertical;
             }
 
             /*        Make center the pagination numbers*/
-
             .paginationjs {
                 display: flex;
                 justify-content: center;
             }
 
             /*        Hover property for boostrap panel headers */
-
             .collapsible:hover {
                 background-color: lightgray;
             }
 
             /*        Red warning for empty form sections */
-
             .borderClass {
                 border: 1px solid red;
             }
@@ -492,39 +445,23 @@ else { $login = 0;}
             <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
             <script>
                 $.widget.bridge('uibutton', $.ui.button);
-
             </script>
             <!-- Bootstrap 3.3.7 -->
             <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-            <!-- Morris.js charts -->
-            <script src="bower_components/raphael/raphael.min.js"></script>
-            <!-- Sparkline -->
-            <script src="bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
-            <!-- jQuery Knob Chart -->
-            <script src="bower_components/jquery-knob/dist/jquery.knob.min.js"></script>
-            <!-- daterangepicker -->
-            <script src="bower_components/moment/min/moment.min.js"></script>
-            <script src="bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
-            <!-- datepicker -->
-            <script src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
-            <!-- Slimscroll -->
-            <script src="bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
-            <!-- FastClick -->
-            <script src="bower_components/fastclick/lib/fastclick.js"></script>
             <!-- AdminLTE App -->
             <script src="dist/js/adminlte.min.js"></script>
-
             <!-- AdminLTE for demo purposes -->
             <script src="dist/js/demo.js"></script>
             <!-- pagination 2.1.2 -->
             <script src="dist/js/pagination.min.js"></script>
-
-            <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
-            <script src="https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js"></script>
+            <!--   Datatables-->
+            <script type="text/javascript" src="bower_components/DataTables/datatables.min.js"></script>
             <!-- jquery loading -->
             <script src="dist/jquery_loading/jquery.loading.min.js"></script>
             <!-- d3 pdf export -->
             <script src="dist/css_to_pdf/xepOnline.jqPlugin.js"></script>
+            <script src="dist/ace/ace.js"></script>
+            <script type="text/javascript" src="dist/js/dataTables.checkboxes.js"></script>
             <?php print getJS($np, $login, $id); ?>
 
     </body>
