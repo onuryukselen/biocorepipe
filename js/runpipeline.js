@@ -1123,7 +1123,7 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
         $("#userInputs").css("display", "table-row")
     }
 
-    //check if project_pipeline_inputs exist and fill:
+    //check if project_pipeline_inputs exist then fill:
     var getProPipeInputs = getValues({
         p: "getProjectPipelineInputsByGnum",
         project_pipeline_id: project_pipeline_id,
@@ -1138,6 +1138,9 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
             if (paramGivenName === given_name){
                 setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
             } else {
+                console.log(paramGivenName)
+                console.log(given_name)
+                console.log(proPipeInputID)
                 //input given name is changed, then delete the input from database.
                 var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
             }
@@ -1206,7 +1209,6 @@ function parseProPipePanelScript(script) {
     return panelObj;
 }
 
-//xxxxxxxx
 //--Insert Process and Pipeline Panel (where pipelineOpt processOpt defined)
 function insertProPipePanel(script, gNum, name) {
     if (script) {
@@ -2348,6 +2350,9 @@ function loadPipelineDetails(pipeline_id) {
                 autoFillJSON = decodeGenericCond(autoFillJSON);
             }
             openPipeline(pipeline_id);
+            // clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
+            setTimeout(function () { cleanDepProPipeInputs(); }, 100);
+            
             // activate collapse icon for process options
             refreshCollapseIconDiv()
             $('#pipelineSum').attr('disabled', "disabled");
@@ -2358,6 +2363,36 @@ function loadPipelineDetails(pipeline_id) {
         }
     });
 };
+
+//xxxx
+// clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
+function cleanDepProPipeInputs(){
+    project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+    var getProPipeInputs = getValues({
+        p: "getProjectPipelineInputs",
+        project_pipeline_id: project_pipeline_id,
+    });
+    var numInputRows = $('#inputsTable > tbody').find('tr[id*=input]');
+    var gNumAr = []; 
+    $.each(numInputRows, function (el) {
+        var inId = $(numInputRows[el]).attr("id");
+        var inGnum = inId.match(/inputTa-(.*)/)[1];
+        if (inGnum){
+            gNumAr.push(inGnum);
+        }
+    });
+            console.log(gNumAr)
+    $.each(getProPipeInputs, function (el) {
+        var gnum = parseInt(getProPipeInputs[el].g_num);
+        //clean inputs whose gnum is negative(pro or pipe header input) and not found in numInputRows
+        if (gnum < 0){
+            if(gNumAr.indexOf(gnum.toString()) < 0){
+                var removeInput = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
+            }
+        }
+    });
+
+}
 
 
 function updateCheckBox(check_id, status) {
