@@ -1190,7 +1190,7 @@ function prepareInfoModal() {
     $('#createRevisionBut').css('display', "none");
 }
 
-
+//xxxx
 function loadPipelineDetails(pipeline_id, usRole) {
     var getPipelineD = [];
     getPipelineD.push({ name: "id", value: pipeline_id });
@@ -1214,6 +1214,7 @@ function loadPipelineDetails(pipeline_id, usRole) {
                     $('#deletePipeRevision').remove();
                     $('#delPipeline').remove();
                     $('#savePipeline').css('display', 'none');
+                    $('#pipelineSum').attr('disabled', 'disabled');
                     editorPipeHeader.setReadOnly(true);
                     editorPipeFooter.setReadOnly(true);
                     $('#permsPipeDiv').css('display', 'none');
@@ -1270,8 +1271,6 @@ function loadPipelineDetails(pipeline_id, usRole) {
                     $('#deletePipeRevision').remove();
                     $('#delPipeline').remove();
                     $('#savePipeline').css('display', 'none');
-                    $('#createRevPipeIcon').css('display', 'inline');
-                    $('#createRevPipe').css('display', 'inline');
                 }
                 if (s[0].pin === 'true') {
                     $('#pin').attr('checked', true);

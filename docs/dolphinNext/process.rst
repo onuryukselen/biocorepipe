@@ -213,7 +213,8 @@ In order to create these form, you need to use following syntax in the **process
     
     .. image:: dolphinnext_images/process_input.png
 	:align: center
-    |
+    
+|
 
     2) **@textbox:** It creates multi-line text field. Example usage and created form field in run page::
     
@@ -221,7 +222,8 @@ In order to create these form, you need to use following syntax in the **process
     
     .. image:: dolphinnext_images/process_textbox.png
 	:align: center
-    |
+
+|
     
     3) **@checkbox:** It creates checkbox for the user and their available options are defined as ``true`` or ``false`` by default. Example usage and created form field in run page::
     
@@ -230,7 +232,8 @@ In order to create these form, you need to use following syntax in the **process
     
     .. image:: dolphinnext_images/process_checkbox.png
 	:align: center
-    |
+
+|
     
     4) **@dropdown:** It create dropdown menu and their options can be specified by entering ``@options`` feature. Example usage and created form field in run page::
     
@@ -238,7 +241,8 @@ In order to create these form, you need to use following syntax in the **process
         
     .. image:: dolphinnext_images/process_dropdown.png
 	:align: center
-    |
+
+|
     
 * **@description:** You can describe inputs by using ``@description`` tag. Please check the examples at above.
         
@@ -246,7 +250,11 @@ In order to create these form, you need to use following syntax in the **process
 
     params_tophat = "-N 4" //* @input @tooltip:"parameters for Tophat2 version 2.6" @description:"Tophat parameters"
 
-* **@options:** When you define @dropdown as a formType, then you should define available options by using ``@options`` tag. Please check the example dropdown at above.
+* **@title:** You can also create header on top of the variable by using ``@title`` tag. This way you can easily organize the complicated form structures. See the example at below::
+
+    params_tophat = "-N 4" //* @input @title:"Alignment Section" @description:"Tophat parameters"
+
+* **@options:** When you define @dropdown as a formType, you should define available options by using ``@options`` tag. Please check the example dropdown at above.
 
 Styles for Process Options
 ==========================
@@ -265,35 +273,63 @@ Example::
     var6 = "" //* @input @description:"description of var6"
     //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
 
-In this example, var1, var2 and var3 will be located in the same row, by default var4 gonna fill single row and var5 and var6 gonna share same row as shown at below.
+In this example, var1, var2 and var3 will be located in the same row, by default var4 will fill single row and, var5 and var6 will share same row as shown at below.
+
+.. image:: dolphinnext_images/process_multicolumn.png
+	:align: center
+	:width: 85%
 
 **B. @array:**
 
 Example::
 
-    var1 = "" //* @input @description:"description of var1"
+    var1 = "" //* @input @description:"description of var1" @title:"Step 1"
     var2 = "" //* @input @description:"description of var2"
     var3 = "" //* @input @description:"description of var3"
-    var4 = "" //* @input @description:"description of var4"
-    //* @style @array:{var1, var2}, {var4}
+    var4 = "" //* @input @description:"description of var4" @title:"Step 2"
+    //* @style @array:{var1, var2}, {var4} 
     
-In this example, var1, var2 are grouped together and linked to plus/minus buttons. When plus button is clicked new var1, var2 fields will be created just below var1 and var2. Similarly minus button gonna remove generated copies of form fields. Similar features exist for just var4 variable. Please see the image at below:
+In this example, var1, var2 are grouped together and linked to add/remove buttons. When add button is clicked new var1, var2 fields will be created just below var1 and var2. Similarly remove button will remove generated copies of form fields. Similar features exist for just var4 variable. Please see the image at below.
 
+.. image:: dolphinnext_images/process_array.png
+	:align: center
+	:width: 85%
+
+
+.. tip::
+    
+    You can combine multiple style options on same variables. For example ``//* @style @array:{var1, var2}, {var4} @multicolumn:{var1, var2}`` will combine both multicolumn and array features for ``var1`` and ``var2`` as shown below.
+    
+.. image:: dolphinnext_images/process_array_multi.png
+    :align: center
+    :width: 85%
+    
 
 **C. @condition:**
 
 Example::
 
-    var1 = "" //* @dropdown @description:"description of var1" @options:"yes", "no"
+    var1 = "" //* @dropdown @description:"description of var1" @options:"yes", "no" @title:"Step 1"
     var2 = "" //* @input @description:"description of var2"
     var3 = "" //* @input @description:"description of var3"
     var4 = "" //* @input @description:"description of var4"
-    var5 = "" //* @input @description:"description of var5"
+    var5 = "" //* @input @description:"description of var5" @title:"Step 2"
     //* @style @condition:{var1="yes", var2}, {var1="no", var3, var4}
     
 In this example, var1 value is binded to other form fields. When var1 is selected as "yes", field of var2 will be shown. Whereas when var1 is changed to "no", then var2 field will disappear and var3 and var4 fields will appear. Since var5 is not defined in @condition tag, it will be always seen while changes happening in other fields. Please see the example at below:
 
+.. image:: dolphinnext_images/process_condi.png
+	:align: center
+	:width: 75%
 
+.. tip::
+    
+    Similar to previous tip, you can combine all style options on same variable. For example ``//* @style @condition:{var1="yes", var2}, {var1="no", var3, var4} @array:{var1, var2, var3, var4} @multicolumn:{var1, var2, var3, var4}`` will combine features as shown below:
+    
+.. image:: dolphinnext_images/process_array_multi_condi.png
+    :align: center
+    :width: 85%
+       
 Autofill Feature for Process
 ============================
 You might define hostname specific executor properties and create autofill feature by using following syntax::
@@ -304,7 +340,7 @@ You might define hostname specific executor properties and create autofill featu
     }
     //*
 
-Here, ``$HOSTNAME`` is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all ``<executor properties>`` will be active in case of pipeline is going to run on ghpcc06.umassrc.org.
+Here, ``$HOSTNAME`` is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all ``<executor properties>`` will be active in case of pipeline is going to run on **ghpcc06.umassrc.org**.
 
 **Executor Properties:**
 
@@ -320,6 +356,9 @@ Five type of executor properties are available to autofill **Executor Settings f
     }
     //*
 
+.. image:: dolphinnext_images/process_autofill.png
+	:align: center
+	:width: 99%
 
 
 Permissions, Groups and Publish

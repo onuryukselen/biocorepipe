@@ -357,7 +357,7 @@
                             <th scope="col">File Type</th>
                             <th scope="col">Qualifier</th>
                             <th scope="col">Process Name</th>
-                            <th style="color:#D59035;" scope="col">File/Set/Val</th>
+                            <th style="color:#D59035;  width:35%;" scope="col">File/Set/Val</th>
                         </tr>
                     </thead>
                     <tbody style="word-break: break-all;">

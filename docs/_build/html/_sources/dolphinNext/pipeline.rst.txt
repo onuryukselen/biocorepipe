@@ -79,14 +79,189 @@ This feature is also available while connecting input parameters to multiple pro
 .. image:: dolphinnext_images/pipeline_hover.png
 	:align: center
 
+Pipeline Header Script
+======================
+
+This section allows you to add additional inputs, scripts or comments before pipeline starts. This way you may recall same function several times in the other processes.
+
+.. image:: dolphinnext_images/pipeline_headerscript.png
+	:align: center
+
+Adding Pipeline Inputs by Pipeline Header Script
+================================================
+
+You can use **pipeline header script** to add pipeline inputs which is very much similar to adding dropdown for process options. In order to create inputs, you need to use following syntax in the **pipeline header script**::
+    
+    params.variableName = defaultValue //* @dropdown @options:"..."
+
+.. note:: Please note that you need to use ``params.`` at the beginning of ``variableName``. You can define defaultValue with single/double quotes (for strings) or without any quotes (for numbers).
+
+On the run page, these input parameters will be asked separately in the **Inputs** section as in the image shown at below::
+
+    params.genome_build = "" //* @dropdown @options:"human_hg19, mouse_mm10, custom"
+    params.run_Tophat = "no" //* @dropdown @options:"yes","no"
+
+.. image:: dolphinnext_images/pipeline_alt_input.png
+	:align: center
+
+
+Autofill Feature for Pipeline Inputs
+====================================
+
+**A.Based on Hostname:**
+
+DolphinNext allows you to enter hostname specific input parameters by using following syntax::
+
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+    <input parameters>
+    }
+    //*
+
+Here, ``$HOSTNAME`` is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, ``<input parameters>`` will be filled in case of pipeline is going to run on **ghpcc06.umassrc.org**. Please check following example in which TrimPath parameter is filled automatically::
+
+    //* autofill
+    if ($HOSTNAME == "garberwiki.umassmed.edu"){
+        params.TrimPath ="/project/Trimmomatic/trimmomatic-0.32.jar"
+        } 
+    //*
+
+.. image:: dolphinnext_images/pipeline_autofill_input_host.png
+	:align: center
+
+**B.Based on Selected Input:**
+
+It is possible autofill based on the selected parameters on the running page. In the following example, path of the program will be changed according to selected pipeline parameter:``method``::
+
+    params.method = "" //* @dropdown @options:"trimmomatic, fastqx"
+    //* autofill
+    if (params.method == "trimmomatic"){
+        params.TrimPath ="/project/Trimmomatic/trimmomatic-0.32.jar"
+    }
+    else if (params.method == "fastqx"){
+        params.TrimPath ="/project/fastqx/fastqx"
+    }
+    //*
+
+.. image:: dolphinnext_images/pipeline_autofill_input_param.png
+	:align: center
+    
+**C.Dynamic Autofill:**
+
+In order to autofill parameters that have kind of pattern, you can use dynamic autofill feature. To do so, you need to define variable parts of the pattern by using underscore such as ``_species`` or ``_build``. Afterwards, you can define these variable based on if conditions. Finally, you can activate the autofill feature by checking the existance by following syntax::
+
+    if (params.variableName && $HOSTNAME){
+        <input parameters>
+    }
+    
+    or 
+    
+    if ($HOSTNAME){
+        <input parameters>
+    }
+
+Please check the example below where ``params.genome`` and ``params.genomeIndexPath`` filled according to selected parameters of ``params.genome_build`` and ``$HOSTNAME``::
+
+    params.genome_build = "" //* @dropdown @options:"human_hg19, mouse_mm10"
+    def _species;
+    def _build;
+    def _share;
+    //* autofill
+    if (params.genome_build == "human_hg19"){
+        _species = "human"
+        _build = "hg19"
+    } else if (params.genome_build == "mouse_mm10"){
+        _species = "mouse"
+        _build = "mm10"
+    }
+
+    if ($HOSTNAME == "garberwiki.umassmed.edu"){
+        _share = "/share/dolphin_data/genome_data"
+    } else if ($HOSTNAME == "ghpcc06.umassrc.org"){
+        _share = "/project/data/genome_data"
+    }
+    if (params.genome_build && $HOSTNAME){
+        params.genome ="${_share}/${_species}/${_build}/${_build}.fa"
+        params.genomeIndexPath ="${_share}/${_species}/${_build}/${_build}"
+    }
+    if ($HOSTNAME){
+        params.TrimPath ="${_share}/Trimmomatic/trimmomatic-0.32.jar"
+    }
+    //*
+    
+.. image:: dolphinnext_images/pipeline_autofill_input_dynamic.png
+	:align: center
+	:width: 99%
+
+Autofill Feature for Pipeline Properties
+========================================
+You might define hostname specific executor properties and create autofill feature by using following syntax::
+
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+    <executor properties>
+    }
+    //*
+
+Here, ``$HOSTNAME`` is DolphinNext specific variable that recalls the hostname which is going to be run. Therefore, in this example, all ``<executor properties>`` will be active in case of pipeline is going to run on **ghpcc06.umassrc.org**.
+
+**Executor Properties:**
+
+Five type of executor properties are available to autofill **Executor Settings for All Processes**: ``$TIME``, ``$CPU``, ``$MEMORY``, ``$QUEUE``, ``$EXEC_OPTIONS`` which defines Time, CPU, Memory, Queue and Other Options. See the example below::
+    
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+        $TIME = 3000
+        $CPU  = 4
+        $MEMORY = 100
+        $QUEUE = "long"
+        $EXEC_OPTIONS = '-E "file /home/garberlab"'
+    }
+    //*
+
+.. image:: dolphinnext_images/pipeline_autofill.png
+	:align: center
+	:width: 99%
+
+**Singilarity/Docker Images:**
+
+Four type of image properties are available to autofill : ``$DOCKER_IMAGE``, ``$DOCKER_OPTIONS``, ``$SINGULARITY_IMAGE``, ``$SINGULARITY_OPTIONS`` which automatically fills the ``image path`` and ``RunOptions`` fields of docker and singularity. See the example below for docker::
+    
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+        $DOCKER_IMAGE = "docker://UMMS-Biocore/docker"
+        $DOCKER_OPTIONS = "-v /export:/export"
+    }
+    //*
+
+.. image:: dolphinnext_images/pipeline_autofill_docker.png
+	:align: center
+	:width: 99%
+
+Singularity image example::
+
+    //* autofill
+    if ($HOSTNAME == "ghpcc06.umassrc.org"){
+        $SINGULARITY_IMAGE = "shub://UMMS-Biocore/singularity"
+	    $SINGULARITY_OPTIONS = "--bind /project"
+    }
+    //*
+
+.. image:: dolphinnext_images/pipeline_autofill_singu.png
+	:align: center
+	:width: 99%
+
+
+
+
 Pipeline Details
 ================
 This section summarizes all used processes and input/output parameters to give you an overall view about pipeline.
 
 .. image:: dolphinnext_images/pipeline_details.png
 	:align: center
-
-
+    
+    
 Permissions, Groups and Publish
 ===============================
 
