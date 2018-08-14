@@ -478,25 +478,25 @@ function parseRegPart(regPart) {
     return [type, desc, tool, opt, multiCol, arr, cond, title]
 }
 
-//remove parent div
+//remove parent div from process options field
 function removeParentDiv(button) {
     $(button).parent().parent().remove();
 }
-//add array div
+//add array from div to process options field
 function appendBeforeDiv(button) {
     var div = $(button).parent().prev();
+    div.parent().find('[data-toggle="tooltip"]').tooltip('destroy');
     var divID = div.attr("id"); //var1_var2_var3_var4_ind1
     var groupID = divID.match(/(.*)_ind(.*)$/)[1]; //var1_var2_var3_var4
     var divNum = divID.match(/(.*)_ind(.*)$/)[2]; //ind1
+    var origin = div.parent().find("div#" + groupID + "_ind0"); //hidden original div
     divNum = parseInt(divNum) + 1;
     //clone with event handlers
-    $(div).clone(true, true).insertAfter($(div));
+    $(origin).clone(true, true).insertAfter($(div));
     var newDiv = $(button).parent().prev().attr("id", groupID + "_ind" + divNum).css("display", "inline");
-    newDiv.find("input[type=text], textarea").val("");
-    newDiv.find('input:checkbox').removeAttr('checked').removeAttr('selected').prop('checked', false);
     newDiv.find("select").trigger("change");
     newDiv.find("input:checkbox").trigger("change");
-
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 
@@ -591,9 +591,9 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
 
 }
 
-//xxxx
 // if @condi is exist, then create event binders
 //eg condi = ["var2", "var1=yes"], ["var1=no", "var3", "var4"]
+// checkbox and dropdown is supported
 function addProcessPanelCondi(gNum, name, varName, type, condi) {
     var allCondForms = []; //all condition dependent forms
     var allUniCondForms = []; //all unique condition dependent forms
@@ -629,20 +629,27 @@ function addProcessPanelCondi(gNum, name, varName, type, condi) {
                     var showHideDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + showFormVarArr[k])[0];
                     $(showHideDiv).parent().css("display", "none");
                 }
-                //find dropdown where condition based changes are created.
-                var dropdownDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varName)[0];
+                //find dropdown/checkbox where condition based changes are created.
+                var condDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varName)[0];
                 //bind change event to dropdown
-                newdataGroup.showFormVarArr = showFormVarArr
-                newdataGroup.allUniCondForms = allUniCondForms
-                newdataGroup.selOpt = selOpt
+                newdataGroup.showFormVarArr = showFormVarArr;
+                newdataGroup.allUniCondForms = allUniCondForms;
+                newdataGroup.selOpt = selOpt;
+                newdataGroup.type = type;
 
-                $(dropdownDiv).change(newdataGroup, function () {
+                $(condDiv).change(newdataGroup, function () {
                     var lastdataGroup = $.extend(true, {}, newdataGroup);
-                    var selectedVal = this.value;
-                    var parentDiv = $(this).parent().parent();
                     var showForms = lastdataGroup.showFormVarArr;
                     var allUniqForms = lastdataGroup.allUniCondForms;
                     var selOpt = lastdataGroup.selOpt;
+                    var type = lastdataGroup.type;
+                    var selectedVal = "";
+                    if (type == "checkbox") {
+                        selectedVal = $(this).is(":checked").toString();
+                    } else {
+                        selectedVal = this.value;
+                    }
+                    var parentDiv = $(this).parent().parent();
                     var hideForms = $(allUniqForms).not(showForms).get();
                     if (selectedVal === selOpt) {
                         for (var i = 0; i < showForms.length; i++) {
@@ -659,7 +666,7 @@ function addProcessPanelCondi(gNum, name, varName, type, condi) {
                         }
                     }
                 });
-                $(dropdownDiv).trigger("change")
+                $(condDiv).trigger("change")
             }
         });
     }
@@ -1116,7 +1123,7 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
         $("#userInputs").css("display", "table-row")
     }
 
-    //check if project_pipeline_inputs exist and fill:
+    //check if project_pipeline_inputs exist then fill:
     var getProPipeInputs = getValues({
         p: "getProjectPipelineInputsByGnum",
         project_pipeline_id: project_pipeline_id,
@@ -1127,7 +1134,16 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
             var rowID = rowType + 'Ta-' + firGnum;
             var filePath = getProPipeInputs[0].name; //value for val type
             var proPipeInputID = getProPipeInputs[0].id;
-            setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
+            var given_name = getProPipeInputs[0].given_name;
+            if (paramGivenName === given_name){
+                setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
+            } else {
+                console.log(paramGivenName)
+                console.log(given_name)
+                console.log(proPipeInputID)
+                //input given name is changed, then delete the input from database.
+                var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+            }
         }
     }
 
@@ -1193,7 +1209,6 @@ function parseProPipePanelScript(script) {
     return panelObj;
 }
 
-//xxxxxxxx
 //--Insert Process and Pipeline Panel (where pipelineOpt processOpt defined)
 function insertProPipePanel(script, gNum, name) {
     if (script) {
@@ -1841,7 +1856,7 @@ function createEdges(first, second) {
             $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGcomma-' + secGnum + '>, </span>');
             $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
         } else {
-            //inputsTable
+            //fill inputsTable
             if (rowType === 'input') {
                 var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
                 //insert both system and user inputs
@@ -2335,6 +2350,9 @@ function loadPipelineDetails(pipeline_id) {
                 autoFillJSON = decodeGenericCond(autoFillJSON);
             }
             openPipeline(pipeline_id);
+            // clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
+            setTimeout(function () { cleanDepProPipeInputs(); }, 100);
+            
             // activate collapse icon for process options
             refreshCollapseIconDiv()
             $('#pipelineSum').attr('disabled', "disabled");
@@ -2345,6 +2363,36 @@ function loadPipelineDetails(pipeline_id) {
         }
     });
 };
+
+//xxxx
+// clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
+function cleanDepProPipeInputs(){
+    project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
+    var getProPipeInputs = getValues({
+        p: "getProjectPipelineInputs",
+        project_pipeline_id: project_pipeline_id,
+    });
+    var numInputRows = $('#inputsTable > tbody').find('tr[id*=input]');
+    var gNumAr = []; 
+    $.each(numInputRows, function (el) {
+        var inId = $(numInputRows[el]).attr("id");
+        var inGnum = inId.match(/inputTa-(.*)/)[1];
+        if (inGnum){
+            gNumAr.push(inGnum);
+        }
+    });
+            console.log(gNumAr)
+    $.each(getProPipeInputs, function (el) {
+        var gnum = parseInt(getProPipeInputs[el].g_num);
+        //clean inputs whose gnum is negative(pro or pipe header input) and not found in numInputRows
+        if (gnum < 0){
+            if(gNumAr.indexOf(gnum.toString()) < 0){
+                var removeInput = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
+            }
+        }
+    });
+
+}
 
 
 function updateCheckBox(check_id, status) {

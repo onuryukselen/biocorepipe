@@ -1,3 +1,11 @@
+13.08.2018 Version 0.1.76
+Cleaning Project_pipeline_inputs improved.
+
+12.08.2018 Version 0.1.75
+Array forms cloned from original hidden form to keep default values
+Array tooltip activated when created by add button.
+Conditional form support for checkbox is added.
+Project_pipeline_inputs cleaned from db when defined in pipeline input and deleted/changed from pipeline_header_script.
 
 12.08.2018 Version 0.1.74
 "Create revision" icon in pipeline page removed and description form is disabled in case user not owns it.
