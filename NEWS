@@ -1,3 +1,6 @@
+16.08.2018 Version 0.1.77
+Cleaning Project_pipeline_inputs removed from pipelineD3.js and moved to runpipeline.js to improve performance.
+
 13.08.2018 Version 0.1.76
 Cleaning Project_pipeline_inputs improved.
 

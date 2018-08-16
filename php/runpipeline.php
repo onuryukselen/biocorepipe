@@ -352,7 +352,7 @@
                 <table id="inputsTable" class="table">
                     <thead>
                         <tr>
-                            <th scope="col">Given Name</th>
+                            <th style="width:20%;" scope="col">Given Name</th>
                             <th scope="col">Identifier</th>
                             <th scope="col">File Type</th>
                             <th scope="col">Qualifier</th>

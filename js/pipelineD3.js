@@ -1400,48 +1400,8 @@ function refreshCreatorData(pipeline_id) {
 			alert("Error: " + errorThrown);
 		}
 	});
+}
 
-}
-// delete/rename project_pipeline_input if its deleted/renamed when saveExistPipeline is active
-function checkDelRenInputParam(pipeline_id) {
-	if (!$.isEmptyObject(nodes)) {
-		//old lists:
-		var gNumKeys = Object.keys(nodes)
-		var oldGnumList = [];
-		var oldNameList = {};
-		for (var el = 0; el < gNumKeys.length; el++) {
-			var oldGnumId = gNumKeys[el];
-			var oldGnum = oldGnumId.replace(/(.*)-(.*)/, '$2');
-			var oldName = nodes[gNumKeys[el]][3]
-			oldGnumList.push(oldGnum);
-			oldNameList[oldGnum] = oldName;
-		}
-		//new lists:
-		var newGnumListElems = d3.selectAll("circle.sc-inPro")[0];
-		var newGnumList = [];
-		var newNameList = {};
-		for (var el = 0; el < newGnumListElems.length; el++) {
-			var newGnumId = newGnumListElems[el].id;
-			var newGnum = newGnumId.replace(/(.*)-(.*)/, '$2');
-			var newName = $('#' + newGnumId).parent().find("text[id=text-" + newGnum + "]").attr('name');
-			newGnumList.push(newGnum);
-			newNameList[newGnum] = newName;
-		};
-		//check if any item deleted from oldGnumList
-		for (var e = 0; e < oldGnumList.length; e++) {
-			if ($.inArray(oldGnumList[e], newGnumList) === -1) {
-				var existProPipeInputs = getValues({ p: "removeProjectPipelineInputByGnum", id: pipeline_id, g_num: oldGnumList[e] });
-			}
-		}
-		//check if any item renamed
-		var gNumKeys = Object.keys(oldNameList)
-		for (var e = 0; e < gNumKeys.length; e++) {
-			if (oldNameList[gNumKeys[e]] !== newNameList[gNumKeys[e]]) {
-				var renameProPipeInputs = getValues({ p: "renameProjectPipelineInputByGnum", id: pipeline_id, g_num: gNumKeys[e], given_name: newNameList[gNumKeys[e]] });
-			}
-		}
-	}
-}
 
 //Revision is not required for advanced options, description
 function saveDetails() {
@@ -1674,9 +1634,6 @@ function save() {
 			if (warnUserPipe === false || saveOnExist === true) {
 				sl = JSON.stringify(savedList);
 				var ret = getValues({ p: "saveAllPipeline", dat: sl });
-				if (saveOnExist === true) {
-					checkDelRenInputParam(id);
-				}
 				pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 				refreshCreatorData(pipeline_id);
 				var oldPipeGroupId = $('#pipeGroupAll').attr("pipe_group_id");
@@ -1714,7 +1671,6 @@ function save() {
 				$('#confirmRevision').on('click', '#saveOnExist', function (event) {
 					sl = JSON.stringify(savedList);
 					var ret = getValues({ p: "saveAllPipeline", dat: sl });
-					checkDelRenInputParam(id);
 					pipeline_id = $('#pipeline-title').attr('pipelineid'); //refresh pipeline_id
 					refreshCreatorData(pipeline_id);
 					var oldPipeGroupId = $('#pipeGroupAll').attr("pipe_group_id");
