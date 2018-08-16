@@ -1090,6 +1090,7 @@ function decodeGenericCond(autoFillJSON) {
     return autoFillJSON
 }
 
+//***
 // if variable start with "params." then insert into inputs table
 function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
     var dropDownQual = false;
@@ -1135,12 +1136,9 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
             var filePath = getProPipeInputs[0].name; //value for val type
             var proPipeInputID = getProPipeInputs[0].id;
             var given_name = getProPipeInputs[0].given_name;
-            if (paramGivenName === given_name){
+            if (paramGivenName === given_name) {
                 setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
             } else {
-                console.log(paramGivenName)
-                console.log(given_name)
-                console.log(proPipeInputID)
                 //input given name is changed, then delete the input from database.
                 var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
             }
@@ -1886,10 +1884,25 @@ function createEdges(first, second) {
                         var rowID = rowType + 'Ta-' + firGnum;
                         var filePath = getProPipeInputs[0].name; //value for val type
                         var proPipeInputID = getProPipeInputs[0].id;
-                        insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier);
+                        var given_name = getProPipeInputs[0].given_name;
+                        if (paramGivenName === given_name) {
+                            setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
+                        } else {
+                            //input given name is changed, then delete the input from database.
+                            var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+                        }
                     }
                 }
             }
+
+
+
+
+
+
+
+
+
             //outputsTable
             else if (rowType === 'output') {
                 var outName = document.getElementById(second).getAttribute("name");
@@ -2352,7 +2365,7 @@ function loadPipelineDetails(pipeline_id) {
             openPipeline(pipeline_id);
             // clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
             setTimeout(function () { cleanDepProPipeInputs(); }, 100);
-            
+
             // activate collapse icon for process options
             refreshCollapseIconDiv()
             $('#pipelineSum').attr('disabled', "disabled");
@@ -2366,29 +2379,26 @@ function loadPipelineDetails(pipeline_id) {
 
 //xxxx
 // clean depricated project pipeline inputs(propipeinputs) in case it is not found in the inputs table.
-function cleanDepProPipeInputs(){
+function cleanDepProPipeInputs() {
     project_pipeline_id = $('#pipeline-title').attr('projectpipelineid');
     var getProPipeInputs = getValues({
         p: "getProjectPipelineInputs",
         project_pipeline_id: project_pipeline_id,
     });
     var numInputRows = $('#inputsTable > tbody').find('tr[id*=input]');
-    var gNumAr = []; 
+    var gNumAr = [];
     $.each(numInputRows, function (el) {
         var inId = $(numInputRows[el]).attr("id");
         var inGnum = inId.match(/inputTa-(.*)/)[1];
-        if (inGnum){
+        if (inGnum) {
             gNumAr.push(inGnum);
         }
     });
-            console.log(gNumAr)
     $.each(getProPipeInputs, function (el) {
         var gnum = parseInt(getProPipeInputs[el].g_num);
-        //clean inputs whose gnum is negative(pro or pipe header input) and not found in numInputRows
-        if (gnum < 0){
-            if(gNumAr.indexOf(gnum.toString()) < 0){
-                var removeInput = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
-            }
+        //clean inputs whose gnum is not found in numInputRows
+        if (gNumAr.indexOf(gnum.toString()) < 0) {
+            var removeInput = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
         }
     });
 
