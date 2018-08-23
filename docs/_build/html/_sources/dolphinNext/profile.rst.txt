@@ -14,7 +14,7 @@ Once logged in, click on the profile tab in the top right of the screen. You'll 
 
 First tab is the **run environments**. This is your main segment for creating connection profiles. Second tab is **groups** where you can create group and add members to it. Next section is the **SSH Keys**, where you can create new or enter existing SSH key pairs to establish connection to any kind of host. Fourth tab is called **Amazon Keys** where you enter your Amazon Web Services (AWS) security credentials to start/stop `Amazon EC2 instances <https://aws.amazon.com/ec2>`_.
 
-.. tip:: In order to submit jobs to specified hosts, only SSH Keys are required before creating connection profile. If you want to create Amazon EC2 instances and submit your jobs to Amazon Cloud, then both SSH and Amazon Key are required before creating connection profile.
+.. tip:: Before creating run environment, **SSH Keys** needed to be created in SSH Keys tab. If you want to create Amazon EC2 instances and submit your jobs to Amazon Cloud, then both SSH and Amazon Key are required before specifying run environment.
 
 
 SSH Keys
