@@ -1,3 +1,12 @@
+08.09.2018 Version 0.1.80
+Database files cleaned from drop table commands.
+Nested pipeline feature added to pipeline page.
+Adjustment of width of d3 workspace according to page size is added.
+
+25.08.2018 Version 0.1.79
+Renamed log file of run is checked in case command not executed.
+Fixed minor bugs of checking run status.
+
 22.08.2018 Version 0.1.78
 Quick start guide is added to documentation.
 

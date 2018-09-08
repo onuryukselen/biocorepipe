@@ -411,7 +411,7 @@ class dbfuncs {
         }
         //rename the log file
         if ($profileType == 'cluster'){
-        $this->renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
+        $renameLog = $this->renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
         }
         //create folders
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
@@ -525,10 +525,22 @@ class dbfuncs {
             $this->writeLog($project_pipeline_id,$next_exist_cmd,'a');
             preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
             $log_array['next_exist'] = $next_exist;
+            // renameLogSSH command should rename log.txt, otherwise wait 4 sec. for the command to execute
+            //check if log.txt is exist
+            $log_exist_cmd= "ssh {$this->ssh_settings} -i $userpky $connect test  -f \"$dolphin_path_real/log.txt\"  && echo \"Log file exists!\" || echo \"Log file renamed!\" 2>&1 & echo $! &";
+            $log_exist = shell_exec($log_exist_cmd);
+            $this->writeLog($project_pipeline_id,$log_exist_cmd,'a');
+            preg_match("/(.*)Log file (.*)!(.*)/", $log_exist, $matches_log);
+            $log_array['log_exist'] = $log_exist;
+            // if $matches_log[2] == "exists", it means log file is exist
+            if ($matches_log[2] == "exists") {
+                sleep(4);
+            }
+            else {
             // if $matches[2] == " ", it means nextflow file is exist
             if ($matches[2] == " ") {
             $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType);
-
+            
             $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
             $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
             $this->writeLog($project_pipeline_id,$cmd,'a');
@@ -560,6 +572,7 @@ class dbfuncs {
                 $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
                 $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
                 die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
+            }
             }
         } else if ($profileType == "amazon") {
             //get nextflow executor parameters

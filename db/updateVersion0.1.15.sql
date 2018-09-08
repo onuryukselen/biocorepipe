@@ -1,4 +1,3 @@
-USE biocorepipe;
 ALTER TABLE `process_parameter`
 MODIFY COLUMN `sname` text,
 MODIFY COLUMN `closure` text,

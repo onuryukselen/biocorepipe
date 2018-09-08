@@ -15,16 +15,10 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-DROP DATABASE IF EXISTS biocorepipe;
-CREATE DATABASE biocorepipe;
-USE biocorepipe;
-
-
 --
 -- Table structure for table `amazon_credentials`
 --
 
-DROP TABLE IF EXISTS `amazon_credentials`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `amazon_credentials` (
@@ -56,7 +50,6 @@ UNLOCK TABLES;
 -- Table structure for table `biocorepipe_save`
 --
 
-DROP TABLE IF EXISTS `biocorepipe_save`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `biocorepipe_save` (
@@ -97,7 +90,6 @@ UNLOCK TABLES;
 -- Table structure for table `feedback`
 --
 
-DROP TABLE IF EXISTS `feedback`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `feedback` (
@@ -123,7 +115,6 @@ UNLOCK TABLES;
 -- Table structure for table `groups`
 --
 
-DROP TABLE IF EXISTS `groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
@@ -152,7 +143,6 @@ UNLOCK TABLES;
 -- Table structure for table `input`
 --
 
-DROP TABLE IF EXISTS `input`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `input` (
@@ -181,7 +171,6 @@ UNLOCK TABLES;
 -- Table structure for table `parameter`
 --
 
-DROP TABLE IF EXISTS `parameter`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `parameter` (
@@ -212,7 +201,6 @@ UNLOCK TABLES;
 -- Table structure for table `perms`
 --
 
-DROP TABLE IF EXISTS `perms`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `perms` (
@@ -229,7 +217,6 @@ CREATE TABLE `perms` (
 -- Dumping data for table `perms`
 --
 
-LOCK TABLES `perms` WRITE;
 /*!40000 ALTER TABLE `perms` DISABLE KEYS */;
 INSERT INTO `perms` VALUES (1,'Only me','only_me',3),(2,'Only my groups','only_my_groups',15),(3,'Everyone','everyone',63);
 /*!40000 ALTER TABLE `perms` ENABLE KEYS */;
@@ -239,7 +226,6 @@ UNLOCK TABLES;
 -- Table structure for table `process`
 --
 
-DROP TABLE IF EXISTS `process`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `process` (
@@ -278,7 +264,6 @@ UNLOCK TABLES;
 -- Table structure for table `process_group`
 --
 
-DROP TABLE IF EXISTS `process_group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `process_group` (
@@ -307,7 +292,6 @@ UNLOCK TABLES;
 -- Table structure for table `process_parameter`
 --
 
-DROP TABLE IF EXISTS `process_parameter`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `process_parameter` (
@@ -346,7 +330,6 @@ UNLOCK TABLES;
 -- Table structure for table `profile_amazon`
 --
 
-DROP TABLE IF EXISTS `profile_amazon`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `profile_amazon` (
@@ -402,7 +385,6 @@ UNLOCK TABLES;
 -- Table structure for table `profile_cluster`
 --
 
-DROP TABLE IF EXISTS `profile_cluster`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `profile_cluster` (
@@ -445,7 +427,6 @@ UNLOCK TABLES;
 -- Table structure for table `profile_local`
 --
 
-DROP TABLE IF EXISTS `profile_local`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `profile_local` (
@@ -485,7 +466,6 @@ UNLOCK TABLES;
 -- Table structure for table `project`
 --
 
-DROP TABLE IF EXISTS `project`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `project` (
@@ -515,7 +495,6 @@ UNLOCK TABLES;
 -- Table structure for table `project_input`
 --
 
-DROP TABLE IF EXISTS `project_input`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `project_input` (
@@ -549,7 +528,6 @@ UNLOCK TABLES;
 -- Table structure for table `project_pipeline`
 --
 
-DROP TABLE IF EXISTS `project_pipeline`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `project_pipeline` (
@@ -603,7 +581,6 @@ UNLOCK TABLES;
 -- Table structure for table `project_pipeline_input`
 --
 
-DROP TABLE IF EXISTS `project_pipeline_input`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `project_pipeline_input` (
@@ -644,7 +621,6 @@ UNLOCK TABLES;
 -- Table structure for table `run`
 --
 
-DROP TABLE IF EXISTS `run`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `run` (
@@ -675,7 +651,6 @@ UNLOCK TABLES;
 -- Table structure for table `run_log`
 --
 
-DROP TABLE IF EXISTS `run_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `run_log` (
@@ -707,7 +682,6 @@ UNLOCK TABLES;
 -- Table structure for table `ssh`
 --
 
-DROP TABLE IF EXISTS `ssh`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `ssh` (
@@ -738,7 +712,6 @@ UNLOCK TABLES;
 -- Table structure for table `user_group`
 --
 
-DROP TABLE IF EXISTS `user_group`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `user_group` (
@@ -770,7 +743,6 @@ UNLOCK TABLES;
 -- Table structure for table `users`
 --
 
-DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
