@@ -99,7 +99,7 @@
 </br>
 
 
-<div class="col-md-12" id="workDetails">
+<div id="workDetails">
     <h4>Pipeline Details</h4>
     </br>
     <ul id="inOutNav" class="nav nav-tabs nav-justified">
@@ -160,6 +160,11 @@
     </div>
 
 </div>
+
+<div id="subPipelinePanelTitle" style="display:none;">
+    <h6><b>Pipeline Modules</b></h6>
+</div>
+
 
 <div id="advOptDiv" class="row">
     <div class="col-md-12">

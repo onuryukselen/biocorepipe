@@ -1,4 +1,3 @@
-USE biocorepipe;
 ALTER TABLE `biocorepipe_save`
 ADD `script_pipe_header` text DEFAULT NULL AFTER `name`,
 ADD `script_mode_header` varchar(20) DEFAULT NULL AFTER `name`,

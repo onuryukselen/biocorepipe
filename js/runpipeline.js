@@ -10,6 +10,16 @@ Array.prototype.searchFor = function (candid) {
     return false;
 };
 
+function createPiGnumList() {
+    //get available pipeline Module list
+    piGnumList = [];
+    $("#subPipelinePanelTitle > div").each(function () {
+        if ($(this).attr('id').match(/proPanelDiv-(.*)/)) {
+            piGnumList.push($(this).attr('id').match(/proPanelDiv-(.*)/)[1]);
+        }
+    });
+}
+
 function dragStart(event) {
     event.dataTransfer.setData("Text", event.target.id);
 }
@@ -54,6 +64,7 @@ function createSVG() {
     diffy = 0
 
     processList = {}
+    ccIDList = {} //pipeline module match id list
     edges = []
     candidates = []
     saveNodes = []
@@ -2787,6 +2798,8 @@ function checkReadytoRun(type) {
     }
     //if ready and not running/waits/error
     if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+        console.log("initial runStatus")
+        console.log(runStatus)
         if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun")) || runStatus === "") {
             if (amzStatus) {
                 if (amzStatus === "running") {
@@ -2801,6 +2814,8 @@ function checkReadytoRun(type) {
                     displayButton('statusProPipe');
                 }
             } else {
+                console.log("checkType")
+                console.log(checkType)
                 if (checkType === "rerun" || checkType === "resumerun") {
                     runProjectPipe(runProPipeCall, checkType);
                 } else if (checkType === "newrun") {
@@ -2815,13 +2830,12 @@ function checkReadytoRun(type) {
             displayButton('statusProPipe');
         }
     }
-    //reset checkType
+    //reset of checkType will be conducted in runProjectPipe as well 
     if (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun") {
         checkType = "newrun";
     } else {
         checkType = "";
     }
-
 }
 
 //check if singu image path contains shub:// pattern 
@@ -3094,6 +3108,9 @@ function autofillMountPath() {
 
 //callbackfunction to first change the status of button to connecting
 function runProjectPipe(runProPipeCall, checkType) {
+    //reset the checktype
+    var keepCheckType = checkType;
+    window['checkType'] = "";
     execOtherOpt = "";
     displayButton('connectingProPipe');
     $('#runLogArea').val("");
@@ -3103,7 +3120,7 @@ function runProjectPipe(runProPipeCall, checkType) {
         execOtherOpt = autofillMountPath()
     }
     // Call the callback
-    setTimeout(function () { runProPipeCall(checkType); }, 1000);
+    setTimeout(function () { runProPipeCall(keepCheckType); }, 1000);
 }
 
 //click on run button (callback function)
@@ -3208,10 +3225,9 @@ function runProPipeCall(checkType) {
         project_pipeline_id: project_pipeline_id,
         runType: checkType
     });
+    console.log(serverLogGet)
     readNextflowLogTimer(proType, proId);
     $('#runLogs').css('display', 'inline');
-    //reset the checktype
-    window['checkType'] = "";
 }
 
 //#########read nextflow log file for status  ################################################

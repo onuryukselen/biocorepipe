@@ -7,6 +7,37 @@ function gFormat(gText) {
     return gText
 }
 
+function findFinalSubNode(node) {
+    if (ccIDList[node]) {
+        return findFinalSubNode(ccIDList[node]);
+    } else {
+        return node
+    }
+}
+
+function splitEdges(edge) {
+    var patt = /(.*)-(.*)-(.*)-(.*)-(.*?)_(.*)-(.*)-(.*)-(.*)-(.*)/
+    var first = edge.replace(patt, '$1-$2-$3-$4-$5')
+    var sec = edge.replace(patt, '$6-$7-$8-$9-$10')
+    return [first, sec]
+}
+//check if pipeline Module Id is defined as ccID
+function checkCopyId(mainEdges) {
+    $.each(mainEdges, function (e) {
+        //p2_7o-48-2-47-12_p2_7i-51-0-47-8 separate into p2_7o-48-2-47-12 and p2_7i-51-0-47-8 by ungreedy regex
+        var firstNode = "";
+        var secNode = "";
+        [firstNode, secNode] = splitEdges(mainEdges[e]);
+        if (ccIDList[firstNode]) {
+            mainEdges[e] = findFinalSubNode(firstNode) + "_" + secNode
+        }
+        if (ccIDList[secNode]) {
+            mainEdges[e] = firstNode + "_" + findFinalSubNode(secNode)
+        }
+    });
+}
+
+
 function checkArraysEqual(a, b) {
     if (a === b) return true;
     if (a == null || b == null) return false;
@@ -18,16 +49,20 @@ function checkArraysEqual(a, b) {
     return true;
 }
 
-function getMainEdges() {
+
+
+function getMainEdges(pObj) {
     //remove inPro, outPro from edges
-    var allEdges = edges;
+    var allEdges = pObj.edges.slice();
     var mainEdges = [];
     for (var e = 0; e < allEdges.length; e++) {
-        if (allEdges[e].indexOf("inPro") === -1 && edges[e].indexOf("outPro") === -1) { //if not exist -1,
+        if (allEdges[e].indexOf("inPro") === -1 && allEdges[e].indexOf("outPro") === -1) { //if not exist -1,
             //swap to make sure, first node is output (for simplification)
-            var nodes = allEdges[e].split("_")
-            if (nodes[0][0] === "i") {
-                mainEdges.push(nodes[1] + '_' + nodes[0]);
+            var firstNode = "";
+            var secNode = "";
+            [firstNode, secNode] = splitEdges(allEdges[e]);
+            if (firstNode.match(/i/)) {
+                mainEdges.push(secNode + '_' + firstNode);
             } else {
                 mainEdges.push(allEdges[e]);
             }
@@ -36,9 +71,51 @@ function getMainEdges() {
     return mainEdges;
 }
 
+function getMergedProcessList() {
+    var proList = $.extend(true, {}, window.processList);
+    for (var p = 0; p < piGnumList.length; p++) {
+        var lastpipeName = window["pObj" + piGnumList[p]].lastPipeName;
+        var proListPipe = $.extend(true, {}, window["pObj" + piGnumList[p]].processList);
+        for (var key in proListPipe) {
+            proListPipe[key] = lastpipeName + "_" + proListPipe[key]
+        }
+        proList = $.extend({}, proList, proListPipe);
+    }
+    return proList
+}
+
+//merge Edges for each pipelineModule type=main or all
+function getMergedEdges(type) {
+    var edgesFinal = [];
+    if (type === "main") {
+        var edges = getMainEdges(window);
+        for (var p = 0; p < piGnumList.length; p++) {
+            edges = edges.concat(getMainEdges(window["pObj" + piGnumList[p]]));
+        }
+        //all edges instead of input params in pipeline modules.    
+    } else if (type === "all") {
+        var edges = window.edges.slice();
+        for (var p = 0; p < piGnumList.length; p++) {
+            var tmpEdges = window["pObj" + piGnumList[p]].edges.slice();;
+            var tmpEdgesFinal = [];
+            for (var e = 0; e < tmpEdges.length; e++) {
+                if (tmpEdges[e].indexOf("inPro") === -1) { //if not exist -1,
+                    tmpEdgesFinal.push(tmpEdges[e]);
+                }
+            }
+            edges = edges.concat(tmpEdgesFinal);
+        }
+
+    }
+    return edges
+}
 
 function sortProcessList(processList, gnumList) {
-    var mainEdges = getMainEdges();
+    //get merged mainEdges for each pipelineModule and window
+    var mainEdges = getMergedEdges("main");
+    //replace process nodes with ccID's for pipeline modules
+    checkCopyId(mainEdges);
+
     if (gnumList == null) {
         var sortGnum = [];
     } else {
@@ -46,11 +123,23 @@ function sortProcessList(processList, gnumList) {
     }
     if (mainEdges.length > 0) {
         for (var e = 0; e < mainEdges.length; e++) { //mainEdges.length
-            var patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/;
+            var patt = /(.*)-(.*)-(.*)-(.*)-(.*?)_(.*)-(.*)-(.*)-(.*)-(.*)/;
             var outGnum = '';
             var inGnum = '';
-            var outGnum = mainEdges[e].replace(patt, '$5');
-            var inGnum = mainEdges[e].replace(patt, '$10');
+
+            //for pipeline modules append pipeline id to gnum
+            if (mainEdges[e].replace(patt, '$1').match(/p(.*)(i|o)/)) {
+                var pipeID = mainEdges[e].replace(patt, '$1').match(/p(.*)(i|o)/)[1];
+                var outGnum = mainEdges[e].replace(patt, '$5' + "p" + pipeID);
+            } else {
+                var outGnum = mainEdges[e].replace(patt, '$5');
+            }
+            if (mainEdges[e].replace(patt, '$6').match(/p(.*)(i|o)/)) {
+                var pipeID = mainEdges[e].replace(patt, '$6').match(/p(.*)(i|o)/)[1];
+                var inGnum = mainEdges[e].replace(patt, '$10' + "p" + pipeID);
+            } else {
+                var inGnum = mainEdges[e].replace(patt, '$10');
+            }
             //for first raw insert both values
             //first can be added by push but other should be splice
             if (!sortGnum.includes(outGnum)) {
@@ -100,8 +189,16 @@ function sortProcessList(processList, gnumList) {
     }
     var sortProcessList = [];
     $.each(sortGnum, function (el) {
-        sortProcessList.push("g-" + sortGnum[el]);
+        //convert 12p67 to g67-12 for pipeline modules
+        if (sortGnum[el].match(/.*p.*/)) {
+            var pipID = sortGnum[el].match(/(.*)p(.*)/)[2];
+            var gID = sortGnum[el].match(/(.*)p(.*)/)[1];
+            sortProcessList.push("g" + pipID + "-" + gID);
+        } else {
+            sortProcessList.push("g-" + sortGnum[el]);
+        }
     });
+
     //add remaining input and output params by using processlist
     for (var key in processList) {
         if (!sortProcessList.includes(key)) {
@@ -188,6 +285,7 @@ function recursiveSort(sortedProcessList, initGnumList) {
 
 function createNextflowFile(nxf_runmode) {
     nextText = "";
+    createPiGnumList();
     if (nxf_runmode === "run") {
         var hostname = $('#chooseEnv').find('option:selected').attr('host');
         if (hostname) {
@@ -233,7 +331,6 @@ function createNextflowFile(nxf_runmode) {
     initialSort = sortProcessList(processList, null);
     lastSort = recursiveSort(initialSort.processList, initialSort.gnumList)
     var sortedProcessList = lastSort.processList;
-
     //initial input data added
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
@@ -244,15 +341,15 @@ function createNextflowFile(nxf_runmode) {
     });
 
     nextText += "\n" + iniTextSecond + "\n";
-
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
         var gNum = key.split("-")[1];
-        if (mainProcessId !== "inPro" && mainProcessId !== "outPro") { //if it is not input parameter print process data
+        if (mainProcessId !== "inPro" && mainProcessId !== "outPro" && !mainProcessId.match(/p.*/)) { //if it is not input parameter print process data
             var body = "";
             var script_header = "";
             var script_footer = "";
+
             [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key);
             // add process options after the process script_header to overwite them
             if (nxf_runmode === "run" && process_opt) {
@@ -261,7 +358,8 @@ function createNextflowFile(nxf_runmode) {
                     script_header = getNewScriptHeader(script_header, process_opt, gNum);
                 }
             }
-            proText = script_header + "\nprocess " + processList[key] + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
+            var mergedProcessList = getMergedProcessList();
+            proText = script_header + "\nprocess " + mergedProcessList[key].replace(" ","_") + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
             nextText += proText;
         }
     });
@@ -275,13 +373,6 @@ function createNextflowFile(nxf_runmode) {
     endText += 'println "##Exit status: ${workflow.exitStatus}"\n';
     endText += '}\n';
 
-
-//    if (nxf_runmode === "run") {
-//        var interdel = $('#intermeDel').is(":checked");
-//        if (interdel && interdel === true) {
-//            endText = endText + "workflow.onComplete { if (workflow.success){ file('work').deleteDir() }} \n";
-//        }
-//    }
     return nextText + endText
 }
 
@@ -290,7 +381,9 @@ function getChannelNameAll(channelName, Iid) {
     var channelNameAll = "";
     for (var c = 0; c < edges.length; c++) {
         if (edges[c].indexOf(Iid) !== -1) {
-            var secNode = edges[c].split("_")[1];
+            var firstNode = "";
+            var secNode = "";
+            [firstNode, secNode] = splitEdges(edges[c]);
             if (channelNameAll === "") {
                 channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
             } else {
@@ -322,9 +415,9 @@ function InputParameters(id, currgid, getProPipeInputs) {
 
             for (var e = 0; e < edges.length; e++) {
                 if (edges[e].indexOf(Iid) !== -1) { //if not exist: -1
-                    nodes = edges[e].split("_")
-                    fNode = nodes[0]
-                    sNode = nodes[1]
+                    var fNode = "";
+                    var sNode = "";
+                    [fNode, sNode] = splitEdges(edges[e]);
                     inputIdSplit = sNode.split("-")
                     genParName = parametersData.filter(function (el) {
                         return el.id == inputIdSplit[3]
@@ -434,7 +527,7 @@ function getPublishDirRegex(outputName) {
     outputName = outputName.replace(/\?/g, '.?')
     outputName = outputName.replace(/\'/g, '')
     outputName = outputName.replace(/\"/g, '')
-    outputName = outputName +"$";
+    outputName = outputName + "$";
     return outputName;
 }
 
@@ -442,13 +535,16 @@ function publishDir(id, currgid) {
     oText = ""
     var closePar = false
     oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
+    var mainPipeEdges = edges.slice();
+    //replace process nodes with ccID's for pipeline modules
+    checkCopyId(mainPipeEdges);
     for (var i = 0; i < oList.length; i++) {
         oId = oList[i].id
-        for (var e = 0; e < edges.length; e++) {
-            if (edges[e].indexOf(oId) !== -1) { //if not exist -1,
-                nodes = edges[e].split("_")
-                fNode = nodes[0]
-                sNode = nodes[1]
+        for (var e = 0; e < mainPipeEdges.length; e++) {
+            if (mainPipeEdges[e].indexOf(oId) > -1) {
+                var fNode = "";
+                var sNode = "";
+                [fNode, sNode] = splitEdges(mainPipeEdges[e]);
                 //publishDir Section
                 if (fNode.split("-")[1] === "outPro" && closePar === false) {
                     closePar = true
@@ -529,6 +625,10 @@ function getPipelineScript(pipeline_id) {
 }
 
 function IOandScriptForNf(id, currgid) {
+    //get mainEdges for each pipelineModule
+    var allEdges = getMergedEdges("all");
+    //replace process nodes with ccID's for pipeline modules
+    checkCopyId(allEdges);
     var processData = getValues({ p: "getProcessData", "process_id": id });
     script = decodeHtml(processData[0].script);
     if (processData[0].script_header !== null) {
@@ -549,8 +649,6 @@ function IOandScriptForNf(id, currgid) {
     if (script.search('"""') === -1 && script.search('\'\'\'') === -1) {
         script = '"""\n' + script + '\n"""'
     }
-
-
 
     bodyInput = ""
     bodyOutput = ""
@@ -581,15 +679,14 @@ function IOandScriptForNf(id, currgid) {
             }
         }
         find = false
-        for (var e = 0; e < edges.length; e++) {
-            if (edges[e].indexOf(Iid) > -1) { //if not exist: -1
+        for (var e = 0; e < allEdges.length; e++) {
+            if (allEdges[e].indexOf(Iid) > -1) { //if not exist: -1
                 find = true
-                var nodes = edges[e].split("_")
-                var fNode = nodes[0];
-                var sNode = nodes[1];
-
+                var fNode = "";
+                var sNode = "";
+                [fNode, sNode] = splitEdges(allEdges[e]);
                 //output node clicked first
-                if (fNode[0] === 'o') {
+                if (fNode.indexOf('o') > -1) {
                     var inputIdSplit = fNode.split("-")
                     var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
                     var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
@@ -649,9 +746,11 @@ function IOandScriptForNf(id, currgid) {
         //find all edges emerges from this output
         if (qual === "set") {
             var channelNameAll = "";
-            for (var c = 0; c < edges.length; c++) {
-                if (edges[c].indexOf(Oid) == 0) {
-                    var secNode = edges[c].split("_")[1];
+            for (var c = 0; c < allEdges.length; c++) {
+                if (allEdges[c].indexOf(Oid) == 0) {
+                    var fNode = "";
+                    var secNode = "";
+                    [fNode, secNode] = splitEdges(allEdges[c]);
                     var secProType = secNode.split("-")[1];
                     if (secProType !== "outPro") {
                         if (channelNameAll === "") {
@@ -661,8 +760,10 @@ function IOandScriptForNf(id, currgid) {
                         }
                     }
 
-                } else if (edges[c].indexOf(Oid) > 0) {
-                    var fstNode = edges[c].split("_")[0];
+                } else if (allEdges[c].indexOf(Oid) > 0) {
+                    var fstNode = "";
+                    var secNode = "";
+                    [fstNode, secNode] = splitEdges(allEdges[c]);
                     var fstProType = fstNode.split("-")[1];
                     if (fstProType !== "outPro") {
                         if (channelNameAll === "") {
