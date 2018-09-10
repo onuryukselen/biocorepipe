@@ -1,19 +1,8 @@
-# biocorepipe v0.0.1
-Initial commit
+# DolphinNext 
 
-Single and Pair-End Options
-Single-End and Pair-End option can be added into processes by adding parameter whose name is "end" and type is "val" as a input of a process. While creating pipeline, defined input: "end"  should be connected with input parameters whose name is "single" or "pair". 
+DolphinNext allows users with little bioinformatics knowledge to analyze their own data on an HPC systems, Amazon Cloud or any workstation using a user-friendly drag and drop web interface. DolphinNext provides: 
 
-
-Defining Paths
-Paths should be defined for the pair-ends as following example:  
-
-params.readp ="$baseDir/data/ggal/*_{1,2}.fq" 
-
-Only one asterisk should cover the generic name of the file and numeric parts should be defined with {1,2}.
-
-Wherase for the singe-ends as following:  
-
-params.readp ="$baseDir/data/ggal/*.fq" 
-
-Only one asterisk should cover the generic name of the file and numeric parts shouldn't included.
+1. A drag and drop user interface that abstracts NextFlow and allows users to create NextFlow pipelines without familiarity with NextFlow 
+2. Reproducible pipelines by providing version tracking and by creating a stand-alone version of any pipeline instance that can be run independently. 
+3. Seamless portability to distributed computational environments such as high performance clusters or cloud based solutions. 
+4. A graphical user interface to monitor pipeline execution that allows restarting of intermediate processes even after parameter changes.
