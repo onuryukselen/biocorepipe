@@ -54,7 +54,7 @@ function checkAmzProfiles(timer) {
 	}
 }
 
-//interval will decide the check period: default: 40 sec. for termination 5 sec
+//interval will decide the check period: default: 20 sec. for termination 5 sec
 function checkAmazonTimer(proId, interval) {
 	window['interval_amzStatus_' + proId] = setInterval(function () {
 		var runAmzCloudCheck = runAmazonCloudCheck(proId);
@@ -90,9 +90,9 @@ function checkAmazonStatus(proId) {
 		$('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
 		$('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'none');
 		$('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Loading..');
-		//        setTimeout(function () { checkAmazonStatus(proId); }, 1000);
-		clearInterval(window['interval_amzStatus_' + proId]);
-		checkAmazonTimer(proId, 5500);
+        setTimeout(function () { checkAmazonStatus(proId); }, 2000);
+//		clearInterval(window['interval_amzStatus_' + proId]);
+//		checkAmazonTimer(proId, 7500);
 	} else if (checkAmazonStatusLog.status === "running") {
 		if (checkAmazonStatusLog.sshText) {
 			var sshText = "(" + checkAmazonStatusLog.sshText + ")";
