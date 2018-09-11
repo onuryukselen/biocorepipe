@@ -410,9 +410,7 @@ class dbfuncs {
             $configText.= "}\n";
         }
         //rename the log file
-        if ($profileType == 'cluster'){
         $renameLog = $this->renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID);
-        }
         //create folders
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
@@ -498,7 +496,6 @@ class dbfuncs {
 
     function runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $runType, $ownerID)
     {
-        if ($profileType == "cluster") {
             //get nextflow executor parameters
             list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd, $reportOptions) = $this->getNextExecParam($project_pipeline_id,$profileType, $ownerID);
             //get username and hostname and exec info for connection
@@ -535,108 +532,44 @@ class dbfuncs {
             // if $matches_log[2] == "exists", it means log file is exist
             if ($matches_log[2] == "exists") {
                 sleep(4);
-            }
-            else {
-            // if $matches[2] == " ", it means nextflow file is exist
-            if ($matches[2] == " ") {
-            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType);
+            } else {
+                // if $matches[2] == " ", it means nextflow file is renamed
+                if ($matches[2] == " ") {
+                    $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType);
             
-            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
-            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-            $this->writeLog($project_pipeline_id,$cmd,'a');
-            if (!$next_submit_pid) {
-                $this->writeLog($project_pipeline_id,'ERROR: Connection failed! Please check your connection profile or internet connection','a');
-                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
-            }
-            $log_array['next_submit_pid'] = $next_submit_pid;
-            return json_encode($log_array);
+                    $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
+                    $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+                    $this->writeLog($project_pipeline_id,$cmd,'a');
+                    if (!$next_submit_pid) {
+                        $this->writeLog($project_pipeline_id,'ERROR: Connection failed! Please check your connection profile or internet connection','a');
+                        $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                        die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
+                    }
+                $log_array['next_submit_pid'] = $next_submit_pid;
+                return json_encode($log_array);
 
-            }else if ($matches[2] == " not "){
-                for( $i= 0 ; $i < 3 ; $i++ ){
-                     sleep(3);
-                     $next_exist = shell_exec($next_exist_cmd);
-                     preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
-                     $log_array['next_exist'] = $next_exist;
-                     if ($matches[2] == " ") {
-                         $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-                         if (!$next_submit_pid) {
-                             $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
-                             $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                             die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
-                         }
+                }else if ($matches[2] == " not "){
+                    for( $i= 0 ; $i < 3 ; $i++ ){
+                        sleep(3);
+                        $next_exist = shell_exec($next_exist_cmd);
+                        preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
+                        $log_array['next_exist'] = $next_exist;
+                        if ($matches[2] == " ") {
+                            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
+                            if (!$next_submit_pid) {
+                                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
+                            }
                             $log_array['next_submit_pid'] = $next_submit_pid;
                             return json_encode($log_array);
-                     }
+                        }
+                    }
+                    $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
+                    $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
+                    die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
                 }
-                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
-                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
             }
-            }
-        } else if ($profileType == "amazon") {
-            //get nextflow executor parameters
-            list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd, $reportOptions) = $this->getNextExecParam($project_pipeline_id,$profileType,$ownerID);
-            //get username and hostname and exec info for connection
-            list($connect, $next_path, $profileCmd, $executor, $next_time, $next_queue, $next_memory, $next_cpu, $next_clu_opt, $executor_job, $ssh_id)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
-            //get nextflow input parameters
-            $next_inputs = $this->getNextInputs($executor, $project_pipeline_id,$ownerID);
-            //get cmd before run
-            $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
-            //eg. /project/umw_biocore/bin
-            $next_path_real = $this->getNextPathReal($next_path);
-            //get userpky
-            $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
-            if (!file_exists($userpky)) {
-                $this->writeLog($project_pipeline_id,'Private key is not found!','a');
-                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                die(json_encode('Private key is not found!'));
-            }
-            $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
-            $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
-            //check if files are exist
-            $next_exist_cmd= "ssh {$this->ssh_settings} -i $userpky $connect test  -f \"$dolphin_path_real/nextflow.nf\"  && echo \"Nextflow file exists\" || echo \"Nextflow file not exists\" 2>&1 & echo $! &";
-            $next_exist = shell_exec($next_exist_cmd);
-            $this->writeLog($project_pipeline_id,$next_exist_cmd,'a');
-            preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
-            $log_array['next_exist'] = $next_exist;
-            // if $matches[2] == " ", it means nextflow file is exist
-            if ($matches[2] == " ") {
-            $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue, $next_cpu, $next_time, $next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType);
-
-            $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
-            $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-            $this->writeLog($project_pipeline_id,$cmd,'a');
-            if (!$next_submit_pid) {
-                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
-                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
-            }
-            $log_array['next_submit_pid'] = $next_submit_pid;
-            return json_encode($log_array);
-
-            }else if ($matches[2] == " not "){
-                for( $i= 0 ; $i < 3 ; $i++ ){
-                     sleep(3);
-                     $next_exist = shell_exec($next_exist_cmd);
-                     preg_match("/(.*)Nextflow file(.*)exists(.*)/", $next_exist, $matches);
-                     $log_array['next_exist'] = $next_exist;
-                     if ($matches[2] == " ") {
-                         $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
-                         if (!$next_submit_pid) {
-                             $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
-                             $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                             die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
-                         }
-                         $log_array['next_submit_pid'] = $next_submit_pid;
-                         return json_encode($log_array);
-                     }
-                }
-                $this->writeLog($project_pipeline_id,'ERROR: Connection failed. Please check your connection profile or internet connection','a');
-                $this->updateRunAttemptLog("Error", $project_pipeline_id, $ownerID);
-                die(json_encode('ERROR: Connection failed. Please check your connection profile or internet connection'));
-            }
-        }
     }
 
     public function updateRunAttemptLog($status, $project_pipeline_id, $ownerID){
@@ -1599,7 +1532,6 @@ class dbfuncs {
     }
 	
     public function renameLogSSH($project_pipeline_id,$profileType, $profileId, $ownerID) {
-        if ($profileType == 'cluster'){
             //getRun pid
             $attemptData = json_decode($this->getRunAttempt($project_pipeline_id));
             $attempt = $attemptData[0]->{'attempt'};
@@ -1609,17 +1541,22 @@ class dbfuncs {
             $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
             $outdir = $proPipeAll[0]->{'output_dir'};
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
-
-            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
-            $cluDataArr=json_decode($cluData,true);
-            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            if ($profileType == 'cluster'){
+                $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+                $cluDataArr=json_decode($cluData,true);
+                $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            } else if ($profileType == 'amazon'){
+                $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+                $cluDataArr=json_decode($cluData,true);
+                $connect = $cluDataArr[0]["ssh"];
+            }
             $ssh_id = $cluDataArr[0]["ssh_id"];
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
             $run_path_real = "../{$this->run_path}/run{$project_pipeline_id}";
             $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mv $dolphin_path_real/log.txt $dolphin_path_real/log$attempt.txt \" 2>&1 & echo $! &";
             $log_array = $this->runCommand ($cmd, 'rename_log', '');
             return json_encode($log_array);
-        }
+        
     }
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
          if ($profileType == 'cluster'){
