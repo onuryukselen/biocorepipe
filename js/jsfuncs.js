@@ -90,16 +90,27 @@ function checkAmazonStatus(proId) {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'none');
         $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Loading..');
-        if (retryCount > 10) {
+        if (retryCount > 4) {
             retryCount = 0;
             clearInterval(window['interval_amzStatus_' + proId]);
             checkAmazonTimer(proId, 7500);
         } else {
             retryCount += 1;
-            setTimeout(function () { checkAmazonStatus(proId); }, 2000);
+            setTimeout(function () { checkAmazonStatus(proId); }, 5000);
         }
 
     } else if (checkAmazonStatusLog.status === "running") {
+        //check if run env. in run page is amazon and status is not running (then activate loadRunOptions()
+        var chooseEnv = $('#chooseEnv').find(":selected").val();
+        if (chooseEnv) {
+            var status = $('#chooseEnv').find(":selected").attr("status");
+            if (status) {
+                if (chooseEnv === "amazon-" + proId && status !== "running") {
+                    loadRunOptions(); //used from runpipeline.js
+                }
+            }
+
+        }
         if (checkAmazonStatusLog.sshText) {
             var sshText = "(" + checkAmazonStatusLog.sshText + ")";
         } else {
