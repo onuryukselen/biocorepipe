@@ -28,13 +28,13 @@ Follow through the steps `in profile page <profile.html>`_ to create SSH Key (op
 Running Pipelines
 =================
 
-The easiest way to run pipeline is going main page by clicking the **Biocore DolphinNext** button in the top left of the screen. Now, you can investigate publicly available pipelines as shown at below and select the pipeline you want run by clicking **Learn More** button.
+The easiest way to run pipeline is going to main page by clicking the **Biocore DolphinNext** button at the top left of the screen. Now, you can investigate publicly available pipelines as shown at below and select the pipeline you want run by clicking **Learn More** button.
 
     .. image:: dolphinnext_images/main_page.png
 	   :align: center
 
 
-Once pipeline page is loaded, you will notice "Run" button at the right top of the page.
+Once pipeline is loaded, you will notice "Run" button at the right top of the page.
 
 
     .. image:: dolphinnext_images/project_runbutton.png
@@ -51,7 +51,7 @@ You may proceed with entering run name which will be added to your run list of t
 
 **Run Page**
 
-In the header of the run page, you will notice the rocket icon and the title of the run where you can also edit your run name. 
+In the header of the run page, you will notice the rocket icon and the title of the run. 
 
 .. image:: dolphinnext_images/run_header_waiting.png
 	:align: center

@@ -2544,6 +2544,7 @@ function refreshEnv() {
 }
 
 function loadRunOptions() {
+    var selectedOpt = $('#chooseEnv').find(":selected").val();
     $('#chooseEnv').find('option').not(':disabled').remove();
     //get profiles for user
     var proCluData = getValues({ p: "getProfileCluster" });
@@ -2559,8 +2560,15 @@ function loadRunOptions() {
             $.each(proAmzData, function (el) {
                 var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id)
                 option.setAttribute("host", proAmzData[el].shared_storage_id);
+                option.setAttribute("status", proAmzData[el].status);
                 $("#chooseEnv").append(option);
             });
+        }
+    }
+    if (selectedOpt){
+        if (selectedOpt != ""){
+            $('#chooseEnv').val(selectedOpt);
+            $('#chooseEnv').trigger("change");
         }
     }
 }
