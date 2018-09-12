@@ -87,16 +87,22 @@ class dbfuncs {
         fclose($file);
     }
     //$img: path of image
-    function imageCmd($img, $singu_save, $type, $profileType ){
+    function imageCmd($img, $singu_save, $type, $profileType,$profileId,$ownerID){
         if ($type == 'singularity'){
             preg_match("/shub:\/\/(.*)/", $img, $matches);
               if ($matches[1] != ''){
+                  $singuPath = '~';
+                  if ($profileType == "amazon"){
+                    $amzData=$this->getProfileAmazonbyID($profileId, $ownerID);
+                    $amzDataArr=json_decode($amzData,true);
+                    $singuPath = $amzDataArr[0]["shared_storage_mnt"]; // /mnt/efs
+                  }
                   $imageName = str_replace("/","-",$matches[1]);
-                  $image = '~/.dolphinnext/singularity/' + $imageName;
+                  $image = $singuPath +'/.dolphinnext/singularity/' + $imageName;
                   if ($singu_save == "true"){
-                    $cmd = "mkdir -p ~/.dolphinnext/singularity && cd ~/.dolphinnext/singularity && [ -e ".$imageName.".simg ] && rm ".$imageName.".simg && singularity pull --name ".$imageName.".simg ".$img;
+                    $cmd = "mkdir -p $singuPath/.dolphinnext/singularity && cd $singuPath/.dolphinnext/singularity && [ -e ".$imageName.".simg ] && rm ".$imageName.".simg && singularity pull --name ".$imageName.".simg ".$img;
                   } else {
-                    $cmd = "mkdir -p ~/.dolphinnext/singularity && cd ~/.dolphinnext/singularity && singularity pull --name ".$imageName.".simg ".$img;
+                    $cmd = "mkdir -p $singuPath/.dolphinnext/singularity && cd $singuPath/.dolphinnext/singularity && singularity pull --name ".$imageName.".simg ".$img;
                   }
                 return $cmd;
               }
@@ -157,7 +163,7 @@ class dbfuncs {
     }
 
     //get nextflow executor parameters
-    function getNextExecParam($project_pipeline_id,$profileType,$ownerID){
+    function getNextExecParam($project_pipeline_id,$profileType,$profileId, $ownerID){
         $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
         $outdir = $proPipeAll[0]->{'output_dir'};
         $proPipeCmd = $proPipeAll[0]->{'cmd'};
@@ -166,7 +172,7 @@ class dbfuncs {
         if ($singu_check == "true"){
             $singu_img = $proPipeAll[0]->{'singu_img'};
             $singu_save = $proPipeAll[0]->{'singu_save'};
-            $imageCmd = $this->imageCmd($singu_img, $singu_save, 'singularity', $profileType);
+            $imageCmd = $this->imageCmd($singu_img, $singu_save, 'singularity', $profileType,$profileId,$ownerID);
         }
         //get report options
         $reportOptions = "";
@@ -349,7 +355,7 @@ class dbfuncs {
     }
 
     //get all nextflow executor text
-    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job, $reportOptions, $next_clu_opt, $runType) {
+    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID) {
 		if ($runType == "resumerun"){
 			$runType = "-resume";
 		} else {
@@ -359,7 +365,13 @@ class dbfuncs {
     //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
         if ($executor == "local"){
             if ($executor_job == 'ignite'){
-                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
+                $amzData=$this->getProfileAmazonbyID($profileId, $ownerID);
+                $amzDataArr=json_decode($amzData,true);
+                $mnt = $amzDataArr[0]["shared_storage_mnt"]; // /mnt/efs
+                $mnt = trim($mnt);
+                //-cluster.join path:/mnt/efs/.dolphinnext/profile9
+                $joinMnt = " -cluster.join path:$mnt/.dolphinnext/profile$profileId";
+                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $joinMnt $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }else {
                 $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }
@@ -497,7 +509,7 @@ class dbfuncs {
     function runCmd($project_pipeline_id, $profileType, $profileId, $log_array, $runType, $ownerID)
     {
             //get nextflow executor parameters
-            list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd, $reportOptions) = $this->getNextExecParam($project_pipeline_id,$profileType, $ownerID);
+            list($outdir, $proPipeCmd, $jobname, $singu_check, $singu_img, $imageCmd, $reportOptions) = $this->getNextExecParam($project_pipeline_id,$profileType, $profileId, $ownerID);
             //get username and hostname and exec info for connection
             list($connect, $next_path, $profileCmd, $executor, $next_time, $next_queue, $next_memory, $next_cpu, $next_clu_opt, $executor_job, $ssh_id)=$this->getNextConnectExec($profileId,$ownerID, $profileType);
             //get nextflow input parameters
@@ -535,7 +547,7 @@ class dbfuncs {
             } else {
                 // if $matches[2] == " ", it means nextflow file is renamed
                 if ($matches[2] == " ") {
-                    $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType);
+                    $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID);
             
                     $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
                     $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
@@ -804,7 +816,30 @@ class dbfuncs {
                     $log_array['status'] = "running";
                     $this->updateAmazonProStatus($id, "running", $ownerID);
                     $this->updateAmazonProSSH($id, $sshText, $ownerID);
-
+                    
+                    //parse child nodes
+                    $cluData=$this->getProfileAmazonbyID($id, $ownerID);
+                    $cluDataArr=json_decode($cluData,true);
+                    $numNodes = $cluDataArr[0]["nodes"];
+                    $username = $cluDataArr[0]["username"];
+                    if ($numNodes >1){
+                        $log_array['nodes'] = $numNodes;
+                        if (preg_match("/.*Launching worker node.*/",$amzStartLog)){
+                            preg_match("/.*Launching worker node.*ready\.(.*)Launching master node --/s",$amzStartLog, $matchNodes);
+                            if (!empty($matchNodes[1])){
+                                preg_match_all("/[ ]+[^ ]+[ ]+(.*\.com)\n.*/sU",$matchNodes[1], $matchNodesAll);
+                                $log_array['childNodes'] = $matchNodesAll[1];
+                                if (!empty($matchNodesAll[1])){
+                                    foreach ($matchNodesAll[1] as $item):
+                                        $item = trim($item);
+                                        $sshNode = $username."@".$item;
+                                        $startClusterDeamonLog = $this->startClusterDeamonSSH($sshNode, $id, $ownerID);
+                                        $log_array[$sshNode] = $startClusterDeamonLog;
+                                    endforeach;
+                                }
+                            }
+                        }
+                    }
                 return json_encode($log_array);
                 } else {
                     $log_array['status'] = "initiated";
@@ -826,6 +861,10 @@ class dbfuncs {
                 $sshTextArr = json_decode($this->getAmazonProSSH($id, $ownerID));
                 $sshText = $sshTextArr[0]->{'ssh'};
                 $log_array['sshText'] = $sshText;
+                
+                
+                
+                
                 return json_encode($log_array);
             } else if (!preg_match("/running/",$log_array['logAmzCloudList']) && preg_match("/STATUS/",$log_array['logAmzCloudList'])){
                 $this->updateAmazonProStatus($id, "terminated", $ownerID);
@@ -1556,8 +1595,21 @@ class dbfuncs {
             $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mv $dolphin_path_real/log.txt $dolphin_path_real/log$attempt.txt \" 2>&1 & echo $! &";
             $log_array = $this->runCommand ($cmd, 'rename_log', '');
             return json_encode($log_array);
-        
     }
+    
+    public function startClusterDeamonSSH($connect, $profileId, $ownerID) {
+            $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $ssh_id = $cluDataArr[0]["ssh_id"];
+            $mnt = $cluDataArr[0]["shared_storage_mnt"]; // /mnt/efs
+            $mnt = trim($mnt);
+            $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
+            //sudo nextflow node -bg -cluster.join path:/mnt/efs/.cluster/run8
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mkdir -p $mnt/.dolphinnext/profile$profileId && chmod 777 $mnt/.dolphinnext/profile$profileId && nextflow node -bg -cluster.join path:$mnt/.cluster/profile$profileId >$mnt/.cluster/profile$profileId/log.txt  \" 2>&1 & echo $! &";
+            $log_array = $this->runCommand ($cmd, 'startClusterDeamon', '');
+            return json_encode($cmd);
+    }
+    
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
          if ($profileType == 'cluster'){
             $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
