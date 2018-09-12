@@ -1,3 +1,10 @@
+12.09.2018 Version 0.1.85
+automatic s3 key selection is added based on run env. in running page
+automatic click on "use default" button in run page openning.
+cluster deamon for amazon worker nodes is executed while initiating nodes.
+downloaded singularity path is changed as mount dir. for amazon instances.
+amazon ignite executor parameters are added.
+
 12.09.2018 Version 0.1.84
 amazon_running status updates run env. dropdown in running page
 

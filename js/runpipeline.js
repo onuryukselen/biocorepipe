@@ -1141,9 +1141,9 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
         project_pipeline_id: project_pipeline_id,
         g_num: pipeGnum
     });
+    var rowID = rowType + 'Ta-' + firGnum;
     if (getProPipeInputs && getProPipeInputs != "") {
         if (getProPipeInputs.length === 1) {
-            var rowID = rowType + 'Ta-' + firGnum;
             var filePath = getProPipeInputs[0].name; //value for val type
             var proPipeInputID = getProPipeInputs[0].id;
             var given_name = getProPipeInputs[0].given_name;
@@ -1155,7 +1155,23 @@ function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
             }
         }
     }
+    //check if run saved before
+    var checkSaveBefore = pipeData[0].docker_check; //"" without save
+    if (checkSaveBefore != "false" && checkSaveBefore != "true") {
+        //after filling, if "use default" button is exist, then click default option.
+        clickUseDefault(rowID, defaultVal);
+    }
+}
 
+
+function clickUseDefault(rowID, defaultVal) {
+    setTimeout(function () {
+        var checkDropDown = $('#' + rowID).find('#dropDown')[0]
+        var checkDefVal = $('#' + rowID).find('#defValUse').css('display')
+        if (defaultVal && defaultVal != "" && checkDropDown && checkDefVal !== "none") {
+            $('#' + rowID).find('#defValUse').trigger("click")
+        }
+    }, 10);
 }
 
 //parse ProPipePanelScript and create panelObj
@@ -1852,6 +1868,7 @@ function createEdges(first, second) {
             var paramDropDownArray = paramDropDown.split(",");
             if (paramDropDownArray) {
                 var dropDownMenu = getDropdownDef('dropDown', paramDropDownArray, "Choose Value");
+                //select defVal
                 dropDownQual = true;
             }
         } else {
@@ -1889,10 +1906,9 @@ function createEdges(first, second) {
                     project_pipeline_id: project_pipeline_id,
                     g_num: firGnum
                 });
-
+                var rowID = rowType + 'Ta-' + firGnum;
                 if (getProPipeInputs && getProPipeInputs != "") {
                     if (getProPipeInputs.length === 1) {
-                        var rowID = rowType + 'Ta-' + firGnum;
                         var filePath = getProPipeInputs[0].name; //value for val type
                         var proPipeInputID = getProPipeInputs[0].id;
                         var given_name = getProPipeInputs[0].given_name;
@@ -1904,15 +1920,13 @@ function createEdges(first, second) {
                         }
                     }
                 }
+                //check if run saved before
+                var checkSaveBefore = pipeData[0].docker_check; //"" without save
+                if (checkSaveBefore != "false" && checkSaveBefore != "true") {
+                    //after filling, if "use default" button is exist, then click default option.
+                    clickUseDefault(rowID, paramDefVal);
+                }
             }
-
-
-
-
-
-
-
-
 
             //outputsTable
             else if (rowType === 'output') {
@@ -2449,6 +2463,34 @@ function IsJsonString(str) {
     return true;
 }
 
+function hideIgniteColumn() {
+    $('#allProcessSettTable').find('th:nth-child(1)').hide();
+    $('#allProcessSettTable').find('td:nth-child(1)').hide();
+    $('#allProcessSettTable').find('th:nth-child(4)').hide();
+    $('#allProcessSettTable').find('td:nth-child(4)').hide();
+    setTimeout(function () {
+        $('#processTable').find('th:nth-child(3)').hide();
+        $('#processTable').find('tr >td:nth-child(3)').hide();
+        $('#processTable').find('th:nth-child(6)').hide();
+        $('#processTable').find('tr> td:nth-child(6)').hide();
+    }, 10);
+
+}
+
+function showIgniteColumn() {
+    $('#allProcessSettTable').find('th:nth-child(1)').show();
+    $('#allProcessSettTable').find('td:nth-child(1)').show();
+    $('#allProcessSettTable').find('th:nth-child(4)').show();
+    $('#allProcessSettTable').find('td:nth-child(4)').show();
+    setTimeout(function () {
+        $('#processTable').find('th:nth-child(3)').show();
+        $('#processTable').find('tr >td:nth-child(3)').show();
+        $('#processTable').find('th:nth-child(5)').show();
+        $('#processTable').find('tr> td:nth-child(5)').show();
+    }, 10);
+
+}
+
 function loadProjectPipeline(pipeData) {
     loadRunOptions();
     $('#creatorInfoPip').css('display', "block");
@@ -2492,6 +2534,8 @@ function loadProjectPipeline(pipeData) {
     loadAmzKeys();
     if (pipeData[0].amazon_cre_id !== "0") {
         $('#mRunAmzKey').val(pipeData[0].amazon_cre_id);
+    } else {
+        selectAmzKey();
     }
     //load user groups
     var allUserGrp = getValues({ p: "getUserGroups" });
@@ -2511,9 +2555,14 @@ function loadProjectPipeline(pipeData) {
     if (pipeData[0].profile !== "" && chooseEnv && chooseEnv !== "") {
         var [allProSett, profileData] = getJobData("both");
         var executor_job = profileData[0].executor_job;
-        if (executor_job === 'local' || executor_job === 'ignite') {
+        if (executor_job === 'local') {
             $('#jobSettingsDiv').css('display', 'none');
         } else {
+            if (executor_job === 'ignite') {
+                hideIgniteColumn()
+            } else {
+                showIgniteColumn()
+            }
             $('#jobSettingsDiv').css('display', 'inline');
             //insert exec_all_settings data into allProcessSettTable table
             if (IsJsonString(decodeHtml(pipeData[0].exec_all_settings))) {
@@ -2549,7 +2598,6 @@ function loadRunOptions() {
     //get profiles for user
     var proCluData = getValues({ p: "getProfileCluster" });
     var proAmzData = getValues({ p: "getProfileAmazon" });
-
     if (proCluData && proAmzData) {
         if (proCluData.length + proAmzData.length !== 0) {
             $.each(proCluData, function (el) {
@@ -2561,12 +2609,13 @@ function loadRunOptions() {
                 var option = new Option(proAmzData[el].name + ' (Amazon: Status:' + proAmzData[el].status + ' Image id:' + proAmzData[el].image_id + ' Instance type:' + proAmzData[el].instance_type + ')', 'amazon-' + proAmzData[el].id)
                 option.setAttribute("host", proAmzData[el].shared_storage_id);
                 option.setAttribute("status", proAmzData[el].status);
+                option.setAttribute("amz_key", proAmzData[el].amazon_cre_id);
                 $("#chooseEnv").append(option);
             });
         }
     }
-    if (selectedOpt){
-        if (selectedOpt != ""){
+    if (selectedOpt) {
+        if (selectedOpt != "") {
             $('#chooseEnv').val(selectedOpt);
             $('#chooseEnv').trigger("change");
         }
@@ -2935,15 +2984,23 @@ function loadAmzKeys() {
         }
     }
 }
+//autoselect mRunAmzKey based on selected profile
+function selectAmzKey() {
+    var amzKeyId = $("#chooseEnv").find(":selected").attr('amz_key')
+    if (amzKeyId) {
+        $("#mRunAmzKey").val(parseInt(amzKeyId));
+        $("#mRunAmzKey").trigger("change");
+    }
+}
 
-function configTextAllProcess(exec_all_settings, type, proName) {
+function configTextAllProcess(exec_all_settings, type, proName, executor_job) {
     if (type === "each") {
         for (var keyParam in exec_all_settings) {
-            if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
+            if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time') && executor_job != "ignite") {
                 window.configTextRaw += 'process.$' + proName + '.time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
             } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
                 window.configTextRaw += 'process.$' + proName + '.cpus' + ' = ' + exec_all_settings[keyParam] + '\n';
-            } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
+            } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue') && executor_job != "ignite") {
                 window.configTextRaw += 'process.$' + proName + '.queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
             } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
                 window.configTextRaw += 'process.$' + proName + '.memory' + ' = \'' + exec_all_settings[keyParam] + ' GB\'\n';
@@ -2954,11 +3011,11 @@ function configTextAllProcess(exec_all_settings, type, proName) {
 
     } else {
         for (var keyParam in exec_all_settings) {
-            if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time')) {
+            if (exec_all_settings[keyParam] !== '' && (keyParam === 'time' || keyParam === 'job_time') && executor_job != "ignite") {
                 window.configTextRaw += 'process.' + 'time' + ' = \'' + exec_all_settings[keyParam] + 'm\'\n';
             } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'cpu' || keyParam === 'job_cpu')) {
                 window.configTextRaw += 'process.' + 'cpus' + ' = ' + exec_all_settings[keyParam] + '\n';
-            } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue')) {
+            } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'queue' || keyParam === 'job_queue') && executor_job != "ignite") {
                 window.configTextRaw += 'process.' + 'queue' + ' = \'' + exec_all_settings[keyParam] + '\'\n';
             } else if (exec_all_settings[keyParam] !== '' && (keyParam === 'memory' || keyParam === 'job_memory')) {
                 window.configTextRaw += 'process.' + 'memory' + ' = \'' + exec_all_settings[keyParam] + ' GB\'\n';
@@ -3158,6 +3215,8 @@ function runProPipeCall(checkType) {
     if ($('#intermeDel').is(":checked") === true) {
         configTextRaw += "cleanup = true \n";
     }
+    var [allProSett, profileData] = getJobData("both");
+    console.log()
     if ($('#docker_check').is(":checked") === true) {
         var docker_img = $('#docker_img').val();
         var docker_opt = $('#docker_opt').val();
@@ -3167,14 +3226,21 @@ function runProPipeCall(checkType) {
             configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
         }
     }
+    //xxx
     if ($('#singu_check').is(":checked") === true) {
         var singu_img = $('#singu_img').val();
         var patt = /^docker:\/\/(.*)/g;
         var patt = /^shub:\/\/(.*)/g;
         var singuPath = singu_img.replace(patt, '$1');
+        var mntPath = "";
         if (patt.test(singu_img)) {
             singuPath = singuPath.replace(/\//g, '-')
-            var downSingu_img = '//$HOME/.dolphinnext/singularity/' + singuPath + '.simg';
+            if (profileData[0].shared_storage_mnt) {
+                mntPath = profileData[0].shared_storage_mnt;
+            } else {
+                mntPath = "//$HOME";
+            }
+            var downSingu_img = mntPath + '/.dolphinnext/singularity/' + singuPath + '.simg';
         } else {
             var downSingu_img = singu_img;
         }
@@ -3187,15 +3253,15 @@ function runProPipeCall(checkType) {
         }
     }
     //check executor_job if its local
-    var [allProSett, profileData] = getJobData("both");
+
     var executor_job = profileData[0].executor_job;
     configTextRaw += 'process.executor = \'' + executor_job + '\'\n';
-    if (executor_job !== 'local' && executor_job !== 'ignite') {
+    if (executor_job !== 'local') {
         //all process settings eg. process.queue = 'short'
         if ($('#exec_all').is(":checked") === true) {
             var exec_all_settingsRaw = $('#allProcessSettTable').find('input');
             var exec_all_settings = formToJson(exec_all_settingsRaw);
-            configTextAllProcess(exec_all_settings);
+            configTextAllProcess(exec_all_settings, "all", "", executor_job);
         } else {
             if (execOtherOpt != "" && execOtherOpt != null) {
                 var oldJobCluOpt = allProSett.job_clu_opt;
@@ -3204,7 +3270,7 @@ function runProPipeCall(checkType) {
                     allProSett.job_clu_opt = newJobCluOpt;
                 }
             }
-            configTextAllProcess(allProSett);
+            configTextAllProcess(allProSett, "all", "", executor_job);
         }
         if ($('#exec_each').is(":checked") === true) {
             var exec_each_settings = decodeURIComponent(formToJsonEachPro());
@@ -3214,7 +3280,7 @@ function runProPipeCall(checkType) {
                     var each_settings = exec_each_settings[el];
                     var processName = $("#" + el + " :nth-child(2)").text()
                     //process.$hello.queue = 'long'
-                    configTextAllProcess(each_settings, "each", processName);
+                    configTextAllProcess(each_settings, "each", processName, executor_job);
                 });
             }
         }
@@ -3926,9 +3992,14 @@ $(document).ready(function () {
             $('#runCmd').val("");
             var [allProSett, profileData] = getJobData("both");
             var executor_job = profileData[0].executor_job;
-            if (executor_job === 'local' || executor_job === 'ignite') {
+            if (executor_job === 'local') {
                 $('#jobSettingsDiv').css('display', 'none');
             } else {
+                if (executor_job === 'ignite') {
+                    hideIgniteColumn()
+                } else {
+                    showIgniteColumn()
+                }
                 $('#jobSettingsDiv').css('display', 'inline');
             }
             if ($('#exec_all').is(":checked") === true) {
@@ -3938,6 +4009,7 @@ $(document).ready(function () {
                 $('#exec_each').trigger("click");
             }
             fillForm('#allProcessSettTable', 'input', allProSett);
+            selectAmzKey();
             checkReadytoRun();
         });
     });
