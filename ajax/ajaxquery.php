@@ -60,14 +60,17 @@ else if ($p=="terminateRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
 	$profileType = $_REQUEST['profileType'];
 	$profileId = $_REQUEST['profileId'];
-    if ($profileType == 'cluster') {
+	$executor = $_REQUEST['executor'];
+    if ($executor != 'local') {
 		$pid = json_decode($db -> getRunPid($project_pipeline_id))[0]->{'pid'};
 		if (!empty($pid)){
     		$data = $db -> sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID);
 		} else {
 			$data = json_encode("pidNotExist");	
 		}
-	}
+	} else if ($executor == 'local'){
+        $data = $db -> sshExeCommand($commandType, "", $profileType, $profileId, $project_pipeline_id, $ownerID);
+    }
 }
 else if ($p=="checkRunPid"){
 	$commandType = "checkRunPid";

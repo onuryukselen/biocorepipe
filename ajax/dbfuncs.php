@@ -1527,12 +1527,17 @@ class dbfuncs {
     }
     public function sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID) {
         if ($profileType == 'cluster'){
-            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
-            $cluDataArr=json_decode($cluData,true);
-            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+                $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+                $cluDataArr=json_decode($cluData,true);
+                $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+            } else if ($profileType == 'amazon'){
+                $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+                $cluDataArr=json_decode($cluData,true);
+                $connect = $cluDataArr[0]["ssh"];
+            }
             $ssh_id = $cluDataArr[0]["ssh_id"];
+            $executor = $cluDataArr[0]['executor'];
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
-			$executor = $cluDataArr[0]['executor'];
 			
 			//get preCmd to load prerequisites (eg: source /etc/bashrc) (to run qstat qdel)
 			$proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
@@ -1562,8 +1567,12 @@ class dbfuncs {
 			} else if ($executor == "lsf" && $commandType == "terminateRun"){
             	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bkill $pid\" 2>&1 &");
 				return json_encode('terminateCommandExecuted');
+			} else if ($executor == "local" && $commandType == "terminateRun"){
+                $cmd = "ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && ps -ef |grep nextflow.*/run$project_pipeline_id/ |grep -v grep | awk '{print \\\"kill \\\"\\\$2}' |bash \" 2>&1 &";
+            	$terminate_run = shell_exec($cmd);
+				return json_encode('terminateCommandExecuted');
 			}
-    	}
+    	
 	}
 	public function terminateRun($pid, $project_pipeline_id, $ownerID) {
         $sql = "SELECT attempt FROM run WHERE project_pipeline_id = '$project_pipeline_id'";
