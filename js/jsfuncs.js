@@ -666,7 +666,22 @@ function refreshCollapseIconDiv() {
             $(textClassMinus).addClass('fa-plus-square-o');
         }
     });
+     $('.collapseIconItem').on('click', function (e) {
+        var itemClass = $(this).attr("class")
+         console.log(itemClass)
+         console.log(itemClass.match(/fa-minus-square-o/))
+        if (itemClass.match(/fa-plus-square-o/)) {
+            $(this).removeClass('fa-plus-square-o');
+            $(this).addClass('fa-minus-square-o');
+        } else if (itemClass.match(/fa-minus-square-o/)) {
+            $(this).removeClass('fa-minus-square-o');
+            $(this).addClass('fa-plus-square-o');
+        }
+    });
+    
+    
 }
+
 
 // fills the from with the object data. find is comma separated string for form types such as: 'input, p'
 //eg.  fillForm('#execNextSettTable','input', exec_next_settings);
