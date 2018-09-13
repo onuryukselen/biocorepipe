@@ -3037,8 +3037,11 @@ function displayButton(idButton) {
 function terminateProjectPipe() {
     var proType = proTypeWindow;
     var proId = proIdWindow;
-    if (runPid && proType == "cluster") {
-        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
+    var [allProSett, profileData] = getJobData("both");
+    var executor = profileData[0].executor;
+    console.log(executor)
+    if (runPid && executor != "local") {
+        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor:executor });
         console.log(terminateRun)
         var pidStatus = checkRunPid(runPid, proType, proId);
         if (pidStatus) { // if true, then it is exist in queue
@@ -3046,6 +3049,9 @@ function terminateProjectPipe() {
         } else { //pid not exist
             console.log("give error1")
         }
+    } else if (executor == "local"){
+        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor:executor });
+        console.log(terminateRun)
     }
 
     var setStatus = getValues({ p: "updateRunStatus", run_status: "Terminated", project_pipeline_id: project_pipeline_id });
@@ -3216,7 +3222,6 @@ function runProPipeCall(checkType) {
         configTextRaw += "cleanup = true \n";
     }
     var [allProSett, profileData] = getJobData("both");
-    console.log()
     if ($('#docker_check').is(":checked") === true) {
         var docker_img = $('#docker_img').val();
         var docker_opt = $('#docker_opt').val();
