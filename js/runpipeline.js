@@ -2538,7 +2538,7 @@ function loadProjectPipeline(pipeData) {
         selectAmzKey();
     }
     //hide system inputs
-    setTimeout(function () {$("#systemInputs").trigger("click");}, 10);
+    setTimeout(function () { $("#systemInputs").trigger("click"); }, 10);
     //load user groups
     var allUserGrp = getValues({ p: "getUserGroups" });
     if (allUserGrp && allUserGrp != "") {
@@ -2591,11 +2591,10 @@ function loadProjectPipeline(pipeData) {
 }
 
 
-//xxxx
 //click on "system inputs" button
 $('#inputsTable').on('click', '#systemInputs', function (e) {
     var indx = $("#systemInputs").index();
-    $("#inputsTable> tbody > tr:gt(" + indx + ")").slideToggle('fast');
+    $("#inputsTable> tbody > tr:gt(" + indx + ")").toggle();
 });
 
 function refreshEnv() {
@@ -3066,8 +3065,11 @@ function terminateProjectPipe() {
 
     var setStatus = getValues({ p: "updateRunStatus", run_status: "Terminated", project_pipeline_id: project_pipeline_id });
     if (setStatus) {
-        clearInterval(interval_readNextlog);
         displayButton('terminatedProPipe');
+        //trigger saving newxtflow log file
+        setTimeout(function () {
+            getValues({ p: "saveNextflowLog", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
+        }, 2000);
     }
 
 }
@@ -3328,6 +3330,7 @@ function readNextflowLogTimer(proType, proId) {
 
 // type= reload for reload the page
 function readNextLog(proType, proId, type) {
+    console.log("readNextLog")
     runStatus = getRunStatus(project_pipeline_id);
     var pidStatus = "";
     serverLog = '';
@@ -3335,6 +3338,7 @@ function readNextLog(proType, proId, type) {
     serverLog = getServerLog(project_pipeline_id);
     if (serverLog && serverLog !== null && serverLog !== false) {
         $('#runLogArea').val(serverLog);
+        document.getElementById("runLogArea").scrollTop = document.getElementById("runLogArea").scrollHeight
         var runPid = parseRunPid(serverLog);
     } else {
         serverLog = "";
@@ -3346,6 +3350,8 @@ function readNextLog(proType, proId, type) {
     if (runStatus === "Terminated" || runStatus === "NextSuc" || runStatus === "Error" || runStatus === "NextErr") {
         if (nextflowLog !== null && nextflowLog !== undefined) {
             $('#runLogArea').val(serverLog + nextflowLog);
+            document.getElementById("runLogArea").scrollTop = document.getElementById("runLogArea").scrollHeight
+
         }
         if (type !== "reload") {
             clearInterval(interval_readNextlog);
@@ -3361,6 +3367,8 @@ function readNextLog(proType, proId, type) {
         // otherwise parse nextflow file to get status
     } else if (nextflowLog !== null) {
         $('#runLogArea').val(serverLog + nextflowLog);
+        document.getElementById("runLogArea").scrollTop = document.getElementById("runLogArea").scrollHeight
+
         if (nextflowLog.match(/N E X T F L O W/)) {
             if (nextflowLog.match(/##Success: failed/)) {
                 // status completed with error
@@ -3456,8 +3464,9 @@ function readNextLog(proType, proId, type) {
             }
 
         }
-
     }
+    //trigger saving newxtflow log file
+    var saveLog = getValues({ p: "saveNextflowLog", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId });
 }
 
 function showOutputPath() {
@@ -3499,18 +3508,16 @@ function addOutFileDb() {
 
 
 function getNextflowLog(project_pipeline_id, proType, proId) {
-    if (proType === "cluster" || proType === "amazon") {
-        var logText = getValues({
-            p: "getNextflowLog",
-            project_pipeline_id: project_pipeline_id,
-            profileType: proType,
-            profileId: proId
-        });
-        if (logText && logText != "") {
-            return logText;
-        } else {
-            return "";
-        }
+    var logText = getValues({
+        p: "getNextflowLog",
+        project_pipeline_id: project_pipeline_id,
+        profileType: proType,
+        profileId: proId
+    });
+    if (logText && logText != "") {
+        return $.trim(logText);
+    } else {
+        return "";
     }
 }
 

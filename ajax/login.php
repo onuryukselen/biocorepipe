@@ -16,6 +16,7 @@ if ($p=="saveUser"){
     //check if Google ID already exits
     $id = json_decode($db->getUser($google_id))[0]->{'id'};
     $_SESSION['username'] = $username;
+    $_SESSION['name'] = $name;
     $_SESSION['google_id'] = $google_id;
     if (!empty($id)) {
 	    $_SESSION['ownerID'] = $id;
@@ -35,7 +36,9 @@ if ($p=="saveUser"){
     $userData = json_decode($db->getUserById($user_id))[0];
     $google_id = $userData->{'google_id'};
     $username = $userData->{'username'};
+    $name = $userData->{'name'};
     $_SESSION['username'] = $username;
+    $_SESSION['name'] = $name;
     $_SESSION['google_id'] = $google_id;
     $_SESSION['ownerID'] = $user_id;
     $_SESSION['admin_id'] = $admin_id;
@@ -48,9 +51,11 @@ if ($p=="saveUser"){
         $userData = json_decode($db->getUserById($admin_id))[0];
         $google_id = $userData->{'google_id'};
         $username = $userData->{'username'};
+        $name = $userData->{'name'};
         session_destroy();
         session_start();
         $_SESSION['username'] = $username;
+        $_SESSION['name'] = $name;
         $_SESSION['google_id'] = $google_id;
         $_SESSION['ownerID'] = $admin_id;
         $logOutAr = array('logOut' => 1);
