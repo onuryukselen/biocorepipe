@@ -3048,7 +3048,6 @@ function terminateProjectPipe() {
     var proId = proIdWindow;
     var [allProSett, profileData] = getJobData("both");
     var executor = profileData[0].executor;
-    console.log(executor)
     if (runPid && executor != "local") {
         var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor: executor });
         console.log(terminateRun)
@@ -3330,7 +3329,6 @@ function readNextflowLogTimer(proType, proId) {
 
 // type= reload for reload the page
 function readNextLog(proType, proId, type) {
-    console.log("readNextLog")
     runStatus = getRunStatus(project_pipeline_id);
     var pidStatus = "";
     serverLog = '';
