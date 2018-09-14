@@ -1649,6 +1649,7 @@ class dbfuncs {
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             $nextflow_log = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'cat $dolphin_path_real/log.txt 2>/dev/null' 2>&1 &");
             // save $nextflow_log to a file 
+            if ($nextflow_log != "" && !empty($nextflow_log))
             $this->writeLog($project_pipeline_id,$nextflow_log,'w','nextflow.log');
             return json_encode("nextflow log saved");
     }
