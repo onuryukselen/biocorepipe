@@ -2537,6 +2537,8 @@ function loadProjectPipeline(pipeData) {
     } else {
         selectAmzKey();
     }
+    //hide system inputs
+    setTimeout(function () {$("#systemInputs").trigger("click");}, 10);
     //load user groups
     var allUserGrp = getValues({ p: "getUserGroups" });
     if (allUserGrp && allUserGrp != "") {
@@ -2587,6 +2589,14 @@ function loadProjectPipeline(pipeData) {
     $('#datecreatedPip').text(pipeData[0].date_created);
     $('.lasteditedPip').text(pipeData[0].date_modified);
 }
+
+
+//xxxx
+//click on "system inputs" button
+$('#inputsTable').on('click', '#systemInputs', function (e) {
+    var indx = $("#systemInputs").index();
+    $("#inputsTable> tbody > tr:gt(" + indx + ")").slideToggle('fast');
+});
 
 function refreshEnv() {
     loadRunOptions();
@@ -3041,7 +3051,7 @@ function terminateProjectPipe() {
     var executor = profileData[0].executor;
     console.log(executor)
     if (runPid && executor != "local") {
-        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor:executor });
+        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor: executor });
         console.log(terminateRun)
         var pidStatus = checkRunPid(runPid, proType, proId);
         if (pidStatus) { // if true, then it is exist in queue
@@ -3049,8 +3059,8 @@ function terminateProjectPipe() {
         } else { //pid not exist
             console.log("give error1")
         }
-    } else if (executor == "local"){
-        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor:executor });
+    } else if (executor == "local") {
+        var terminateRun = getValues({ p: "terminateRun", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId, executor: executor });
         console.log(terminateRun)
     }
 

@@ -196,6 +196,14 @@ else { $login = 0;}
             .collapsible:hover {
                 background-color: lightgray;
             }
+            .collapsibleRow:hover {
+                background-color: lightgray;
+            }
+            .collapsibleRow {
+                background-color:#F5F5F5;
+            }
+            
+            
 
             /*        Red warning for empty form sections */
             .borderClass {

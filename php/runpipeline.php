@@ -364,8 +364,8 @@
                        <tr id="userInputs" style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
                             <td colspan="6" >~ User Inputs ~</td>
                         </tr>
-                        <tr id="systemInputs"  style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
-                            <td colspan="6" >~ System Inputs ~</td>
+                        <tr id="systemInputs"  class="collapsibleRow collapseIconDiv" style="display:none; font-weight:bold; font-style: italic; height:40px;">
+                            <td colspan="6" >~ System Inputs ~<i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-minus-square-o collapseIcon collapseIconItem" style="font-size:15px; padding-left:10px; vertical-align:0px;"></a></i></td>
                         </tr>
                     </tbody>
                 </table>
