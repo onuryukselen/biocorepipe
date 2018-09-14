@@ -353,10 +353,10 @@
                     <thead>
                         <tr>
                             <th style="width:20%;" scope="col">Given Name</th>
-                            <th scope="col">Identifier</th>
-                            <th scope="col">File Type</th>
-                            <th scope="col">Qualifier</th>
-                            <th scope="col">Process Name</th>
+                            <th style="width:10%;" scope="col">Identifier</th>
+                            <th style="width:5%;" scope="col">File Type</th>
+                            <th style="width:5%;" scope="col">Qualifier</th>
+                            <th style="width:25%;" scope="col">Process Name</th>
                             <th style="color:#D59035;  width:35%;" scope="col">File/Set/Val</th>
                         </tr>
                     </thead>

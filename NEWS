@@ -1,5 +1,9 @@
+14.09.2018 Version 0.1.89
+Appearance of sign in button is fixed.
+save log file to db and read from there
+
 13.09.2018 Version 0.1.88
-hide/shoow feature for system inputs is added.
+hide/show feature for system inputs is added.
 
 13.09.2018 Version 0.1.87
 terminate run feature for local runs added.

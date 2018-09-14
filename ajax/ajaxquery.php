@@ -45,11 +45,13 @@ else if ($p=="getNextflowLog"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
     $profileType = $_REQUEST['profileType'];
 	$profileId = $_REQUEST['profileId'];
-    if ($profileType == 'local') {
-    $data = $db -> getNextflowLog($project_pipeline_id,$profileType,"","");
-    } else if ($profileType == 'cluster' || $profileType == 'amazon') {
-    $data = $db -> getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID);
-    }
+    $data = $db -> getNextflowLog($project_pipeline_id, $profileType, $profileId, $ownerID);
+}
+else if ($p=="saveNextflowLog"){
+	$project_pipeline_id = $_REQUEST['project_pipeline_id'];
+    $profileType = $_REQUEST['profileType'];
+	$profileId = $_REQUEST['profileId'];
+    $data = $db -> saveNextflowLog($project_pipeline_id, $profileType, $profileId, $ownerID);
 }
 else if ($p=="getRun"){
 	$project_pipeline_id = $_REQUEST['project_pipeline_id'];

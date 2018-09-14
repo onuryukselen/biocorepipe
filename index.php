@@ -1,6 +1,7 @@
 <?php
 if (!isset($_SESSION) || !is_array($_SESSION)) session_start();
 $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
+$name = isset($_SESSION['name']) ? $_SESSION['name'] : "";
 if ($ownerID != ''){$login = 1;} 
 else { $login = 0;}
 ?>
@@ -269,13 +270,40 @@ else { $login = 0;}
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                     <!-- Sidebar user panel -->
-                    <div class="user-panel" style="padding-bottom:5px;">
-                        <div id="googleSignIn" class="g-signin2" data-longtitle="true" data-onsuccess="Google_signIn" data-theme="dark" data-width="200"></div>
-                        <div id="userAvatar" style="display:none" class="pull-left image">
+                    <div class="user-panel" style="<?php
+                        if ($login != 1){
+                            echo 'height:60px;';
+                        } 
+                        ?> padding-bottom:5px;">
+                        <div id="googleSignIn" style="display:<?php
+                        if ($login == 1){
+                            echo 'none';
+                        } else {
+                            echo 'inline';
+                        }
+                        ?>
+                        " class="g-signin2" data-longtitle="true" data-onsuccess="Google_signIn" data-theme="dark" data-width="200"></div>
+                        <div id="userAvatar" style="display:<?php
+                        if ($login == 1){
+                            echo 'inline';
+                        } else {
+                            echo 'none';
+                        }
+                        ?>" class="pull-left image">
                             <img id="userAvatarImg" src="dist/img/user-orange.png" class="img-circle" alt="User Image">
                         </div>
-                        <div id="userInfo" style="display:none" class="info">
-                            <p id="userName">Alper Kucukural</p>
+                        <div id="userInfo" style="display:<?php
+                        if ($login == 1){
+                            echo 'inline';
+                        } else {
+                            echo 'none';
+                        }
+                        ?>" class="info">
+                            <p id="userName"><?php
+                        if ($login == 1){
+                            echo $name;
+                        }
+                        ?></p>
                             <span style="font-size:11px;"><i class="fa fa-circle text-success"></i> Online</span>
                             <a style="padding-left:5px; font-size:11px; float:right;" href="#" onclick="signOut();">Sign out</a>
                         </div>

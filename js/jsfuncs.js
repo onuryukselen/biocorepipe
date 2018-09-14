@@ -475,15 +475,9 @@ function checkLogin() {
 };
 
 
-
-
-
 if (loginSuccess === true && userProfile !== '') {
     imgUrl = userProfile[0].google_image;
     userName = userProfile[0].name;
-    $('#googleSignIn').css('display', "none");
-    $('#userAvatar').css('display', "inline");
-    $('#userInfo').css('display', "inline");
     if (imgUrl) {
         $.ajax({
             type: 'HEAD',
@@ -497,11 +491,7 @@ if (loginSuccess === true && userProfile !== '') {
     if (userName) {
         $('#userName').text(userName);
     }
-} else {
-    $('#googleSignIn').css('display', "inline");
-    $('#userAvatar').css('display', "none");
-    $('#userInfo').css('display', "none");
-}
+} 
 // google sign-in
 function Google_signIn(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
