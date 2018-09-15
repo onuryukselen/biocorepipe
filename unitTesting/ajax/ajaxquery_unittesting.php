@@ -1348,6 +1348,8 @@ class ajaxQueryTest extends TestCase
         $_SESSION['google_id']="";
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->error,'1');
+        ob_end_clean();
+        ob_start();
         $_SESSION['ownerID'] = '1';
         $_SESSION['username'] = 'admin';
         $_SESSION['google_id'] = '111';
