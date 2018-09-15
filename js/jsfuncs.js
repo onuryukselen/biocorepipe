@@ -600,8 +600,7 @@ $inputText.each(function () {
 });
 
 function getValues(data, async) {
-    async = async || false;
-    console.log(async)
+    async = async || false; //default false
     var result = null;
     $.ajax({
         url: "ajax/ajaxquery.php",
