@@ -3329,6 +3329,7 @@ function readNextflowLogTimer(proType, proId) {
 
 // type= reload for reload the page
 function readNextLog(proType, proId, type) {
+    console.log("readNextLog")
     runStatus = getRunStatus(project_pipeline_id);
     var pidStatus = "";
     serverLog = '';
