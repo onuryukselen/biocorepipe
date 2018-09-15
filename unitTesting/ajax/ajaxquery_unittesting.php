@@ -1349,7 +1349,6 @@ class ajaxQueryTest extends TestCase
 		include('ajaxquery.php');
 		$this->assertEquals(json_decode($data)->error,'1');
         ob_start();
-        if (!isset($_SESSION) || !is_array($_SESSION)) session_start();
         $_SESSION['ownerID'] = '1';
         $_SESSION['username'] = 'admin';
         $_SESSION['google_id'] = '111';
