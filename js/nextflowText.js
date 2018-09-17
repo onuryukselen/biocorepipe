@@ -222,9 +222,6 @@ function getNewScriptHeader(script_header, process_opt, gNum) {
             var checkArrFill = false;
             var newLine = "";
             var varName = $.trim(checkParam[1]);
-            console.log(varName)
-            console.log(gNum)
-            console.log(process_opt)
             var oldDefVal = $.trim(checkParam[2]);
             var quoteType = "";
             if (oldDefVal[0] === "'") {
@@ -347,7 +344,6 @@ function createNextflowFile(nxf_runmode) {
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
-        console.log(key)
         var gNum = key.match(/g(.*)/)[1]; //g7 or g4-3 for pipeline module
         if (gNum[0] === "-"){
             gNum = gNum.substring(1); //eq 7
@@ -355,8 +351,6 @@ function createNextflowFile(nxf_runmode) {
         if (gNum.match(/-/)){
             gNum = gNum.replace("-","_") //eq 4_3
         }
-        console.log(key)
-        console.log(gNum)
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro" && !mainProcessId.match(/p.*/)) { //if it is not input parameter print process data
             var body = "";
             var script_header = "";
@@ -367,7 +361,6 @@ function createNextflowFile(nxf_runmode) {
             if (nxf_runmode === "run" && process_opt) {
                 //check if parameter comment  //* and process_opt[gNum] are exist:
                 if (script_header.match(/\/\/\*/) && process_opt[gNum]) {
-                    console.log(process_opt[gNum])
                     script_header = getNewScriptHeader(script_header, process_opt, gNum);
                 }
             }

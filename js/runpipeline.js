@@ -1276,11 +1276,7 @@ function insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name) {
     }
 
     //check if project_pipeline_inputs exist then fill:
-    var getProPipeInputs = getValues({
-        p: "getProjectPipelineInputsByGnum",
-        project_pipeline_id: project_pipeline_id,
-        g_num: pipeGnum
-    });
+    var getProPipeInputs = projectPipeInputs.filter(function (el) { return el.g_num == pipeGnum })
     var rowID = rowType + 'Ta-' + firGnum;
     if (getProPipeInputs && getProPipeInputs != "") {
         if (getProPipeInputs.length == 1) {
@@ -2226,11 +2222,8 @@ function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix,
                 }
             }
             //get project_pipeline_inputs:
-            var getProPipeInputs = getValues({
-                p: "getProjectPipelineInputsByGnum",
-                project_pipeline_id: project_pipeline_id,
-                g_num: firGnum
-            });
+            var getProPipeInputs = projectPipeInputs.filter(function (el) { return el.g_num == firGnum })
+    
             var rowID = rowType + 'Ta-' + firGnum;
             if (getProPipeInputs && getProPipeInputs != "") {
                 if (getProPipeInputs.length > 0) {
@@ -2628,8 +2621,6 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN, p
 
     } else {
         //--Pipeline details table ---
-        console.log(name)
-        console.log(id)
         addProPipeTab(id, pObj.gNum, name, pObj);
         //--ProcessPanel (where process options defined)
         createProcessPanelAutoFill(id, pObj, name, process_id);
@@ -4279,6 +4270,7 @@ function getRunStatus(project_pipeline_id) {
 dupliProPipe = false;
 
 function checkNewRevision() {
+    //getPipelineRevision will retrive pipeline revisions that user allows to use
     var checkNewRew = getValues({ p: "getPipelineRevision", pipeline_id: pipeline_id });
     var askNewRev = false;
     var highestRev = pipeData[0].rev_id;
@@ -4322,6 +4314,7 @@ $(document).ready(function () {
     project_id = pipeData[0].project_id;
     $('#pipeline-title').attr('pipeline_id', pipeline_id);
     if (project_pipeline_id !== '' && pipeline_id !== '') {
+        projectPipeInputs = getValues({p: "getProjectPipelineInputs",project_pipeline_id: project_pipeline_id});
         loadPipelineDetails(pipeline_id);
         loadProjectPipeline(pipeData);
         runStatus = "";

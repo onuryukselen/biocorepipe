@@ -1,5 +1,11 @@
+17.09.2018 Version 0.1.92
+New revision or copy of public pipeline creates private pipeline(perms=3)
+Ajax requests in run page are decreased to improve performance.
+
 16.09.2018 Version 0.1.91
 Nested pipeline feature added to run page.
+jquery-ui removed from libraries.
+jquery-ui-bootsrap added to libraries for dialog type modal.
 
 14.09.2018 Version 0.1.90
 browser lock fixed by using session_write_close in php pages.

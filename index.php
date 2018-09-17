@@ -505,7 +505,7 @@ session_write_close();
             <!-- Bootstrap 3.3.7 -->
             <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
             <!-- jquery-migrate-3.0.0-->
-            <script src="bower_components/jquery-ui-bootstrap/js/jquery-migrate-3.0.0"></script>
+            <script src="bower_components/jquery-ui-bootstrap/js/jquery-migrate-3.0.0.js"></script>
             <!-- jquery-ui-1.9.2.custom.min-->
             <script src="bower_components/jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js"></script>
             <!-- Selectize 0.12.4.  -->

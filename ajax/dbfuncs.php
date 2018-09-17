@@ -1997,12 +1997,12 @@ class dbfuncs {
                 if (isset(json_decode($userRoleCheck)[0])){
                     $userRole = json_decode($userRoleCheck)[0]->{'role'};
                     if ($userRole == "admin"){
-                        $sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own FROM biocorepipe_save pip WHERE pip.pipeline_gid = '$pipeline_gid'";
+                        $sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own, pip.perms FROM biocorepipe_save pip WHERE pip.pipeline_gid = '$pipeline_gid'";
                         return self::queryTable($sql);
                     }
                 }
         }
-		$sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own
+		$sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own, pip.perms
         FROM biocorepipe_save pip
         LEFT JOIN user_group ug ON pip.group_id=ug.g_id
         WHERE pip.pipeline_gid = '$pipeline_gid' AND (pip.owner_id = '$ownerID' OR pip.perms = 63 OR (ug.u_id ='$ownerID' and pip.perms = 15))";
