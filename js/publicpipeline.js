@@ -1548,9 +1548,6 @@
 	      document.body.removeChild(element);
 	  }
 
-	  function resetPos() {
-	      d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
-	  }
 
 	  function refreshCreatorData(pipeline_id) {
 	      var getPipelineD = [];

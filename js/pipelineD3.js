@@ -156,8 +156,6 @@ function createSVG() {
     mainG = d3.select("#container").select("svg").append("g")
         .attr("id", "mainG")
         .attr("transform", "translate(" + 0 + "," + 0 + ")")
-
-
 }
 
 function startzoom() {
@@ -1030,10 +1028,13 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
 }
 
 function findType(id) {
-    parameter = parametersData.filter(function (el) {
-        return el.id == id
-    })
-    return parameter[0].file_type
+    var parameter = [];
+    var parameter = parametersData.filter(function (el) { return el.id == id });
+    if (parameter && parameter != '') {
+        return parameter[0].file_type
+    } else {
+        return '';
+    }
 }
 
 function calculatePos(len, k, poz, type) {
@@ -1525,7 +1526,6 @@ function updateSecClassName(second, inputParamLocF) {
     }
 
     secClassName = document.getElementById(second).className.baseVal.split("-")[0].split(" ")[0] + " " + candi
-
     return secClassName
 }
 
@@ -1579,10 +1579,15 @@ function createEdges(first, second, pObj) {
         }
         var paramGivenName = document.getElementById('text' + MainGNum + "-" + firGnum).getAttribute("name");
         var paraData = parametersData.filter(function (el) { return el.id == pObj.secPI });
-        var procData = processData.filter(function (el) { return el.id == secProI });
-        var paraFileType = paraData[0].file_type;
-        var paraQualifier = paraData[0].qualifier;
-        var paraIdentifier = paraData[0].name;
+//        var procData = processData.filter(function (el) { return el.id == secProI });
+        var paraFileType = "";
+        var paraQualifier = "";
+        var paraIdentifier = "";
+        if (paraData && paraData != '') {
+            var paraFileType = paraData[0].file_type;
+            var paraQualifier = paraData[0].qualifier;
+            var paraIdentifier = paraData[0].name;
+        }
         var processName = $('text' + MainGNum + "-" + secGnum).attr('name');
         var rowExist = ''
         rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
@@ -1812,9 +1817,6 @@ function download(text) {
     document.body.removeChild(element);
 }
 
-function resetPos() {
-    d3.select("#mainG").attr("transform", "translate(0,0)scale(1)")
-}
 
 function refreshCreatorData(pipeline_id) {
     var getPipelineD = [];

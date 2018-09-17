@@ -1,3 +1,6 @@
+16.09.2018 Version 0.1.91
+Nested pipeline feature added to run page.
+
 14.09.2018 Version 0.1.90
 browser lock fixed by using session_write_close in php pages.
 while copying run, user allowed to use new pipeline revision 
