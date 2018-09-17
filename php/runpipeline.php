@@ -361,11 +361,11 @@
                         </tr>
                     </thead>
                     <tbody style="word-break: break-all;">
-                       <tr id="userInputs" style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
-                            <td colspan="6" >~ User Inputs ~</td>
+                        <tr id="userInputs" style="display:none; background-color:#F5F5F5; font-weight:bold; font-style: italic; height:40px;">
+                            <td colspan="6">~ User Inputs ~</td>
                         </tr>
-                        <tr id="systemInputs"  class="collapsibleRow collapseIconDiv" style="display:none; font-weight:bold; font-style: italic; height:40px;">
-                            <td colspan="6" >~ System Inputs ~<i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-minus-square-o collapseIcon collapseIconItem" style="font-size:15px; padding-left:10px; vertical-align:0px;"></a></i></td>
+                        <tr id="systemInputs" class="collapsibleRow collapseIconDiv" style="display:none; font-weight:bold; font-style: italic; height:40px;">
+                            <td colspan="6">~ System Inputs ~<i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a class="fa fa-minus-square-o collapseIcon collapseIconItem" style="font-size:15px; padding-left:10px; vertical-align:0px;"></a></i></td>
                         </tr>
                     </tbody>
                 </table>
@@ -418,6 +418,11 @@
     </div>
 </div>
 
+<div id="subPipelinePanelTitle" style="display:none;">
+    <h6><b>Pipeline Modules</b></h6>
+</div>
+
+
 
 <!--Confirm Modal-->
 <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
@@ -465,7 +470,7 @@
             </div>
             <div class="modal-body" id="confirmDuplicateText">New revision of this pipeline is available. If you want to create a new run and keep your revision of pipeline, please click "Keep Existing Revision" button. If you wish to use same input parameters in new revision of pipeline then click "Use New Revision" button.</div>
             <div class="modal-footer">
-               <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButton">Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="cancelButton">Cancel</button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="duplicateKeepBtn">Keep Existing Revision</button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal" id="duplicateNewBtn">Use New Revision</button>
             </div>

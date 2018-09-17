@@ -20,6 +20,25 @@ function createPiGnumList() {
     });
 }
 
+//adjust container size based on window size
+window.onresize = function (event) {
+    createPiGnumList();
+    var Maint = d3.transform(d3.select('#' + "mainG").attr("transform"));
+    var Mainx = Maint.translate[0]
+    var Mainy = Maint.translate[1]
+    var Mainz = Maint.scale[0]
+    translateSVG([Mainx, Mainy, Mainz, window.lastMG[3], window.lastMG[4]], window)
+    //for pipeline modules
+    for (var j = 0; j < piGnumList.length; j++) {
+        var MaintP = d3.transform(d3.select('#' + "mainG" + piGnumList[j]).attr("transform"));
+        var MainxP = MaintP.translate[0]
+        var MainyP = MaintP.translate[1]
+        var MainzP = MaintP.scale[0]
+        translateSVG([MainxP, MainyP, MainzP, window["pObj" + piGnumList[j]].lastMG[3], window["pObj" + piGnumList[j]].lastMG[4]], window["pObj" + piGnumList[j]]);
+    };
+}
+
+
 function dragStart(event) {
     event.dataTransfer.setData("Text", event.target.id);
 }
@@ -37,7 +56,9 @@ function refreshDataset() {
     parametersData = getValues({
         p: "getAllParameters"
     })
-
+    processData = getValues({
+        p: "getProcessData"
+    })
 }
 var sData = "";
 var svg = "";
@@ -46,18 +67,19 @@ var autoFillJSON;
 var systemInputs = [];
 
 function createSVG() {
-    edges = []
     w = '100%'
-    h = 500
+    h = '100%'
     r = 70
     cx = 0
     cy = 0
     ior = r / 6
+    rP = r + 20; // r of pipeline circle 
     var dat = [{
         x: 0,
         y: 0
 	      }]
     gNum = 0
+    MainGNum = "";
     selectedgID = ""
     selectedg = ""
     diffx = 0
@@ -69,6 +91,7 @@ function createSVG() {
     candidates = []
     saveNodes = []
 
+    createPipeRev = "";
     dupliPipe = false
     binding = false
     renameTextID = ""
@@ -85,8 +108,6 @@ function createSVG() {
         .attr("width", w)
         .attr("height", h)
         .on("mousedown", startzoom)
-        .on("mouseup", autosave)
-    //	          .call(zoom)
     mainG = d3.select("#container").select("svg").append("g")
         .attr("id", "mainG")
         .attr("transform", "translate(" + 0 + "," + 0 + ")")
@@ -96,33 +117,9 @@ function startzoom() {
     d3.select("#container").call(zoom)
 }
 
-$('#pipelineSum').keyup(function () {
-    autosave();
-});
-$("#pipeline-title").keyup(function () { //Click outside of the field or enter
-    autosave();
-});
-
 var timeoutId = 0;
 
-function autosave() {}
 
-function newPipeline() {
-    createSVG()
-    $('#pipeline-title').val('');
-    $('#pipeline-title').attr('pipelineid', '');
-    resizeForText.call($inputText, $inputText.attr('placeholder'));
-}
-
-
-function delPipeline() {
-    var pipeID = $('#pipeline-title').attr('pipelineid');
-    var s = getValues({
-        p: "removePipelineById",
-        'id': pipeID
-    });
-    window.location.replace("index.php?np=1");
-}
 
 function resetSingleParam(paramId) {
     if ($('#' + paramId).attr("connect") === "single") {
@@ -130,8 +127,10 @@ function resetSingleParam(paramId) {
             resetOriginal("inPro", paramId)
         } else if ($('#' + paramId).parent().attr("class") === "g-outPro") {
             resetOriginal("outPro", paramId)
+            return true
         }
     }
+    return false
 }
 
 //resets input/output parameters to original state
@@ -178,6 +177,126 @@ function getNewNodeId(edges, nullId) {
     }
 }
 
+function translateSVG(mG, pObj) {
+    var MainGNum = "";
+    if (pObj != window) {
+        // pipeline modules 
+        var MainGNum = pObj.MainGNum;
+    }
+    if (!mG[3]) {
+        mG[3] = 1378; //default width of container if its not defined before
+    }
+    var widthC = $("#container").width();
+    var coefW = widthC / mG[3];
+    var height = widthC / 3;
+    if (height < 300) {
+        height = 300;
+    }
+    $("#container" + MainGNum).css("height", height + "px")
+    var transX = parseFloat(mG[0]) * coefW;
+    var transY = parseFloat(mG[1]) * coefW;
+    var transS = parseFloat(mG[2]) * coefW;
+    var trans = 'translate(' + transX + ',' + transY + ')' + "scale(" + transS + ')';
+    d3.select("#mainG" + MainGNum).attr("transform", trans)
+
+    if (pObj == window) {
+        zoom.translate([transX, transY]).scale(transS);
+    }
+    pObj.lastMG = [transX, transY, transS, widthC, height]
+}
+
+function openSubPipeline(piID, pObj) {
+    var sData = pObj.sData[0];
+    var MainGNum = pObj.MainGNum;
+    var lastGnum = pObj.lastGnum;
+    var prefix = "p" + MainGNum;
+    pObj.processList = {};
+    pObj.edges = [];
+    var hideModule = false;
+    if ($("#subPipelinePanelTitle").find('div[pipeid*=' + piID + ']').length > 0) {
+        hideModule = true;
+    }
+    var hideModuleText = '';
+    if (hideModule) {
+        hideModuleText = 'style="display:none;"';
+    }
+    var pipeName = sData.name;
+    var dispTitle = $('#subPipelinePanelTitle').css("display");
+    if (dispTitle == "none") {
+        $('#subPipelinePanelTitle').css("display", "inline");
+    }
+    var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + MainGNum + '"><h4 class="panel-title">' + pipeName + ' Module <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
+    var processBodyInt = '<div  id="collapse-' + MainGNum + '" class="panel-collapse collapse"><div style="height:500px; padding:0px;" id="container' + MainGNum + '" class="panel-body">'
+    //create Pipeline Module Panel
+    $('#subPipelinePanelTitle').append('<div id="proPanelDiv-' + MainGNum + '" pipeid="' + piID + '" ' + hideModuleText + '><div id="proPanel-' + MainGNum + '" class="panel panel-default" style="margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
+    pObj.svg = d3.select("#container" + MainGNum).append("svg")
+        .attr("id", "svg" + MainGNum)
+        .attr("width", w)
+        .attr("height", h)
+        .on("mousedown", startzoom)
+    pObj.mainG = d3.select("#container" + MainGNum).select("svg").append("g")
+        .attr("id", "mainG" + MainGNum)
+        .attr("transform", "translate(" + 0 + "," + 0 + ")")
+    d3.select("#container" + MainGNum).style("background-image", "url(css/workplace_image.png)").style("background-repeat", "repeat").on("keydown", cancel).on("mousedown", cancel)
+
+    if (sData) {
+        pObj.nodes = sData.nodes
+        pObj.nodes = JSON.parse(pObj.nodes.replace(/'/gi, "\""))
+        pObj.mG = sData.mainG
+        pObj.mG = JSON.parse(pObj.mG.replace(/'/gi, "\""))["mainG"]
+        translateSVG(pObj.mG, pObj)
+        for (var key in pObj.nodes) {
+            pObj.x = pObj.nodes[key][0]
+            pObj.y = pObj.nodes[key][1]
+            pObj.pId = pObj.nodes[key][2]
+            pObj.name = pObj.nodes[key][3]
+            var processModules = pObj.nodes[key][4];
+            pObj.gNum = key.split("-")[1]
+            if (pObj.pId.match(/p(.*)/)) {
+                var newPiID = pObj.pId.match(/p(.*)/)[1];
+                var newMainGnum = "pObj" + MainGNum + "_" + pObj.gNum;
+                window[newMainGnum] = {};
+                window[newMainGnum].piID = newPiID;
+                window[newMainGnum].MainGNum = MainGNum + "_" + pObj.gNum;
+                window[newMainGnum].lastGnum = pObj.gNum;
+                window[newMainGnum].sData = getValues({ p: "loadPipeline", id: newPiID })
+                window[newMainGnum].lastPipeName = pObj.name;
+                // add pipeline circle to main workplace
+                addPipeline(newPiID, pObj.x, pObj.y, pObj.name, pObj, window[newMainGnum]);
+                // create new SVG workplace inside panel, if not added before
+                openSubPipeline(newPiID, window[newMainGnum]);
+            } else {
+                loadPipeline(pObj.x, pObj.y, pObj.pId, pObj.name, processModules, pObj.gNum, pObj)
+            }
+        }
+        pObj.ed = sData.edges.slice();
+        pObj.ed = JSON.parse(pObj.ed.replace(/'/gi, "\""))["edges"]
+        for (var ee = 0; ee < pObj.ed.length; ee++) {
+            pObj.eds = pObj.ed[ee].split("_")
+            //specific to module panel
+            //if process is updated through process modal, reconnect the uneffected one based on their parameter_id.
+            if (!document.getElementById(prefix + pObj.eds[0]) && document.getElementById(prefix + pObj.eds[1])) {
+                var newID = getNewNodeId(pObj.ed, pObj.eds[0], MainGNum)
+                if (newID) {
+                    newID = newID.replace(prefix, "")
+                    pObj.eds[0] = newID;
+                    createEdges(pObj.eds[0], pObj.eds[1], pObj)
+                }
+                //if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
+            } else if (!document.getElementById(prefix + pObj.eds[1]) && document.getElementById(prefix + pObj.eds[0])) {
+                var newID = getNewNodeId(pObj.ed, pObj.eds[1], MainGNum);
+                if (newID) {
+                    newID = newID.replace(prefix, "")
+                    pObj.eds[1] = newID;
+                    createEdges(pObj.eds[0], pObj.eds[1], pObj)
+                }
+            } else if (document.getElementById(prefix + pObj.eds[1]) && document.getElementById(prefix + pObj.eds[0])) {
+                addCandidates2DictForLoad(pObj.eds[0], pObj)
+                createEdges(pObj.eds[0], pObj.eds[1], pObj)
+            }
+        }
+    }
+}
 
 function openPipeline(id) {
     createSVG()
@@ -191,9 +310,7 @@ function openPipeline(id) {
         nodes = JSON.parse(nodes.replace(/'/gi, "\""))
         mG = sData[0].mainG
         mG = JSON.parse(mG.replace(/'/gi, "\""))["mainG"]
-        zoom.translate([parseFloat(mG[0]), parseFloat(mG[1])]).scale(parseFloat(mG[2]));
-        newTransform = "translate(" + (parseFloat(mG[0])) + "," + (parseFloat(mG[1])) + ")scale(" + (parseFloat(mG[2])) + ")"
-        d3.select("#mainG").attr("transform", newTransform)
+        translateSVG(mG, window)
         for (var key in nodes) {
             x = nodes[key][0]
             y = nodes[key][1]
@@ -201,8 +318,24 @@ function openPipeline(id) {
             name = nodes[key][3]
             var processModules = nodes[key][4];
             gN = key.split("-")[1]
-            //--Pipeline details table & ProcessPanel (where processOpt defined) is created in loadPipeline
-            loadPipeline(x, y, pId, name, processModules, gN)
+            //for pipeline circles
+            if (pId.match(/p(.*)/)) {
+                var piID = pId.match(/p(.*)/)[1];
+                var newMainGnum = "pObj" + gN;
+                window[newMainGnum] = {};
+                window[newMainGnum].piID = piID;
+                window[newMainGnum].MainGNum = gN;
+                window[newMainGnum].lastGnum = gN;
+                window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
+                window[newMainGnum].lastPipeName = name;
+                // add pipeline circle to main workplace
+                addPipeline(piID, x, y, name, window, window[newMainGnum]);
+                // create new SVG workplace inside panel, if not added before
+                openSubPipeline(piID, window[newMainGnum]);
+                //for process circles
+            } else {
+                loadPipeline(x, y, pId, name, processModules, gN, window)
+            }
         }
         ed = sData[0].edges
         ed = JSON.parse(ed.replace(/'/gi, "\""))["edges"]
@@ -214,29 +347,29 @@ function openPipeline(id) {
                 if (newID) {
                     eds[0] = newID;
                     addCandidates2DictForLoad(eds[0])
-                    createEdges(eds[0], eds[1])
+                    createEdges(eds[0], eds[1], window)
                 }
                 //if process is updated through process modal, reset the edge of input/output parameter and reset the single circles.
                 resetSingleParam(eds[1]);
 
             } else if (!document.getElementById(eds[1]) && document.getElementById(eds[0])) {
-                var newID = getNewNodeId(ed, eds[1]);
+                var newID = getNewNodeId(ed, eds[1], "");
                 if (newID) {
                     eds[1] = newID;
-                    addCandidates2DictForLoad(eds[0])
-                    createEdges(eds[0], eds[1])
+                    addCandidates2DictForLoad(eds[0], window)
+                    createEdges(eds[0], eds[1], window)
                 }
                 resetSingleParam(eds[0]);
 
-            } else {
-                addCandidates2DictForLoad(eds[0])
-                createEdges(eds[0], eds[1])
+            } else if (document.getElementById(eds[1]) && document.getElementById(eds[0])) {
+                addCandidates2DictForLoad(eds[0], window)
+                createEdges(eds[0], eds[1], window)
             }
         }
     }
 }
 
-d3.select("#container").style("background-image", "url(https://68.media.tumblr.com/afc0c91aac9ccc5cbe10ff6f922f58dc/tumblr_nlzk53d4IQ1tagz2no6_r1_500.png)").on("keydown", cancel).on("mousedown", cancel)
+d3.select("#container").style("background-image", "url(css/workplace_image.png)").style("background-repeat", "repeat").on("keydown", cancel).on("mousedown", cancel)
 
 var zoom = d3.behavior.zoom()
     .translate([0, 0])
@@ -250,19 +383,27 @@ function zoomed() {
     mainG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
-function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal, dropDown) {
+//kind=input/output
+function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, classtoparam, init, pColor, defVal, dropDown, pObj) {
+    var MainGNum = "";
+    var prefix = "";
+    if (pObj != window) {
+        //load workflow of pipeline modules 
+        MainGNum = pObj.MainGNum;
+        prefix = "p" + MainGNum; //prefix for node ids
+    }
     //gnum uniqe, id same id (Written in class) in same type process
-    g = d3.select("#mainG").append("g")
-        .attr("id", "g-" + gNum)
-        .attr("class", "g-" + id)
+    pObj.g = d3.select("#mainG" + MainGNum).append("g")
+        .attr("id", "g" + MainGNum + "-" + pObj.gNum)
+        .attr("class", "g" + MainGNum + "-" + id)
         .attr("transform", "translate(" + sDataX + "," + sDataY + ")")
-    //	          .on("mouseover", mouseOverG)
-    //	          .on("mouseout", mouseOutG)
+    //        .on("mouseover", mouseOverG)
+    //        .on("mouseout", mouseOutG)
 
     //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
     //outermost circle transparent
-    g.append("circle").attr("id", "bc-" + gNum)
-        .attr("class", "bc-" + id)
+    pObj.g.append("circle").attr("id", "bc" + MainGNum + "-" + pObj.gNum)
+        .attr("class", "bc" + MainGNum + "-" + id)
         .attr("type", "bc")
         .attr("cx", cx)
         .attr("cy", cy)
@@ -271,30 +412,30 @@ function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, c
         .attr("fill", "#E0E0E0")
 
     //second outermost circle visible gray
-    g.append("circle")
+    pObj.g.append("circle")
         .datum([{
             cx: 0,
             cy: 0
                 }])
-        .attr("id", "sc-" + gNum)
-        .attr("class", "sc-" + id)
+        .attr("id", "sc" + MainGNum + "-" + pObj.gNum)
+        .attr("class", "sc" + MainGNum + "-" + id)
         .attr("type", "sc")
         .attr("r", ipR + ipIor)
         .attr("fill", "#E0E0E0")
         .attr('fill-opacity', 1)
-    //	          .on("mouseover", scMouseOver)
-    //	          .on("mouseout", scMouseOut)
-    //	          .call(drag)
+    //        .on("mouseover", scMouseOver)
+    //        .on("mouseout", scMouseOut)
+    //        .call(drag)
 
     //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
     //inner parameter circle
 
 
-    d3.select("#g-" + gNum).append("circle")
-        .attr("id", init + "-" + id + "-" + 1 + "-" + paramid + "-" + gNum) //değişecek
+    d3.select("#g" + MainGNum + "-" + pObj.gNum).append("circle")
+        .attr("id", prefix + init + "-" + id + "-" + 1 + "-" + paramid + "-" + pObj.gNum)
         .attr("type", "I/O")
         .attr("kind", kind) //connection candidate=input
-        .attr("parentG", "g-" + gNum)
+        .attr("parentG", "g" + MainGNum + "-" + pObj.gNum)
         .attr("name", name)
         .attr("status", "standard")
         .attr("connect", "single")
@@ -307,10 +448,10 @@ function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, c
         .on("mouseover", IOmouseOver)
         .on("mousemove", IOmouseMove)
         .on("mouseout", IOmouseOut)
-    //	          .on("mousedown", IOconnect)
+    //        .on("mousedown", IOconnect)
 
     //gnum(written in id): unique,
-    g.append("text").attr("id", "text-" + gNum)
+    pObj.g.append("text").attr("id", "text" + MainGNum + "-" + pObj.gNum)
         .datum([{
             cx: 0,
             cy: 20,
@@ -325,11 +466,14 @@ function drawParam(name, process_id, id, kind, sDataX, sDataY, paramid, pName, c
         .attr("text-anchor", "middle")
         .attr("x", 0)
         .attr("y", 28)
+    //        .on("mouseover", scMouseOver)
+    //        .on("mouseout", scMouseOut)
+    //        .call(drag)
     if (defVal) {
-        $("#text-" + gNum).attr('defVal', defVal)
+        $("#text-" + pObj.gNum).attr('defVal', defVal)
     }
     if (dropDown) {
-        $("#text-" + gNum).attr('dropDown', dropDown)
+        $("#text-" + pObj.gNum).attr('dropDown', dropDown)
     }
 }
 
@@ -1099,7 +1243,7 @@ function decodeGenericCond(autoFillJSON) {
 
 //***
 // if variable start with "params." then insert into inputs table
-function insertInputRow(defaultVal, opt, pipeGnum, varName, type, name) {
+function insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name) {
     var dropDownQual = false;
     var paraQualifier = "val"
     var paramGivenName = varName;
@@ -1174,6 +1318,33 @@ function clickUseDefault(rowID, defaultVal) {
     }, 10);
 }
 
+//modal dialog
+//xxxxxx
+//place into html
+//    <p class="dialog-button">
+//        <a href="#" id="dialog_link" class="ui-state-default ui-corner-all">Open Dialog</a>
+//    </p>
+//// Dialog Link
+//$('#dialog_link').click(function () {
+//    $('#proPanel-3').dialog('open');
+//    return false;
+//});
+//
+//$('#proPanel-3').dialog({
+//    title: "Dialog Title",resizable: false,draggable: false,
+//    autoOpen: false,
+//    width: '70%',
+//    modal: true,
+//    buttons: {
+//        "Ok": function () {
+//            $(this).dialog("close");
+//        }
+//    }
+//});
+
+
+
+
 //parse ProPipePanelScript and create panelObj
 //eg. {schema:[{ varName:"varName",
 //              defaultVal:"defaultVal",
@@ -1235,16 +1406,22 @@ function parseProPipePanelScript(script) {
 }
 
 //--Insert Process and Pipeline Panel (where pipelineOpt processOpt defined)
-function insertProPipePanel(script, gNum, name) {
+function insertProPipePanel(script, gNum, name, pObj) {
+    var MainGNum = "";
+    var prefix = "";
+    if (pObj != window) {
+        MainGNum = pObj.MainGNum;
+        prefix = MainGNum + "_";
+    }
     if (script) {
         //check if parameter comment is exist: //*
         if (script.match(/\/\/\*/)) {
             var panelObj = parseProPipePanelScript(script);
             //create processHeader
-            var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
-            var processBodyInt = '<div id="collapse-' + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + gNum + '" class="panel-body">'
+            var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + prefix + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
+            var processBodyInt = '<div id="collapse-' + prefix + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + prefix + gNum + '" class="panel-body">'
             //create processPanel
-            $('#ProcessPanel').append('<div id="proPanelDiv-' + gNum + '" style="display:none; "><div id="proPanel-' + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
+            $('#ProcessPanel').append('<div id="proPanelDiv-' + prefix + gNum  + '" style="display:none; "><div id="proPanel-' + prefix + gNum + '" class="panel panel-default" style=" margin-bottom:3px;">' + processHeader + processBodyInt + '</div></div></div></div>')
             var multicol = null;
             var array = null;
             var condi = null;
@@ -1266,12 +1443,14 @@ function insertProPipePanel(script, gNum, name) {
                 if (type && varName) {
                     // if variable start with "params." then insert into inputs table
                     if (varName.match(/params\./)) {
-                        varName = varName.match(/params\.(.*)/)[1];
-                        pipeGnum = pipeGnum - 1; //negative counter for pipeGnum
-                        insertInputRow(defaultVal, opt, pipeGnum, varName, type, name);
+                        if (pObj === window) {
+                            varName = varName.match(/params\.(.*)/)[1];
+                            pipeGnum = pipeGnum - 1; //negative counter for pipeGnum
+                            insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name);
+                        }
                     } else {
                         displayProDiv = true;
-                        addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
+                        addProcessPanelRow(prefix +gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
                     }
                 }
             }
@@ -1287,7 +1466,7 @@ function insertProPipePanel(script, gNum, name) {
             }
             if (displayProDiv === true) {
                 $('[data-toggle="tooltip"]').tooltip();
-                $('#proPanelDiv-' + gNum).css('display', 'inline');
+                $('#proPanelDiv-' +prefix + gNum).css('display', 'inline');
                 $('#ProcessPanelTitle').css('display', 'inline');
 
             }
@@ -1309,7 +1488,10 @@ function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, p
 }
 
 //--Pipeline details table --
-function addProPipeTab(process_id, gNum, procName) {
+function addProPipeTab(process_id, gNum, procName, pObj) {
+    if (pObj && pObj !== window) {
+        procName = pObj.lastPipeName + "_" + procName;
+    }
     var procQueDef = 'short';
     var procMemDef = '10'
     var procCpuDef = '1';
@@ -1317,6 +1499,157 @@ function addProPipeTab(process_id, gNum, procName) {
     var procOptDef = '';
     var proRow = insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef, procOptDef);
     $('#processTable > tbody:last-child').append(proRow);
+}
+
+function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
+    var id = piID
+    var prefix = "p";
+    var MainGNum = "";
+    //load workflow of pipeline modules 
+    MainGNum = pObjOrigin.MainGNum;
+    if (pObjOrigin != window) {
+        prefix = "p" + MainGNum + "p";
+    }
+
+    //gnum uniqe, id same id (Written in class) in same type process
+    pObjOrigin.g = d3.select("#mainG" + MainGNum).append("g")
+        .attr("id", "g" + MainGNum + "-" + pObjOrigin.gNum)
+        .attr("class", "g-p" + id) //for pipeline modules
+        .attr("transform", "translate(" + x + "," + y + ")")
+        .on("mouseover", mouseOverG)
+        .on("mouseout", mouseOutG)
+    //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
+    pObjOrigin.g.append("circle").attr("id", "bc" + MainGNum + "-" + pObjOrigin.gNum)
+        .attr("class", "bc" + MainGNum + "-" + id)
+        .attr("type", "bc")
+        .attr("cx", cx)
+        .attr("cy", cy)
+        .attr("r", rP + ior)
+        .attr("fill", "red")
+        .transition()
+        .delay(500)
+        .duration(3000)
+        .attr("fill", "#cdcff7")
+    //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
+    pObjOrigin.g.append("circle")
+        .datum([{
+            cx: 0,
+            cy: 0
+                }])
+        .attr("id", "sc-" + MainGNum + "-" + pObjOrigin.gNum)
+        .attr("class", "sc" + MainGNum + "-" + id)
+        .attr("type", "sc")
+        .attr("r", rP - ior)
+        .attr("fill", "#BEBEBE")
+        .attr('fill-opacity', 0.6)
+        .on("mouseover", scMouseOver)
+        .on("mouseout", scMouseOut)
+        .call(drag)
+    //gnum(written in id): uniqe,
+    pObjOrigin.g.append("text").attr("id", "text" + MainGNum + "-" + pObjOrigin.gNum)
+        .datum([{
+            cx: 0,
+            cy: 0
+                }])
+        .attr('font-family', "FontAwesome, sans-serif")
+        .attr('font-size', '1em')
+        .attr('name', name)
+        .attr('class', 'process')
+        .text(truncateName(name, 'process'))
+        .style("text-anchor", "middle")
+        .on("mouseover", scMouseOver)
+        .on("mouseout", scMouseOut)
+        .call(drag)
+
+    //get process list of pipeline
+    if (pObjSub.sData) {
+        if (Object.keys(pObjSub.sData).length > 0) {
+            //--Pipeline details table add process--
+            pObjSub.nodesOrg = pObjSub.sData[0].nodes
+            pObjSub.nodesOrg = JSON.parse(pObjSub.nodesOrg.replace(/'/gi, "\""));
+            pObjSub.edOrg = pObjSub.sData[0].edges;
+            pObjSub.edOrg = JSON.parse(pObjSub.edOrg.replace(/'/gi, "\""))["edges"]
+            pObjSub.inNodes = []; //input nodes that are connected to "input parameters"
+            pObjSub.outNodes = []; //output nodes that are connected to "output parameters"
+            for (var ee = 0; ee < pObjSub.edOrg.length; ee++) {
+                if (pObjSub.edOrg[ee].indexOf("inPro") > -1) {
+                    pObjSub.edsOrg = pObjSub.edOrg[ee].split("_")
+                    if (pObjSub.edsOrg[0][0] === "i") {
+                        pObjSub.inNodes.push(pObjSub.edsOrg[0]);
+                    } else {
+                        pObjSub.inNodes.push(pObjSub.edsOrg[1]);
+                    }
+                } else if (pObjSub.edOrg[ee].indexOf("outPro") > -1) {
+                    pObjSub.edsOrg = pObjSub.edOrg[ee].split("_")
+                    if (pObjSub.edsOrg[0][0] == "o") {
+                        pObjSub.outNodes.push(pObjSub.edsOrg[0]);
+                    } else {
+                        pObjSub.outNodes.push(pObjSub.edsOrg[1]);
+                    }
+                }
+            }
+            //I / O id naming: [0] i = input, o = output - [1] process database ID - [2] The number of I / O of the selected process - [3] Parameter database ID - [4] uniqe number
+            for (var k = 0; k < pObjSub.inNodes.length; k++) {
+                var proId = pObjSub.inNodes[k].split("-")[1];
+                var parId = pObjSub.inNodes[k].split("-")[3];
+                var inputs = getValues({ p: "getInputsPP", "process_id": proId })
+                var parData = inputs.filter(function (el) { return el.parameter_id == parId })
+                ccIDList[prefix + "i-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k];
+                d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
+                    .attr("id", prefix + "i-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
+                    .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.inNodes[k]) //copyID for pipeline modules
+                    .attr("type", "I/O")
+                    .attr("kind", "input")
+                    .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
+                    .attr("name", parData[0].sname)
+                    .attr("operator", parData[0].operator)
+                    .attr("closure", parData[0].closure)
+                    .attr("status", "standard")
+                    .attr("connect", "single")
+                    .attr("class", findType(parId) + " input")
+                    .attr("cx", calculatePos(pObjSub.inNodes.length, k, "cx", "inputsPipe"))
+                    .attr("cy", calculatePos(pObjSub.inNodes.length, k, "cy", "inputsPipe"))
+                    .attr("r", ior)
+                    .attr("fill", "tomato")
+                    .attr('fill-opacity', 0.8)
+                    .on("mouseover", IOmouseOver)
+                    .on("mousemove", IOmouseMove)
+                    .on("mouseout", IOmouseOut)
+                //                    .on("mousedown", IOconnect)
+            }
+            for (var k = 0; k < pObjSub.outNodes.length; k++) {
+                var proId = pObjSub.outNodes[k].split("-")[1];
+                var parId = pObjSub.outNodes[k].split("-")[3];
+                var outputs = getValues({ p: "getOutputsPP", "process_id": proId })
+                var parData = outputs.filter(function (el) { return el.parameter_id == parId })
+                ccIDList[prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.outNodes[k];
+                d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
+                    .attr("id", prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
+                    .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.outNodes[k]) //copyID for pipeline modules
+                    .attr("type", "I/O")
+                    .attr("kind", "output")
+                    .attr("parentG", "g" + MainGNum + "-" + pObjSub.gNum)
+                    .attr("name", parData[0].sname)
+                    .attr("operator", parData[0].operator)
+                    .attr("closure", parData[0].closure)
+                    .attr("reg_ex", parData[0].reg_ex)
+                    .attr("status", "standard")
+                    .attr("connect", "single")
+                    .attr("class", findType(parId) + " output")
+                    .attr("cx", calculatePos(pObjSub.outNodes.length, k, "cx", "outputsPipe"))
+                    .attr("cy", calculatePos(pObjSub.outNodes.length, k, "cy", "outputsPipe"))
+                    .attr("r", ior).attr("fill", "steelblue")
+                    .attr('fill-opacity', 0.8)
+                    .on("mouseover", IOmouseOver)
+                    .on("mousemove", IOmouseMove)
+                    .on("mouseout", IOmouseOut)
+                //                    .on("mousedown", IOconnect)
+            }
+        }
+    }
+    pObjOrigin.processList[("g" + MainGNum + "-" + pObjOrigin.gNum)] = name
+    pObjOrigin.gNum = pObjOrigin.gNum + 1
+
 }
 
 function findType(id) {
@@ -1330,36 +1663,41 @@ function findType(id) {
 }
 
 function calculatePos(len, k, poz, type) {
-    degree = (180 / (len + 1)) * (k + 1)
-
-    inp = (270 - (180 / (len + 1)) * (k + 1)) * Math.PI / 180
-    out = (270 - (-180 / (len + 1)) * (k + 1)) * Math.PI / 180
-
+    var degree = (180 / (len + 1)) * (k + 1)
+    var inp = (270 - (180 / (len + 1)) * (k + 1)) * Math.PI / 180
+    var out = (270 - (-180 / (len + 1)) * (k + 1)) * Math.PI / 180
     if (type == "inputs") {
-        if (poz == "cx") {
-            calc = Math.cos(inp)
-            result = (calc * r)
-        } else {
-            calc = Math.sin(inp)
-            result = (calc * r)
-        }
+        var mathVar = inp;
+        var calcR = r;
+    } else if (type == "inputsPipe") {
+        var mathVar = inp;
+        var calcR = rP;
+    } else if (type == "outputs") {
+        var mathVar = out;
+        var calcR = r;
+    } else if (type == "outputsPipe") {
+        var mathVar = out;
+        var calcR = rP;
+    }
+    if (poz == "cx") {
+        calc = Math.cos(mathVar)
+        result = (calc * calcR)
     } else {
-        if (poz == "cx") {
-            calc = Math.cos(out)
-            result = (calc * r)
-        } else {
-            calc = Math.sin(out)
-            result = (calc * r)
-        }
+        calc = Math.sin(inp)
+        result = (calc * calcR)
     }
     return result;
 }
 
 function mouseOverG() {
-    d3.select("#container").on("mousedown", null)
-    if (!binding) {
-        d3.select("#del-" + this.id.split("-")[1]).style("opacity", 1)
-        d3.select("#info-" + this.id.split("-")[1]).style("opacity", 1)
+    parent = document.getElementById(this.id).parentElement.id;
+    //deactive for pipeline modules
+    if (parent.match(/mainG(.*)/)[1] === "") {
+        d3.select("#container").on("mousedown", null)
+        if (!binding) {
+            d3.select("#del-" + this.id.split("-")[1]).style("opacity", 1)
+            d3.select("#info-" + this.id.split("-")[1]).style("opacity", 1)
+        }
     }
 }
 
@@ -1438,72 +1776,79 @@ function moveDelCircle(lineid) {
 
 function scMouseOver() {
     parent = document.getElementById(this.id).parentElement.id;
-    if (this.id.split("-")[0] === "text") { //text üzerine gelince
-        cid = "sc-" + this.id.split("-")[1]
-    } else {
-        cid = this.id
+    //deactive for pipeline modules
+    if (parent.match(/g(.*)-.*/)[1] === "") {
+        if (this.id.split("-")[0] === "text") { //text üzerine gelince
+            cid = "sc-" + this.id.split("-")[1]
+        } else {
+            cid = this.id
+        }
+        d3.select("#" + cid).attr("fill", "gray")
+        if (!binding) {
+            $("#container").find("line").attr("status", "hide")
+            d3.selectAll("line[g_from =" + parent + "]").attr("status", "standard")
+            d3.selectAll("line[g_to =" + parent + "]").attr("status", "standard")
+        }
+        showEdges()
     }
-    d3.select("#" + cid).attr("fill", "gray")
-    if (!binding) {
-        d3.selectAll("line").attr("status", "hide")
-        d3.selectAll("line[g_from =" + parent + "]").attr("status", "standard")
-        d3.selectAll("line[g_to =" + parent + "]").attr("status", "standard")
-    }
-    showEdges()
 }
 
 function scMouseOut() {
-    if (this.id.split("-")[0] === "text") {
-        cid = "sc-" + this.id.split("-")[1]
-    } else {
-        cid = this.id
-    }
-    d3.select("#" + cid).attr("fill", "#BEBEBE")
-    if (!binding) {
-        d3.selectAll("line").attr("status", "standard")
-    }
-    showEdges()
-}
-
-function remove(delID) {
-    if (delID !== undefined) {
-        deleteID = delID;
-    }
-    if (!binding) {
-        g = document.getElementById(deleteID).parentElement.id //g-5
-
-        //--delete pipeline details
-        var gNum = g.split('-')[1];
-        var proClass = $('#' + g).attr('class') //
-        var proID = $('#' + g).attr('class').split('-')[1] //
-        if (proClass === 'g-inPro') { // input param is deleted
-            $('#inputTa-' + gNum).remove();
-        } else if (proClass === 'g-outPro') { // output param is deleted
-            $('#outputTa-' + gNum).remove();
-        } else { //process is deleted
-            //	              removeProPipeTab(proID)
+    parent = document.getElementById(this.id).parentElement.id;
+    //deactive for pipeline modules
+    if (parent.match(/g(.*)-.*/)[1] === "") {
+        if (this.id.split("-")[0] === "text") {
+            cid = "sc-" + this.id.split("-")[1]
+        } else {
+            cid = this.id
         }
-        //--delete pipeline details ends
-
-        d3.select("#" + g).remove()
-        delete processList[g]
-        removeLines(g)
-    }
-}
-
-function removeLines(g) {
-
-    allLines = d3.selectAll("line")[0]
-    for (var line = 0; line < allLines.length; line++) {
-        from = allLines[line].getAttribute("g_from")
-        to = allLines[line].getAttribute("g_to")
-
-        if (from == g || to == g) {
-            lineid = allLines[line].id
-            removeEdge('c--' + lineid)
+        d3.select("#" + cid).attr("fill", "#BEBEBE")
+        if (!binding) {
+            d3.selectAll("line").attr("status", "standard")
         }
+        showEdges()
     }
 }
+
+//function remove(delID) {
+//    if (delID !== undefined) {
+//        deleteID = delID;
+//    }
+//    if (!binding) {
+//        g = document.getElementById(deleteID).parentElement.id //g-5
+//
+//        //--delete pipeline details
+//        var gNum = g.split('-')[1];
+//        var proClass = $('#' + g).attr('class') //
+//        var proID = $('#' + g).attr('class').split('-')[1] //
+//        if (proClass === 'g-inPro') { // input param is deleted
+//            $('#inputTa-' + gNum).remove();
+//        } else if (proClass === 'g-outPro') { // output param is deleted
+//            $('#outputTa-' + gNum).remove();
+//        } else { //process is deleted
+//            //	              removeProPipeTab(proID)
+//        }
+//        //--delete pipeline details ends
+//
+//        d3.select("#" + g).remove()
+//        delete processList[g]
+//        removeLines(g)
+//    }
+//}
+
+//function removeLines(g) {
+//
+//    allLines = d3.selectAll("line")[0]
+//    for (var line = 0; line < allLines.length; line++) {
+//        from = allLines[line].getAttribute("g_from")
+//        to = allLines[line].getAttribute("g_to")
+//
+//        if (from == g || to == g) {
+//            lineid = allLines[line].id
+//            removeEdge('c--' + lineid)
+//        }
+//    }
+//}
 
 function removeDelCircle(lineid) {
     d3.select("#c--" + lineid).remove()
@@ -1521,6 +1866,12 @@ var tooltip = d3.select("body")
 
 
 function IOmouseOver() {
+    parent = document.getElementById(this.id).parentElement.id;
+    //for pipeline modules
+    var MainGNum = "";
+    if (parent.match(/g(.*)-.*/)[1] !== "") {
+        MainGNum = parent.match(/g(.*)-.*/)[1];
+    }
     if (binding) {
         if (d3.select("#" + this.id).attr("status") == "candidate") {
             d3.select("#" + this.id).attr("status", "posCandidate")
@@ -1529,64 +1880,73 @@ function IOmouseOver() {
     } else {
         className = document.getElementById(this.id).className.baseVal.split(" ")
         cand = searchedType(className[1])
+        candParam = searchedTypeParam(className[1]);
         parentg = d3.select("#" + this.id).attr("parentG")
         givenNamePP = document.getElementById(this.id).getAttribute("name")
+        // for pipeline modules:
+        var ccID = $("#" + this.id).attr("ccID");
+        var processTag = "";
+        if (ccID) {
+            var parentID = $("#" + ccID).parent().attr("id"); //g73-4
+            var textID = parentID.replace("g", "text"); //text73-4
+            var processName = $("#" + textID).attr("name");
+            processTag = 'Process: <em>' + processName + '</em><br/>';
+        }
 
-
-        //	          d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate") //I/O olanları noncandia
+        $('#mainG' + MainGNum).find("circle[type ='I/O']").attr("status", "noncandidate")
         if (className[0] === "connect_to_input") {
+            //before first connection of inputparam
             conToInput()
             tooltip.html('Connect to input')
         } else if (className[0] === "connect_to_output") {
+            //before first connection of outputparam
             conToOutput()
             tooltip.html('Connect to output')
         } else if (givenNamePP === 'inputparam') {
-            //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
-            var paraID = document.getElementById(this.id).id.split("-")[3];
-            var paraFileType = "";
-            var paraData = parametersData.filter(function (el) { return el.id == paraID });
-            if (paraData && paraData != '') {
-                var paraFileType = paraData[0].file_type
-            }
+            //after first connection of inputparam
+            d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+            var paraID = document.getElementById(this.id).id.split("-")[3]
+            var paraData = parametersData.filter(function (el) {
+                return el.id == paraID
+            })
+            var paraFileType = paraData[0].file_type
             tooltip.html('Input parameter<br/>File Type: <em>' + paraFileType + '</em>')
         } else if (givenNamePP === 'outputparam') {
+            //after first connection of outputparam
             //Since outputparam is connected, it is not allowed to connect more parameters
-            //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+            //              d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
             var paraID = document.getElementById(this.id).id.split("-")[3]
-            var paraData = parametersData.filter(function (el) { return el.id == paraID })
-            var paraFileType = "";
-            if (paraData & paraData !== "") {
-                paraFileType = paraData[0].file_type
-            }
+            var paraData = parametersData.filter(function (el) {
+                return el.id == paraID
+            })
+            var paraFileType = paraData[0].file_type
             tooltip.html('Output parameter<br/>File Type: <em>' + paraFileType + '</em>')
         } else {
-            //d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+            //for process nodes:
+            $('#mainG' + MainGNum).find("." + className[0]).filter("." + cand).attr("status", "candidate")
+            $('#mainG' + MainGNum).find("." + candParam).attr("status", "candidate")
+
             var givenNamePP = document.getElementById(this.id).getAttribute("name")
             var paraID = document.getElementById(this.id).id.split("-")[3]
-            var paraData = parametersData.filter(function (el) { return el.id == paraID })
-            var paraFileType = "";
-            var paraQualifier = "";
-            var paraName = "";
-            if (paraData && paraData !== '') {
-                paraFileType = paraData[0].file_type;
-                paraQualifier = paraData[0].qualifier;
-                paraName = paraData[0].name;
-            }
-
+            var paraData = parametersData.filter(function (el) {
+                return el.id == paraID
+            })
+            var paraFileType = paraData[0].file_type
+            var paraQualifier = paraData[0].qualifier
+            var paraName = paraData[0].name
             if (paraQualifier !== 'val') {
-                tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+                tooltip.html(processTag + 'Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>File Type: <em>' + paraFileType + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
             } else {
-                tooltip.html('Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
+                tooltip.html(processTag + 'Identifier: <em>' + paraName + '</em><br/>Name: <em>' + givenNamePP + '</em><br/>Qualifier: <em>' + paraQualifier + '</em>')
             }
         }
-        //	          d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
-        d3.selectAll("#" + this.id).attr("status", "mouseon")
+        $('#mainG' + MainGNum).find("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
+        $('#mainG' + MainGNum).find("#" + this.id).attr("status", "mouseon")
         tooltip.style("visibility", "visible");
 
-
-        d3.selectAll("line").attr("status", "hide")
-        d3.selectAll("line[IO_from =" + this.id + "]").attr("status", "standard")
-        d3.selectAll("line[IO_to =" + this.id + "]").attr("status", "standard")
+        $('#mainG' + MainGNum).find("line").attr("status", "hide");
+        $('#mainG' + MainGNum).find("line[IO_from =" + this.id + "]").attr("status", "standard")
+        $('#mainG' + MainGNum).find("line[IO_to =" + this.id + "]").attr("status", "standard")
 
         showOptions()
         showEdges()
@@ -1614,25 +1974,22 @@ function IOmouseOut() {
 
 }
 
-function IOconnect() {
-    selectedIO = this.id //first click
-    className = document.getElementById(selectedIO).className.baseVal.split(" ")
-    cand = searchedType(className[1])
-    var givenNamePP = document.getElementById(this.id).getAttribute("name")
-    if (givenNamePP === 'outputparam' && className[0] !== 'connect_to_output') {
-        //If output parameter already connected , do nothing
-    } else {
-        if (binding) {
-            stopBinding(className, cand, selectedIO)
-        } else {
-            startBinding(className, cand, selectedIO)
-        }
-
-    }
-
-
-
-}
+//function IOconnect() {
+//    selectedIO = this.id //first click
+//    className = document.getElementById(selectedIO).className.baseVal.split(" ")
+//    cand = searchedType(className[1])
+//    var givenNamePP = document.getElementById(this.id).getAttribute("name")
+//    if (givenNamePP === 'outputparam' && className[0] !== 'connect_to_output') {
+//        //If output parameter already connected , do nothing
+//    } else {
+//        if (binding) {
+//            stopBinding(className, cand, selectedIO)
+//        } else {
+//            startBinding(className, cand, selectedIO)
+//        }
+//
+//    }
+//}
 
 function conToInput() {
     d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available inputs for inputparam circles
@@ -1642,22 +1999,21 @@ function conToOutput() {
     d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available outputs for outputparam circles
 }
 
-function startBinding(clasNames, cand, selectedIO) {
+function startBinding(className, cand, candParam, selectedIO) {
     parentg = d3.select("#" + selectedIO).attr("parentG")
-
-    d3.selectAll("circle[type ='I/O']").attr("status", "noncandidate")
-
+    $("#container").find("circle[type ='I/O']").attr("status", "noncandidate")
     if (className[0] === "connect_to_input") {
         conToInput()
     } else if (className[0] === "connect_to_output") {
         conToOutput()
     } else {
-        d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+        $("#container").find("." + className[0]).filter("." + cand).attr("status", "candidate")
+        $("#container").find("." + candParam).attr("status", "candidate")
     }
 
-    d3.selectAll("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
+    $("#container").find("circle[parentG =" + parentg + "]").attr("status", "noncandidate")
     d3.selectAll("#" + selectedIO).attr("status", "selected")
-    d3.selectAll("line").attr("status", "hide")
+    $("#container").find("line").attr("status", "hide")
     d3.select("#del-" + selectedIO.split("-")[4]).style("opacity", 0.2)
 
     for (var edge = 0; edge < edges.length; edge++) {
@@ -1672,16 +2028,17 @@ function startBinding(clasNames, cand, selectedIO) {
 }
 
 //second click selectedIO
-function stopBinding() {
+function stopBinding(className, cand, candParam, selectedIO) {
     firstid = d3.select("circle[status ='selected']")[0][0].id
     d3.selectAll("line").attr("status", "standard")
     if (selectedIO === firstid) {
         firstid = d3.select("#" + firstid).attr("status", "mouseon")
         d3.selectAll("." + className[0]).filter("." + cand).attr("status", "candidate")
+        d3.selectAll("." + candParam).attr("status", "candidate")
         d3.select("#del-" + selectedIO.split("-")[4]).style("opacity", 1)
     } else {
         secondid = d3.select("circle[status ='posCandidate']")[0][0].id
-        createEdges(firstid, secondid)
+        createEdges(firstid, secondid, window)
 
         d3.selectAll("circle[type ='I/O']").attr("status", "standard")
         d3.select("#del-" + secondid.split("-")[4]).style("opacity", 1)
@@ -1714,6 +2071,14 @@ function searchedType(type) {
         return "output"
     } else {
         return "input"
+    }
+}
+
+function searchedTypeParam(type) {
+    if (type == "input") {
+        return "connect_to_input"
+    } else {
+        return "connect_to_output"
     }
 }
 
@@ -1801,231 +2166,244 @@ function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValBu
     return buttons
 }
 
+//insert input table row based on edges of input parameters.
+function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix, second) {
+    var paramGivenName = document.getElementById('text' + MainGNum + "-" + firGnum).getAttribute("name");
+    var paraData = parametersData.filter(function (el) { return el.id == pObj.secPI });
+    var paraFileType = "";
+    var paraQualifier = "";
+    var paraIdentifier = "";
+    var dropDownQual = false;
+    var paramDefVal = $('#text-' + firGnum).attr("defVal");
+    var paramDropDown = $('#text-' + firGnum).attr("dropDown");
 
-function createEdges(first, second) {
-    d3.selectAll("#" + first).attr("connect", 'mate')
-    d3.selectAll("#" + second).attr("connect", 'mate')
-    inputParamLocF = first.indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on the inputparam
-    inputParamLocS = second.indexOf("o-inPro")
-    outputParamLocF = first.indexOf("i-outPro") //-1: outputparam not exist //0: first click is done on the inputparam
-    outputParamLocS = second.indexOf("i-outPro")
+    if (paraData && paraData != '') {
+        var paraFileType = paraData[0].file_type;
+        var paraQualifier = paraData[0].qualifier;
+        var paraIdentifier = paraData[0].name;
+    }
+    // "Use default" button is added if defVal attr is defined.
+    if (paramDefVal) {
+        var defValButton = getButtonsDef('defVal', 'Use Default', paramDefVal);
+    } else {
+        var defValButton = "";
+    }
+    // dropdown is added if dropdown attr is defined.
+    if (paramDropDown && paramDropDown != "") {
+        var paramDropDownArray = paramDropDown.split(",");
+        if (paramDropDownArray) {
+            var dropDownMenu = getDropdownDef('dropDown', paramDropDownArray, "Choose Value");
+            //select defVal
+            dropDownQual = true;
+        }
+    } else {
+        var dropDownMenu = "";
+    }
+    var processName = $('#text-' + secGnum).attr('name');
+    var rowExist = ''
+    rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
+    if (rowExist) {
+        var preProcess = '';
+        $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGcomma-' + secGnum + '>, </span>');
+        $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
+    } else {
+        //fill inputsTable
+        if (rowType === 'input') {
+            var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
+            //insert both system and user inputs
+            var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
+            //get SystemInputs if they defined as params.VARNAME in the autofill section of pipeline header.
+            // fill as system input
+            if (systemInputs.indexOf(paramGivenName) > -1) {
+                $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+                if ($("#systemInputs").css("display") === "none") {
+                    $("#systemInputs").css("display", "table-row")
+                }
+            } else { // fill as user input
+                $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
+                if ($("#userInputs").css("display") === "none") {
+                    $("#userInputs").css("display", "table-row")
+                }
+            }
+            //get project_pipeline_inputs:
+            var getProPipeInputs = getValues({
+                p: "getProjectPipelineInputsByGnum",
+                project_pipeline_id: project_pipeline_id,
+                g_num: firGnum
+            });
+            var rowID = rowType + 'Ta-' + firGnum;
+            if (getProPipeInputs && getProPipeInputs != "") {
+                if (getProPipeInputs.length > 0) {
+                    var filePath = getProPipeInputs[0].name; //value for val type
+                    var proPipeInputID = getProPipeInputs[0].id;
+                    var given_name = getProPipeInputs[0].given_name;
+                    if (paramGivenName === given_name) {
+                        setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
+                    } else {
+                        //input given name is changed, then delete the input from database.
+                        var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
+                    }
+                } else if (getProPipeInputs.length > 1) {
+                    $.each(getProPipeInputs, function (el) {
+                        var removeInputAll = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
+                    });
+                }
+            }
+            //check if run saved before
+            var checkSaveBefore = pipeData[0].docker_check; //"" without save
+            if (checkSaveBefore != "false" && checkSaveBefore != "true") {
+                //after filling, if "use default" button is exist, then click default option.
+                clickUseDefault(rowID, paramDefVal);
+            }
+        }
+
+        //outputsTable
+        else if (rowType === 'output') {
+            var outName = document.getElementById(prefix + second).getAttribute("name");
+            if (outName.match(/file\((.*)\)/)) {
+                outName = outName.match(/file\((.*)\)/i)[1];
+                // if path is divided by slash replace first ${(.*)} with original variable
+                var patt = /\$\{(.*)\}/;
+                if (outName.match(/\//) && outName.match(patt)) {
+                    //find input name equavalant and replace
+                    var inputName = outName.match(patt)[1];
+                    outName = replaceNextVar(outName, inputName);
+                }
+            }
+            outName = outName.replace(/\"/g, '');
+            outName = outName.replace(/\'/g, '');
+            outName = outName.replace(/\?/g, '')
+            outName = outName.replace(/\${(.*)}/g, '*');
+            outName = paramGivenName + "/" + outName;
+            var outNameEl = '<span fName="' + outName + '">NA' + '</span>';
+            var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, outNameEl);
+            $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+        }
+    }
+}
+
+function createEdges(first, second, pObj) {
+    var MainGNum = "";
+    var prefix = "";
+    if (pObj != window) {
+        //load workflow of pipeline modules 
+        MainGNum = pObj.MainGNum;
+        prefix = "p" + MainGNum;
+    }
+    d3.selectAll("#" + prefix + first).attr("connect", 'mate')
+    d3.selectAll("#" + prefix + second).attr("connect", 'mate')
+    pObj.inputParamLocF = first.indexOf("o-inPro") //-1: inputparam not exist //0: first click is done on the inputparam
+    pObj.inputParamLocS = second.indexOf("o-inPro")
+    pObj.outputParamLocF = first.indexOf("i-outPro") //-1: outputparam not exist //0: first click is done on the inputparam
+    pObj.outputParamLocS = second.indexOf("i-outPro")
 
 
-    if (inputParamLocS === 0 || outputParamLocS === 0) { //second click is done on the circle of inputparam//outputparam
+    if (pObj.inputParamLocS === 0 || pObj.outputParamLocS === 0) { //second click is done on the circle of inputparam//outputparam
         //swap elements and treat as fırst click was done on
-        tem = second
+        pObj.tem = second
         second = first
-        first = tem
-        inputParamLocF = 0
-        outputParamLocF = 0
+        first = pObj.tem
+        pObj.inputParamLocF = 0
+        pObj.outputParamLocF = 0
     }
     //first click is done on the circle of inputparam
-    if (inputParamLocF === 0 || outputParamLocF === 0) {
+    if (pObj.inputParamLocF === 0 || pObj.outputParamLocF === 0) {
         //update the class of inputparam based on selected second circle
-        secClassName = updateSecClassName(second, inputParamLocF)
-        d3.selectAll("#" + first).attr("class", secClassName)
+        pObj.secClassName = updateSecClassName(prefix + second, pObj.inputParamLocF)
+        d3.selectAll("#" + prefix + first).attr("class", pObj.secClassName)
         //update the parameter of the inputparam based on selected second circle
-        var firGnum = document.getElementById(first).id.split("-")[4] //first g-number
-        var secGnum = document.getElementById(second).id.split("-")[4] //first g-number
-        secPI = document.getElementById(second).id.split("-")[3] //second parameter id
-        var secProI = document.getElementById(second).id.split("-")[1] //second process id
-        patt = /(.*)-(.*)-(.*)-(.*)-(.*)/
-        secID = first.replace(patt, '$1-$2-$3-' + secPI + '-$5')
+        var firGnum = document.getElementById(prefix + first).id.split("-")[4] //first g-number
+        var secGnum = document.getElementById(prefix + second).id.split("-")[4] //first g-number
+        pObj.secPI = document.getElementById(prefix + second).id.split("-")[3] //second parameter id
+        var secProI = document.getElementById(prefix + second).id.split("-")[1] //second process id
+        pObj.patt = /(.*)-(.*)-(.*)-(.*)-(.*)/
+        pObj.secID = first.replace(pObj.patt, '$1-$2-$3-' + pObj.secPI + '-$5')
 
-        d3.selectAll("#" + first).attr("id", secID)
-        fClickOrigin = first
-        fClick = secID
-        sClick = second
+        d3.selectAll("#" + prefix + first).attr("id", prefix + pObj.secID)
+        pObj.fClickOrigin = first
+        pObj.fClick = pObj.secID
+        pObj.sClick = second
         var rowType = '';
-        //Pipeline details table
-        if (inputParamLocF === 0) {
+        //Pipeline details table 
+        if (pObj.inputParamLocF === 0) {
             rowType = 'input';
-        } else if (outputParamLocF === 0) {
+        } else if (pObj.outputParamLocF === 0) {
             rowType = 'output';
         }
-        var paramGivenName = document.getElementById('text-' + firGnum).getAttribute("name");
-        var paraData = parametersData.filter(function (el) { return el.id == secPI });
-        var paraFileType = "";
-        var paraQualifier = "";
-        var paraIdentifier = "";
-        var dropDownQual = false;
-        var paramDefVal = $('#text-' + firGnum).attr("defVal");
-        var paramDropDown = $('#text-' + firGnum).attr("dropDown");
-
-        if (paraData && paraData != '') {
-            var paraFileType = paraData[0].file_type;
-            var paraQualifier = paraData[0].qualifier;
-            var paraIdentifier = paraData[0].name;
-        }
-        // "Use default" button is added if defVal attr is defined.
-        if (paramDefVal) {
-            var defValButton = getButtonsDef('defVal', 'Use Default', paramDefVal);
-        } else {
-            var defValButton = "";
-        }
-        // dropdown is added if dropdown attr is defined.
-        if (paramDropDown && paramDropDown != "") {
-            var paramDropDownArray = paramDropDown.split(",");
-            if (paramDropDownArray) {
-                var dropDownMenu = getDropdownDef('dropDown', paramDropDownArray, "Choose Value");
-                //select defVal
-                dropDownQual = true;
-            }
-        } else {
-            var dropDownMenu = "";
-        }
-        var processName = $('#text-' + secGnum).attr('name');
-        var rowExist = ''
-        rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
-        if (rowExist) {
-            var preProcess = '';
-            $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGcomma-' + secGnum + '>, </span>');
-            $('#' + rowType + 'Ta-' + firGnum + '> :nth-child(5)').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
-        } else {
-            //fill inputsTable
-            if (rowType === 'input') {
-                var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
-                //insert both system and user inputs
-                var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-                //get SystemInputs if they defined as params.VARNAME in the autofill section of pipeline header.
-                // fill as system input
-                if (systemInputs.indexOf(paramGivenName) > -1) {
-                    $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-                    if ($("#systemInputs").css("display") === "none") {
-                        $("#systemInputs").css("display", "table-row")
-                    }
-                } else { // fill as user input
-                    $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
-                    if ($("#userInputs").css("display") === "none") {
-                        $("#userInputs").css("display", "table-row")
-                    }
-                }
-                //get project_pipeline_inputs:
-                var getProPipeInputs = getValues({
-                    p: "getProjectPipelineInputsByGnum",
-                    project_pipeline_id: project_pipeline_id,
-                    g_num: firGnum
-                });
-                var rowID = rowType + 'Ta-' + firGnum;
-                if (getProPipeInputs && getProPipeInputs != "") {
-                    if (getProPipeInputs.length > 0) {
-                        var filePath = getProPipeInputs[0].name; //value for val type
-                        var proPipeInputID = getProPipeInputs[0].id;
-                        var given_name = getProPipeInputs[0].given_name;
-                        if (paramGivenName === given_name) {
-                            setTimeout(function () { insertSelectInput(rowID, firGnum, filePath, proPipeInputID, paraQualifier); }, 2);
-                        } else {
-                            //input given name is changed, then delete the input from database.
-                            var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
-                        }
-                    } else if (getProPipeInputs.length > 1) {
-                        $.each(getProPipeInputs, function (el) {
-                            var removeInputAll = getValues({ "p": "removeProjectPipelineInput", id: getProPipeInputs[el].id });
-                        });
-                    }
-                }
-                //check if run saved before
-                var checkSaveBefore = pipeData[0].docker_check; //"" without save
-                if (checkSaveBefore != "false" && checkSaveBefore != "true") {
-                    //after filling, if "use default" button is exist, then click default option.
-                    clickUseDefault(rowID, paramDefVal);
-                }
-            }
-
-            //outputsTable
-            else if (rowType === 'output') {
-                var outName = document.getElementById(second).getAttribute("name");
-                if (outName.match(/file\((.*)\)/)) {
-                    outName = outName.match(/file\((.*)\)/i)[1];
-                    // if path is divided by slash replace first ${(.*)} with original variable
-                    var patt = /\$\{(.*)\}/;
-                    if (outName.match(/\//) && outName.match(patt)) {
-                        //find input name equavalant and replace
-                        var inputName = outName.match(patt)[1];
-                        outName = replaceNextVar(outName, inputName);
-                    }
-                }
-                outName = outName.replace(/\"/g, '');
-                outName = outName.replace(/\'/g, '');
-                outName = outName.replace(/\?/g, '')
-                outName = outName.replace(/\${(.*)}/g, '*');
-                outName = paramGivenName + "/" + outName;
-                var outNameEl = '<span fName="' + outName + '">NA' + '</span>';
-                var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, outNameEl);
-                $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-            }
+        if (pObj == window) {
+            insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix, second);
         }
 
     } else { //process to process connection
-        fClickOrigin = first
-        fClick = first
-        sClick = second
+        pObj.fClickOrigin = first
+        pObj.fClick = first
+        pObj.sClick = second
     }
 
-    d3.select("#mainG").append("line")
-        .attr("id", fClick + "_" + sClick)
+    d3.select("#mainG" + MainGNum).append("line")
+        .attr("id", prefix + pObj.fClick + "_" + prefix + pObj.sClick)
         .attr("class", "line")
         .attr("type", "standard")
         .style("stroke", "#B0B0B0").style("stroke-width", 4)
-        .attr("x1", candidates[fClickOrigin][0])
-        .attr("y1", candidates[fClickOrigin][1])
-        .attr("x2", candidates[sClick][0])
-        .attr("y2", candidates[sClick][1])
-        .attr("g_from", candidates[fClickOrigin][2])
-        .attr("g_to", candidates[sClick][2])
-        .attr("IO_from", fClick)
-        .attr("IO_to", sClick)
+        .attr("x1", pObj.candidates[prefix + pObj.fClickOrigin][0])
+        .attr("y1", pObj.candidates[prefix + pObj.fClickOrigin][1])
+        .attr("x2", pObj.candidates[prefix + pObj.sClick][0])
+        .attr("y2", pObj.candidates[prefix + pObj.sClick][1])
+        .attr("g_from", pObj.candidates[prefix + pObj.fClickOrigin][2])
+        .attr("g_to", pObj.candidates[prefix + pObj.sClick][2])
+        .attr("IO_from", prefix + pObj.fClick)
+        .attr("IO_to", prefix + pObj.sClick)
         .attr("stroke-width", 2)
         .attr("stroke", "black")
 
-    edges.push(fClick + "_" + sClick)
+    pObj.edges.push(prefix + pObj.fClick + "_" + prefix + pObj.sClick)
 
 }
 
-function removeEdge(delID) {
-    if (delID !== undefined) {
-        deleteID = delID;
-    }
-
-    d3.select("#" + deleteID).remove() //eg. c--o-inPro-1-9-0_i-10-0-9-1
-    d3.select("#" + deleteID.split("--")[1]).remove()
-    edges.splice(edges.indexOf(deleteID.split("--")[1]), 1);
-    var firstParamId = deleteID.split("--")[1].split("_")[0];
-    var secondParamId = deleteID.split("--")[1].split("_")[1];
-    var paramType = firstParamId.split("-")[1] //inPro or outPro
-    var delsecGnum = secondParamId.split("-")[4] //gNum
-    var delGnum = firstParamId.split("-")[4] //gNum
-
-    //input/output param has still edge/edges
-    //remove process name from pipeline details table
-    if (edges.searchFor(firstParamId)) {
-        if (paramType === 'inPro') {
-            //$('#inputTa-' + delGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
-            $('#inputTa-' + delGnum + '> :last-child > ' + '#proGName-' + delsecGnum).remove();
-            if ($('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum)[0]) {
-                $('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum).remove();
-            } else {
-                $('#inputTa-' + delGnum + '> :last-child > :first-child').remove();
-            }
-
-        }
-    }
-
-    //input/output param has no edge any more
-    if (!edges.searchFor(firstParamId)) {
-        d3.selectAll("#" + firstParamId).attr("connect", 'single')
-        //remove row from pipeline details table
-        if (paramType === 'inPro') {
-            $('#inputTa-' + delGnum).remove() //gNum
-        } else if (paramType === 'outPro') {
-            $('#outputTa-' + delGnum).remove() //gNum
-        }
-    }
-    //process has no edge any more
-    if (!edges.searchFor(secondParamId)) {
-        d3.selectAll("#" + secondParamId).attr("connect", 'single')
-    }
-}
+//function removeEdge(delID) {
+//    if (delID !== undefined) {
+//        deleteID = delID;
+//    }
+//
+//    d3.select("#" + deleteID).remove() //eg. c--o-inPro-1-9-0_i-10-0-9-1
+//    d3.select("#" + deleteID.split("--")[1]).remove()
+//    edges.splice(edges.indexOf(deleteID.split("--")[1]), 1);
+//    var firstParamId = deleteID.split("--")[1].split("_")[0];
+//    var secondParamId = deleteID.split("--")[1].split("_")[1];
+//    var paramType = firstParamId.split("-")[1] //inPro or outPro
+//    var delsecGnum = secondParamId.split("-")[4] //gNum
+//    var delGnum = firstParamId.split("-")[4] //gNum
+//
+//    //input/output param has still edge/edges
+//    //remove process name from pipeline details table
+//    if (edges.searchFor(firstParamId)) {
+//        if (paramType === 'inPro') {
+//            //$('#inputTa-' + delGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
+//            $('#inputTa-' + delGnum + '> :last-child > ' + '#proGName-' + delsecGnum).remove();
+//            if ($('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum)[0]) {
+//                $('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum).remove();
+//            } else {
+//                $('#inputTa-' + delGnum + '> :last-child > :first-child').remove();
+//            }
+//
+//        }
+//    }
+//
+//    //input/output param has no edge any more
+//    if (!edges.searchFor(firstParamId)) {
+//        d3.selectAll("#" + firstParamId).attr("connect", 'single')
+//        //remove row from pipeline details table
+//        if (paramType === 'inPro') {
+//            $('#inputTa-' + delGnum).remove() //gNum
+//        } else if (paramType === 'outPro') {
+//            $('#outputTa-' + delGnum).remove() //gNum
+//        }
+//    }
+//    //process has no edge any more
+//    if (!edges.searchFor(secondParamId)) {
+//        d3.selectAll("#" + secondParamId).attr("connect", 'single')
+//    }
+//}
 
 function delMouseOver() {
     d3.select("#del" + this.id).attr('fill-opacity', 0.8)
@@ -2045,61 +2423,61 @@ function cancel() {
     }
 }
 
-function rename() {
-    renameTextID = this.id;
-    renameText = d3.select("#" + this.id).attr('name');
-    body = document.body;
-    bodyW = body.offsetWidth;
-    bodyH = body.scrollHeight;
-    $('#renameModal').modal("show");
-}
+//function rename() {
+//    renameTextID = this.id;
+//    renameText = d3.select("#" + this.id).attr('name');
+//    body = document.body;
+//    bodyW = body.offsetWidth;
+//    bodyH = body.scrollHeight;
+//    $('#renameModal').modal("show");
+//}
 
-function changeName() {
-    newName = document.getElementById("mRenName").value
-    d3.select("#" + renameTextID).attr('name', newName)
-    newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
-    d3.select("#" + renameTextID).text(newNameShow)
+//function changeName() {
+//    newName = document.getElementById("mRenName").value
+//    d3.select("#" + renameTextID).attr('name', newName)
+//    newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
+//    d3.select("#" + renameTextID).text(newNameShow)
+//
+//    //update pipeline details table
+//    proType = $('#' + renameTextID).parent().attr('class').split('-')[1];
+//    var gNumP = renameTextID.split('-')[1];
+//    $('span[id="proGName-' + gNumP + '\"]').text(newName);
+//    if (proType === 'inPro') {
+//        $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
+//    } else if (proType === 'outPro') {
+//        $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
+//    }
+//    processList[document.getElementById(renameTextID).parentElement.id] = newName
+//    document.getElementById(renameTextID).parentElement.id
+//}
 
-    //update pipeline details table
-    proType = $('#' + renameTextID).parent().attr('class').split('-')[1];
-    var gNumP = renameTextID.split('-')[1];
-    $('span[id="proGName-' + gNumP + '\"]').text(newName);
-    if (proType === 'inPro') {
-        $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
-    } else if (proType === 'outPro') {
-        $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
-    }
-    processList[document.getElementById(renameTextID).parentElement.id] = newName
-    document.getElementById(renameTextID).parentElement.id
-}
 
+//function getInfo() {
+//    className = document.getElementById(this.id).className.baseVal.split("-");
+//    gNumInfo = this.id.split("-")[1];
+//    infoID = className[1];
+//    $('#addProcessModal').modal("show");
+//}
 
-function getInfo() {
-    className = document.getElementById(this.id).className.baseVal.split("-");
-    gNumInfo = this.id.split("-")[1];
-    infoID = className[1];
-    $('#addProcessModal').modal("show");
-}
-
-function removeElement(delID) {
-    if (delID !== undefined) {
-        deleteID = delID;
-    } else {
-        deleteID = this.id;
-    }
-    body = document.body
-    bodyW = body.offsetWidth
-    bodyH = body.offsetHeight
-
-    if (!binding) {
-        $('#confirmD3Modal').modal("show");
-    }
-}
+//function removeElement(delID) {
+//    if (delID !== undefined) {
+//        deleteID = delID;
+//    } else {
+//        deleteID = this.id;
+//    }
+//    body = document.body
+//    bodyW = body.offsetWidth
+//    bodyH = body.offsetHeight
+//
+//    if (!binding) {
+//        $('#confirmD3Modal').modal("show");
+//    }
+//}
 
 
 
 function download(text) {
-    var filename = $('#pipeline-title').val() + '.nf';
+    var filename = $('#run-title').val() + '.nf';
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
@@ -2112,13 +2490,57 @@ function download(text) {
     document.body.removeChild(element);
 }
 
-function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
-    t = d3.transform(d3.select('#' + "mainG").attr("transform")),
-        x = t.translate[0]
-    y = t.translate[1]
-    z = t.scale[0]
+function createProcessPanelAutoFill(id, pObj, name, process_id) {
+    if (pObj !== window) {
+        name = pObj.lastPipeName + "_" + name;
+    }
+    var processData = getValues({ p: "getProcessData", "process_id": process_id });
+    if (processData) {
+        if (processData[0].script_header !== "" && processData[0].script_header !== null) {
+            var pro_script_header = decodeHtml(processData[0].script_header);
+            insertProPipePanel(pro_script_header, pObj.gNum, name, pObj);
+            //autofill is executed if pObj == window
+            if (pObj == window) {
+                //generate json for autofill by using script of process header
+                var pro_autoFillJSON = parseAutofill(pro_script_header);
+                // bind event handlers for autofill
+                setTimeout(function () {
+                    if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
+                        $.each(pro_autoFillJSON, function (el) {
+                            var stateObj = pro_autoFillJSON[el].statement;
+                            $.each(stateObj, function (old_key) {
+                                var new_key = old_key + "@" + id;
+                                //add process id to each statement after @ sign (eg.$CPU@52) -> will effect only process specific execution parameters.
+                                if (old_key !== new_key) {
+                                    Object.defineProperty(stateObj, new_key,
+                                        Object.getOwnPropertyDescriptor(stateObj, old_key));
+                                    delete stateObj[old_key];
+                                }
+                            });
+                        });
+                        bindEveHandler(pro_autoFillJSON);
+                    }
+                }, 1000);
+            }
 
-    gNum = parseInt(gN)
+        }
+    }
+}
+
+function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN, pObj) {
+    var prefix = "";
+    var MainGNum = "";
+    if (pObj != window) {
+        //load workflow of pipeline modules 
+        MainGNum = pObj.MainGNum;
+        prefix = "p" + MainGNum;
+    }
+    pObj.t = d3.transform(d3.select('#' + "mainG" + MainGNum).attr("transform")),
+        pObj.x = pObj.t.translate[0]
+    pObj.y = pObj.t.translate[1]
+    pObj.z = pObj.t.scale[0]
+
+    pObj.gNum = parseInt(gN)
     var name = sDataName
     var id = sDatapId
     var process_id = id
@@ -2146,26 +2568,28 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
         var init = "o"
         var pColor = "orange"
         //(B)if edges are formed parameter_id data comes from biocorepipesave table "edges" column
-        edgeIn = sData[0].edges
-        edgeInP = JSON.parse(edgeIn.replace(/'/gi, "\""))["edges"] //i-10-0-9-1_o-inPro-1-9-0
+        pObj.edgeIn = pObj.sData[0].edges
+        pObj.edgeInP = JSON.parse(pObj.edgeIn.replace(/'/gi, "\""))["edges"] //i-10-0-9-1_o-inPro-1-9-0
 
-        for (var ee = 0; ee < edgeInP.length; ee++) {
-            patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/
-            edgeFirstPId = edgeInP[ee].replace(patt, '$2')
-            edgeFirstGnum = edgeInP[ee].replace(patt, '$5')
-            edgeSecondParID = edgeInP[ee].replace(patt, '$9')
+        for (var ee = 0; ee < pObj.edgeInP.length; ee++) {
+            pObj.patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/
+            pObj.edgeFirstPId = pObj.edgeInP[ee].replace(pObj.patt, '$2')
+            pObj.edgeFirstGnum = pObj.edgeInP[ee].replace(pObj.patt, '$5')
+            pObj.edgeSecondParID = pObj.edgeInP[ee].replace(pObj.patt, '$9')
 
-            if (edgeFirstGnum === String(gNum) && edgeFirstPId === "inPro") {
-                paramId = edgeSecondParID //if edge is found
+            if (pObj.edgeFirstGnum === String(pObj.gNum) && pObj.edgeFirstPId === "inPro") {
+                paramId = pObj.edgeSecondParID //if edge is found
                 classtoparam = findType(paramId) + " output"
-                pName = parametersData.filter(function (el) { return el.id == paramId })[0].name
+                pName = parametersData.filter(function (el) {
+                    return el.id == paramId
+                })[0].name
                 break
             }
         }
 
-        drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
-        processList[("g-" + gNum)] = name
-        gNum = gNum + 1
+        drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown, pObj)
+        pObj.processList[("g" + MainGNum + "-" + pObj.gNum)] = name
+        pObj.gNum = pObj.gNum + 1
 
 
     } else if (id === "outPro") {
@@ -2180,17 +2604,17 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
         var init = "i"
         var pColor = "green"
         //(B)if edges are formed parameter_id data comes from biocorepipesave table "edges" column
-        edgeOut = sData[0].edges
-        edgeOutP = JSON.parse(edgeOut.replace(/'/gi, "\""))["edges"] //i-10-0-9-1_o-inPro-1-9-0
+        pObj.edgeOut = pObj.sData[0].edges
+        pObj.edgeOutP = JSON.parse(pObj.edgeOut.replace(/'/gi, "\""))["edges"] //i-10-0-9-1_o-inPro-1-9-0
 
-        for (var ee = 0; ee < edgeOutP.length; ee++) {
-            patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/
-            edgeFirstPId = edgeOutP[ee].replace(patt, '$2')
-            edgeFirstGnum = edgeOutP[ee].replace(patt, '$5')
-            edgeSecondParID = edgeOutP[ee].replace(patt, '$9')
+        for (var ee = 0; ee < pObj.edgeOutP.length; ee++) {
+            pObj.patt = /(.*)-(.*)-(.*)-(.*)-(.*)_(.*)-(.*)-(.*)-(.*)-(.*)/
+            pObj.edgeFirstPId = pObj.edgeOutP[ee].replace(pObj.patt, '$2')
+            pObj.edgeFirstGnum = pObj.edgeOutP[ee].replace(pObj.patt, '$5')
+            pObj.edgeSecondParID = pObj.edgeOutP[ee].replace(pObj.patt, '$9')
 
-            if (edgeFirstGnum === String(gNum) && edgeFirstPId === "outPro") {
-                paramId = edgeSecondParID //if edge is found
+            if (pObj.edgeFirstGnum === String(pObj.gNum) && pObj.edgeFirstPId === "outPro") {
+                paramId = pObj.edgeSecondParID //if edge is found
                 classtoparam = findType(paramId) + " input"
                 pName = parametersData.filter(function (el) {
                     return el.id == paramId
@@ -2198,62 +2622,30 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
                 break
             }
         }
-        drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown)
-        processList[("g-" + gNum)] = name
-        gNum = gNum + 1
+        drawParam(name, process_id, id, kind, sDataX, sDataY, paramId, pName, classtoparam, init, pColor, defVal, dropDown, pObj)
+        pObj.processList[("g" + MainGNum + "-" + pObj.gNum)] = name
+        pObj.gNum = pObj.gNum + 1
 
     } else {
         //--Pipeline details table ---
-        addProPipeTab(id, gNum, name);
+        console.log(name)
+        console.log(id)
+        addProPipeTab(id, pObj.gNum, name, pObj);
         //--ProcessPanel (where process options defined)
-        var processData = getValues({ p: "getProcessData", "process_id": process_id });
-        if (processData) {
-            if (processData[0].script_header !== "" && processData[0].script_header !== null) {
-                var pro_script_header = decodeHtml(processData[0].script_header);
-                insertProPipePanel(pro_script_header, gNum, name);
-                //generate json for autofill by using script of process header
-                var pro_autoFillJSON = parseAutofill(pro_script_header);
-                // bind event handlers for autofill
-                setTimeout(function () {
-                    if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
-                        $.each(pro_autoFillJSON, function (el) {
-                            var stateObj = pro_autoFillJSON[el].statement;
-                            $.each(stateObj, function (old_key) {
-                                var new_key = old_key + "@" + id;
-                                //add process id to each statement after @ sign (eg.$CPU@52) -> will effect only process specific execution parameters.
-                                if (old_key !== new_key) {
-                                    Object.defineProperty(stateObj, new_key,
-                                        Object.getOwnPropertyDescriptor(stateObj, old_key));
-                                    delete stateObj[old_key];
-                                }
-                            });
-                        });
-                        bindEveHandler(pro_autoFillJSON);
-                    }
-                }, 1000);
-
-            }
-        }
-
-        inputs = getValues({
-            p: "getInputsPP",
-            "process_id": id
-        })
-
-        outputs = getValues({
-            p: "getOutputsPP",
-            "process_id": id
-        })
+        createProcessPanelAutoFill(id, pObj, name, process_id);
+        //create process circle
+        pObj.inputs = getValues({ p: "getInputsPP", "process_id": id })
+        pObj.outputs = getValues({ p: "getOutputsPP", "process_id": id })
 
         //gnum uniqe, id same id (Written in class) in same type process
-        g = d3.select("#mainG").append("g")
-            .attr("id", "g-" + gNum)
-            .attr("class", "g-" + id)
+        pObj.g = d3.select("#mainG" + MainGNum).append("g")
+            .attr("id", "g" + MainGNum + "-" + pObj.gNum)
+            .attr("class", "g" + MainGNum + "-" + id)
             .attr("transform", "translate(" + (sDataX) + "," + (sDataY) + ")")
 
         //gnum(written in id): uniqe, id(Written in class): same id in same type process, bc(written in type): same at all bc
-        g.append("circle").attr("id", "bc-" + gNum)
-            .attr("class", "bc-" + id)
+        pObj.g.append("circle").attr("id", "bc" + MainGNum + "-" + pObj.gNum)
+            .attr("class", "bc" + MainGNum + "-" + id)
             .attr("type", "bc")
             .attr("cx", cx)
             .attr("cy", cy)
@@ -2265,20 +2657,20 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
             .duration(3000)
             .attr("fill", "#E0E0E0")
         //gnum(written in id): uniqe, id(Written in class): same id in same type process, sc(written in type): same at all bc
-        g.append("circle")
+        pObj.g.append("circle")
             .datum([{
                 cx: 0,
                 cy: 0
 			        }])
-            .attr("id", "sc-" + gNum)
-            .attr("class", "sc-" + id)
+            .attr("id", "sc" + MainGNum + "-" + pObj.gNum)
+            .attr("class", "sc" + MainGNum + "-" + id)
             .attr("type", "sc")
             .attr("r", r - ior)
             .attr("fill", "#BEBEBE")
             .attr('fill-opacity', 0.6)
 
         //gnum(written in id): uniqe,
-        g.append("text").attr("id", "text-" + gNum)
+        pObj.g.append("text").attr("id", "text" + MainGNum + "-" + pObj.gNum)
             .datum([{
                 cx: 0,
                 cy: 0
@@ -2291,81 +2683,87 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN) {
             .style("text-anchor", "middle")
 
         // I/O id naming:[0]i = input,o = output -[1]process database ID -[2]The number of I/O of the selected process -[3]Parameter database ID- [4]uniqe number
-        for (var k = 0; k < inputs.length; k++) {
-            d3.select("#g-" + gNum).append("circle")
-                .attr("id", "i-" + (id) + "-" + k + "-" + inputs[k].parameter_id + "-" + gNum)
+        for (var k = 0; k < pObj.inputs.length; k++) {
+            d3.select("#g" + MainGNum + "-" + pObj.gNum).append("circle")
+                .attr("id", prefix + "i-" + (id) + "-" + k + "-" + pObj.inputs[k].parameter_id + "-" + pObj.gNum)
                 .attr("type", "I/O")
                 .attr("kind", "input")
-                .attr("parentG", "g-" + gNum)
-                .attr("name", inputs[k].sname)
-                .attr("operator", inputs[k].operator)
-                .attr("closure", inputs[k].closure)
+                .attr("parentG", "g" + MainGNum + "-" + pObj.gNum)
+                .attr("name", pObj.inputs[k].sname)
+                .attr("operator", pObj.inputs[k].operator)
+                .attr("closure", pObj.inputs[k].closure)
                 .attr("connect", "single")
                 .attr("status", "standard")
-                .attr("class", findType(inputs[k].parameter_id) + " input")
-                .attr("cx", calculatePos(inputs.length, k, "cx", "inputs"))
-                .attr("cy", calculatePos(inputs.length, k, "cy", "inputs"))
+                .attr("class", findType(pObj.inputs[k].parameter_id) + " input")
+                .attr("cx", calculatePos(pObj.inputs.length, k, "cx", "inputs"))
+                .attr("cy", calculatePos(pObj.inputs.length, k, "cy", "inputs"))
                 .attr("r", ior)
                 .attr("fill", "tomato")
                 .attr('fill-opacity', 0.8)
                 .on("mouseover", IOmouseOver)
                 .on("mousemove", IOmouseMove)
                 .on("mouseout", IOmouseOut)
-            //	                  .on("mousedown", IOconnect)
+            //                .on("mousedown", IOconnect)
         }
 
-        for (var k = 0; k < outputs.length; k++) {
-            d3.select("#g-" + gNum).append("circle")
-                .attr("id", "o-" + (id) + "-" + k + "-" + outputs[k].parameter_id + "-" + gNum)
+        for (var k = 0; k < pObj.outputs.length; k++) {
+            d3.select("#g" + MainGNum + "-" + pObj.gNum).append("circle")
+                .attr("id", prefix + "o-" + (id) + "-" + k + "-" + pObj.outputs[k].parameter_id + "-" + pObj.gNum)
                 .attr("type", "I/O")
                 .attr("kind", "output")
-                .attr("parentG", "g-" + gNum)
-                .attr("name", outputs[k].sname)
-                .attr("operator", outputs[k].operator)
-                .attr("closure", outputs[k].closure)
+                .attr("parentG", "g" + MainGNum + "-" + pObj.gNum)
+                .attr("name", pObj.outputs[k].sname)
+                .attr("operator", pObj.outputs[k].operator)
+                .attr("closure", pObj.outputs[k].closure)
+                .attr("reg_ex", pObj.outputs[k].reg_ex)
                 .attr("status", "standard")
                 .attr("connect", "single")
-                .attr("class", findType(outputs[k].parameter_id) + " output")
-                .attr("cx", calculatePos(outputs.length, k, "cx", "outputs"))
-                .attr("cy", calculatePos(outputs.length, k, "cy", "outputs"))
+                .attr("class", findType(pObj.outputs[k].parameter_id) + " output")
+                .attr("cx", calculatePos(pObj.outputs.length, k, "cx", "outputs"))
+                .attr("cy", calculatePos(pObj.outputs.length, k, "cy", "outputs"))
                 .attr("r", ior).attr("fill", "steelblue")
                 .attr('fill-opacity', 0.8)
                 .on("mouseover", IOmouseOver)
                 .on("mousemove", IOmouseMove)
                 .on("mouseout", IOmouseOut)
-            //	                  .on("mousedown", IOconnect)
+            //                .on("mousedown", IOconnect)
         }
-        processList[("g-" + gNum)] = name
-        gNum = gNum + 1
+        pObj.processList[("g" + MainGNum + "-" + pObj.gNum)] = name
+        pObj.gNum = pObj.gNum + 1
 
 
     }
 }
 
-function addCandidates2DictForLoad(fir) {
-    candidates = []
-    candList = d3.selectAll(("circle[type ='I/O']"))[0]
-    sel = d3.select(("#" + fir))[0][0]
-    candList.push(sel)
-    for (var c = 0; c < candList.length; c++) {
-        currid = candList[c].id
-        gid = document.getElementById(currid).parentElement.id;
+function addCandidates2DictForLoad(fir, pObj) {
+    var MainGNum = "";
+    var prefix = "";
+    if (pObj != window) {
+        //load workflow of pipeline modules 
+        MainGNum = pObj.MainGNum;
+        prefix = "p" + MainGNum;
+    }
+    pObj.candidates = []
+    pObj.candList = $('#mainG' + MainGNum).find("circle[type ='I/O']");
+    pObj.sel = d3.select(("#" + prefix + fir))[0][0]
+    pObj.candList.push(pObj.sel)
+    for (var c = 0; c < pObj.candList.length; c++) {
+        if (pObj.candList[c]) {
+            pObj.currid = pObj.candList[c].id
+            pObj.gid = document.getElementById(pObj.currid).parentElement.id;
+            pObj.t = d3.transform(d3.select('#' + pObj.gid).attr("transform")),
+                pObj.x = pObj.t.translate[0]
+            pObj.y = pObj.t.translate[1]
 
-        t = d3.transform(d3.select('#' + gid).attr("transform")),
-            x = t.translate[0]
-        y = t.translate[1]
+            pObj.circx = pObj.candList[c].cx.baseVal.value + pObj.x
+            pObj.circy = pObj.candList[c].cy.baseVal.value + pObj.y
 
-        circx = candList[c].cx.baseVal.value + x
-        circy = candList[c].cy.baseVal.value + y
-
-        posList = [circx, circy, gid]
-        candidates[currid] = posList
+            pObj.posList = [pObj.circx, pObj.circy, pObj.gid]
+            pObj.candidates[pObj.currid] = pObj.posList
+        }
     }
 }
 
-function saveReady() {
-    document.getElementById("savePipeline").disabled = false;
-}
 
 
 function loadPipelineDetails(pipeline_id) {
@@ -2386,7 +2784,7 @@ function loadPipelineDetails(pipeline_id) {
                 pipeGnum = 0;
                 script_pipe_header = decodeHtml(s[0].script_pipe_header);
                 //check if params.VARNAME is defined in the autofill section of pipeline header. Then return all VARNAMES to define as system inputs
-                insertProPipePanel(script_pipe_header, "pipe", "Pipeline");
+                insertProPipePanel(script_pipe_header, "pipe", "Pipeline", window);
                 //generate json for autofill by using script of pipeline header
                 autoFillJSON = parseAutofill(script_pipe_header);
                 autoFillJSON = decodeGenericCond(autoFillJSON);
@@ -2867,7 +3265,7 @@ function checkReadytoRun(type) {
         var s3status = false;
     }
     //if ready and not running/waits/error
-    if (publishReady && s3status && getProPipeInputs.length === numInputRows && profileNext !== '' && output_dir !== '') {
+    if (publishReady && s3status && getProPipeInputs.length >= numInputRows && profileNext !== '' && output_dir !== '') {
         console.log("initial runStatus")
         console.log(runStatus)
         if (((runStatus !== "NextRun" && runStatus !== "Waiting" && runStatus !== "init") && (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun")) || runStatus === "") {
@@ -2901,10 +3299,9 @@ function checkReadytoRun(type) {
         }
     }
     //reset of checkType will be conducted in runProjectPipe as well 
-    if (checkType === "rerun" || checkType === "newrun" || checkType === "resumerun") {
+    //if checkType rerun || resumerun come to this point, it means run not executed
+    if (checkType === "rerun" || checkType === "resumerun") {
         checkType = "newrun";
-    } else {
-        checkType = "";
     }
 }
 
@@ -3246,7 +3643,6 @@ function runProPipeCall(checkType) {
             configTextRaw += 'docker.runOptions = \'' + docker_opt + '\'\n';
         }
     }
-    //xxx
     if ($('#singu_check').is(":checked") === true) {
         var singu_img = $('#singu_img').val();
         var patt = /^docker:\/\/(.*)/g;
@@ -3333,7 +3729,6 @@ function readNextflowLogTimer(proType, proId) {
 
 // type= reload for reload the page
 function readNextLog(proType, proId, type) {
-    console.log("readNextLog")
     runStatus = getRunStatus(project_pipeline_id);
     var pidStatus = "";
     serverLog = '';
@@ -3470,7 +3865,6 @@ function readNextLog(proType, proId, type) {
     }
     //trigger saving newxtflow log file
     setTimeout(function () { getValues({ p: "saveNextflowLog", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId }, true), 100 });
-
 }
 
 function showOutputPath() {
@@ -3559,6 +3953,7 @@ function formToJson(rawFormData, stringify) {
         return formDataArr;
     }
 }
+//xxxx
 //prepare JSON to save db
 function getProcessOpt() {
     var processOptAll = {};
@@ -3604,6 +3999,7 @@ function getProcessOpt() {
             }
         });
         processOptAll[proGnum] = processOptEach
+        console.log(processOptAll)
     });
     return encodeURIComponent(JSON.stringify(processOptAll))
 }

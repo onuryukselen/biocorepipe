@@ -37,25 +37,29 @@ session_write_close();
         <!--  w3 fonts-->
         <link rel="stylesheet" type="text/css" href="css/w3.css">
         <!-- Google Font -->
-        <link rel="stylesheet" type="text/css" href="css/googleApiSourceSans.css"/>
+        <link rel="stylesheet" type="text/css" href="css/googleApiSourceSans.css" />
         <!-- Datatables-->
-        <link rel="stylesheet" type="text/css" href="bower_components/DataTables/datatables.min.css"/>
+        <link rel="stylesheet" type="text/css" href="bower_components/DataTables/datatables.min.css" />
         <!--    dataTables.checkboxes-->
         <link type="text/css" href="css/dataTables.checkboxes.css" rel="stylesheet" />
         <!--    pagination-->
         <link type="text/css" href="css/pagination.css" rel="stylesheet" />
         <!--    jquery loading-->
         <link href="dist/jquery_loading/jquery.loading.min.css" rel="stylesheet" />
-
+        <!--    jquery-ui-bootstrap-->
+        <link href="bower_components/jquery-ui-bootstrap/css/custom-theme/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
         <style>
             /* Ace Editor scroll problem fix */
             .ace_text-input {
                 position: absolute!important
             }
+
             /*glyphicon-stack    */
+
             .glyphicon-stack {
                 position: relative;
             }
+
             .glyphicon-stack-2x {
                 position: absolute;
                 left: 14px;
@@ -65,12 +69,14 @@ session_write_close();
             }
 
             /*Pipeline Name Dynamic Input Box */
+
             .width-dynamic {
                 padding: 5px;
                 font-size: 20px;
                 font-family: Sans-serif;
                 white-space: pre;
             }
+
             .box-dynamic:hover {
                 border: 1px solid lightgrey;
             }
@@ -80,19 +86,23 @@ session_write_close();
             }
 
             /*Combobox Menu*/
+
             .selectize-control .option .title {
                 display: block;
             }
+
             .selectize-control .option .url {
                 font-size: 12px;
                 display: block;
                 color: #a0a0a0;
             }
+
             .selectize-dropdown {
                 width: 350px !important;
             }
 
             /*    D3 tooltip*/
+
             div.tooltip-svg {
                 position: absolute;
                 text-align: left;
@@ -106,28 +116,35 @@ session_write_close();
             }
 
             /*    NavBar process details*/
+
             .nav-tabs {
                 background-color: #F9F9F9 !important;
                 color: #428bca;
                 font-weight: 600;
             }
+
             .nav-tabs>li>a {
                 border: medium none;
             }
+
             .nav-tabs>li>a:hover {
                 border: medium none;
                 border-radius: 0;
                 color: #0570c1;
             }
+
             .active a {
                 color: #428bca !important;
             }
+
             /*        table links should appear blue*/
+
             #projecttable a,
             #runtable a,
             #allpipelinestable a {
                 color: #0570c1;
             }
+
             #projecttable a:hover,
             #runtable a:hover,
             #allpipelinestable a:hover {
@@ -136,6 +153,7 @@ session_write_close();
             }
 
             /*        public pipelines page*/
+
             .boxheader {
                 font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
                 padding: 1% 0;
@@ -152,6 +170,7 @@ session_write_close();
                 padding: 20px;
                 padding-top: 5px;
             }
+
             .movebox {
                 min-width: 100%;
                 min-height: 100%;
@@ -164,6 +183,7 @@ session_write_close();
                 box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.15);
                 transition: all 0.3s ease-in-out;
             }
+
             .movebox::after {
                 position: absolute;
                 z-index: -1;
@@ -174,40 +194,46 @@ session_write_close();
             }
 
             /* Scale up the box */
+
             .movebox:hover {
                 box-shadow: 0 0 20px rgba(33, 33, 33, .2);
             }
 
             /* Fade in the pseudo-element with the bigger shadow */
+
             .movebox:hover::after {
                 opacity: 1;
             }
 
             /* In order to fix textarea width*/
+
             textarea {
                 resize: vertical;
             }
 
             /*        Make center the pagination numbers*/
+
             .paginationjs {
                 display: flex;
                 justify-content: center;
             }
 
             /*        Hover property for boostrap panel headers */
+
             .collapsible:hover {
                 background-color: lightgray;
             }
+
             .collapsibleRow:hover {
                 background-color: lightgray;
             }
+
             .collapsibleRow {
-                background-color:#F5F5F5;
+                background-color: #F5F5F5;
             }
-            
-            
 
             /*        Red warning for empty form sections */
+
             .borderClass {
                 border: 1px solid red;
             }
@@ -300,11 +326,13 @@ session_write_close();
                             echo 'none';
                         }
                         ?>" class="info">
-                            <p id="userName"><?php
+                            <p id="userName">
+                                <?php
                         if ($login == 1){
                             echo $name;
                         }
-                        ?></p>
+                        ?>
+                            </p>
                             <span style="font-size:11px;"><i class="fa fa-circle text-success"></i> Online</span>
                             <a style="padding-left:5px; font-size:11px; float:right;" href="#" onclick="signOut();">Sign out</a>
                         </div>
@@ -469,22 +497,24 @@ session_write_close();
             </div>
             <!-- Add Amazon Node Modal Ends-->
 
-
-
             <!--Google Platform Library on your web pages that integrate Google Sign-In-->
             <script src="https://apis.google.com/js/platform.js" async defer></script>
             <!-- jQuery 3 -->
             <script src="bower_components/jquery/dist/jquery.min.js"></script>
-            <!-- jQuery UI 1.11.4 -->
-            <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+
+            <!-- Bootstrap 3.3.7 -->
+            <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+            <!-- jquery-migrate-3.0.0-->
+            <script src="bower_components/jquery-ui-bootstrap/js/jquery-migrate-3.0.0"></script>
+            <!-- jquery-ui-1.9.2.custom.min-->
+            <script src="bower_components/jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js"></script>
             <!-- Selectize 0.12.4.  -->
             <script src="dist/selectize/selectize.js"></script>
             <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
             <script>
                 $.widget.bridge('uibutton', $.ui.button);
+
             </script>
-            <!-- Bootstrap 3.3.7 -->
-            <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
             <!-- AdminLTE App -->
             <script src="dist/js/adminlte.min.js"></script>
             <!-- AdminLTE for demo purposes -->
