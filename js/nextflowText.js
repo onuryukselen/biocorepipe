@@ -16,25 +16,58 @@ function findFinalSubNode(node) {
 }
 
 function splitEdges(edge) {
+    //p2_7o-48-2-47-12_p2_7i-51-0-47-8 separate into p2_7o-48-2-47-12 and p2_7i-51-0-47-8 by ungreedy regex
     var patt = /(.*)-(.*)-(.*)-(.*)-(.*?)_(.*)-(.*)-(.*)-(.*)-(.*)/
     var first = edge.replace(patt, '$1-$2-$3-$4-$5')
     var sec = edge.replace(patt, '$6-$7-$8-$9-$10')
     return [first, sec]
 }
 //check if pipeline Module Id is defined as ccID
-function checkCopyId(mainEdges) {
-    $.each(mainEdges, function (e) {
-        //p2_7o-48-2-47-12_p2_7i-51-0-47-8 separate into p2_7o-48-2-47-12 and p2_7i-51-0-47-8 by ungreedy regex
+function checkCopyId(edgelist) {
+    var edges = edgelist.slice()
+    var newList = [];
+    for (var e = 0; e < edges.length; ++e) {
         var firstNode = "";
         var secNode = "";
-        [firstNode, secNode] = splitEdges(mainEdges[e]);
+        [firstNode, secNode] = splitEdges(edges[e]);
         if (ccIDList[firstNode]) {
-            mainEdges[e] = findFinalSubNode(firstNode) + "_" + secNode
+            var ccIDNode = $("#" + firstNode).attr("ccID");
+            if (ccIDNode) {
+                if (ccIDNode.match(/,/)) {
+                    var ccIDNodeAr = ccIDNode.split(',');
+                    //first insert all ccIDs, in the next runs if they dont have more ccID, ccIDList[firstNode] will be executed.
+                    for (var i = 0; i < ccIDNodeAr.length; ++i) {
+                        newList.push(ccIDNodeAr[i] + "_" + secNode)
+                    }
+                } else {
+                    newList.push(ccIDList[firstNode] + "_" + secNode)
+                }
+            }
         }
         if (ccIDList[secNode]) {
-            mainEdges[e] = firstNode + "_" + findFinalSubNode(secNode)
+            var ccIDNode = $("#" + secNode).attr("ccID");
+            if (ccIDNode) {
+                if (ccIDNode.match(/,/)) {
+                    var ccIDNodeAr = ccIDNode.split(',');
+                    for (var i = 0; i < ccIDNodeAr.length; ++i) {
+                        newList.push(firstNode + "_" + ccIDNodeAr[i])
+                    }
+                } else {
+                    newList.push(firstNode + "_" + ccIDList[secNode])
+                }
+            }
         }
-    });
+        if (!ccIDList[firstNode] && !ccIDList[secNode]) {
+            newList.push(firstNode + "_" + secNode)
+        }
+    }
+
+    //check equality
+    if (JSON.stringify(newList) == JSON.stringify(edgelist)) {
+        return newList
+    } else {
+        return checkCopyId(newList)
+    }
 }
 
 
@@ -112,9 +145,11 @@ function getMergedEdges(type) {
 
 function sortProcessList(processList, gnumList) {
     //get merged mainEdges for each pipelineModule and window
-    var mainEdges = getMergedEdges("main");
+    var mainEdgeList = getMergedEdges("main");
     //replace process nodes with ccID's for pipeline modules
-    checkCopyId(mainEdges);
+
+    var mainEdges = checkCopyId(mainEdgeList);
+
 
     if (gnumList == null) {
         var sortGnum = [];
@@ -341,22 +376,28 @@ function createNextflowFile(nxf_runmode) {
     });
 
     nextText += "\n" + iniTextSecond + "\n";
+
+    //get mainEdges for each pipelineModule
+    var allEdgesList = getMergedEdges("all");
+    //replace process nodes with ccID's for pipeline modules
+    var allEdges = checkCopyId(allEdgesList);
+
     sortedProcessList.forEach(function (key) {
         className = document.getElementById(key).getAttribute("class");
         mainProcessId = className.split("-")[1]
         var gNum = key.match(/g(.*)/)[1]; //g7 or g4-3 for pipeline module
-        if (gNum[0] === "-"){
+        if (gNum[0] === "-") {
             gNum = gNum.substring(1); //eq 7
         }
-        if (gNum.match(/-/)){
-            gNum = gNum.replace("-","_") //eq 4_3
+        if (gNum.match(/-/)) {
+            gNum = gNum.replace("-", "_") //eq 4_3
         }
         if (mainProcessId !== "inPro" && mainProcessId !== "outPro" && !mainProcessId.match(/p.*/)) { //if it is not input parameter print process data
             var body = "";
             var script_header = "";
             var script_footer = "";
 
-            [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key);
+            [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key, allEdges);
             // add process options after the process script_header to overwite them
             if (nxf_runmode === "run" && process_opt) {
                 //check if parameter comment  //* and process_opt[gNum] are exist:
@@ -365,7 +406,7 @@ function createNextflowFile(nxf_runmode) {
                 }
             }
             var mergedProcessList = getMergedProcessList();
-            proText = script_header + "\nprocess " + mergedProcessList[key].replace(" ","_") + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
+            proText = script_header + "\nprocess " + mergedProcessList[key].replace(" ", "_") + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
             nextText += proText;
         }
     });
@@ -541,9 +582,9 @@ function publishDir(id, currgid) {
     oText = ""
     var closePar = false
     oList = d3.select("#" + currgid).selectAll("circle[kind ='output']")[0]
-    var mainPipeEdges = edges.slice();
+    var mainPipeEdgesList = edges.slice();
     //replace process nodes with ccID's for pipeline modules
-    checkCopyId(mainPipeEdges);
+    var mainPipeEdges = checkCopyId(mainPipeEdgesList);
     for (var i = 0; i < oList.length; i++) {
         oId = oList[i].id
         for (var e = 0; e < mainPipeEdges.length; e++) {
@@ -630,11 +671,7 @@ function getPipelineScript(pipeline_id) {
     return [script_pipe_header, script_pipe_footer]
 }
 
-function IOandScriptForNf(id, currgid) {
-    //get mainEdges for each pipelineModule
-    var allEdges = getMergedEdges("all");
-    //replace process nodes with ccID's for pipeline modules
-    checkCopyId(allEdges);
+function IOandScriptForNf(id, currgid, allEdges) {
     var processData = getValues({ p: "getProcessData", "process_id": id });
     script = decodeHtml(processData[0].script);
     if (processData[0].script_header !== null) {

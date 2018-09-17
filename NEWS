@@ -1,3 +1,6 @@
+17.09.2018 Version 0.1.93
+Merge input nodes of pipeline modules in case they have connected to same "input parameter"
+
 17.09.2018 Version 0.1.92
 New revision or copy of public pipeline creates private pipeline(perms=3)
 Ajax requests in run page are decreased to improve performance.
