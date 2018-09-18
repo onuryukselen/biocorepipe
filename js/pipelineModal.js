@@ -249,14 +249,20 @@ function loadModalParam() {
 };
 
 
+function loadPipeModalRevision(pipeline_id) {
+    var revisions = getValues({ p: "getPipelineRevision", "pipeline_id": pipeline_id });
+    $('#mPipeRev').selectize({
+        valueField: 'id',
+        searchField: ['rev_id', 'rev_comment'],
+        options: revisions,
+        render: renderRev
+    });
+    $('#mPipeRev')[0].selectize.setValue(pipeline_id, false);
+}
+
 
 function loadModalRevision(selProcessId) {
-
-    //Ajax for revisions
-    var revisions = getValues({
-        p: "getProcessRevision",
-        "process_id": selProcessId
-    });
+    var revisions = getValues({ p: "getProcessRevision", "process_id": selProcessId });
     if (revisions.length > 1) {
         $('#mName').attr('disabled', "disabled");
     }
@@ -267,9 +273,7 @@ function loadModalRevision(selProcessId) {
         options: revisions,
         render: renderRev
     });
-
     $('#mProRev')[0].selectize.setValue(selProcessId, false);
-
 }
 
 function loadSelectedProcess(selProcessId) {
@@ -1368,21 +1372,124 @@ function AddNamespace() {
     svg.attr("xmlns", "http://www.w3.org/2000/svg");
 }
 // to export d3 to pdf
-function downloadPdf(){
+function downloadPdf() {
     var svg = jQuery('#container svg');
-    var svgWidth = parseInt(svg.width()*0.264583333)+30;
-    var svgHeight = parseInt(svg.height()*0.264583333);
-    if (svgWidth < 160){
+    var svgWidth = parseInt(svg.width() * 0.264583333) + 30;
+    var svgHeight = parseInt(svg.height() * 0.264583333);
+    if (svgWidth < 160) {
         svgWidth = 160;
     }
-    if (svgHeight < 160){
+    if (svgHeight < 160) {
         svgHeight = 160;
     }
-    svgWidth = svgWidth.toString() +"mm";
-    svgHeight = svgHeight.toString() +"mm";
+    svgWidth = svgWidth.toString() + "mm";
+    svgHeight = svgHeight.toString() + "mm";
     var filename = $('#pipeline-title').val()
-    return xepOnline.Formatter.Format('container',{filename:filename, pageWidth:svgWidth, pageHeight:svgHeight});
+    return xepOnline.Formatter.Format('container', { filename: filename, pageWidth: svgWidth, pageHeight: svgHeight });
 }
+
+
+//xxxxxxx
+function loadSelectedPipeline(pipeline_id) {
+    var pData = getValues({ p: "loadPipeline", id: pipeline_id })
+    var pDataTable = [];
+    if (pData) {
+        if (Object.keys(pData).length > 0) {
+            console.log(pData)
+            $('#selectPipeline').attr("pName", pData[0].name);
+
+            var nodes = pData[0].nodes
+            nodes = JSON.parse(nodes.replace(/'/gi, "\""))
+            $.each(nodes, function (el) {
+                if (nodes[el][2].indexOf("inPro") === -1 && nodes[el][2].indexOf("outPro") === -1) {
+                    pDataTable.push({ process_name: nodes[el][3], process_id: nodes[el][2] })
+                }
+            });
+            console.log(pDataTable)
+            if (pDataTable.length > 0) {
+                for (var i = 0; i < pDataTable.length; i++) {
+                    if (pDataTable[i].process_id.match(/p/)){
+                        var pipeModId=pDataTable[i].process_id.match(/p(.*)/)[1]
+                        var proData = getValues({ p: "loadPipeline", id: pipeModId })
+                    }else {
+                        var proData = getValues({ p: "getProcessData", "process_id": pDataTable[i].process_id });
+                    }
+                    if (proData) {
+                        pDataTable[i]["rev_id"] = proData[0].rev_id;
+                        pDataTable[i]["rev_comment"] = proData[0].rev_comment;
+                        pDataTable[i]["date_modified"] = proData[0].date_modified;
+                    }
+                }
+            }
+            $('#selectPipeTable').DataTable({
+                destroy: true,
+                "data": pDataTable,
+                "columns": [{
+                    "data": "process_name"
+            }, {
+                    "data": "rev_id"
+            }, {
+                    "data": "rev_comment"
+            }, {
+                    "data": "date_modified"
+            }]
+            });
+        }
+    }
+}
+
+$('#selectPipelineModal').on('hidden.bs.modal', function (ev) {
+        $('#selectPipeTable').dataTable().fnDestroy();
+
+    });
+
+    $('#selectPipelineModal').on('show.bs.modal', function (ev) {
+        var selPipelineId = infoID;
+        $('#selectPipeline').attr("fPipeID", selPipelineId);
+        $('#selectPipeline').attr("gNum", gNumInfo);
+        var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+        var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
+        var xProCoor = coorProRaw.replace(PattCoor, '$1');
+        var yProCoor = coorProRaw.replace(PattCoor, '$2');
+        $('#selectPipeline').attr("xCoor", xProCoor);
+        $('#selectPipeline').attr("yCoor", yProCoor);
+        loadPipeModalRevision(selPipelineId);
+        loadSelectedPipeline(selPipelineId);
+    });
+
+    //xxxxxxxxx
+    $("#selectPipelineModal").on('click', '#selectPipeline', function (event) {
+        event.preventDefault();
+        var gNumInfo = $('#selectPipeline').attr("gNum");
+        var firstPipeID = $('#selectPipeline').attr("fPipeID");
+        var lastPipeID = $('#selectPipeline').attr("lastPipeID");
+        var pName = $('#selectPipeline').attr("pName");
+        if (lastPipeID && lastPipeID !== firstPipeID) {
+            remove('del-' + gNumInfo);
+            var d3main = d3.transform(d3.select('#' + "mainG").attr("transform"));
+            var scale = d3main.scale[0];
+            var translateX = d3main.translate[0];
+            var translateY = d3main.translate[1];
+            var xPos = $('#selectPipeline').attr("xCoor") 
+            var yPos = $('#selectPipeline').attr("yCoor") 
+            piID = lastPipeID
+            var newMainGnum = "pObj" + gNum;
+            window[newMainGnum] = {};
+            window[newMainGnum].piID = piID;
+            window[newMainGnum].MainGNum = gNum;
+            window[newMainGnum].lastGnum = gNum;
+            window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
+            // add pipeline circle to main workplace
+            //            var proName = window[newMainGnum].sData[0].name;
+            window[newMainGnum].lastPipeName = pName;
+            addPipeline(piID, xPos, yPos, pName, window, window[newMainGnum]);
+            // create new SVG workplace inside panel, if not added before
+            openSubPipeline(piID, window[newMainGnum]);
+        }
+
+        $('#selectPipelineModal').modal('hide');
+    });
+
 
 $(document).ready(function () {
     var usRole = callusRole();
@@ -1423,7 +1530,6 @@ $(document).ready(function () {
             state[newstate] = backNode;
             //selectize gives error when using copied node clone. Therefore HTML part is kept separate and replaced at getState
             state[newstate + 'HTML'] = backNode.html();
-
         };
         pub.getState = function (getName) {
             state[getName].html(state[getName + 'HTML']);
@@ -1431,7 +1537,9 @@ $(document).ready(function () {
         }
         return pub; // expose externally
     }());
-
+    
+    
+    //xxxx
     $("#addProcessModal").on('click', '#selectProcess', function (event) {
         event.preventDefault();
         var gNumInfo = $('#selectProcess').attr("gNum");
@@ -1452,6 +1560,8 @@ $(document).ready(function () {
         autosave();
         $('#addProcessModal').modal('hide');
     });
+
+
 
     renderParam = {
         option: function (data, escape) {
@@ -1572,6 +1682,26 @@ $(document).ready(function () {
             window.location.replace("index.php?np=1&id=" + selPipeRev);
         })
     });
+
+
+
+
+
+    $(function () {
+        $(document).on('change', '.mPipeRevChange', function (event) {
+            var id = $(this).attr("id");
+            var prevParId = $("#" + id).attr("prev");
+            var selPipeId = $("#" + id + " option:selected").val();
+            if (prevParId !== '-1') {
+                loadSelectedPipeline(selPipeId);
+                $('#selectPipeline').attr("lastPipeID", selPipeId);
+            }
+            $("#" + id).attr("prev", selPipeId);
+        })
+    });
+
+    
+
 
     infoID = '';
     //Add Process Modal
