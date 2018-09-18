@@ -2144,6 +2144,7 @@ function save() {
                         var maxPipRev_id = getValues({ p: "getMaxPipRev_id", "pipeline_gid": pipeline_gid })[0].rev_id;
                         var newPipRev_id = parseInt(maxPipRev_id) + 1;
                         savedList[1].id = ''
+                        savedList[7].perms = '3';
                         savedList.push({ "pipeline_gid": pipeline_gid });
                         savedList.push({ "rev_comment": revComment });
                         savedList.push({ "rev_id": newPipRev_id });
