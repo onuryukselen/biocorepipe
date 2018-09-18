@@ -254,17 +254,20 @@ function getNewNodeId(edges, nullId, MainGNum) {
     } else if (nullProcessInOut === "o") {
         var nodes = getValues({ p: "getOutputsPP", "process_id": nullProcessId })
     }
-    var paraData = nodes.filter(function (el) { return el.parameter_id == nullProcessParId });
-    //get newNodeID  
-    if (paraData.length === 1 && nullProcessId !== "inPro" && nullProcessId !== "outPro") {
-        var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
-        var nullIdRegEx = new RegExp(nullId.replace(patt, '$1-$2-' + '(.*)' + '-$4-$5'), 'g')
-        var newNode = $('#g' + MainGNum + "-" + nullProcessGnum).find("circle").filter(function () {
-            return this.id.match(nullIdRegEx);
-        })
-        if (newNode.length === 1) {
-            var newNodeId = newNode.attr("id");
-            return newNodeId;
+    console.log(nullProcessId)
+    if (nodes) {
+        var paraData = nodes.filter(function (el) { return el.parameter_id == nullProcessParId });
+        //get newNodeID  
+        if (paraData.length === 1 && nullProcessId !== "inPro" && nullProcessId !== "outPro") {
+            var patt = /(.*)-(.*)-(.*)-(.*)-(.*)/;
+            var nullIdRegEx = new RegExp(nullId.replace(patt, '$1-$2-' + '(.*)' + '-$4-$5'), 'g')
+            var newNode = $('#g' + MainGNum + "-" + nullProcessGnum).find("circle").filter(function () {
+                return this.id.match(nullIdRegEx);
+            })
+            if (newNode.length === 1) {
+                var newNodeId = newNode.attr("id");
+                return newNodeId;
+            }
         }
     }
 }
@@ -943,15 +946,21 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
             }
             pObjSub.edOrg = pObjSub.sData[0].edges;
             pObjSub.edOrg = JSON.parse(pObjSub.edOrg.replace(/'/gi, "\""))["edges"]
-            pObjSub.inNodes = []; //input nodes that are connected to "input parameters"
+            pObjSub.inNodes = {}; //input nodes that are connected to "input parameters"
             pObjSub.outNodes = []; //output nodes that are connected to "output parameters"
             for (var ee = 0; ee < pObjSub.edOrg.length; ee++) {
                 if (pObjSub.edOrg[ee].indexOf("inPro") > -1) {
                     pObjSub.edsOrg = pObjSub.edOrg[ee].split("_")
-                    if (pObjSub.edsOrg[0][0] === "i") {
-                        pObjSub.inNodes.push(pObjSub.edsOrg[0]);
-                    } else {
-                        pObjSub.inNodes.push(pObjSub.edsOrg[1]);
+                    if (pObjSub.edsOrg[0][0] === "i") { //i-50-0-46-6_o-inPro-1-46-7
+                        if (!pObjSub.inNodes[pObjSub.edsOrg[1]]) {
+                            pObjSub.inNodes[pObjSub.edsOrg[1]] = [];
+                        }
+                        pObjSub.inNodes[pObjSub.edsOrg[1]].push(pObjSub.edsOrg[0]); //keep nodes in the same array if they connected to same "input parameter"
+                    } else { //o-inPro-1-46-7_i-50-0-46-6
+                        if (!pObjSub.inNodes[pObjSub.edsOrg[0]]) {
+                            pObjSub.inNodes[pObjSub.edsOrg[0]] = []
+                        }
+                        pObjSub.inNodes[pObjSub.edsOrg[0]].push(pObjSub.edsOrg[1]);
                     }
                 } else if (pObjSub.edOrg[ee].indexOf("outPro") > -1) {
                     pObjSub.edsOrg = pObjSub.edOrg[ee].split("_")
@@ -962,35 +971,76 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                     }
                 }
             }
+            console.log(pObjSub.inNodes)
+            //merge inNodes to one if they connected to same input param
+            //xxxx
+
             //I / O id naming: [0] i = input, o = output - [1] process database ID - [2] The number of I / O of the selected process - [3] Parameter database ID - [4] uniqe number
-            for (var k = 0; k < pObjSub.inNodes.length; k++) {
-                var proId = pObjSub.inNodes[k].split("-")[1];
-                var parId = pObjSub.inNodes[k].split("-")[3];
-                var inputs = getValues({ p: "getInputsPP", "process_id": proId })
-                var parData = inputs.filter(function (el) { return el.parameter_id == parId })
-                ccIDList[prefix + "i-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k];
-                d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
-                    .attr("id", prefix + "i-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
-                    .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.inNodes[k]) //copyID for pipeline modules
-                    .attr("type", "I/O")
-                    .attr("kind", "input")
-                    .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
-                    .attr("name", parData[0].sname)
-                    .attr("operator", parData[0].operator)
-                    .attr("closure", parData[0].closure)
-                    .attr("status", "standard")
-                    .attr("connect", "single")
-                    .attr("class", findType(parId) + " input")
-                    .attr("cx", calculatePos(pObjSub.inNodes.length, k, "cx", "inputsPipe"))
-                    .attr("cy", calculatePos(pObjSub.inNodes.length, k, "cy", "inputsPipe"))
-                    .attr("r", ior)
-                    .attr("fill", "tomato")
-                    .attr('fill-opacity', 0.8)
-                    .on("mouseover", IOmouseOver)
-                    .on("mousemove", IOmouseMove)
-                    .on("mouseout", IOmouseOut)
-                    .on("mousedown", IOconnect)
-            }
+            var c = 0;
+            $.each(pObjSub.inNodes, function (k) {
+                if (pObjSub.inNodes[k].length === 1) {
+                    var proId = pObjSub.inNodes[k][0].split("-")[1];
+                    var parId = pObjSub.inNodes[k][0].split("-")[3];
+                    var inputs = getValues({ p: "getInputsPP", "process_id": proId })
+                    var parData = inputs.filter(function (el) { return el.parameter_id == parId })
+                    ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
+                    d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
+                        .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
+                        .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0]) //copyID for pipeline modules
+                        .attr("type", "I/O")
+                        .attr("kind", "input")
+                        .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
+                        .attr("name", parData[0].sname)
+                        .attr("operator", parData[0].operator)
+                        .attr("closure", parData[0].closure)
+                        .attr("status", "standard")
+                        .attr("connect", "single")
+                        .attr("class", findType(parId) + " input")
+                        .attr("cx", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cx", "inputsPipe"))
+                        .attr("cy", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cy", "inputsPipe"))
+                        .attr("r", ior)
+                        .attr("fill", "tomato")
+                        .attr('fill-opacity', 0.8)
+                        .on("mouseover", IOmouseOver)
+                        .on("mousemove", IOmouseMove)
+                        .on("mouseout", IOmouseOut)
+                        .on("mousedown", IOconnect)
+                    c++;
+                } else if (pObjSub.inNodes[k].length > 1) {
+                    pObjSub.ccIDAr = [];
+                    for (var i = 0; i < pObjSub.inNodes[k].length; i++) {
+                        pObjSub.ccIDAr[i]="p" + pObjSub.MainGNum +pObjSub.inNodes[k][i];
+                        var proId = pObjSub.inNodes[k][i].split("-")[1];
+                        var parId = pObjSub.inNodes[k][i].split("-")[3];
+                        var inputs = getValues({ p: "getInputsPP", "process_id": proId })
+                        var parData = inputs.filter(function (el) { return el.parameter_id == parId })
+                        ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][i];
+                    }
+                    console.log(pObjSub.ccIDAr)
+                    d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
+                        .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
+                        .attr("ccID", pObjSub.ccIDAr) //copyID for pipeline modules
+                        .attr("type", "I/O")
+                        .attr("kind", "input")
+                        .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
+                        .attr("name", parData[0].sname)
+                        .attr("operator", parData[0].operator)
+                        .attr("closure", parData[0].closure)
+                        .attr("status", "standard")
+                        .attr("connect", "single")
+                        .attr("class", findType(parId) + " input")
+                        .attr("cx", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cx", "inputsPipe"))
+                        .attr("cy", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cy", "inputsPipe"))
+                        .attr("r", ior)
+                        .attr("fill", "tomato")
+                        .attr('fill-opacity', 0.8)
+                        .on("mouseover", IOmouseOver)
+                        .on("mousemove", IOmouseMove)
+                        .on("mouseout", IOmouseOut)
+                        .on("mousedown", IOconnect)
+                    c++;
+                }
+            })
             for (var k = 0; k < pObjSub.outNodes.length; k++) {
                 var proId = pObjSub.outNodes[k].split("-")[1];
                 var parId = pObjSub.outNodes[k].split("-")[3];
@@ -1213,7 +1263,7 @@ function remove(delID) {
                 $(existSubPipe[0]).css("display", "inline")
             }
             createPiGnumList()
-            if (piGnumList.length === 0){
+            if (piGnumList.length === 0) {
                 $('#subPipelinePanelTitle').css("display", "none");
             }
         }
@@ -1579,7 +1629,7 @@ function createEdges(first, second, pObj) {
         }
         var paramGivenName = document.getElementById('text' + MainGNum + "-" + firGnum).getAttribute("name");
         var paraData = parametersData.filter(function (el) { return el.id == pObj.secPI });
-//        var procData = processData.filter(function (el) { return el.id == secProI });
+        //        var procData = processData.filter(function (el) { return el.id == secProI });
         var paraFileType = "";
         var paraQualifier = "";
         var paraIdentifier = "";
