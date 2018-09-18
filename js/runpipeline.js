@@ -2267,7 +2267,6 @@ function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix,
             }
             //get project_pipeline_inputs:
             var getProPipeInputs = projectPipeInputs.filter(function (el) { return el.g_num == firGnum })
-
             var rowID = rowType + 'Ta-' + firGnum;
             if (getProPipeInputs && getProPipeInputs != "") {
                 if (getProPipeInputs.length > 0) {
