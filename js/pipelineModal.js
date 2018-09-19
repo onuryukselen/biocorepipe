@@ -1479,14 +1479,13 @@ $('#selectPipelineModal').on('hidden.bs.modal', function (ev) {
             window[newMainGnum].MainGNum = gNum;
             window[newMainGnum].lastGnum = gNum;
             window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
-            // add pipeline circle to main workplace
-            //            var proName = window[newMainGnum].sData[0].name;
             window[newMainGnum].lastPipeName = pName;
-            addPipeline(piID, xPos, yPos, pName, window, window[newMainGnum]);
+            //            var proName = window[newMainGnum].sData[0].name;
             // create new SVG workplace inside panel, if not added before
             openSubPipeline(piID, window[newMainGnum]);
+            // add pipeline circle to main workplace
+            addPipeline(piID, xPos, yPos, pName, window, window[newMainGnum]);
         }
-
         $('#selectPipelineModal').modal('hide');
     });
 

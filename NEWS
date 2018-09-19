@@ -1,3 +1,6 @@
+20.09.2018 Version 0.1.96
+Minor bug fixed related to pipeline modules.
+
 19.09.2018 Version 0.1.95
 Minor bug fixed related to nested pipeline nodes 
 Loading performance of pipeline modules is improved.
