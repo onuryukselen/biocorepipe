@@ -1,3 +1,10 @@
+19.09.2018 Version 0.1.95
+Minor bug fixed related to nested pipeline nodes 
+Loading performance of pipeline modules is improved.
+
+18.09.2018 Version 0.1.94
+Select revision of pipeline module modal added to pipeline page.
+
 17.09.2018 Version 0.1.93
 Merge input nodes of pipeline modules in case they have connected to same "input parameter"
 
