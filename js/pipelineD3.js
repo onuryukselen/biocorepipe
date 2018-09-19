@@ -437,6 +437,7 @@ function openPipeline(id) {
                     window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
                     window[newMainGnum].lastPipeName = name;
                     // create new SVG workplace inside panel
+
                     openSubPipeline(piID, window[newMainGnum]);
                     // add pipeline circle to main workplace
                     addPipeline(piID, x, y, name, window, window[newMainGnum]);
@@ -992,6 +993,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                     var parId = pObjSub.inNodes[k][0].split("-")[3];
                     var ccNodeId = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
                     var ccNode = $("#" + ccNodeId);
+
                     ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeId;
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
