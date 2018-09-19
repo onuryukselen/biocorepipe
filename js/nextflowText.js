@@ -367,13 +367,13 @@ function createNextflowFile(nxf_runmode) {
     lastSort = recursiveSort(initialSort.processList, initialSort.gnumList)
     var sortedProcessList = lastSort.processList;
     //initial input data added
-    sortedProcessList.forEach(function (key) {
-        className = document.getElementById(key).getAttribute("class");
+    for (var i = 0; i < sortedProcessList.length; i++) {
+        className = document.getElementById(sortedProcessList[i]).getAttribute("class");
         mainProcessId = className.split("-")[1];
-        iniText = InputParameters(mainProcessId, key, getProPipeInputs);
+        iniText = InputParameters(mainProcessId, sortedProcessList[i], getProPipeInputs);
         iniTextSecond = iniTextSecond + iniText.secPart;
         nextText = nextText + iniText.firstPart;
-    });
+    };
 
     nextText += "\n" + iniTextSecond + "\n";
 
@@ -382,10 +382,10 @@ function createNextflowFile(nxf_runmode) {
     //replace process nodes with ccID's for pipeline modules
     var allEdges = checkCopyId(allEdgesList);
 
-    sortedProcessList.forEach(function (key) {
-        className = document.getElementById(key).getAttribute("class");
+    for (var k = 0; k < sortedProcessList.length; k++) {
+        className = document.getElementById(sortedProcessList[k]).getAttribute("class");
         mainProcessId = className.split("-")[1]
-        var gNum = key.match(/g(.*)/)[1]; //g7 or g4-3 for pipeline module
+        var gNum = sortedProcessList[k].match(/g(.*)/)[1]; //g7 or g4-3 for pipeline module
         if (gNum[0] === "-") {
             gNum = gNum.substring(1); //eq 7
         }
@@ -397,7 +397,7 @@ function createNextflowFile(nxf_runmode) {
             var script_header = "";
             var script_footer = "";
 
-            [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, key, allEdges);
+            [body, script_header, script_footer] = IOandScriptForNf(mainProcessId, sortedProcessList[k], allEdges);
             // add process options after the process script_header to overwite them
             if (nxf_runmode === "run" && process_opt) {
                 //check if parameter comment  //* and process_opt[gNum] are exist:
@@ -406,10 +406,10 @@ function createNextflowFile(nxf_runmode) {
                 }
             }
             var mergedProcessList = getMergedProcessList();
-            proText = script_header + "\nprocess " + mergedProcessList[key].replace(" ", "_") + " {\n\n" + publishDir(mainProcessId, key) + body + "\n}\n" + script_footer + "\n"
+            proText = script_header + "\nprocess " + mergedProcessList[sortedProcessList[k]].replace(" ", "_") + " {\n\n" + publishDir(mainProcessId, sortedProcessList[k]) + body + "\n}\n" + script_footer + "\n"
             nextText += proText;
         }
-    });
+    };
 
     var endText = footer_pipe_script + '\nworkflow.onComplete {\n';
     endText += 'println "##Pipeline execution summary##"\n';

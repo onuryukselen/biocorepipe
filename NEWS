@@ -1,4 +1,7 @@
-20.09.2018 Version 0.1.96
+19.09.2018 Version 0.1.97
+Array.ForEach loop is replaced with for loop.
+
+19.09.2018 Version 0.1.96
 Minor bug fixed related to pipeline modules.
 
 19.09.2018 Version 0.1.95
