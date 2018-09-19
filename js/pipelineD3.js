@@ -85,12 +85,12 @@ function drop(event) {
         window[newMainGnum].MainGNum = gNum;
         window[newMainGnum].lastGnum = gNum;
         window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
-        // add pipeline circle to main workplace
         var proName = window[newMainGnum].sData[0].name;
         window[newMainGnum].lastPipeName = proName;
-        addPipeline(piID, xPos, yPos, proName, window, window[newMainGnum]);
         // create new SVG workplace inside panel, if not added before
         openSubPipeline(piID, window[newMainGnum]);
+        // add pipeline circle to main workplace
+        addPipeline(piID, xPos, yPos, proName, window, window[newMainGnum]);
     } else {
         addProcess(processDat, posX, posY);
     }
@@ -334,10 +334,10 @@ function openSubPipeline(piID, pObj) {
                 window[newMainGnum].lastGnum = pObj.gNum;
                 window[newMainGnum].sData = getValues({ p: "loadPipeline", id: newPiID })
                 window[newMainGnum].lastPipeName = pObj.name;
-                // add pipeline circle to main workplace
-                addPipeline(newPiID, pObj.x, pObj.y, pObj.name, pObj, window[newMainGnum]);
                 // create new SVG workplace inside panel, if not added before
                 openSubPipeline(newPiID, window[newMainGnum]);
+                // add pipeline circle to main workplace
+                addPipeline(newPiID, pObj.x, pObj.y, pObj.name, pObj, window[newMainGnum]);
             } else {
                 loadPipeline(pObj.x, pObj.y, pObj.pId, pObj.name, processModules, pObj.gNum, pObj)
             }
@@ -430,10 +430,10 @@ function openPipeline(id) {
                     window[newMainGnum].lastGnum = gN;
                     window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
                     window[newMainGnum].lastPipeName = name;
-                    // add pipeline circle to main workplace
-                    addPipeline(piID, x, y, name, window, window[newMainGnum]);
                     // create new SVG workplace inside panel, if not added before
                     openSubPipeline(piID, window[newMainGnum]);
+                    // add pipeline circle to main workplace
+                    addPipeline(piID, x, y, name, window, window[newMainGnum]);
                     //for process circles
                 } else {
                     loadPipeline(x, y, pId, name, processModules, gN, window)
@@ -977,28 +977,25 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                 }
             }
             //merge inNodes to one if they connected to same input param
-
             //I / O id naming: [0] i = input, o = output - [1] process database ID - [2] The number of I / O of the selected process - [3] Parameter database ID - [4] uniqe number
             var c = 0;
             $.each(pObjSub.inNodes, function (k) {
                 if (pObjSub.inNodes[k].length === 1) {
                     var proId = pObjSub.inNodes[k][0].split("-")[1];
                     var parId = pObjSub.inNodes[k][0].split("-")[3];
-                    var inputs = getValues({ p: "getInputsPP", "process_id": proId })
-                    var parData = inputs.filter(function (el) { return el.parameter_id == parId })
-                    ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
+                    var ccNodeId ="p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
+                    var ccNode =$("#"+ccNodeId);
+                    ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeId;
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
-                        .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0]) //copyID for pipeline modules
+                        .attr("ccID", ccNodeId) //copyID for pipeline modules
                         .attr("type", "I/O")
                         .attr("kind", "input")
                         .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
-                        .attr("name", parData[0].sname)
-                        .attr("operator", parData[0].operator)
-                        .attr("closure", parData[0].closure)
+                        .attr("name", ccNode.attr('name'))
                         .attr("status", "standard")
                         .attr("connect", "single")
-                        .attr("class", findType(parId) + " input")
+                        .attr("class", ccNode.attr('class'))
                         .attr("cx", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cx", "inputsPipe"))
                         .attr("cy", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cy", "inputsPipe"))
                         .attr("r", ior)
@@ -1015,22 +1012,19 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                         pObjSub.ccIDAr[i] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][i];
                         var proId = pObjSub.inNodes[k][i].split("-")[1];
                         var parId = pObjSub.inNodes[k][i].split("-")[3];
-                        var inputs = getValues({ p: "getInputsPP", "process_id": proId })
-                        var parData = inputs.filter(function (el) { return el.parameter_id == parId })
                         ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][i];
                     }
+                    var ccNode =$("#"+pObjSub.ccIDAr[0])
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
                         .attr("ccID", pObjSub.ccIDAr) //copyID for pipeline modules
                         .attr("type", "I/O")
                         .attr("kind", "input")
                         .attr("parentG", "g" + MainGNum + "-" + pObjOrigin.gNum)
-                        .attr("name", parData[0].sname)
-                        .attr("operator", parData[0].operator)
-                        .attr("closure", parData[0].closure)
+                        .attr("name", ccNode.attr('name'))
                         .attr("status", "standard")
                         .attr("connect", "single")
-                        .attr("class", findType(parId) + " input")
+                        .attr("class", ccNode.attr('class'))
                         .attr("cx", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cx", "inputsPipe"))
                         .attr("cy", calculatePos(Object.keys(pObjSub.inNodes).length, c, "cy", "inputsPipe"))
                         .attr("r", ior)
@@ -1046,22 +1040,19 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
             for (var k = 0; k < pObjSub.outNodes.length; k++) {
                 var proId = pObjSub.outNodes[k].split("-")[1];
                 var parId = pObjSub.outNodes[k].split("-")[3];
-                var outputs = getValues({ p: "getOutputsPP", "process_id": proId })
-                var parData = outputs.filter(function (el) { return el.parameter_id == parId })
-                ccIDList[prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.outNodes[k];
+                var ccNodeID ="p" + pObjSub.MainGNum + pObjSub.outNodes[k];
+                var ccNode =$("#"+ccNodeID)
+                ccIDList[prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeID;
                 d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                     .attr("id", prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
-                    .attr("ccID", "p" + pObjSub.MainGNum + pObjSub.outNodes[k]) //copyID for pipeline modules
+                    .attr("ccID", ccNodeID) //copyID for pipeline modules
                     .attr("type", "I/O")
                     .attr("kind", "output")
                     .attr("parentG", "g" + MainGNum + "-" + pObjSub.gNum)
-                    .attr("name", parData[0].sname)
-                    .attr("operator", parData[0].operator)
-                    .attr("closure", parData[0].closure)
-                    .attr("reg_ex", parData[0].reg_ex)
+                    .attr("name", ccNode.attr('name'))
                     .attr("status", "standard")
                     .attr("connect", "single")
-                    .attr("class", findType(parId) + " output")
+                    .attr("class", ccNode.attr('class'))
                     .attr("cx", calculatePos(pObjSub.outNodes.length, k, "cx", "outputsPipe"))
                     .attr("cy", calculatePos(pObjSub.outNodes.length, k, "cy", "outputsPipe"))
                     .attr("r", ior).attr("fill", "steelblue")
