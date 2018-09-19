@@ -87,7 +87,7 @@ function drop(event) {
         window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
         var proName = window[newMainGnum].sData[0].name;
         window[newMainGnum].lastPipeName = proName;
-        // create new SVG workplace inside panel, if not added before
+        // create new SVG workplace inside panel
         openSubPipeline(piID, window[newMainGnum]);
         // add pipeline circle to main workplace
         addPipeline(piID, xPos, yPos, proName, window, window[newMainGnum]);
@@ -183,7 +183,12 @@ $('#pin').click(function () {
     autosaveDetails();
 });
 $('#pipeGroupAll').change(function () {
-    autosaveDetails();
+    var id = $("#pipeline-title").attr('pipelineid');
+    if (id !== "") {
+        autosaveDetails();
+    } else {
+        autosave();
+    }
 });
 $('#publishPipe').change(function () {
     autosaveDetails();
@@ -280,6 +285,7 @@ function getNewNodeId(edges, nullId, MainGNum) {
 function openSubPipeline(piID, pObj) {
     var sData = pObj.sData[0];
     var MainGNum = pObj.MainGNum;
+    console.log(MainGNum)
     var lastGnum = pObj.lastGnum;
     var prefix = "p" + MainGNum;
     pObj.processList = {};
@@ -419,24 +425,24 @@ function openPipeline(id) {
                 pId = nodes[key][2]
                 name = nodes[key][3]
                 var processModules = nodes[key][4];
-                gN = key.split("-")[1]
+                gNum = parseInt(key.split("-")[1])
                 //for pipeline circles
                 if (pId.match(/p(.*)/)) {
                     var piID = pId.match(/p(.*)/)[1];
-                    var newMainGnum = "pObj" + gN;
+                    var newMainGnum = "pObj" + gNum;
                     window[newMainGnum] = {};
                     window[newMainGnum].piID = piID;
-                    window[newMainGnum].MainGNum = gN;
-                    window[newMainGnum].lastGnum = gN;
+                    window[newMainGnum].MainGNum = gNum;
+                    window[newMainGnum].lastGnum = gNum;
                     window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
                     window[newMainGnum].lastPipeName = name;
-                    // create new SVG workplace inside panel, if not added before
+                    // create new SVG workplace inside panel
                     openSubPipeline(piID, window[newMainGnum]);
                     // add pipeline circle to main workplace
                     addPipeline(piID, x, y, name, window, window[newMainGnum]);
                     //for process circles
                 } else {
-                    loadPipeline(x, y, pId, name, processModules, gN, window)
+                    loadPipeline(x, y, pId, name, processModules, gNum, window)
                 }
             }
             ed = sData[0].edges
@@ -848,6 +854,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
     var MainGNum = "";
     //load workflow of pipeline modules 
     MainGNum = pObjOrigin.MainGNum;
+    console.log(MainGNum)
     if (pObjOrigin != window) {
         prefix = "p" + MainGNum + "p";
     }
@@ -983,8 +990,8 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                 if (pObjSub.inNodes[k].length === 1) {
                     var proId = pObjSub.inNodes[k][0].split("-")[1];
                     var parId = pObjSub.inNodes[k][0].split("-")[3];
-                    var ccNodeId ="p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
-                    var ccNode =$("#"+ccNodeId);
+                    var ccNodeId = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
+                    var ccNode = $("#" + ccNodeId);
                     ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeId;
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
@@ -1014,7 +1021,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                         var parId = pObjSub.inNodes[k][i].split("-")[3];
                         ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][i];
                     }
-                    var ccNode =$("#"+pObjSub.ccIDAr[0])
+                    var ccNode = $("#" + pObjSub.ccIDAr[0])
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
                         .attr("ccID", pObjSub.ccIDAr) //copyID for pipeline modules
@@ -1040,8 +1047,8 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
             for (var k = 0; k < pObjSub.outNodes.length; k++) {
                 var proId = pObjSub.outNodes[k].split("-")[1];
                 var parId = pObjSub.outNodes[k].split("-")[3];
-                var ccNodeID ="p" + pObjSub.MainGNum + pObjSub.outNodes[k];
-                var ccNode =$("#"+ccNodeID)
+                var ccNodeID = "p" + pObjSub.MainGNum + pObjSub.outNodes[k];
+                var ccNode = $("#" + ccNodeID)
                 ccIDList[prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeID;
                 d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                     .attr("id", prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
@@ -1232,6 +1239,7 @@ function scMouseOut() {
 function remove(delID) {
     if (delID !== undefined) {
         deleteID = delID;
+        console.log(deleteID)
     }
     if (!binding) {
         g = document.getElementById(deleteID).parentElement.id //g-5
@@ -2073,6 +2081,7 @@ function save() {
     if (!pipeline_group_id || pipeline_group_id == "") {
         var pipeGroupWarn = true;
     }
+    console.log(pipeGroupWarn)
     warnUserRedBorder('#pipeGroupAll', pipeline_group_id)
 
     id = 0

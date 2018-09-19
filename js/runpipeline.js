@@ -318,15 +318,15 @@ function openPipeline(id) {
             pId = nodes[key][2]
             name = nodes[key][3]
             var processModules = nodes[key][4];
-            gN = key.split("-")[1]
+            gNum = parseInt(key.split("-")[1])
             //for pipeline circles
             if (pId.match(/p(.*)/)) {
                 var piID = pId.match(/p(.*)/)[1];
-                var newMainGnum = "pObj" + gN;
+                var newMainGnum = "pObj" + gNum;
                 window[newMainGnum] = {};
                 window[newMainGnum].piID = piID;
-                window[newMainGnum].MainGNum = gN;
-                window[newMainGnum].lastGnum = gN;
+                window[newMainGnum].MainGNum = gNum;
+                window[newMainGnum].lastGnum = gNum;
                 window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
                 window[newMainGnum].lastPipeName = name;
                 // create new SVG workplace inside panel, if not added before
@@ -335,7 +335,7 @@ function openPipeline(id) {
                 addPipeline(piID, x, y, name, window, window[newMainGnum]);
                 //for process circles
             } else {
-                loadPipeline(x, y, pId, name, processModules, gN, window)
+                loadPipeline(x, y, pId, name, processModules, gNum, window)
             }
         }
         ed = sData[0].edges
