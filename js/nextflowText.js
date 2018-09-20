@@ -25,48 +25,57 @@ function splitEdges(edge) {
 //check if pipeline Module Id is defined as ccID
 function checkCopyId(edgelist) {
     var edges = edgelist.slice()
-    var newList = [];
+    var trashIdx = [];
     for (var e = 0; e < edges.length; ++e) {
         var firstNode = "";
         var secNode = "";
         [firstNode, secNode] = splitEdges(edges[e]);
         if (ccIDList[firstNode]) {
+             if (!trashIdx.includes(e)){
+            trashIdx.push(e)
+            }
             var ccIDNode = $("#" + firstNode).attr("ccID");
             if (ccIDNode) {
                 if (ccIDNode.match(/,/)) {
                     var ccIDNodeAr = ccIDNode.split(',');
                     //first insert all ccIDs, in the next runs if they dont have more ccID, ccIDList[firstNode] will be executed.
                     for (var i = 0; i < ccIDNodeAr.length; ++i) {
-                        newList.push(ccIDNodeAr[i] + "_" + secNode)
+                        edges.push(ccIDNodeAr[i] + "_" + secNode)
                     }
                 } else {
-                    newList.push(ccIDList[firstNode] + "_" + secNode)
+                    edges.push(ccIDList[firstNode] + "_" + secNode)
                 }
             }
         }
-        if (ccIDList[secNode]) {
+        else if (ccIDList[secNode]) {
+            if (!trashIdx.includes(e)){
+            trashIdx.push(e)
+            }
             var ccIDNode = $("#" + secNode).attr("ccID");
             if (ccIDNode) {
                 if (ccIDNode.match(/,/)) {
                     var ccIDNodeAr = ccIDNode.split(',');
                     for (var i = 0; i < ccIDNodeAr.length; ++i) {
-                        newList.push(firstNode + "_" + ccIDNodeAr[i])
+                        edges.push(firstNode + "_" + ccIDNodeAr[i])
                     }
                 } else {
-                    newList.push(firstNode + "_" + ccIDList[secNode])
+                    edges.push(firstNode + "_" + ccIDList[secNode])
                 }
             }
         }
-        if (!ccIDList[firstNode] && !ccIDList[secNode]) {
-            newList.push(firstNode + "_" + secNode)
-        }
+//        if (!ccIDList[firstNode] && !ccIDList[secNode]) {
+//            edges.push(firstNode + "_" + secNode)
+//        }
     }
+    //clean array
+    for (var i = trashIdx.length -1; i >= 0; i--)
+    edges.splice(trashIdx[i],1);
 
     //check equality
-    if (JSON.stringify(newList) == JSON.stringify(edgelist)) {
-        return newList
+    if (JSON.stringify(edges) == JSON.stringify(edgelist)) {
+        return edges
     } else {
-        return checkCopyId(newList)
+        return checkCopyId(edges)
     }
 }
 
@@ -143,14 +152,31 @@ function getMergedEdges(type) {
     return edges
 }
 
+//for pipeline modules append pipeline id to gnum
+function getInOutGnum(edge) {
+    var outGnum = '';
+    var inGnum = '';
+    var patt = /(.*)-(.*)-(.*)-(.*)-(.*?)_(.*)-(.*)-(.*)-(.*)-(.*)/;
+    if (edge.replace(patt, '$1').match(/p(.*)(i|o)/)) {
+        var pipeID = edge.replace(patt, '$1').match(/p(.*)(i|o)/)[1];
+        var outGnum = edge.replace(patt, '$5' + "p" + pipeID);
+    } else {
+        var outGnum = edge.replace(patt, '$5');
+    }
+    if (edge.replace(patt, '$6').match(/p(.*)(i|o)/)) {
+        var pipeID = edge.replace(patt, '$6').match(/p(.*)(i|o)/)[1];
+        var inGnum = edge.replace(patt, '$10' + "p" + pipeID);
+    } else {
+        var inGnum = edge.replace(patt, '$10');
+    }
+    return [inGnum, outGnum]
+}
+
 function sortProcessList(processList, gnumList) {
     //get merged mainEdges for each pipelineModule and window
     var mainEdgeList = getMergedEdges("main");
     //replace process nodes with ccID's for pipeline modules
-
     var mainEdges = checkCopyId(mainEdgeList);
-
-
     if (gnumList == null) {
         var sortGnum = [];
     } else {
@@ -161,20 +187,8 @@ function sortProcessList(processList, gnumList) {
             var patt = /(.*)-(.*)-(.*)-(.*)-(.*?)_(.*)-(.*)-(.*)-(.*)-(.*)/;
             var outGnum = '';
             var inGnum = '';
-
             //for pipeline modules append pipeline id to gnum
-            if (mainEdges[e].replace(patt, '$1').match(/p(.*)(i|o)/)) {
-                var pipeID = mainEdges[e].replace(patt, '$1').match(/p(.*)(i|o)/)[1];
-                var outGnum = mainEdges[e].replace(patt, '$5' + "p" + pipeID);
-            } else {
-                var outGnum = mainEdges[e].replace(patt, '$5');
-            }
-            if (mainEdges[e].replace(patt, '$6').match(/p(.*)(i|o)/)) {
-                var pipeID = mainEdges[e].replace(patt, '$6').match(/p(.*)(i|o)/)[1];
-                var inGnum = mainEdges[e].replace(patt, '$10' + "p" + pipeID);
-            } else {
-                var inGnum = mainEdges[e].replace(patt, '$10');
-            }
+            [inGnum, outGnum] = getInOutGnum(mainEdges[e]);
             //for first raw insert both values
             //first can be added by push but other should be splice
             if (!sortGnum.includes(outGnum)) {
@@ -186,6 +200,7 @@ function sortProcessList(processList, gnumList) {
                 } else {
                     sortGnum.push(outGnum);
                     var index = sortGnum.indexOf(outGnum);
+
                 }
             } else {
                 //check if the position of outGnum if inGnum is also exist in array
@@ -199,6 +214,7 @@ function sortProcessList(processList, gnumList) {
                     }
                 }
                 var index = sortGnum.indexOf(outGnum);
+
             }
             if (!sortGnum.includes(inGnum)) {
                 sortGnum.splice(index + 1, 0, inGnum);
@@ -211,8 +227,7 @@ function sortProcessList(processList, gnumList) {
                 for (var k = e + 1; k < mainEdges.length; k++) {
                     var outGnum2 = '';
                     var inGnum2 = '';
-                    var outGnum2 = mainEdges[k].replace(patt, '$5');
-                    var inGnum2 = mainEdges[k].replace(patt, '$10');
+                    [inGnum2, outGnum2] = getInOutGnum(mainEdges[k]);
                     if (inGnum === outGnum2) {
                         if (!sortGnum.includes(inGnum2)) {
                             sortGnum.splice(index + 1, 0, inGnum2);
@@ -366,21 +381,22 @@ function createNextflowFile(nxf_runmode) {
     initialSort = sortProcessList(processList, null);
     lastSort = recursiveSort(initialSort.processList, initialSort.gnumList)
     var sortedProcessList = lastSort.processList;
+    //get mainEdges for each pipelineModule
+    var allEdgesList = getMergedEdges("all");
+    //replace process nodes with ccID's for pipeline modules
+    var allEdges = checkCopyId(allEdgesList);
     //initial input data added
     for (var i = 0; i < sortedProcessList.length; i++) {
         className = document.getElementById(sortedProcessList[i]).getAttribute("class");
         mainProcessId = className.split("-")[1];
-        iniText = InputParameters(mainProcessId, sortedProcessList[i], getProPipeInputs);
+        iniText = InputParameters(mainProcessId, sortedProcessList[i], getProPipeInputs, allEdges);
         iniTextSecond = iniTextSecond + iniText.secPart;
         nextText = nextText + iniText.firstPart;
     };
 
     nextText += "\n" + iniTextSecond + "\n";
 
-    //get mainEdges for each pipelineModule
-    var allEdgesList = getMergedEdges("all");
-    //replace process nodes with ccID's for pipeline modules
-    var allEdges = checkCopyId(allEdgesList);
+
 
     for (var k = 0; k < sortedProcessList.length; k++) {
         className = document.getElementById(sortedProcessList[k]).getAttribute("class");
@@ -406,7 +422,7 @@ function createNextflowFile(nxf_runmode) {
                 }
             }
             var mergedProcessList = getMergedProcessList();
-            proText = script_header + "\nprocess " + mergedProcessList[sortedProcessList[k]].replace(" ", "_") + " {\n\n" + publishDir(mainProcessId, sortedProcessList[k]) + body + "\n}\n" + script_footer + "\n"
+            proText = script_header + "\nprocess " + mergedProcessList[sortedProcessList[k]].replace(/ /g, '_') + " {\n\n" + publishDir(mainProcessId, sortedProcessList[k]) + body + "\n}\n" + script_footer + "\n"
             nextText += proText;
         }
     };
@@ -424,13 +440,13 @@ function createNextflowFile(nxf_runmode) {
 }
 
 
-function getChannelNameAll(channelName, Iid) {
+function getChannelNameAll(channelName, Iid, allEdges) {
     var channelNameAll = "";
-    for (var c = 0; c < edges.length; c++) {
-        if (edges[c].indexOf(Iid) !== -1) {
+    for (var c = 0; c < allEdges.length; c++) {
+        if (allEdges[c].indexOf(Iid) !== -1) {
             var firstNode = "";
             var secNode = "";
-            [firstNode, secNode] = splitEdges(edges[c]);
+            [firstNode, secNode] = splitEdges(allEdges[c]);
             if (channelNameAll === "") {
                 channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
             } else {
@@ -443,7 +459,7 @@ function getChannelNameAll(channelName, Iid) {
 }
 
 //Input parameters and channels with file paths
-function InputParameters(id, currgid, getProPipeInputs) {
+function InputParameters(id, currgid, getProPipeInputs, allEdges) {
     IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0];
     iText = {};
     firstPart = "";
@@ -506,7 +522,7 @@ function InputParameters(id, currgid, getProPipeInputs) {
                     } else if (qual === "set" && inputParMate > 0) {
                         //all processes that are connected to
                         var channelNameAll = "";
-                        channelNameAll = getChannelNameAll(channelName, Iid);
+                        channelNameAll = getChannelNameAll(channelName, Iid, allEdges);
                         secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
@@ -516,7 +532,7 @@ function InputParameters(id, currgid, getProPipeInputs) {
                     else if (qual === "set" && inputParMate === 0) {
                         //all processes that are connected to
                         var channelNameAll = "";
-                        channelNameAll = getChannelNameAll(channelName, Iid);
+                        channelNameAll = getChannelNameAll(channelName, Iid, allEdges);
                         secPartTemp = channelNameAll + " = " + "Channel.fromPath(params." + inputParamName + ").toSortedList() \n"
                         firstPart = firstPart + firstPartTemp
                         secPart = secPart + secPartTemp
@@ -816,6 +832,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
                         }
                     }
                 }
+
             }
             // if output node is not connected to input node.
             if (channelNameAll === '') {
