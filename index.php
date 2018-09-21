@@ -501,13 +501,13 @@ session_write_close();
             <script src="https://apis.google.com/js/platform.js" async defer></script>
             <!-- jQuery 3 -->
             <script src="bower_components/jquery/dist/jquery.min.js"></script>
-
+            <!-- jquery-ui-1.9.2.custom.min-->
+            <script src="bower_components/jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js"></script>
             <!-- Bootstrap 3.3.7 -->
             <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
             <!-- jquery-migrate-3.0.0-->
             <script src="bower_components/jquery-ui-bootstrap/js/jquery-migrate-3.0.0.js"></script>
-            <!-- jquery-ui-1.9.2.custom.min-->
-            <script src="bower_components/jquery-ui-bootstrap/assets/js/jquery-ui-1.10.0.custom.min.js"></script>
+            
             <!-- Selectize 0.12.4.  -->
             <script src="dist/selectize/selectize.js"></script>
             <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
