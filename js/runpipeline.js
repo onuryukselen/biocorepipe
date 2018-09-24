@@ -545,10 +545,11 @@ function parseRegPart(regPart) {
     if (regPart.match(/@/)) {
         var regSplit = regPart.split('@');
         for (var i = 0; i < regSplit.length; i++) {
-            // find type among types:checkbox|textbox|input|dropdown
-            var typeCheck = regSplit[i].match(/checkbox|textbox|input|dropdown/i);
+            // find type among following list:checkbox|textbox|input|dropdown
+            console.log(regSplit[i])
+            var typeCheck = regSplit[i].match(/^checkbox|^textbox|^input|^dropdown/i);
             // check if @multicolumn tag is defined //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
-            var multiColCheck = regSplit[i].match(/multicolumn:(.*)/i);
+            var multiColCheck = regSplit[i].match(/^multicolumn:(.*)/i);
             if (multiColCheck) {
                 if (multiColCheck[1]) {
                     var multiContent = multiColCheck[1];
@@ -556,7 +557,7 @@ function parseRegPart(regPart) {
                 }
             }
             // check if @array tag is defined //* @style @array:{var1, var2}, {var4}
-            var arrayCheck = regSplit[i].match(/array:(.*)/i);
+            var arrayCheck = regSplit[i].match(/^array:(.*)/i);
             if (arrayCheck) {
                 if (arrayCheck[1]) {
                     var arrContent = arrayCheck[1];
@@ -564,7 +565,7 @@ function parseRegPart(regPart) {
                 }
             }
             // check if @condition tag is defined //* @style @condition:{var1="yes", var2}, {var1="no", var3, var4}
-            var condCheck = regSplit[i].match(/condition:(.*)/i);
+            var condCheck = regSplit[i].match(/^condition:(.*)/i);
             if (condCheck) {
                 if (condCheck[1]) {
                     var condContent = condCheck[1];
@@ -578,7 +579,7 @@ function parseRegPart(regPart) {
                 type = typeCheck[0].toLowerCase();
             }
             // find description
-            var descCheck = regSplit[i].match(/description:"(.*)"|description:'(.*)'/i);
+            var descCheck = regSplit[i].match(/^description:"(.*)"|^description:'(.*)'/i);
             if (descCheck) {
                 if (descCheck[1]) {
                     desc = descCheck[1];
@@ -587,7 +588,7 @@ function parseRegPart(regPart) {
                 }
             }
             // find title
-            var titleCheck = regSplit[i].match(/title:"(.*)"|title:'(.*)'/i);
+            var titleCheck = regSplit[i].match(/^title:"(.*)"|^title:'(.*)'/i);
             if (titleCheck) {
                 if (titleCheck[1]) {
                     title = titleCheck[1];
@@ -596,7 +597,7 @@ function parseRegPart(regPart) {
                 }
             }
             // find tooltip
-            var toolCheck = regSplit[i].match(/tooltip:"(.*)"|tooltip:'(.*)'/i);
+            var toolCheck = regSplit[i].match(/^tooltip:"(.*)"|^tooltip:'(.*)'/i);
             if (toolCheck) {
                 if (toolCheck[1]) {
                     tool = toolCheck[1];
@@ -605,7 +606,7 @@ function parseRegPart(regPart) {
                 }
             }
             // find options
-            var optCheck = regSplit[i].match(/options:"(.*)"|options:'(.*)'/i);
+            var optCheck = regSplit[i].match(/^options:\s*"(.*)"|^options:\s*'(.*)'/i);
             if (optCheck) {
                 if (optCheck[1]) {
                     var allOpt = optCheck[1];
