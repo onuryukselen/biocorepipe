@@ -3224,10 +3224,13 @@ function saveFileSetValModal(data, sType, inputID) {
     } else if (sType === 'val') {
         var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
     }
-    var gNumParam = rowID.split('-')[1];
+    var gNumParam = rowID.split("Ta-")[1];
     var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
     var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
     //check database if file is exist, if not exist then insert
+    console.log(gNumParam)
+    console.log(given_name)
+    console.log(qualifier)
     checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
     checkReadytoRun();
 }
@@ -3240,7 +3243,7 @@ function editFileSetValModal(data, sType, inputID) {
         var rowID = $('#mIdVal').attr('rowID'); //the id of table-row to be updated #inputTa-3
     }
     var proPipeInputID = $('#' + rowID).attr('propipeinputid');
-    var gNumParam = rowID.split('-')[1];
+    var gNumParam = rowID.split("Ta-")[1];
     var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
     var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
     //check database if file is exist, if not exist then insert
@@ -3913,7 +3916,7 @@ function addOutFileDb() {
         var rowID = $(rowIdAll[i]).attr('id');
         var outTableRow = $('#' + rowID + ' >:last-child').find('span');
         var filePath = $(outTableRow[0]).text();
-        //	          var gNumParam = rowID.split('-')[1];
+        //	          var gNumParam = rowID.split("Ta-")[1];
         //	          var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
         //	          var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
         //	          data.push({ name: "id", value: "" });
@@ -4498,7 +4501,7 @@ $(document).ready(function () {
         $('.nav-tabs a[href="#manualTab"]').tab('show');
         var clickedRow = button.closest('tr');
         var rowID = clickedRow[0].id; //#inputTa-3
-        var gNumParam = rowID.split('-')[1];
+        var gNumParam = rowID.split("Ta-")[1];
 
         if (button.attr('id') === 'inputFileSelect') {
             $('#filemodaltitle').html('Select/Add Input File');
@@ -4727,7 +4730,7 @@ $(document).ready(function () {
     $('#inputsTab').on('click', '#inputDelDelete, #inputValDelete', function (e) {
         var clickedRow = $(this).closest('tr');
         var rowID = clickedRow[0].id; //#inputTa-3
-        var gNumParam = rowID.split('-')[1];
+        var gNumParam = rowID.split("Ta-")[1];
         var proPipeInputID = $('#' + rowID).attr('propipeinputid');
         var removeInput = getValues({ "p": "removeProjectPipelineInput", id: proPipeInputID });
         var qualifier = $('#' + rowID + ' > :nth-child(4)').text();
@@ -4742,7 +4745,7 @@ $(document).ready(function () {
         $('.nav-tabs a[href="#manualTabV"]').tab('show');
         var clickedRow = button.closest('tr');
         var rowID = clickedRow[0].id; //#inputTa-3
-        var gNumParam = rowID.split('-')[1];
+        var gNumParam = rowID.split("Ta-")[1];
         if (button.attr('id') === 'inputValEnter') {
             $('#valmodaltitle').html('Add Value');
             $('#mIdVal').attr('rowID', rowID);
