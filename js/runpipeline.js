@@ -656,6 +656,7 @@ function appendBeforeDiv(button) {
 //insert form fields into panels of process options 
 function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title) {
     var arrayCheck = false; //is it belong to array
+    var clearFix = ""; //if its the first element of multicol
     var arrayId = "";
     var columnPercent = 100;
     if (title) {
@@ -667,6 +668,9 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
             if (multicol[el].indexOf(varName) > -1) {
                 var columnCount = multicol[el].length;
                 columnPercent = Math.floor(columnPercent / columnCount * 100) / 100;
+            }
+            if ((multicol[el].indexOf(varName) === 0)){
+                clearFix = " clear:both; "
             }
         });
     }
@@ -699,7 +703,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
     } else {
         var descText = '<p style=" font-style:italic; color:darkslategray; font-weight: 300; font-size:13px">' + desc + '</p>';
     }
-    var processParamDiv = '<div  class="form-group" style="float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
+    var processParamDiv = '<div  class="form-group" style="'+ clearFix+'float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
     var label = '<label style="font-weight:600;">' + varName + toolText + ' </label>';
     if (type === "input") {
         var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
