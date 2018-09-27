@@ -213,6 +213,8 @@ function openSubPipeline(piID, pObj) {
     var prefix = "p" + MainGNum;
     pObj.processList = {};
     pObj.edges = [];
+    //check if params.VARNAME is defined in the autofill section of pipeline header. Then return all VARNAMES to define as system inputs
+    insertProPipePanel(decodeHtml(sData.script_pipe_header), "pipe", "Pipeline", window);
     var hideModule = false;
     if ($("#subPipelinePanelTitle").find('div[pipeid*=' + piID + ']').length > 0) {
         hideModule = true;
@@ -546,7 +548,6 @@ function parseRegPart(regPart) {
         var regSplit = regPart.split('@');
         for (var i = 0; i < regSplit.length; i++) {
             // find type among following list:checkbox|textbox|input|dropdown
-            console.log(regSplit[i])
             var typeCheck = regSplit[i].match(/^checkbox|^textbox|^input|^dropdown/i);
             // check if @multicolumn tag is defined //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
             var multiColCheck = regSplit[i].match(/^multicolumn:(.*)/i);
@@ -655,6 +656,8 @@ function appendBeforeDiv(button) {
 
 //insert form fields into panels of process options 
 function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title) {
+    var checkInsert = $('#addProcessRow-' + gNum).find('[id*=var_' + gNum + '-' + varName+"]");
+    if(!checkInsert.length){
     var arrayCheck = false; //is it belong to array
     var clearFix = ""; //if its the first element of multicol
     var arrayId = "";
@@ -669,7 +672,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
                 var columnCount = multicol[el].length;
                 columnPercent = Math.floor(columnPercent / columnCount * 100) / 100;
             }
-            if ((multicol[el].indexOf(varName) === 0)){
+            if ((multicol[el].indexOf(varName) === 0)) {
                 clearFix = " clear:both; "
             }
         });
@@ -703,7 +706,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
     } else {
         var descText = '<p style=" font-style:italic; color:darkslategray; font-weight: 300; font-size:13px">' + desc + '</p>';
     }
-    var processParamDiv = '<div  class="form-group" style="'+ clearFix+'float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
+    var processParamDiv = '<div  class="form-group" style="' + clearFix + 'float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
     var label = '<label style="font-weight:600;">' + varName + toolText + ' </label>';
     if (type === "input") {
         var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
@@ -745,7 +748,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0').append(processParamDiv);
         $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv').insertAfter($('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 div:last')); //keep remove button at last
     }
-
+    }
 }
 
 // if @condi is exist, then create event binders
@@ -1275,8 +1278,8 @@ function insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name) {
     }
     var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
     var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-    // fill as user input
-    setTimeout(function () { $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow); }, 1);
+    // check if parameters added into table before, if not fill table
+    insertInRow(inRow, paramGivenName, rowType)
     if ($("#userInputs").css("display") === "none") {
         $("#userInputs").css("display", "table-row")
     }
@@ -1602,8 +1605,8 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                 if (pObjSub.inNodes[k].length === 1) {
                     var proId = pObjSub.inNodes[k][0].split("-")[1];
                     var parId = pObjSub.inNodes[k][0].split("-")[3];
-                    var ccNodeId ="p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
-                    var ccNode =$("#"+ccNodeId);
+                    var ccNodeId = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][0];
+                    var ccNode = $("#" + ccNodeId);
                     ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeId;
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
@@ -1623,7 +1626,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                         .on("mouseover", IOmouseOver)
                         .on("mousemove", IOmouseMove)
                         .on("mouseout", IOmouseOut)
-//                        .on("mousedown", IOconnect)
+                    //                        .on("mousedown", IOconnect)
                     c++;
                 } else if (pObjSub.inNodes[k].length > 1) {
                     pObjSub.ccIDAr = [];
@@ -1633,7 +1636,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                         var parId = pObjSub.inNodes[k][i].split("-")[3];
                         ccIDList[prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum] = "p" + pObjSub.MainGNum + pObjSub.inNodes[k][i];
                     }
-                    var ccNode =$("#"+pObjSub.ccIDAr[0])
+                    var ccNode = $("#" + pObjSub.ccIDAr[0])
                     d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                         .attr("id", prefix + "i-" + proId + "-" + c + "-" + parId + "-" + pObjOrigin.gNum)
                         .attr("ccID", pObjSub.ccIDAr) //copyID for pipeline modules
@@ -1652,15 +1655,15 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                         .on("mouseover", IOmouseOver)
                         .on("mousemove", IOmouseMove)
                         .on("mouseout", IOmouseOut)
-//                        .on("mousedown", IOconnect)
+                    //                        .on("mousedown", IOconnect)
                     c++;
                 }
             })
             for (var k = 0; k < pObjSub.outNodes.length; k++) {
                 var proId = pObjSub.outNodes[k].split("-")[1];
                 var parId = pObjSub.outNodes[k].split("-")[3];
-                var ccNodeID ="p" + pObjSub.MainGNum + pObjSub.outNodes[k];
-                var ccNode =$("#"+ccNodeID)
+                var ccNodeID = "p" + pObjSub.MainGNum + pObjSub.outNodes[k];
+                var ccNode = $("#" + ccNodeID)
                 ccIDList[prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum] = ccNodeID;
                 d3.select("#g" + MainGNum + "-" + pObjOrigin.gNum).append("circle")
                     .attr("id", prefix + "o-" + proId + "-" + k + "-" + parId + "-" + pObjOrigin.gNum)
@@ -1679,7 +1682,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
                     .on("mouseover", IOmouseOver)
                     .on("mousemove", IOmouseMove)
                     .on("mouseout", IOmouseOut)
-//                    .on("mousedown", IOconnect)
+                //                    .on("mousedown", IOconnect)
             }
         }
     }
@@ -2202,6 +2205,25 @@ function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValBu
     return buttons
 }
 
+
+//insert inRow to inputs table
+function insertInRow(inRow, paramGivenName, rowType) {
+    var checkTable = $('#inputsTable > tbody').find('td[given_name*=' + paramGivenName + ']');
+    if (!checkTable.length){
+    if (systemInputs.indexOf(paramGivenName) > -1) {
+        $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+        if ($("#systemInputs").css("display") === "none") {
+            $("#systemInputs").css("display", "table-row")
+        }
+    } else { // fill as user input
+        $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
+        if ($("#userInputs").css("display") === "none") {
+            $("#userInputs").css("display", "table-row")
+        }
+    }
+    }
+}
+
 //insert input table row based on edges of input parameters.
 function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix, second) {
     var paramGivenName = document.getElementById('text' + MainGNum + "-" + firGnum).getAttribute("name");
@@ -2248,19 +2270,7 @@ function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix,
             var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
             //insert both system and user inputs
             var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-            //get SystemInputs if they defined as params.VARNAME in the autofill section of pipeline header.
-            // fill as system input
-            if (systemInputs.indexOf(paramGivenName) > -1) {
-                $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-                if ($("#systemInputs").css("display") === "none") {
-                    $("#systemInputs").css("display", "table-row")
-                }
-            } else { // fill as user input
-                $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
-                if ($("#userInputs").css("display") === "none") {
-                    $("#userInputs").css("display", "table-row")
-                }
-            }
+            insertInRow(inRow, paramGivenName, rowType)
             //get project_pipeline_inputs:
             var getProPipeInputs = projectPipeInputs.filter(function (el) { return el.g_num == firGnum })
             var rowID = rowType + 'Ta-' + firGnum;
@@ -3232,9 +3242,6 @@ function saveFileSetValModal(data, sType, inputID) {
     var given_name = $("#input-PName-" + gNumParam).text(); //input-PName-3
     var qualifier = $('#' + rowID + ' > :nth-child(4)').text(); //input-PName-3
     //check database if file is exist, if not exist then insert
-    console.log(gNumParam)
-    console.log(given_name)
-    console.log(qualifier)
     checkInputInsert(data, gNumParam, given_name, qualifier, rowID, sType, inputID);
     checkReadytoRun();
 }
@@ -4032,7 +4039,6 @@ function getProcessOpt() {
             }
         });
         processOptAll[proGnum] = processOptEach
-        console.log(processOptAll)
     });
     return encodeURIComponent(JSON.stringify(processOptAll))
 }
