@@ -2148,6 +2148,11 @@ class dbfuncs {
         SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' AND pi.perms<'$perms'";
         return self::runSQL($sql);
     }
+    public function updatePipelineGroupPermByPipeId($id, $group_id, $perms, $ownerID) {
+        $sql = "UPDATE biocorepipe_save pi
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE pi.id = '$id' AND pi.perms<'$perms'";
+        return self::runSQL($sql);
+    }
      public function updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "SELECT pip.nodes
         FROM biocorepipe_save pip
@@ -2229,12 +2234,25 @@ class dbfuncs {
         if (!empty($nodesRaw)){
             foreach ($nodesRaw as $item):
                 if ($item[2] !== "inPro" && $item[2] !== "outPro" ){
-                    $proId = $item[2];
-                    $this->updateParameterGroupPerm($proId, $group_id, $perms, $ownerID);
-                    $this->updateProcessGroupPerm($proId, $group_id, $perms, $ownerID);
-                    $this->updateProcessParameterGroupPerm($proId, $group_id, $perms, $ownerID);
-                    $this->updateProcessGroupGroupPerm($proId, $group_id, $perms, $ownerID);
-                }
+                    //pipeline modules
+                    if (preg_match("/p(.*)/", $item[2], $matches)){
+                        $pipeModId = $matches[1];
+                        if (!empty($pipeModId)){
+                            settype($pipeModId, "integer");
+                            $this->updatePipelineGroupPermByPipeId($pipeModId, $group_id, $perms, $ownerID);
+                            if ($perms !== "3"){
+                                $this->updatePipelineGroupGroupPerm($pipeModId, $group_id, $perms, $ownerID);
+                            }
+                        } 
+                    //processes    
+                    } else {
+                        $proId = $item[2];
+                        $this->updateParameterGroupPerm($proId, $group_id, $perms, $ownerID);
+                        $this->updateProcessGroupPerm($proId, $group_id, $perms, $ownerID);
+                        $this->updateProcessParameterGroupPerm($proId, $group_id, $perms, $ownerID);
+                        $this->updateProcessGroupGroupPerm($proId, $group_id, $perms, $ownerID);
+                    }
+                }  
             endforeach;
         }
 	    if ($id > 0){
@@ -2255,6 +2273,7 @@ class dbfuncs {
         	}
 		}
   		return self::insTable($sql);
+  		
 	}
 	public function getSavedPipelines($ownerID) {
         if ($ownerID == ""){
