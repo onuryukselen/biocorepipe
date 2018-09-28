@@ -2208,8 +2208,8 @@ function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValBu
 
 //insert inRow to inputs table
 function insertInRow(inRow, paramGivenName, rowType) {
-    var checkTable = $('#inputsTable > tbody').find('td[given_name*=' + paramGivenName + ']');
-    if (!checkTable.length){
+//    var checkTable = $('#inputsTable > tbody').find('td[given_name*=' + paramGivenName + ']');
+//    if (!checkTable.length){
     if (systemInputs.indexOf(paramGivenName) > -1) {
         $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
         if ($("#systemInputs").css("display") === "none") {
@@ -2221,7 +2221,7 @@ function insertInRow(inRow, paramGivenName, rowType) {
             $("#userInputs").css("display", "table-row")
         }
     }
-    }
+//    }
 }
 
 //insert input table row based on edges of input parameters.
