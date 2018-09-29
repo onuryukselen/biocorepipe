@@ -272,8 +272,7 @@ else if ($p=="renameProjectPipelineInputByGnum"){
 else if ($p=="removeProjectInput"){   
     $input_id = $_REQUEST['input_id'];
     $db -> removeProjectPipelineInputbyInputId($input_id);
-    $db -> removeProjectInput($id);
-    $data = $db -> removeInput($input_id);
+    $data = $db -> removeProjectInput($id);
 }
 else if ($p=="removeInput"){   
     $data = $db -> removeInput($id);
