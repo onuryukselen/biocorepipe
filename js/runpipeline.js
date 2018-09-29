@@ -656,98 +656,100 @@ function appendBeforeDiv(button) {
 
 //insert form fields into panels of process options 
 function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title) {
-    var checkInsert = $('#addProcessRow-' + gNum).find('[id*=var_' + gNum + '-' + varName+"]");
-    if(!checkInsert.length){
-    var arrayCheck = false; //is it belong to array
-    var clearFix = ""; //if its the first element of multicol
-    var arrayId = "";
-    var columnPercent = 100;
-    if (title) {
-        $('#addProcessRow-' + gNum).append('<div style="font-size:16px; font-weight:bold; background-color:#F5F5F5; float:left; padding:5px; margin-bottom:8px; width:100%;">' + title + '<div  style="border-bottom:1px solid #d5d5d5;" ></div></div>');
-    }
-    // if multicol defined then calc columnPercent based on amount of element
-    if (multicol) {
-        $.each(multicol, function (el) {
-            if (multicol[el].indexOf(varName) > -1) {
-                var columnCount = multicol[el].length;
-                columnPercent = Math.floor(columnPercent / columnCount * 100) / 100;
-            }
-            if ((multicol[el].indexOf(varName) === 0)) {
-                clearFix = " clear:both; "
-            }
-        });
-    }
-    // if array defined then create arraydiv and remove/add buttons.
-    if (array) {
-        $.each(array, function (el) {
-            if (array[el].indexOf(varName) > -1) {
-                arrayId = array[el].join('_');
-                arrayCheck = true;
-                if (!$('#addProcessRow-' + gNum).find("#" + arrayId + '_ind0')[0]) {
-                    //insert array group div
-                    $('#addProcessRow-' + gNum).append('<div id="' + arrayId + '_ind0" style="display:none; float:left; background-color: #F5F5F5; padding:10px; margin-bottom:8px; width:100%;">  <div id="delDiv" style="width:100%; float:left;" >' + getButtonsDef(gNum + "_", 'Remove', arrayId) + '</div></div>');
-                    //append add button
-                    $('#addProcessRow-' + gNum).append('<div id="addDiv" style="float:left; margin-bottom:8px; width:100%; class="form-group">' + getButtonsDef(gNum + "_", 'Add', arrayId) + '</div>');
-                    //add onclick remove div feature 
-                    $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv > button').attr("onclick", "javascript:removeParentDiv(this)")
-                    //add onclick append div feature 
-                    $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 + #addDiv > button').attr("onclick", "javascript:appendBeforeDiv(this)")
+    var checkInsert = $('#addProcessRow-' + gNum).find('[id]').filter(function () {
+        return $(this).attr('id') === 'var_' + gNum + '-' + varName
+    });
+    if (!checkInsert.length) {
+        var arrayCheck = false; //is it belong to array
+        var clearFix = ""; //if its the first element of multicol
+        var arrayId = "";
+        var columnPercent = 100;
+        if (title) {
+            $('#addProcessRow-' + gNum).append('<div style="font-size:16px; font-weight:bold; background-color:#F5F5F5; float:left; padding:5px; margin-bottom:8px; width:100%;">' + title + '<div  style="border-bottom:1px solid #d5d5d5;" ></div></div>');
+        }
+        // if multicol defined then calc columnPercent based on amount of element
+        if (multicol) {
+            $.each(multicol, function (el) {
+                if (multicol[el].indexOf(varName) > -1) {
+                    var columnCount = multicol[el].length;
+                    columnPercent = Math.floor(columnPercent / columnCount * 100) / 100;
+                }
+                if ((multicol[el].indexOf(varName) === 0)) {
+                    clearFix = " clear:both; "
+                }
+            });
+        }
+        // if array defined then create arraydiv and remove/add buttons.
+        if (array) {
+            $.each(array, function (el) {
+                if (array[el].indexOf(varName) > -1) {
+                    arrayId = array[el].join('_');
+                    arrayCheck = true;
+                    if (!$('#addProcessRow-' + gNum).find("#" + arrayId + '_ind0')[0]) {
+                        //insert array group div
+                        $('#addProcessRow-' + gNum).append('<div id="' + arrayId + '_ind0" style="display:none; float:left; background-color: #F5F5F5; padding:10px; margin-bottom:8px; width:100%;">  <div id="delDiv" style="width:100%; float:left;" >' + getButtonsDef(gNum + "_", 'Remove', arrayId) + '</div></div>');
+                        //append add button
+                        $('#addProcessRow-' + gNum).append('<div id="addDiv" style="float:left; margin-bottom:8px; width:100%; class="form-group">' + getButtonsDef(gNum + "_", 'Add', arrayId) + '</div>');
+                        //add onclick remove div feature 
+                        $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv > button').attr("onclick", "javascript:removeParentDiv(this)")
+                        //add onclick append div feature 
+                        $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 + #addDiv > button').attr("onclick", "javascript:appendBeforeDiv(this)")
+                    }
+                }
+            });
+        }
+        if (tool && tool != "") {
+            var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
+        } else {
+            var toolText = "";
+        }
+        if (!desc) {
+            var descText = "";
+        } else {
+            var descText = '<p style=" font-style:italic; color:darkslategray; font-weight: 300; font-size:13px">' + desc + '</p>';
+        }
+        var processParamDiv = '<div  class="form-group" style="' + clearFix + 'float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
+        var label = '<label style="font-weight:600;">' + varName + toolText + ' </label>';
+        if (type === "input") {
+            var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
+            processParamDiv += label + inputDiv + descText + '</div>';
+        } else if (type === "textbox") {
+            var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">' + defaultVal + '</textarea>';
+            processParamDiv += label + inputDiv + descText + '</div>';
+        } else if (type === "checkbox") {
+            if (defaultVal) {
+                if (defaultVal === "true") {
+                    defaultVal = "checked"
+                } else {
+                    defaultVal = ""
                 }
             }
-        });
-    }
-    if (tool && tool != "") {
-        var toolText = ' <span><a data-toggle="tooltip" data-placement="bottom" title="' + tool + '"><i class="glyphicon glyphicon-info-sign"></i></a></span>';
-    } else {
-        var toolText = "";
-    }
-    if (!desc) {
-        var descText = "";
-    } else {
-        var descText = '<p style=" font-style:italic; color:darkslategray; font-weight: 300; font-size:13px">' + desc + '</p>';
-    }
-    var processParamDiv = '<div  class="form-group" style="' + clearFix + 'float:left; padding:5px; width:' + columnPercent + '%; class="form-group">';
-    var label = '<label style="font-weight:600;">' + varName + toolText + ' </label>';
-    if (type === "input") {
-        var inputDiv = '<input type="text" class="form-control" style="padding:15px;" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" value="' + defaultVal + '">';
-        processParamDiv += label + inputDiv + descText + '</div>';
-    } else if (type === "textbox") {
-        var inputDiv = '<textarea class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">' + defaultVal + '</textarea>';
-        processParamDiv += label + inputDiv + descText + '</div>';
-    } else if (type === "checkbox") {
-        if (defaultVal) {
-            if (defaultVal === "true") {
-                defaultVal = "checked"
-            } else {
-                defaultVal = ""
-            }
-        }
-        var inputDiv = '<input type="checkbox" style = "margin-right:5px;" class="form-check-input" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" ' + defaultVal + '>';
-        processParamDiv += inputDiv + label + descText + '</div>';
-    } else if (type === "dropdown") {
-        var inputDiv = '<select type="dropdown" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
-        var optionDiv = "";
-        if (opt) {
-            if (opt.length) {
-                for (var k = 0; k < opt.length; k++) {
-                    if (defaultVal === opt[k]) {
-                        optionDiv += '<option selected>' + opt[k] + ' </option>';
-                    } else {
-                        optionDiv += '<option>' + opt[k] + ' </option>';
+            var inputDiv = '<input type="checkbox" style = "margin-right:5px;" class="form-check-input" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '" ' + defaultVal + '>';
+            processParamDiv += inputDiv + label + descText + '</div>';
+        } else if (type === "dropdown") {
+            var inputDiv = '<select type="dropdown" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
+            var optionDiv = "";
+            if (opt) {
+                if (opt.length) {
+                    for (var k = 0; k < opt.length; k++) {
+                        if (defaultVal === opt[k]) {
+                            optionDiv += '<option selected>' + opt[k] + ' </option>';
+                        } else {
+                            optionDiv += '<option>' + opt[k] + ' </option>';
+                        }
                     }
                 }
             }
+            processParamDiv += label + inputDiv + optionDiv + '</select>' + descText + '</div>';
         }
-        processParamDiv += label + inputDiv + optionDiv + '</select>' + descText + '</div>';
-    }
 
-    if (arrayCheck === false) {
-        $('#addProcessRow-' + gNum).append(processParamDiv)
-    } else {
-        // if array defined then append each element into that arraydiv.
-        $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0').append(processParamDiv);
-        $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv').insertAfter($('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 div:last')); //keep remove button at last
-    }
+        if (arrayCheck === false) {
+            $('#addProcessRow-' + gNum).append(processParamDiv)
+        } else {
+            // if array defined then append each element into that arraydiv.
+            $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0').append(processParamDiv);
+            $('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 > #delDiv').insertAfter($('#addProcessRow-' + gNum + "> #" + arrayId + '_ind0 div:last')); //keep remove button at last
+        }
     }
 }
 
@@ -1279,7 +1281,7 @@ function insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name) {
     var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
     var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
     // check if parameters added into table before, if not fill table
-    insertInRow(inRow, paramGivenName, rowType)
+    insertInRow(inRow, paramGivenName, rowType, "paramsInputs")
     if ($("#userInputs").css("display") === "none") {
         $("#userInputs").css("display", "table-row")
     }
@@ -1422,6 +1424,7 @@ function insertProPipePanel(script, gNum, name, pObj) {
         //check if parameter comment is exist: //*
         if (script.match(/\/\/\*/)) {
             var panelObj = parseProPipePanelScript(script);
+            console.log(panelObj)
             //create processHeader
             var processHeader = '<div class="panel-heading collapsible collapseIconDiv" data-toggle="collapse" href="#collapse-' + prefix + gNum + '"><h4 class="panel-title">' + name + ' options <i data-toggle="tooltip" data-placement="bottom" data-original-title="Expand/Collapse"><a style="font-size:15px; padding-left:10px;" class="fa collapseIcon fa-plus-square-o"></a></i></h4></div>';
             var processBodyInt = '<div id="collapse-' + prefix + gNum + '" class="panel-collapse collapse"><div id="addProcessRow-' + prefix + gNum + '" class="panel-body">'
@@ -1448,11 +1451,9 @@ function insertProPipePanel(script, gNum, name, pObj) {
                 if (type && varName) {
                     // if variable start with "params." then insert into inputs table
                     if (varName.match(/params\./)) {
-                        if (pObj === window) {
                             varName = varName.match(/params\.(.*)/)[1];
                             pipeGnum = pipeGnum - 1; //negative counter for pipeGnum
                             insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name);
-                        }
                     } else {
                         displayProDiv = true;
                         addProcessPanelRow(prefix + gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
@@ -2206,22 +2207,29 @@ function getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValBu
 }
 
 
-//insert inRow to inputs table
-function insertInRow(inRow, paramGivenName, rowType) {
-//    var checkTable = $('#inputsTable > tbody').find('td[given_name*=' + paramGivenName + ']');
-//    if (!checkTable.length){
-    if (systemInputs.indexOf(paramGivenName) > -1) {
-        $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-        if ($("#systemInputs").css("display") === "none") {
-            $("#systemInputs").css("display", "table-row")
-        }
-    } else { // fill as user input
-        $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow);
-        if ($("#userInputs").css("display") === "none") {
-            $("#userInputs").css("display", "table-row")
+//insert inRow to inputs table. insertType:{paramsInputs,mainInputs} 
+function insertInRow(inRow, paramGivenName, rowType, insertType) {
+    var checkTable = $('#inputsTable > tbody').find('td[given_name]').filter(function () {
+        return $(this).attr('given_name') === paramGivenName
+    });
+    if (!checkTable.length) {
+        if (systemInputs.indexOf(paramGivenName) > -1) { // fill as system input
+            $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
+            console.log(paramGivenName)
+            if ($("#systemInputs").css("display") === "none") {
+                $("#systemInputs").css("display", "table-row")
+            }
+        } else { // fill as user input
+            if (insertType === "paramsInputs") {
+                $('#' + rowType + 'sTable > tbody > tr[id=systemInputs]').before(inRow); //fill from bottom 
+            } else {
+                $('#' + rowType + 'sTable > tbody > tr[id=userInputs]').after(inRow); //fill from top
+            }
+            if ($("#userInputs").css("display") === "none") {
+                $("#userInputs").css("display", "table-row")
+            }
         }
     }
-//    }
 }
 
 //insert input table row based on edges of input parameters.
@@ -2270,7 +2278,7 @@ function insertInputOutputRow(rowType, MainGNum, firGnum, secGnum, pObj, prefix,
             var selectFileButton = getSelectFileButton(paraQualifier, dropDownQual, dropDownMenu, defValButton)
             //insert both system and user inputs
             var inRow = insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifier, paraFileType, paraQualifier, processName, selectFileButton);
-            insertInRow(inRow, paramGivenName, rowType)
+            insertInRow(inRow, paramGivenName, rowType, "mainInputs")
             //get project_pipeline_inputs:
             var getProPipeInputs = projectPipeInputs.filter(function (el) { return el.g_num == firGnum })
             var rowID = rowType + 'Ta-' + firGnum;
