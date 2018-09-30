@@ -2081,9 +2081,7 @@ function save() {
     if (!pipeline_group_id || pipeline_group_id == "") {
         var pipeGroupWarn = true;
     }
-    console.log(pipeGroupWarn)
     warnUserRedBorder('#pipeGroupAll', pipeline_group_id)
-
     id = 0
     if (sName !== "" && dupliPipe === false) {
         id = $("#pipeline-title").attr('pipelineid');
