@@ -285,7 +285,6 @@ function getNewNodeId(edges, nullId, MainGNum) {
 function openSubPipeline(piID, pObj) {
     var sData = pObj.sData[0];
     var MainGNum = pObj.MainGNum;
-    console.log(MainGNum)
     var lastGnum = pObj.lastGnum;
     var prefix = "p" + MainGNum;
     pObj.processList = {};
@@ -854,7 +853,6 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
     var MainGNum = "";
     //load workflow of pipeline modules 
     MainGNum = pObjOrigin.MainGNum;
-    console.log(MainGNum)
     if (pObjOrigin != window) {
         prefix = "p" + MainGNum + "p";
     }
@@ -1239,7 +1237,6 @@ function scMouseOut() {
 function remove(delID) {
     if (delID !== undefined) {
         deleteID = delID;
-        console.log(deleteID)
     }
     if (!binding) {
         g = document.getElementById(deleteID).parentElement.id //g-5
@@ -2031,6 +2028,8 @@ $('#pipeline-title').change(function () {
 function save() {
     saveNodes = {}
     saveMainG = {}
+    var processListDb = [];
+    var pipelineListDb = [];
     //check if process and parameter names are unique in pipeline
     checkNameUnique(processListNoOutput);
     for (var key in processList) {
@@ -2057,6 +2056,12 @@ function save() {
         }
         processName = processList[key]
         saveNodes[key] = [x, y, prosessID, processName, processModule]
+        if (prosessID.match(/^p(.*)/)) {
+            var pipeID= prosessID.match(/^p(.*)/)[1];
+            pipelineListDb.push(pipeID);
+        } else if (!prosessID.match(/(.*)Pro/)) {
+            processListDb.push(prosessID);
+        }
     }
     Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
         Mainx = Maint.translate[0]
@@ -2122,6 +2127,10 @@ function save() {
         "script_mode_footer": script_mode_footer
 	      }, {
         "pipeline_group_id": pipeline_group_id
+	      }, {
+        "process_list": processListDb.toString()
+	      }, {
+        "pipeline_list": pipelineListDb.toString()
 	      }];
     if (createPipeRev === "true") {
         return [savedList, id, sName];
