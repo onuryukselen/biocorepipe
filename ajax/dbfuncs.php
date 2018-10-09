@@ -1217,8 +1217,8 @@ class dbfuncs {
 
 		$sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms
         FROM parameter p
-        LEFT JOIN user_group ug ON p.group_id=ug.g_id
-        WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)";
+        LEFT JOIN user_group ug ON ug.u_id = '$ownerID'
+        WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15)";
 		return self::queryTable($sql);
     }
     public function getEditDelParameters($ownerID) {
