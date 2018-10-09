@@ -908,7 +908,7 @@ class dbfuncs {
             }
         $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
         FROM process_group pg
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
         where pg.owner_id='$ownerID' OR pg.perms = 63 OR (pg.perms = 15) ";
         } else {
             $sql= "SELECT DISTINCT group_name name, id FROM process_group where perms = 63";
@@ -926,7 +926,7 @@ class dbfuncs {
             }
         $sql= "SELECT DISTINCT pg.group_name name, pg.id, pg.perms, pg.group_id
         FROM pipeline_group pg
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
         where pg.owner_id='$ownerID' OR pg.perms = 63 OR (pg.perms = 15) ";
         } else {
             $sql= "SELECT DISTINCT group_name name, id FROM pipeline_group where perms = 63";
@@ -945,11 +945,11 @@ class dbfuncs {
           }
           $sql= "SELECT DISTINCT pip.id, pip.name, pip.perms, pip.group_id, pip.pin
                FROM biocorepipe_save pip
-               INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
+               LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
                INNER JOIN (
                 SELECT p.pipeline_gid, MAX(p.rev_id) rev_id
                 FROM biocorepipe_save p
-                INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+                LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
                 $where
                 GROUP BY p.pipeline_gid
                 ) b ON pip.rev_id = b.rev_id AND pip.pipeline_gid=b.pipeline_gid";
@@ -991,13 +991,13 @@ class dbfuncs {
             }
        $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
              FROM process p
-             INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+             LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
              INNER JOIN process_group pg
              ON p.process_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
                 SELECT pr.process_gid, MAX(pr.rev_id) rev_id
                 FROM process pr
-                INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pr.owner_id where $where_pr
+                LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pr.owner_id where $where_pr
                 GROUP BY pr.process_gid
                 ) b ON p.rev_id = b.rev_id AND p.process_gid=b.process_gid";
 
@@ -1028,13 +1028,13 @@ class dbfuncs {
             }
        $sql="SELECT DISTINCT p.id, p.name, p.perms, p.group_id
              FROM biocorepipe_save p
-             INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+             LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
              INNER JOIN pipeline_group pg
              ON p.pipeline_group_id = pg.id and pg.group_name='$parent' and $where_pg
              INNER JOIN (
                 SELECT pr.pipeline_gid, MAX(pr.rev_id) rev_id
                 FROM biocorepipe_save pr
-                INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pr.owner_id
+                LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pr.owner_id
                 where $where_pr
                 GROUP BY pr.pipeline_gid
                 ) b ON p.rev_id = b.rev_id AND p.pipeline_gid=b.pipeline_gid";
@@ -1046,7 +1046,7 @@ class dbfuncs {
     public function getParentSideBarProject($ownerID){
         $sql= "SELECT DISTINCT pp.name, pp.id
         FROM project pp
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pp.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pp.owner_id
         where pp.owner_id = '$ownerID' OR pp.perms = 63 OR (pp.perms = 15)";
         return self::queryTable($sql);
     }
@@ -1054,7 +1054,7 @@ class dbfuncs {
         $where = "(pp.project_id='$parent' AND (pp.owner_id = '$ownerID' OR pp.perms = 63 OR (pp.perms = 15)))";
         $sql="SELECT DISTINCT pp.id, pp.name, pj.owner_id, pp.project_id
              FROM project_pipeline pp
-             INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pp.owner_id
+             LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pp.owner_id
              INNER JOIN project pj ON pp.project_id = pj.id and $where ";
         return self::queryTable($sql);
     }
@@ -1219,7 +1219,7 @@ class dbfuncs {
 
 		$sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms
         FROM parameter p
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
         WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15)";
 		return self::queryTable($sql);
     }
@@ -1285,7 +1285,7 @@ class dbfuncs {
         }
         $sql = "SELECT DISTINCT pg.id, pg.group_name
         FROM process_group pg
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
         WHERE pg.owner_id = '$ownerID' OR pg.perms = 63 OR (pg.perms = 15)";
         return self::queryTable($sql);
     }
@@ -1455,7 +1455,7 @@ class dbfuncs {
 		$sql = "SELECT DISTINCT p.id, p.name, p.summary, p.date_created, u.username, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own
         FROM project p
         INNER JOIN users u ON p.owner_id = u.id
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
         $where";
 		return self::queryTable($sql);
     }
@@ -1903,7 +1903,7 @@ class dbfuncs {
         }
         $sql = "SELECT DISTINCT pg.id, pg.group_name
         FROM pipeline_group pg
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pg.owner_id
         WHERE pg.owner_id = '$ownerID' OR pg.perms = 63 OR (pg.perms = 15)";
         return self::queryTable($sql);
     }
@@ -1947,7 +1947,7 @@ class dbfuncs {
 		}
 		$sql = "SELECT DISTINCT p.id, p.process_group_id, p.name, p.summary, p.script, p.script_header, p.script_footer, p.script_mode, p.script_mode_header, p.rev_id, p.perms, p.group_id, p.publish, IF(p.owner_id='$ownerID',1,0) as own
         FROM process p
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
         WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15)";
 		return self::queryTable($sql);
 	}
@@ -1969,7 +1969,7 @@ class dbfuncs {
 		}
 		$sql = "SELECT DISTINCT p.*, u.username, IF(p.owner_id='$ownerID',1,0) as own
         FROM process p
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
 		INNER JOIN users u ON p.owner_id = u.id
         where p.id = '$id' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15))";
 		return self::queryTable($sql);
@@ -1989,7 +1989,7 @@ class dbfuncs {
         }
 		$sql = "SELECT DISTINCT p.id, p.rev_id, p.rev_comment, p.last_modified_user, p.date_created, p.date_modified, IF(p.owner_id='$ownerID',1,0) as own
         FROM process p
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = p.owner_id
         WHERE p.process_gid = '$process_gid' AND (p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15))";
 		return self::queryTable($sql);
 	}
@@ -2006,7 +2006,7 @@ class dbfuncs {
         }
 		$sql = "SELECT DISTINCT pip.id, pip.rev_id, pip.rev_comment, pip.last_modified_user, pip.date_created, pip.date_modified, IF(pip.owner_id='$ownerID',1,0) as own, pip.perms
         FROM biocorepipe_save pip
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
         WHERE pip.pipeline_gid = '$pipeline_gid' AND (pip.owner_id = '$ownerID' OR pip.perms = 63 OR ( pip.perms = 15))";
 		return self::queryTable($sql);
 	}
@@ -2298,7 +2298,7 @@ class dbfuncs {
 		$sql = "select DISTINCT pip.id, pip.rev_id, pip.name, pip.summary, pip.date_modified, u.username, pip.script_pipe_header, pip.script_pipe_footer, pip.script_mode_header, pip.script_mode_footer, pip.pipeline_group_id
         FROM biocorepipe_save pip
         INNER JOIN users u ON pip.owner_id = u.id
-        INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
+        LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
         $where";
 		return self::queryTable($sql);
 	}
@@ -2319,7 +2319,7 @@ class dbfuncs {
 		$sql = "select pip.*, u.username, IF(pip.owner_id='$ownerID',1,0) as own
                 FROM biocorepipe_save pip
                 INNER JOIN users u ON pip.owner_id = u.id
-                INNER JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
+                LEFT JOIN ( SELECT DISTINCT ug1.u_id FROM user_group ug1 INNER JOIN ( SELECT DISTINCT ug2.g_id FROM user_group ug2 where ug2.u_id ='$ownerID' ) b ON ug1.g_id = b.g_id) c ON c.u_id = pip.owner_id
                 where pip.id = '$id' AND (pip.owner_id = '$ownerID' OR pip.perms = 63 OR (pip.perms = 15))";
 	   return self::queryTable($sql);
 	}
