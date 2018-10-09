@@ -1,3 +1,8 @@
+09.10.2018 Version 0.2.06
+Dolphinnext public key comment is changed as "@dolphinnext".
+Process_list and pipeline_list columns added to db of pipeline page.
+Faster reload feature added for reload run page.
+
 29.09.2018 Version 0.2.05
 Bug fixed regarding to deleting input parameters
 

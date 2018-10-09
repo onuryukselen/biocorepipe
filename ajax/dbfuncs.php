@@ -607,7 +607,7 @@ class dbfuncs {
      }
 
     public function generateKeys($ownerID) {
-        $cmd = "rm -rf {$this->ssh_path}/.tmp$ownerID && mkdir -p {$this->ssh_path}/.tmp$ownerID && cd {$this->ssh_path}/.tmp$ownerID && ssh-keygen -f tkey -t rsa -N '' > logTemp.txt 2>&1 & echo $! &";
+        $cmd = "rm -rf {$this->ssh_path}/.tmp$ownerID && mkdir -p {$this->ssh_path}/.tmp$ownerID && cd {$this->ssh_path}/.tmp$ownerID && ssh-keygen -C @dolphinnext -f tkey -t rsa -N '' > logTemp.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'create_key', '');
         if (preg_match("/([0-9]+)(.*)/", $log_array['create_key'])){
              $log_array['create_key_status'] = "active";
@@ -2223,9 +2223,11 @@ class dbfuncs {
         $script_mode_header = $obj[13]->{"script_mode_header"};
         $script_mode_footer = $obj[14]->{"script_mode_footer"};
         $pipeline_group_id = $obj[15]->{"pipeline_group_id"};
-        $pipeline_gid = $obj[16]->{"pipeline_gid"};
-        $rev_comment = $obj[17]->{"rev_comment"};
-        $rev_id = $obj[18]->{"rev_id"};
+        $process_list = $obj[16]->{"process_list"};
+        $pipeline_list = $obj[17]->{"pipeline_list"};
+        $pipeline_gid = $obj[18]->{"pipeline_gid"};
+        $rev_comment = $obj[19]->{"rev_comment"};
+        $rev_id = $obj[20]->{"rev_id"};
         settype($rev_id, "integer");
         settype($pipeline_gid, "integer");
         settype($group_id, "integer");
@@ -2260,12 +2262,12 @@ class dbfuncs {
     		$pipeline_gid = json_decode($this->getPipelineGID($id))[0]->{'pipeline_gid'};
 			$this->updateAllPipelineGroupByGid($pipeline_gid,$pipeline_group_id,$ownerID);
             
-			$sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pipeline_group_id='$pipeline_group_id', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
+			$sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pipeline_group_id='$pipeline_group_id', process_list='$process_list', pipeline_list='$pipeline_list', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
 			if ($perms !== "3"){
             	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
 			}
 		}else{
-            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer,pipeline_group_id) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer', '$pipeline_group_id' )";
+            $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer,pipeline_group_id,process_list,pipeline_list) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer', '$pipeline_group_id', '$process_list', '$pipeline_list' )";
 			if ($perms !== "3"){
             	$obj = json_decode($data,true);
             	$id = $obj["id"];

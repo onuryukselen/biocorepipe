@@ -1451,9 +1451,9 @@ function insertProPipePanel(script, gNum, name, pObj) {
                 if (type && varName) {
                     // if variable start with "params." then insert into inputs table
                     if (varName.match(/params\./)) {
-                            varName = varName.match(/params\.(.*)/)[1];
-                            pipeGnum = pipeGnum - 1; //negative counter for pipeGnum
-                            insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name);
+                        varName = varName.match(/params\.(.*)/)[1];
+                        pipeGnum = pipeGnum - 1; //negative counter for pipeGnum
+                        insertInputRowParams(defaultVal, opt, pipeGnum, varName, type, name);
                     } else {
                         displayProDiv = true;
                         addProcessPanelRow(prefix + gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
@@ -3284,9 +3284,11 @@ function checkReadytoRun(type) {
     var numInputRows = $('#inputsTable > tbody').find('tr[id*=input]').length; //find input rows
     var profileNext = $('#chooseEnv').find(":selected").val();
     var profileNextText = $('#chooseEnv').find(":selected").html();
-    if (profileNextText.match(/Amazon: Status:/)) {
-        var patt = /(.*)Amazon: Status:(.*) Image(.*)/;
-        var amzStatus = profileNextText.replace(patt, '$2');
+    if (profileNextText) {
+        if (profileNextText.match(/Amazon: Status:/)) {
+            var patt = /(.*)Amazon: Status:(.*) Image(.*)/;
+            var amzStatus = profileNextText.replace(patt, '$2');
+        }
     }
     var output_dir = $('#rOut_dir').val();
     var publishReady = false;
@@ -3764,12 +3766,16 @@ function runProPipeCall(checkType) {
         runType: checkType
     });
     console.log(serverLogGet)
-    readNextflowLogTimer(proType, proId);
+    readNextflowLogTimer(proType, proId, "default");
     $('#runLogs').css('display', 'inline');
 }
 
 //#########read nextflow log file for status  ################################################
-function readNextflowLogTimer(proType, proId) {
+function readNextflowLogTimer(proType, proId, type) {
+    //to trigger fast loading for new page reload
+    if (type === "reload"){
+        setTimeout(function () { readNextLog(proType, proId, "no_reload")}, 3000 );
+    }
     interval_readNextlog = setInterval(function () {
         readNextLog(proType, proId, "no_reload")
     }, 10000);
@@ -3854,7 +3860,7 @@ function readNextLog(proType, proId, type) {
             } else {
                 //update status as running
                 if (type === "reload") {
-                    readNextflowLogTimer(proType, proId);
+                    readNextflowLogTimer(proType, proId, type);
                 }
                 if (runStatus !== "NextErr" || runStatus !== "NextSuc" || runStatus !== "Error" || runStatus !== "Terminated") {
                     var setStatus = getValues({ p: "updateRunStatus", run_status: "NextRun", project_pipeline_id: project_pipeline_id });
@@ -3875,7 +3881,7 @@ function readNextLog(proType, proId, type) {
             var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
             displayButton('waitingProPipe');
             if (type === "reload") {
-                readNextflowLogTimer(proType, proId);
+                readNextflowLogTimer(proType, proId, type);
             }
 
 
@@ -3896,7 +3902,7 @@ function readNextLog(proType, proId, type) {
         } else {
             console.log("Waiting");
             if (type === "reload") {
-                readNextflowLogTimer(proType, proId);
+                readNextflowLogTimer(proType, proId, type);
             }
             var setStatus = getValues({ p: "updateRunStatus", run_status: "Waiting", project_pipeline_id: project_pipeline_id });
             displayButton('waitingProPipe');
@@ -3911,7 +3917,7 @@ function readNextLog(proType, proId, type) {
 
         }
     }
-    //trigger saving newxtflow log file
+    // save nextflow log file
     setTimeout(function () { getValues({ p: "saveNextflowLog", project_pipeline_id: project_pipeline_id, profileType: proType, profileId: proId }, true), 100 });
 }
 
