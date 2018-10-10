@@ -1217,8 +1217,8 @@ class dbfuncs {
 
 		$sql = "SELECT DISTINCT p.id, p.file_type, p.qualifier, p.name, p.group_id, p.perms
         FROM parameter p
-        LEFT JOIN user_group ug ON ug.u_id = '$ownerID'
-        WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (p.perms = 15)";
+        LEFT JOIN user_group ug ON p.group_id=ug.g_id
+        WHERE p.owner_id = '$ownerID' OR p.perms = 63 OR (ug.u_id ='$ownerID' and p.perms = 15)";
 		return self::queryTable($sql);
     }
     public function getEditDelParameters($ownerID) {
@@ -2123,34 +2123,34 @@ class dbfuncs {
     public function updateProjectGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE project p
         INNER JOIN project_pipeline pp ON p.id=pp.project_id
-        SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.id = '$id' AND p.perms<'$perms'";
+        SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.id = '$id' AND p.perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateProjectInputGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE project_input pi
         INNER JOIN project_pipeline_input ppi ON pi.input_id=ppi.input_id
-        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.perms<'$perms'";
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and pi.perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateProjectPipelineInputGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE project_pipeline_input SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$id' AND perms<'$perms'";
+        $sql = "UPDATE project_pipeline_input SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE project_pipeline_id = '$id' AND perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateInputGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE input i
         INNER JOIN project_pipeline_input ppi ON ppi.input_id=i.id
-        SET i.group_id='$group_id', i.perms='$perms', i.date_modified=now(), i.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and  i.perms<'$perms'";
+        SET i.group_id='$group_id', i.perms='$perms', i.date_modified=now(), i.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' and  i.perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updatePipelineGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE biocorepipe_save pi
         INNER JOIN project_pipeline_input ppi ON pi.id=ppi.pipeline_id
-        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' AND pi.perms<'$perms'";
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE ppi.project_pipeline_id = '$id' AND pi.perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updatePipelineGroupPermByPipeId($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE biocorepipe_save pi
-        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE pi.id = '$id' AND pi.perms<'$perms'";
+        SET pi.group_id='$group_id', pi.perms='$perms', pi.date_modified=now(), pi.last_modified_user ='$ownerID'  WHERE pi.id = '$id' AND pi.perms <= '$perms'";
         return self::runSQL($sql);
     }
      public function updatePipelineProcessGroupPerm($id, $group_id, $perms, $ownerID) {
@@ -2175,35 +2175,36 @@ class dbfuncs {
 
     //update if user owns the process
     public function updateProcessGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE process SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and  perms<'$perms'";
+        $sql = "UPDATE process SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and  perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateProcessParameterGroupPerm($id, $group_id, $perms, $ownerID) {
-        $sql = "UPDATE process_parameter SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE process_id = '$id' AND perms<'$perms'";
+        $sql = "UPDATE process_parameter SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE process_id = '$id' AND perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateParameterGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE parameter p
                 INNER JOIN process_parameter pp ON p.id=pp.parameter_id
-                SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.process_id = '$id' and  p.perms<'$perms'";
+                SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.process_id = '$id' and  p.perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateParameterGroupPermById($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE parameter
-                SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and perms<'$perms'";
+                SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and perms <= '$perms'";
         return self::runSQL($sql);
     }
     public function updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE process_group pg
                 INNER JOIN process p ON pg.id=p.process_group_id
-                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms<'$perms'";
+                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms <= '$perms'";
         return self::runSQL($sql);
     }
 	public function updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE pipeline_group pg
                 INNER JOIN biocorepipe_save p ON pg.id=p.pipeline_group_id
-                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms<'$perms'";
+                SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms <= '$perms'";
         return self::runSQL($sql);
+        
     }
 	public function saveAllPipeline($dat,$ownerID) {
 		$obj = json_decode($dat);
