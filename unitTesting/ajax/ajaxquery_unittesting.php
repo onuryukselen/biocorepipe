@@ -924,7 +924,7 @@ class ajaxQueryTest extends TestCase
 		$_REQUEST['p'] = 'savePipelineDetails';
 		$_REQUEST['id'] = '1';
 		$_REQUEST['summary'] = 'pipeline_summary_updated2';
-		$_REQUEST['nodes'] = array("g-0"=>[318.6666564941406,106.66666412353516,"1","test_process",{}]);
+		$_REQUEST['nodes'] = array("g-0"=>[318.6666564941406,106.66666412353516,"1","test_process","{}"]);
 		$_REQUEST['group_id'] = '0';
 		$_REQUEST['perms'] = '63';
 		$_REQUEST['pin'] = 'true';
