@@ -836,9 +836,12 @@ else if ($p=="saveAllPipeline")
 	$dat = $_REQUEST['dat'];
     $data = $db->saveAllPipeline($dat,$ownerID);
     //update permissions
-    $obj = json_decode($data,true);
-    if (!empty($obj["id"])){
-        $id = $obj["id"];
+    $new_obj = json_decode($data,true);
+    if (!empty($new_obj["id"])){
+        $id = $new_obj["id"];
+        $obj = json_decode($dat);
+        $group_id = $obj[6]->{"group_id"};
+        $perms = $obj[7]->{"perms"};
         $db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
     }
 }

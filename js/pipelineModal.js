@@ -1522,7 +1522,7 @@ $(document).ready(function () {
     }
 
     //Make modal draggable    
-    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, #editorFooterdiv, button, span, a' });
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, #editorFooterdiv, button, span, a, #amzTable' });
 
 
 
