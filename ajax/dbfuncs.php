@@ -1239,19 +1239,22 @@ class dbfuncs {
         $sql = "UPDATE parameter SET name='$name', qualifier='$qualifier', last_modified_user ='$ownerID', file_type='$file_type'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-
+    
     public function insertProcessGroup($group_name, $ownerID) {
         $sql = "INSERT INTO process_group (owner_id, group_name, date_created, date_modified, last_modified_user, perms) VALUES ('$ownerID', '$group_name', now(), now(), '$ownerID', 3)";
         return self::insTable($sql);
     }
+    
     public function updateProcessGroup($id, $group_name, $ownerID) {
         $sql = "UPDATE process_group SET group_name='$group_name', last_modified_user ='$ownerID', date_modified=now()  WHERE id = '$id'";
         return self::runSQL($sql);
     }
+    
 	public function updateAllProcessGroupByGid($process_gid, $process_group_id,$ownerID) {
         $sql = "UPDATE process SET process_group_id='$process_group_id', last_modified_user ='$ownerID', date_modified=now()  WHERE process_gid = '$process_gid' AND owner_id = '$ownerID'";
         return self::runSQL($sql);
     }
+    
 	public function updateAllPipelineGroupByGid($pipeline_gid, $pipeline_group_id,$ownerID) {
         $sql = "UPDATE biocorepipe_save SET pipeline_group_id='$pipeline_group_id', last_modified_user ='$ownerID', date_modified=now() WHERE pipeline_gid = '$pipeline_gid' AND owner_id = '$ownerID'";
         return self::runSQL($sql);
@@ -2178,34 +2181,61 @@ class dbfuncs {
         $sql = "UPDATE process SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and  perms <= '$perms'";
         return self::runSQL($sql);
     }
+    
     public function updateProcessParameterGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE process_parameter SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE process_id = '$id' AND perms <= '$perms'";
         return self::runSQL($sql);
     }
+    
     public function updateParameterGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE parameter p
                 INNER JOIN process_parameter pp ON p.id=pp.parameter_id
                 SET p.group_id='$group_id', p.perms='$perms', p.date_modified=now(), p.last_modified_user ='$ownerID'  WHERE pp.process_id = '$id' and  p.perms <= '$perms'";
         return self::runSQL($sql);
     }
+    
     public function updateParameterGroupPermById($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE parameter
                 SET group_id='$group_id', perms='$perms', date_modified=now(), last_modified_user ='$ownerID'  WHERE id = '$id' and perms <= '$perms'";
         return self::runSQL($sql);
     }
+    
     public function updateProcessGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE process_group pg
                 INNER JOIN process p ON pg.id=p.process_group_id
                 SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms <= '$perms'";
         return self::runSQL($sql);
     }
+    
 	public function updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID) {
         $sql = "UPDATE pipeline_group pg
                 INNER JOIN biocorepipe_save p ON pg.id=p.pipeline_group_id
                 SET pg.group_id='$group_id', pg.perms='$perms', pg.date_modified=now(), pg.last_modified_user ='$ownerID'  WHERE p.id = '$id' AND pg.perms <= '$perms'";
         return self::runSQL($sql);
-        
     }
+    public function updatePipelinePerms($nodesRaw, $group_id, $perms, $ownerID) {
+        foreach ($nodesRaw as $item):
+            if ($item[2] !== "inPro" && $item[2] !== "outPro" ){
+                //pipeline modules
+                if (preg_match("/p(.*)/", $item[2], $matches)){
+                    $pipeModId = $matches[1];
+                    if (!empty($pipeModId)){
+                        settype($pipeModId, "integer");
+                        $this->updatePipelineGroupPermByPipeId($pipeModId, $group_id, $perms, $ownerID);
+                        $this->updatePipelineGroupGroupPerm($pipeModId, $group_id, $perms, $ownerID);
+                    } 
+                //processes    
+                } else {
+                    $proId = $item[2];
+                    $this->updateParameterGroupPerm($proId, $group_id, $perms, $ownerID);
+                    $this->updateProcessGroupPerm($proId, $group_id, $perms, $ownerID);
+                    $this->updateProcessParameterGroupPerm($proId, $group_id, $perms, $ownerID);
+                    $this->updateProcessGroupGroupPerm($proId, $group_id, $perms, $ownerID);
+                }
+            }  
+        endforeach;
+    }
+    
 	public function saveAllPipeline($dat,$ownerID) {
 		$obj = json_decode($dat);
 		$name =  $obj[0]->{"name"};
@@ -2235,45 +2265,15 @@ class dbfuncs {
         settype($pin_order, "integer");
         $nodesRaw = $obj[2]->{"nodes"};
         if (!empty($nodesRaw)){
-            foreach ($nodesRaw as $item):
-                if ($item[2] !== "inPro" && $item[2] !== "outPro" ){
-                    //pipeline modules
-                    if (preg_match("/p(.*)/", $item[2], $matches)){
-                        $pipeModId = $matches[1];
-                        if (!empty($pipeModId)){
-                            settype($pipeModId, "integer");
-                            $this->updatePipelineGroupPermByPipeId($pipeModId, $group_id, $perms, $ownerID);
-                            if ($perms !== "3"){
-                                $this->updatePipelineGroupGroupPerm($pipeModId, $group_id, $perms, $ownerID);
-                            }
-                        } 
-                    //processes    
-                    } else {
-                        $proId = $item[2];
-                        $this->updateParameterGroupPerm($proId, $group_id, $perms, $ownerID);
-                        $this->updateProcessGroupPerm($proId, $group_id, $perms, $ownerID);
-                        $this->updateProcessParameterGroupPerm($proId, $group_id, $perms, $ownerID);
-                        $this->updateProcessGroupGroupPerm($proId, $group_id, $perms, $ownerID);
-                    }
-                }  
-            endforeach;
+            $this->updatePipelinePerms($nodesRaw, $group_id, $perms, $ownerID);
         }
 	    if ($id > 0){
 			//update all pipeline group_id
-    		$pipeline_gid = json_decode($this->getPipelineGID($id))[0]->{'pipeline_gid'};
-			$this->updateAllPipelineGroupByGid($pipeline_gid,$pipeline_group_id,$ownerID);
-            
+//    		$pipeline_gid = json_decode($this->getPipelineGID($id))[0]->{'pipeline_gid'};
+//			$this->updateAllPipelineGroupByGid($pipeline_gid,$pipeline_group_id,$ownerID);
 			$sql = "UPDATE biocorepipe_save set name = '$name', edges = '$edges', summary = '$summary', mainG = '$mainG', nodes ='$nodes', date_modified = now(), group_id = '$group_id', perms = '$perms', pin = '$pin', publish = '$publish', script_pipe_header = '$script_pipe_header', script_pipe_footer = '$script_pipe_footer', script_mode_header = '$script_mode_header', script_mode_footer = '$script_mode_footer', pipeline_group_id='$pipeline_group_id', process_list='$process_list', pipeline_list='$pipeline_list', pin_order = '$pin_order', last_modified_user = '$ownerID' where id = '$id'";
-			if ($perms !== "3"){
-            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
-			}
 		}else{
             $sql = "INSERT INTO biocorepipe_save(owner_id, summary, edges, mainG, nodes, name, pipeline_gid, rev_comment, rev_id, date_created, date_modified, last_modified_user, group_id, perms, pin, pin_order, publish, script_pipe_header, script_pipe_footer, script_mode_header, script_mode_footer,pipeline_group_id,process_list,pipeline_list) VALUES ('$ownerID', '$summary', '$edges', '$mainG', '$nodes', '$name', '$pipeline_gid', '$rev_comment', '$rev_id', now(), now(), '$ownerID', '$group_id', '$perms', '$pin', '$pin_order', $publish, '$script_pipe_header', '$script_pipe_footer', '$script_mode_header', '$script_mode_footer', '$pipeline_group_id', '$process_list', '$pipeline_list' )";
-			if ($perms !== "3"){
-            	$obj = json_decode($data,true);
-            	$id = $obj["id"];
-            	$this->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
-        	}
 		}
   		return self::insTable($sql);
   		

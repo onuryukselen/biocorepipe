@@ -431,7 +431,7 @@ function checkProject(pipeline_id) {
     var checkProj = getValues({ p: "checkProject", "pipeline_id": pipeline_id });
     console.log(checkProj)
     var checkProjPipeModule = getValues({ p: "checkProjectPipeModule", "pipeline_id": pipeline_id });
-    
+
     return checkProj
 }
 //Check if pipeline is ever used in projects that are group or public
@@ -1412,10 +1412,10 @@ function loadSelectedPipeline(pipeline_id) {
             console.log(pDataTable)
             if (pDataTable.length > 0) {
                 for (var i = 0; i < pDataTable.length; i++) {
-                    if (pDataTable[i].process_id.match(/p/)){
-                        var pipeModId=pDataTable[i].process_id.match(/p(.*)/)[1]
+                    if (pDataTable[i].process_id.match(/p/)) {
+                        var pipeModId = pDataTable[i].process_id.match(/p(.*)/)[1]
                         var proData = getValues({ p: "loadPipeline", id: pipeModId })
-                    }else {
+                    } else {
                         var proData = getValues({ p: "getProcessData", "process_id": pDataTable[i].process_id });
                     }
                     if (proData) {
@@ -1443,55 +1443,55 @@ function loadSelectedPipeline(pipeline_id) {
 }
 
 $('#selectPipelineModal').on('hidden.bs.modal', function (ev) {
-        $('#selectPipeTable').dataTable().fnDestroy();
+    $('#selectPipeTable').dataTable().fnDestroy();
 
-    });
+});
 
-    $('#selectPipelineModal').on('show.bs.modal', function (ev) {
-        var selPipelineId = infoID;
-        $('#selectPipeline').attr("fPipeID", selPipelineId);
-        $('#selectPipeline').attr("gNum", gNumInfo);
-        var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
-        var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
-        var xProCoor = coorProRaw.replace(PattCoor, '$1');
-        var yProCoor = coorProRaw.replace(PattCoor, '$2');
-        $('#selectPipeline').attr("xCoor", xProCoor);
-        $('#selectPipeline').attr("yCoor", yProCoor);
-        loadPipeModalRevision(selPipelineId);
-        loadSelectedPipeline(selPipelineId);
-    });
+$('#selectPipelineModal').on('show.bs.modal', function (ev) {
+    var selPipelineId = infoID;
+    $('#selectPipeline').attr("fPipeID", selPipelineId);
+    $('#selectPipeline').attr("gNum", gNumInfo);
+    var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+    var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
+    var xProCoor = coorProRaw.replace(PattCoor, '$1');
+    var yProCoor = coorProRaw.replace(PattCoor, '$2');
+    $('#selectPipeline').attr("xCoor", xProCoor);
+    $('#selectPipeline').attr("yCoor", yProCoor);
+    loadPipeModalRevision(selPipelineId);
+    loadSelectedPipeline(selPipelineId);
+});
 
-    //xxxxxxxxx
-    $("#selectPipelineModal").on('click', '#selectPipeline', function (event) {
-        event.preventDefault();
-        var gNumInfo = $('#selectPipeline').attr("gNum");
-        var firstPipeID = $('#selectPipeline').attr("fPipeID");
-        var lastPipeID = $('#selectPipeline').attr("lastPipeID");
-        var pName = $('#selectPipeline').attr("pName");
-        if (lastPipeID && lastPipeID !== firstPipeID) {
-            remove('del-' + gNumInfo);
-            var d3main = d3.transform(d3.select('#' + "mainG").attr("transform"));
-            var scale = d3main.scale[0];
-            var translateX = d3main.translate[0];
-            var translateY = d3main.translate[1];
-            var xPos = $('#selectPipeline').attr("xCoor") 
-            var yPos = $('#selectPipeline').attr("yCoor") 
-            piID = lastPipeID
-            var newMainGnum = "pObj" + gNum;
-            window[newMainGnum] = {};
-            window[newMainGnum].piID = piID;
-            window[newMainGnum].MainGNum = gNum;
-            window[newMainGnum].lastGnum = gNum;
-            window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
-            window[newMainGnum].lastPipeName = pName;
-            //            var proName = window[newMainGnum].sData[0].name;
-            // create new SVG workplace inside panel, if not added before
-            openSubPipeline(piID, window[newMainGnum]);
-            // add pipeline circle to main workplace
-            addPipeline(piID, xPos, yPos, pName, window, window[newMainGnum]);
-        }
-        $('#selectPipelineModal').modal('hide');
-    });
+//xxxxxxxxx
+$("#selectPipelineModal").on('click', '#selectPipeline', function (event) {
+    event.preventDefault();
+    var gNumInfo = $('#selectPipeline').attr("gNum");
+    var firstPipeID = $('#selectPipeline').attr("fPipeID");
+    var lastPipeID = $('#selectPipeline').attr("lastPipeID");
+    var pName = $('#selectPipeline').attr("pName");
+    if (lastPipeID && lastPipeID !== firstPipeID) {
+        remove('del-' + gNumInfo);
+        var d3main = d3.transform(d3.select('#' + "mainG").attr("transform"));
+        var scale = d3main.scale[0];
+        var translateX = d3main.translate[0];
+        var translateY = d3main.translate[1];
+        var xPos = $('#selectPipeline').attr("xCoor")
+        var yPos = $('#selectPipeline').attr("yCoor")
+        piID = lastPipeID
+        var newMainGnum = "pObj" + gNum;
+        window[newMainGnum] = {};
+        window[newMainGnum].piID = piID;
+        window[newMainGnum].MainGNum = gNum;
+        window[newMainGnum].lastGnum = gNum;
+        window[newMainGnum].sData = getValues({ p: "loadPipeline", id: piID })
+        window[newMainGnum].lastPipeName = pName;
+        //            var proName = window[newMainGnum].sData[0].name;
+        // create new SVG workplace inside panel, if not added before
+        openSubPipeline(piID, window[newMainGnum]);
+        // add pipeline circle to main workplace
+        addPipeline(piID, xPos, yPos, pName, window, window[newMainGnum]);
+    }
+    $('#selectPipelineModal').modal('hide');
+});
 
 
 $(document).ready(function () {
@@ -1522,7 +1522,7 @@ $(document).ready(function () {
     }
 
     //Make modal draggable    
-    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, #editorFooterdiv, button, span, a' });
+    $('.modal-dialog').draggable({ cancel: 'input, textarea, select, #editordiv, #editorHeaderdiv, #editorFooterdiv, button, span, a, #amzTable' });
 
 
 
@@ -1540,8 +1540,8 @@ $(document).ready(function () {
         }
         return pub; // expose externally
     }());
-    
-    
+
+
     //xxxx
     $("#addProcessModal").on('click', '#selectProcess', function (event) {
         event.preventDefault();
@@ -1628,6 +1628,8 @@ $(document).ready(function () {
                         $('#warnDelText').html(infoText);
                     });
                     $('#warnDelete').modal('show');
+                } else {
+                    autosaveDetails();
                 }
             } else {
                 autosaveDetails();
@@ -1703,7 +1705,7 @@ $(document).ready(function () {
         })
     });
 
-    
+
 
 
     infoID = '';

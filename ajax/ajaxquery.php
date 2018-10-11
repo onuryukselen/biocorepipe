@@ -835,11 +835,21 @@ else if ($p=="saveAllPipeline")
 {
 	$dat = $_REQUEST['dat'];
     $data = $db->saveAllPipeline($dat,$ownerID);
+    //update permissions
+    $new_obj = json_decode($data,true);
+    if (!empty($new_obj["id"])){
+        $id = $new_obj["id"];
+        $obj = json_decode($dat);
+        $group_id = $obj[6]->{"group_id"};
+        $perms = $obj[7]->{"perms"};
+        $db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+    }
 }
 else if ($p=="savePipelineDetails")
 {
 	$summary = addslashes(htmlspecialchars(urldecode($_REQUEST['summary']), ENT_QUOTES));
 	$group_id = $_REQUEST['group_id'];
+    $nodesRaw = $_REQUEST['nodes'];
 	$perms = $_REQUEST['perms'];
 	$pin = $_REQUEST['pin'];
 	$pin_order = $_REQUEST['pin_order'];
@@ -847,10 +857,12 @@ else if ($p=="savePipelineDetails")
 	$pipeline_group_id = $_REQUEST['pipeline_group_id'];
     settype($group_id, 'integer');
     settype($pin_order, "integer");
-    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order,$publish,$pipeline_group_id,$ownerID);
-	if ($perms !== "3"){
-    	$db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
-	}
+    $data = $db->savePipelineDetails($id,$summary,$group_id,$perms,$pin,$pin_order, $publish,$pipeline_group_id,$ownerID);
+    //update permissions
+    $db->updatePipelineGroupGroupPerm($id, $group_id, $perms, $ownerID);
+    if (!empty($nodesRaw)){
+        $db->updatePipelinePerms($nodesRaw, $group_id, $perms, $ownerID);
+    }
 }
 else if ($p=="savePipelineName"){
     $name = $_REQUEST['name'];

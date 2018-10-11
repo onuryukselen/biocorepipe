@@ -272,7 +272,6 @@ session_write_close();
                         <ul class="nav navbar-nav">
                             <li id="manageAmz" style="display:none">
                                 <a href="#amzModal" data-toggle="modal">Amazon
-                            <!--              <i class="fa fa-amazon"></i>-->
                             <small id="amzAmount" style="display:none" class="label pull-right bg-green"></small>
                             </a>
                             </li>
@@ -283,8 +282,6 @@ session_write_close();
                         ?>
                                 <li><a href="http://dolphinnext.readthedocs.io/" target="_blank"><i class="fa fa-mortar-board"></i></a></li>
                                 <li> <a><b style="color:#7c1842;"> BETA VERSION </b> </a></li>
-
-
                         </ul>
                     </div>
                 </nav>
