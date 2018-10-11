@@ -1931,6 +1931,7 @@ function saveDetails() {
     var pin_order = $('#pin_order').val();
     var publish = $('#publishPipe').val();
     var pipGroup = $('#pipeGroupAll').val()
+    createSaveNodes();
     var data = {
         p: "savePipelineDetails",
         id: id,
@@ -1940,7 +1941,8 @@ function saveDetails() {
         pin: pin,
         pin_order: pin_order,
         publish: publish,
-        pipeline_group_id: pipGroup
+        pipeline_group_id: pipGroup,
+        nodes: saveNodes
     };
     if (id !== '') {
         var saveDetails = getValues(data);
@@ -2024,14 +2026,10 @@ $('#pipeline-title').change(function () {
     cleanRedBorder('#pipeline-title', checkVal)
 });
 
-//Save pipeline
-function save() {
+function createSaveNodes(){
     saveNodes = {}
-    saveMainG = {}
-    var processListDb = [];
-    var pipelineListDb = [];
-    //check if process and parameter names are unique in pipeline
-    checkNameUnique(processListNoOutput);
+    processListDb = [];
+    pipelineListDb = [];
     for (var key in processList) {
         t = d3.transform(d3.select('#' + key).attr("transform")),
             x = t.translate[0]
@@ -2063,6 +2061,15 @@ function save() {
             processListDb.push(prosessID);
         }
     }
+}
+
+
+//Save pipeline
+function save() {
+    saveMainG = {}
+    //check if process and parameter names are unique in pipeline
+    checkNameUnique(processListNoOutput);
+    createSaveNodes();
     Maint = d3.transform(d3.select('#' + "mainG").attr("transform")),
         Mainx = Maint.translate[0]
     Mainy = Maint.translate[1]
