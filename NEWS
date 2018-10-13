@@ -1,3 +1,7 @@
+13.10.2018 Version 0.2.10
+Basic autofill feature added to from fields in the run page.
+MinInstance feature added to amazon autoscale. 
+
 10.10.2018 Version 0.2.09
 Saving pipelineDetails trigger permission change of pipeline parameters/processes.
 

@@ -198,12 +198,14 @@ $(document).ready(function () {
             var numNodes = $('#numNodes').val();
             var autoscale_check = $('#autoscale_check').is(":checked").toString();
             var autoscale_maxIns = $('#autoscale_maxIns').val();
+            var autoscale_minIns = $('#autoscale_minIns').val();
             if (numNodes !== '') {
                 data = {
                     "id": proId,
                     "nodes": numNodes,
                     "autoscale_check": autoscale_check,
                     "autoscale_maxIns": autoscale_maxIns,
+                    "autoscale_minIns": autoscale_minIns,
                     "p": "startProAmazon"
                 };
                 $.ajax({
@@ -382,6 +384,22 @@ $('.main-sidebar').on('keyup', '#tags', function (e) {
     $('#Pipelines').show();
 });
 
+//turn (a,b,c)  into (a|b|c) format
+function fixParentheses(outputName) {
+    if (outputName.match(/(.*)\((.*?),(.*?)\)(.*)/)) {
+        var patt = /(.*)\((.*?),(.*?)\)(.*)/;
+        var insideBrackets = outputName.replace(patt, '$2' + "," + '$3');
+        insideBrackets = insideBrackets.replace(/\,/g, '|')
+        var outputNameFix = outputName.replace(patt, '$1' + "(" + insideBrackets + ")" + '$4');
+        if (outputNameFix.match(/(.*)\((.*?),(.*?)\)(.*)/)) {
+            return fixParentheses(outputNameFix);
+        } else {
+            return outputNameFix;
+        }
+    } else {
+        return outputName;
+    }
+}
 
 //table buttons:
 var SELECT = 4; // 1

@@ -482,6 +482,12 @@ session_write_close();
                                             <input type="text" class="form-control" id="autoscale_maxIns" name="autoscale_maxIns" placeholder="Enter the number of maximum instances">
                                         </div>
                                     </div>
+                                     <div class="form-group row">
+                                        <label for="autoscale_minIns" class="col-sm-3 control-label">Minimum instances <span><a data-toggle="tooltip" data-placement="bottom" title="Minimum number of instances on the cluster"><i class='glyphicon glyphicon-info-sign'></i></a></span></label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" id="autoscale_minIns" name="autoscale_minIns" placeholder="Enter the number of minimum instances">
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         </div>

@@ -716,6 +716,7 @@ class dbfuncs {
         $nodes = $data[0]->{'nodes'};
         $autoscale_check = $data[0]->{'autoscale_check'};
         $autoscale_maxIns = $data[0]->{'autoscale_maxIns'};
+        $autoscale_minIns = $data[0]->{'autoscale_minIns'};
         $text= "cloud { \n";
         $text.= "   userName = '$username'\n";
         $text.= "   imageId = '$image_id'\n";
@@ -730,6 +731,9 @@ class dbfuncs {
         $text.= "       terminateWhenIdle = true\n";
         if (!empty($autoscale_maxIns)){
         $text.= "       maxInstances = $autoscale_maxIns\n";
+        }
+        if (!empty($autoscale_minIns)){
+        $text.= "       minInstances = $autoscale_minIns\n";
         }
         $text.= "   }\n";
         }
@@ -1160,8 +1164,8 @@ class dbfuncs {
         $sql = "UPDATE profile_amazon SET name='$name', executor='$executor', next_path='$next_path', instance_type='$ins_type', image_id='$image_id', cmd='$cmd', next_memory='$next_memory', next_queue='$next_queue', next_time='$next_time', next_cpu='$next_cpu', executor_job='$executor_job', job_memory='$job_memory', job_queue='$job_queue', job_time='$job_time', job_cpu='$job_cpu', subnet_id='$subnet_id', shared_storage_id='$shared_storage_id', shared_storage_mnt='$shared_storage_mnt', ssh_id='$ssh_id', next_clu_opt='$next_clu_opt', job_clu_opt='$job_clu_opt', amazon_cre_id='$amazon_cre_id', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
-    public function updateProfileAmazonNode($id, $nodes, $autoscale_check, $autoscale_maxIns, $ownerID) {
-        $sql = "UPDATE profile_amazon SET nodes='$nodes', autoscale_check='$autoscale_check', autoscale_maxIns='$autoscale_maxIns', last_modified_user ='$ownerID'  WHERE id = '$id'";
+    public function updateProfileAmazonNode($id, $nodes, $autoscale_check, $autoscale_maxIns, $autoscale_minIns, $ownerID) {
+        $sql = "UPDATE profile_amazon SET nodes='$nodes', autoscale_check='$autoscale_check', autoscale_maxIns='$autoscale_maxIns', autoscale_minIns='$autoscale_minIns', last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function updateAmazonProStatus($id, $status, $ownerID) {

@@ -522,6 +522,7 @@ function parseBrackets(arr) {
             arr[k] = arr[k].replace(/\"/g, '');
             arr[k] = arr[k].replace(/\'/g, '');
             arr[k] = arr[k].replace(/\}/g, '');
+            arr[k] = fixParentheses(arr[k]); //turn (a,b,c) into (a|b|c) format for multiple options
             var allcolumn = arr[k].split(",").map(function (item) { var item = $.trim(item); if (item !== "") { return item; } }).filter(function (item) { return item !== undefined; });
             if (!$.isEmptyObject(allcolumn[0])) {
                 finalArr.push(allcolumn)
@@ -533,7 +534,7 @@ function parseBrackets(arr) {
 
 
 
-//parse main categories: @checkbox, @textbox, @input, @dropdown, @description, @options @title
+//parse main categories: @checkbox, @textbox, @input, @dropdown, @description, @options @title @autofill
 //parse style categories: @multicolumn, @array, @condition
 function parseRegPart(regPart) {
     var type = null;
@@ -542,13 +543,27 @@ function parseRegPart(regPart) {
     var tool = null;
     var opt = null;
     var multiCol = null;
-    var arr = null; //
+    var autoform = null;
+    var arr = null;
     var cond = null;
     if (regPart.match(/@/)) {
         var regSplit = regPart.split('@');
         for (var i = 0; i < regSplit.length; i++) {
             // find type among following list:checkbox|textbox|input|dropdown
             var typeCheck = regSplit[i].match(/^checkbox|^textbox|^input|^dropdown/i);
+            // check if @autofill tag is defined //* @autofill:{var1="yes", "filling_text"}  
+            // for multiple options @autofill:{var1=("yes","no"), "filling_text"}
+            // for dynamic filling @autofill:{var1=("yes","no"), _build+"filling_text"}
+            var autofillCheck = regSplit[i].match(/^autofill:(.*)/i);
+            if (autofillCheck) {
+                if (autofillCheck[1]) {
+                    var autoContent = autofillCheck[1];
+                    if (!autoform) {
+                        autoform = [];
+                    }
+                    autoform.push(parseBrackets(autoContent));
+                }
+            }
             // check if @multicolumn tag is defined //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
             var multiColCheck = regSplit[i].match(/^multicolumn:(.*)/i);
             if (multiColCheck) {
@@ -629,7 +644,7 @@ function parseRegPart(regPart) {
             }
         }
     }
-    return [type, desc, tool, opt, multiCol, arr, cond, title]
+    return [type, desc, tool, opt, multiCol, arr, cond, title, autoform]
 }
 
 //remove parent div from process options field
@@ -752,6 +767,82 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         }
     }
 }
+// if @autofill exists, then create event binders
+//eg.  @autofill:{var1="yes", "filling_text"}  
+// for multiple options @autofill:{var1=("yes","no"), "filling_text"}
+// for dynamic filling @autofill:{var1=("yes","no"), _build+"filling_text"}
+function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
+    var allAutoForm = [];
+    if (autoform) {
+        console.log(varName)
+        //find condition dependent varNameCond, selOpt, and autoVal
+        $.each(autoform, function (elem) {
+            var condArr = autoform[elem];
+            for (var n = 0; n < condArr.length; n++) {
+                if (condArr[n].length == 2) {
+                    var autoObj = { varNameCond: null, selOpt: null, autoVal: null };
+                    for (var k = 0; k < condArr[n].length; k++) {
+                        // check if condArr has element like "var1=yes" where varName=var1 or "var1=(yes|no)"
+                        if (condArr[n][k].match(/=/)) {
+                            autoObj.varNameCond = condArr[n][k].match(/(.*)=(.*)/)[1]
+                            autoObj.selOpt = condArr[n][k].match(/(.*)=(.*)/)[2]
+                        } else {
+                            autoObj.autoVal = condArr[n][k];
+                        }
+                    }
+                    allAutoForm.push(autoObj)
+                }
+            }
+        });
+        //xxxxx autofill
+        console.log(autoFillJSON)
+        console.log(allAutoForm)
+        //if selOpt contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
+        $.each(allAutoForm, function (el) {
+            var selOpt = allAutoForm[el].selOpt;
+            if (selOpt) {
+                if (selOpt.match(/|/)) {
+                    selOpt = selOpt.replace("(", "")
+                    selOpt = selOpt.replace(")", "")
+                    var allOpt = selOpt.split("|")
+                    for (var n = 0; n < allOpt.length; n++) {
+                        var newData = $.extend(true, {}, allAutoForm[el]);
+                        newData.selOpt = allOpt[n];
+                        allAutoForm.push(newData)
+                    }
+                }
+            }
+        });
+
+        //bind event handlers
+        $.each(allAutoForm, function (el) {
+            var dataGroup = $.extend(true, {}, allAutoForm[el]);
+            dataGroup.type = type;
+            var varNameCond = dataGroup.varNameCond;
+            //find dropdown/checkbox where condition based changes are created.
+            var condDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varNameCond)[0];
+            //bind change event to dropdown
+            $(condDiv).change(dataGroup, function () {
+                var lastdataGroup = $.extend(true, {}, dataGroup);
+                var autoVal = lastdataGroup.autoVal;
+                var varNameCond = lastdataGroup.varNameCond;
+                var selOpt = lastdataGroup.selOpt;
+                var type = lastdataGroup.type;
+                var selectedVal = "";
+                if (type == "checkbox") {
+                    selectedVal = $(this).is(":checked").toString();
+                } else {
+                    selectedVal = this.value;
+                }
+                var parentDiv = $(this).parent().parent();
+                if (selectedVal === selOpt) {
+                    parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
+                }
+            });
+            $(condDiv).trigger("change")
+        });
+    }
+}
 
 // if @condi is exist, then create event binders
 //eg condi = ["var2", "var1=yes"], ["var1=no", "var3", "var4"]
@@ -833,6 +924,8 @@ function addProcessPanelCondi(gNum, name, varName, type, condi) {
         });
     }
 }
+
+
 
 // check if all conditions match	
 function checkConds(conds) {
@@ -1375,6 +1468,7 @@ function parseProPipePanelScript(script) {
         var tool = null;
         var opt = null;
         var multiCol = null;
+        var autoform = null;
         var arr = null;
         var cond = null;
         var title = null;
@@ -1388,7 +1482,7 @@ function parseProPipePanelScript(script) {
             [varName, defaultVal] = parseVarPart(varPart);
         }
         if (regPart) {
-	  	    [type, desc, tool, opt, multiCol, arr, cond, title] = parseRegPart(regPart);
+	  	    [type, desc, tool, opt, multiCol, arr, cond, title, autoform] = parseRegPart(regPart);
         }
         if (type && varName) {
             panelObj.schema.push({
@@ -1398,7 +1492,8 @@ function parseProPipePanelScript(script) {
                 desc: desc,
                 tool: tool,
                 opt: opt,
-                title: title
+                title: title,
+                autoform: autoform
             })
         }
         if (multiCol || arr || cond) {
@@ -1448,6 +1543,7 @@ function insertProPipePanel(script, gNum, name, pObj) {
                 var tool = panelObj.schema[i].tool;
                 var opt = panelObj.schema[i].opt;
                 var title = panelObj.schema[i].title;
+                var autoform = panelObj.schema[i].autoform;
                 if (type && varName) {
                     // if variable start with "params." then insert into inputs table
                     if (varName.match(/params\./)) {
@@ -1458,7 +1554,12 @@ function insertProPipePanel(script, gNum, name, pObj) {
                         displayProDiv = true;
                         addProcessPanelRow(prefix + gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
                     }
+                    if (autoform) {
+                        addProcessPanelAutoform(gNum, name, varName, type, autoform);
+                    }
                 }
+
+
             }
             if (condi) {
                 for (var k = 0; k < condi.length; k++) {
@@ -1470,6 +1571,7 @@ function insertProPipePanel(script, gNum, name, pObj) {
                     }
                 }
             }
+
             if (displayProDiv === true) {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#proPanelDiv-' + prefix + gNum).css('display', 'inline');
@@ -3773,8 +3875,8 @@ function runProPipeCall(checkType) {
 //#########read nextflow log file for status  ################################################
 function readNextflowLogTimer(proType, proId, type) {
     //to trigger fast loading for new page reload
-    if (type === "reload"){
-        setTimeout(function () { readNextLog(proType, proId, "no_reload")}, 3000 );
+    if (type === "reload") {
+        setTimeout(function () { readNextLog(proType, proId, "no_reload") }, 3000);
     }
     interval_readNextlog = setInterval(function () {
         readNextLog(proType, proId, "no_reload")
