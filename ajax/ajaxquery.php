@@ -104,7 +104,8 @@ else if ($p=="startProAmazon"){
 	$nodes = $_REQUEST['nodes'];
 	$autoscale_check = $_REQUEST['autoscale_check'];
 	$autoscale_maxIns = $_REQUEST['autoscale_maxIns'];
-    $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check, $autoscale_maxIns,$ownerID);
+	$autoscale_minIns = $_REQUEST['autoscale_minIns'];
+    $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check, $autoscale_maxIns,$autoscale_minIns,$ownerID);
     $data = $db -> startProAmazon($id,$ownerID);
 }
 else if ($p=="stopProAmazon"){
