@@ -513,17 +513,31 @@ function parseVarPart(varPart, type) {
 }
 
 //parse {var1, var2, var3}, {var5, var6} into array of [var1, var2, var3], [var5, var6]
-function parseBrackets(arr) {
+function parseBrackets(arr, trim) {
     var finalArr = [];
     arr = arr.split('{');
     if (arr.length) {
         for (var k = 0; k < arr.length; k++) {
-            arr[k] = $.trim(arr[k]);
+            if (trim) {
+                arr[k] = $.trim(arr[k]);
+            } else {
+                if ($.trim(arr[k]) !== "") {
+                    arr[k] = $.trim(arr[k]);
+                }
+            }
             arr[k] = arr[k].replace(/\"/g, '');
             arr[k] = arr[k].replace(/\'/g, '');
             arr[k] = arr[k].replace(/\}/g, '');
             arr[k] = fixParentheses(arr[k]); //turn (a,b,c) into (a|b|c) format for multiple options
-            var allcolumn = arr[k].split(",").map(function (item) { var item = $.trim(item); if (item !== "") { return item; } }).filter(function (item) { return item !== undefined; });
+            var allcolumn = arr[k].split(",").map(function (item) {
+                var item = item;
+                if (trim) { var item = $.trim(item) } else {
+                    if ($.trim(item) !== "") {
+                        item = $.trim(item)
+                    }
+                }
+                if (item !== "") { return item; }
+            }).filter(function (item) { return item !== undefined; });
             if (!$.isEmptyObject(allcolumn[0])) {
                 finalArr.push(allcolumn)
             }
@@ -561,7 +575,7 @@ function parseRegPart(regPart) {
                     if (!autoform) {
                         autoform = [];
                     }
-                    autoform.push(parseBrackets(autoContent));
+                    autoform.push(parseBrackets(autoContent, false));
                 }
             }
             // check if @multicolumn tag is defined //* @style @multicolumn:{var1, var2, var3}, {var5, var6}
@@ -569,7 +583,7 @@ function parseRegPart(regPart) {
             if (multiColCheck) {
                 if (multiColCheck[1]) {
                     var multiContent = multiColCheck[1];
-                    multiCol = parseBrackets(multiContent);
+                    multiCol = parseBrackets(multiContent, true);
                 }
             }
             // check if @array tag is defined //* @style @array:{var1, var2}, {var4}
@@ -577,7 +591,7 @@ function parseRegPart(regPart) {
             if (arrayCheck) {
                 if (arrayCheck[1]) {
                     var arrContent = arrayCheck[1];
-                    arr = parseBrackets(arrContent);
+                    arr = parseBrackets(arrContent, true);
                 }
             }
             // check if @condition tag is defined //* @style @condition:{var1="yes", var2}, {var1="no", var3, var4}
@@ -588,7 +602,7 @@ function parseRegPart(regPart) {
                     if (!cond) {
                         cond = [];
                     }
-                    cond.push(parseBrackets(condContent));
+                    cond.push(parseBrackets(condContent, true));
                 }
             }
             if (typeCheck) {
@@ -767,6 +781,29 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         }
     }
 }
+
+//check if dynamic variables (_var) exist in autoVal
+function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
+    if (autoVal.match(/^_/)) {
+        for (var k = 0; k < autoFillJSON.length; k++) {
+            if (autoFillJSON[k].library[autoVal]) {
+                //check if condition is met
+                var conds = autoFillJSON[k].condition
+                var statusCond = checkConds(conds);
+                if (statusCond === true) {
+                    return autoFillJSON[k].library[autoVal]
+                }
+            }
+        };
+        if (parentDiv.find("#var_" + gNum + "-" + autoVal)) {
+            return parentDiv.find("#var_" + gNum + "-" + autoVal).val()
+        }
+        return ""
+    } else {
+        return autoVal
+    }
+}
+
 // if @autofill exists, then create event binders
 //eg.  @autofill:{var1="yes", "filling_text"}  
 // for multiple options @autofill:{var1=("yes","no"), "filling_text"}
@@ -794,14 +831,11 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                 }
             }
         });
-        //xxxxx autofill
-        console.log(autoFillJSON)
-        console.log(allAutoForm)
         //if selOpt contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
         $.each(allAutoForm, function (el) {
             var selOpt = allAutoForm[el].selOpt;
             if (selOpt) {
-                if (selOpt.match(/|/)) {
+                if (selOpt.match(/\|/)) {
                     selOpt = selOpt.replace("(", "")
                     selOpt = selOpt.replace(")", "")
                     var allOpt = selOpt.split("|")
@@ -813,7 +847,6 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                 }
             }
         });
-
         //bind event handlers
         $.each(allAutoForm, function (el) {
             var dataGroup = $.extend(true, {}, allAutoForm[el]);
@@ -836,6 +869,17 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                 }
                 var parentDiv = $(this).parent().parent();
                 if (selectedVal === selOpt) {
+                    //if autoval contains "+" operator
+                    if (autoVal.match(/\+/)) {
+                        var autoValAr = autoVal.split("+");
+                        for (var n = 0; n < autoValAr.length; n++) {
+                            autoValAr[n] = checkDynamicVar(autoValAr[n], autoFillJSON, parentDiv, gNum)
+                        }
+                        autoVal = autoValAr.join("");
+                    } else {
+                        //check if dynamic variables (_var) exist in autoVal
+                        autoVal = checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum)
+                    }
                     parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
                 }
             });
@@ -852,6 +896,8 @@ function addProcessPanelCondi(gNum, name, varName, type, condi) {
     var allUniCondForms = []; //all unique condition dependent forms
     var showFormVarArr = [];
     var dataGroup = {};
+    var varN = "";
+    var restN = "";
     if (condi) {
         //find all condition dependent forms
         $.each(condi, function (elem) {
@@ -1562,6 +1608,29 @@ function insertProPipePanel(script, gNum, name, pObj) {
 
             }
             if (condi) {
+                console.log(condi)
+                for (var a = 0; a < condi.length; a++) {
+                //if contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
+                $.each(condi[a], function (el) {
+                    for (var k = 0; k < condi[a][el].length; k++) {
+                        var selCond = condi[a][el][k];
+                        if (selCond.match(/\|/) && selCond.match(/\=/)) {
+                    [varN, restN] = parseVarPart(selCond)
+                            restN = restN.replace("(", "")
+                            restN = restN.replace(")", "")
+                            var allOpt = restN.split("|")
+                            for (var n = 0; n < allOpt.length; n++) {
+                                var newData = condi[a][el].slice();
+                                newData[k] = varN + "=" + allOpt[n];
+                                condi[a].push(newData)
+                            }
+                        }
+                    }
+                });
+                }
+                console.log(condi)
+                
+
                 for (var k = 0; k < condi.length; k++) {
                     for (var i = 0; i < panelObj.schema.length; i++) {
                         varName = panelObj.schema[i].varName;
