@@ -784,7 +784,7 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
 
 //check if dynamic variables (_var) exist in autoVal
 function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
-    if (autoVal.match(/^_/)) {
+    if (autoFillJSON !== null && autoFillJSON !== undefined && autoVal.match(/^_/)) {
         for (var k = 0; k < autoFillJSON.length; k++) {
             if (autoFillJSON[k].library[autoVal]) {
                 //check if condition is met
@@ -847,43 +847,45 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
             }
         });
         //bind event handlers
-        $.each(allAutoForm, function (el) {
-            var dataGroup = $.extend(true, {}, allAutoForm[el]);
-            dataGroup.type = type;
-            var varNameCond = dataGroup.varNameCond;
-            //find dropdown/checkbox where condition based changes are created.
-            var condDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varNameCond)[0];
-            //bind change event to dropdown
-            $(condDiv).change(dataGroup, function () {
-                var lastdataGroup = $.extend(true, {}, dataGroup);
-                var autoVal = lastdataGroup.autoVal;
-                var varNameCond = lastdataGroup.varNameCond;
-                var selOpt = lastdataGroup.selOpt;
-                var type = lastdataGroup.type;
-                var selectedVal = "";
-                if (type == "checkbox") {
-                    selectedVal = $(this).is(":checked").toString();
-                } else {
-                    selectedVal = this.value;
-                }
-                var parentDiv = $(this).parent().parent();
-                if (selectedVal === selOpt) {
-                    //if autoval contains "+" operator
-                    if (autoVal.match(/\+/)) {
-                        var autoValAr = autoVal.split("+");
-                        for (var n = 0; n < autoValAr.length; n++) {
-                            autoValAr[n] = checkDynamicVar(autoValAr[n], autoFillJSON, parentDiv, gNum)
-                        }
-                        autoVal = autoValAr.join("");
+        setTimeout(function () {
+            $.each(allAutoForm, function (el) {
+                var dataGroup = $.extend(true, {}, allAutoForm[el]);
+                dataGroup.type = type;
+                var varNameCond = dataGroup.varNameCond;
+                //find dropdown/checkbox where condition based changes are created.
+                var condDiv = $("#addProcessRow-" + gNum).find("#var_" + gNum + "-" + varNameCond)[0];
+                //bind change event to dropdown
+                $(condDiv).change(dataGroup, function () {
+                    var lastdataGroup = $.extend(true, {}, dataGroup);
+                    var autoVal = lastdataGroup.autoVal;
+                    var varNameCond = lastdataGroup.varNameCond;
+                    var selOpt = lastdataGroup.selOpt;
+                    var type = lastdataGroup.type;
+                    var selectedVal = "";
+                    if (type == "checkbox") {
+                        selectedVal = $(this).is(":checked").toString();
                     } else {
-                        //check if dynamic variables (_var) exist in autoVal
-                        autoVal = checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum)
+                        selectedVal = this.value;
                     }
-                    parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
-                }
+                    var parentDiv = $(this).parent().parent();
+                    if (selectedVal === selOpt) {
+                        //if autoval contains "+" operator
+                        if (autoVal.match(/\+/)) {
+                            var autoValAr = autoVal.split("+");
+                            for (var n = 0; n < autoValAr.length; n++) {
+                                autoValAr[n] = checkDynamicVar(autoValAr[n], autoFillJSON, parentDiv, gNum)
+                            }
+                            autoVal = autoValAr.join("");
+                        } else {
+                            //check if dynamic variables (_var) exist in autoVal
+                            autoVal = checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum)
+                        }
+                        parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
+                    }
+                });
+                $(condDiv).trigger("change")
             });
-            $(condDiv).trigger("change")
-        });
+        }, 1000);
     }
 }
 
