@@ -811,7 +811,6 @@ function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
 function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
     var allAutoForm = [];
     if (autoform) {
-        console.log(varName)
         //find condition dependent varNameCond, selOpt, and autoVal
         $.each(autoform, function (elem) {
             var condArr = autoform[elem];
@@ -1074,11 +1073,13 @@ function fillExecSettings(id, defName, type, inputName) {
         setTimeout(function () {
             var findCheckBox = $('#processTable >tbody> tr[procproid=' + id + ']').find("input[name=check]")
             if (findCheckBox && findCheckBox[0]) {
-                var checkBoxId = $(findCheckBox[0]).attr("id")
+                $.each(findCheckBox, function (st) {
+                    var checkBoxId = $(findCheckBox[st]).attr("id")
+                    updateCheckBox("#" + checkBoxId, "true");
+                    updateCheckBox('#exec_each', "true");
+                    fillFormById('#processTable >tbody> tr[procproid=' + id + ']', "input[name=" + inputName + "]", defName)
+                });
             }
-            updateCheckBox("#" + checkBoxId, "true");
-            updateCheckBox('#exec_each', "true");
-            fillFormById('#processTable >tbody> tr[procproid=' + id + ']', "input[name=" + inputName + "]", defName)
         }, 1);
     }
 }
@@ -1601,36 +1602,33 @@ function insertProPipePanel(script, gNum, name, pObj) {
                         addProcessPanelRow(prefix + gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
                     }
                     if (autoform) {
+                        console.log(autoform)
                         addProcessPanelAutoform(gNum, name, varName, type, autoform);
                     }
                 }
-
-
             }
             if (condi) {
-                console.log(condi)
                 for (var a = 0; a < condi.length; a++) {
-                //if contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
-                $.each(condi[a], function (el) {
-                    for (var k = 0; k < condi[a][el].length; k++) {
-                        var selCond = condi[a][el][k];
-                        if (selCond.match(/\|/) && selCond.match(/\=/)) {
-                    [varN, restN] = parseVarPart(selCond)
-                            restN = restN.replace("(", "")
-                            restN = restN.replace(")", "")
-                            var allOpt = restN.split("|")
-                            for (var n = 0; n < allOpt.length; n++) {
-                                var newData = condi[a][el].slice();
-                                newData[k] = varN + "=" + allOpt[n];
-                                condi[a].push(newData)
+                    //if contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
+                    $.each(condi[a], function (el) {
+                        for (var k = 0; k < condi[a][el].length; k++) {
+                            var selCond = condi[a][el][k];
+                            var varN = "";
+                            var restN = "";
+                            if (selCond.match(/\|/) && selCond.match(/\=/)) {
+                                [varN, restN] = parseVarPart(selCond)
+                                restN = restN.replace("(", "")
+                                restN = restN.replace(")", "")
+                                var allOpt = restN.split("|")
+                                for (var n = 0; n < allOpt.length; n++) {
+                                    var newData = condi[a][el].slice();
+                                    newData[k] = varN + "=" + allOpt[n];
+                                    condi[a].push(newData)
+                                }
                             }
                         }
-                    }
-                });
+                    });
                 }
-                console.log(condi)
-                
-
                 for (var k = 0; k < condi.length; k++) {
                     for (var i = 0; i < panelObj.schema.length; i++) {
                         varName = panelObj.schema[i].varName;
@@ -1640,7 +1638,6 @@ function insertProPipePanel(script, gNum, name, pObj) {
                     }
                 }
             }
-
             if (displayProDiv === true) {
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#proPanelDiv-' + prefix + gNum).css('display', 'inline');
@@ -1661,8 +1658,10 @@ function insertRowTable(rowType, firGnum, secGnum, paramGivenName, paraIdentifie
 }
 
 function insertProRowTable(process_id, gNum, procName, procQueDef, procMemDef, procCpuDef, procTimeDef, procOptDef) {
-    return '<tr procProId="' + process_id + '" id="procGnum-' + gNum + '"><td><input name="check" id="check-' + gNum + '" type="checkbox" </td><td>' + procName + '</td><td><input name="queue" class="form-control" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control" type="text" value="' + procCpuDef + '"></input></td><td><input name="time" class="form-control" type="text" value="' + procTimeDef + '"></input></td><td><input name="opt" class="form-control" type="text" value="' + procOptDef + '"></input></td></tr>'
+    return '<tr procProId="' + process_id + '" id="procGnum-' + gNum + '"><td><input name="check" id="check-' + gNum + '" type="checkbox" </td><td>' + procName + '</td><td><input name="queue" class="form-control execSetting" type="text" value="' + procQueDef + '"></input></td><td><input class="form-control execSetting" type="text" name="memory" value="' + procMemDef + '"></input></td><td><input name="cpu" class="form-control execSetting" type="text" value="' + procCpuDef + '"></input></td><td><input name="time" class="form-control execSetting" type="text" value="' + procTimeDef + '"></input></td><td><input name="opt" class="form-control execSetting" type="text" value="' + procOptDef + '"></input></td></tr>'
 }
+
+
 
 //--Pipeline details table --
 function addProPipeTab(process_id, gNum, procName, pObj) {
@@ -2386,7 +2385,6 @@ function insertInRow(inRow, paramGivenName, rowType, insertType) {
     if (!checkTable.length) {
         if (systemInputs.indexOf(paramGivenName) > -1) { // fill as system input
             $('#' + rowType + 'sTable > tbody:last-child').append(inRow);
-            console.log(paramGivenName)
             if ($("#systemInputs").css("display") === "none") {
                 $("#systemInputs").css("display", "table-row")
             }
@@ -2720,29 +2718,26 @@ function createProcessPanelAutoFill(id, pObj, name, process_id) {
         if (processData[0].script_header !== "" && processData[0].script_header !== null) {
             var pro_script_header = decodeHtml(processData[0].script_header);
             insertProPipePanel(pro_script_header, pObj.gNum, name, pObj);
-            //autofill is executed if pObj == window
-            if (pObj == window) {
-                //generate json for autofill by using script of process header
-                var pro_autoFillJSON = parseAutofill(pro_script_header);
-                // bind event handlers for autofill
-                setTimeout(function () {
-                    if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
-                        $.each(pro_autoFillJSON, function (el) {
-                            var stateObj = pro_autoFillJSON[el].statement;
-                            $.each(stateObj, function (old_key) {
-                                var new_key = old_key + "@" + id;
-                                //add process id to each statement after @ sign (eg.$CPU@52) -> will effect only process specific execution parameters.
-                                if (old_key !== new_key) {
-                                    Object.defineProperty(stateObj, new_key,
-                                        Object.getOwnPropertyDescriptor(stateObj, old_key));
-                                    delete stateObj[old_key];
-                                }
-                            });
+            //generate json for autofill by using script of process header
+            var pro_autoFillJSON = parseAutofill(pro_script_header);
+            // bind event handlers for autofill
+            setTimeout(function () {
+                if (pro_autoFillJSON !== null && pro_autoFillJSON !== undefined) {
+                    $.each(pro_autoFillJSON, function (el) {
+                        var stateObj = pro_autoFillJSON[el].statement;
+                        $.each(stateObj, function (old_key) {
+                            var new_key = old_key + "@" + id;
+                            //add process id to each statement after @ sign (eg.$CPU@52) -> will effect only process specific execution parameters.
+                            if (old_key !== new_key) {
+                                Object.defineProperty(stateObj, new_key,
+                                    Object.getOwnPropertyDescriptor(stateObj, old_key));
+                                delete stateObj[old_key];
+                            }
                         });
-                        bindEveHandler(pro_autoFillJSON);
-                    }
-                }, 1000);
-            }
+                    });
+                    bindEveHandler(pro_autoFillJSON);
+                }
+            }, 1000);
 
         }
     }
@@ -2849,7 +2844,7 @@ function loadPipeline(sDataX, sDataY, sDatapId, sDataName, processModules, gN, p
 
     } else {
         //--Pipeline details table ---
-        addProPipeTab(id, pObj.gNum, name, pObj);
+        addProPipeTab(id, pObj.gNum + prefix, name, pObj);
         //--ProcessPanel (where process options defined)
         createProcessPanelAutoFill(id, pObj, name, process_id);
         //create process circle
@@ -3111,6 +3106,8 @@ function showIgniteColumn() {
     }, 10);
 
 }
+
+
 
 function loadProjectPipeline(pipeData) {
     loadRunOptions();
@@ -4603,7 +4600,10 @@ $(document).ready(function () {
     $('#singu_imgDiv').on('hidden.bs.collapse', function () {
         $('#singu_check').removeAttr('onclick');
     });
-
+    ///fixCollapseMenu checkboxes
+    fixCollapseMenu('#allProcessDiv', '#exec_all');
+    fixCollapseMenu('#eachProcessDiv', '#exec_each');
+    fixCollapseMenu('#publishDirDiv', '#publish_dir_check');
 
 
     //click on "use default" button
@@ -4625,6 +4625,21 @@ $(document).ready(function () {
         button.css("display", "none");
         checkReadytoRun();
     });
+    //change on exec settings
+    $(function () {
+        $('.form-control.execSetting').keyup(function () {
+            var rowDiv = $(this).parent().parent();
+            if (rowDiv) {
+                var rowId = rowDiv.attr("id")
+                if (rowId.match(/procGnum-(.*)/)) {
+                    var checkId = rowId.match(/procGnum-(.*)/)[1];
+                    var checkBoxId = "check-" + checkId
+                    updateCheckBox("#" + checkBoxId, "true");
+                    updateCheckBox('#exec_each', "true");
+                }
+            }
+        });
+    })
     //change on dropDown button
     $(function () {
         $(document).on('change', '#dropDown', function () {
@@ -4677,18 +4692,11 @@ $(document).ready(function () {
                 }
                 $('#jobSettingsDiv').css('display', 'inline');
             }
-            if ($('#exec_all').is(":checked") === true) {
-                $('#exec_all').trigger("click");
-            }
-            if ($('#exec_each').is(":checked") === true) {
-                $('#exec_each').trigger("click");
-            }
             fillForm('#allProcessSettTable', 'input', allProSett);
             selectAmzKey();
             checkReadytoRun();
         });
     });
-
 
     $('#inputFilemodal').on('show.bs.modal', function (e) {
         var button = $(e.relatedTarget);

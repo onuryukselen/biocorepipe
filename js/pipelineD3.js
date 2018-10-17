@@ -1660,7 +1660,7 @@ function createEdges(first, second, pObj) {
             var paraQualifier = paraData[0].qualifier;
             var paraIdentifier = paraData[0].name;
         }
-        var processName = $('text' + MainGNum + "-" + secGnum).attr('name');
+        var processName = $('#text' + MainGNum + "-" + secGnum).attr('name');
         var rowExist = ''
         rowExist = document.getElementById(rowType + 'Ta-' + firGnum);
         if (rowExist) {

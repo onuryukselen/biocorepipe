@@ -1,3 +1,10 @@
+17.10.2018 Version 0.2.13
+Nested pipeline executor settings fixed.
+Autofill feature for process executor settings added to nested pipelines.
+Bug fixed in main page where process name called as undefined.
+Checkboxes of executor settings fixed to support dynamic change.
+Checkboxes of each executor settings dynamicaly checked when user change one parameter.
+
 16.10.2018 Version 0.2.12
 Amazon modal multiple node feature updated and commands added for deamon log removal. 
 

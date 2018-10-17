@@ -716,8 +716,27 @@ function fillForm(formId, find, data) {
 function fillFormById(formId, find, data) {
     var formValues = $(formId).find(find);
     if (formValues[0]) {
-        $(formValues[0]).val(data);
+        $.each(formValues, function (st) {
+            $(formValues[st]).val(data);
+        });
     }
+}
+
+function fixCollapseMenu(collapseDiv, checkboxId) {
+    $(function () {
+        $(collapseDiv).on('show.bs.collapse', function () {
+            $(checkboxId).attr('onclick', "return false;");
+        });
+        $(collapseDiv).on('shown.bs.collapse', function () {
+            $(checkboxId).removeAttr('onclick');
+        });
+        $(collapseDiv).on('hide.bs.collapse', function () {
+            $(checkboxId).attr('onclick', "return false;");
+        });
+        $(collapseDiv).on('hidden.bs.collapse', function () {
+            $(checkboxId).removeAttr('onclick');
+        });
+    });
 }
 
 $(function () {
