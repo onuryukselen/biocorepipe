@@ -82,7 +82,7 @@ class dbfuncs {
    }
 
     function writeLog($project_pipeline_id,$text,$mode, $filename){
-        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/$filename", $mode);//creates new file
+        $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/$filename", $mode);
         fwrite($file, $text."\n");
         fclose($file);
     }
@@ -367,10 +367,15 @@ class dbfuncs {
             if ($executor_job == 'ignite'){
                 $amzData=$this->getProfileAmazonbyID($profileId, $ownerID);
                 $amzDataArr=json_decode($amzData,true);
+                $nodes = $amzDataArr[0]['nodes'];
+                settype($nodes, "integer");
                 $mnt = $amzDataArr[0]["shared_storage_mnt"]; // /mnt/efs
                 $mnt = trim($mnt);
+                $joinMnt = ""; 
+                if ($nodes >1){
+                    $joinMnt = " -cluster.join path:$mnt/.dolphinnext/profile$profileId";
+                }
                 //-cluster.join path:/mnt/efs/.dolphinnext/profile9
-                $joinMnt = " -cluster.join path:$mnt/.dolphinnext/profile$profileId";
                 $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $joinMnt $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }else {
                 $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
@@ -426,6 +431,8 @@ class dbfuncs {
         //create folders
         mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.log", 'w');//creates new file
+        fclose($file);
+        chmod("../{$this->run_path}/run{$project_pipeline_id}/nextflow.log", 0755);
         $file = fopen("../{$this->run_path}/run{$project_pipeline_id}/nextflow.nf", 'w');//creates new file
         fwrite($file, $nextText);
         fclose($file);
@@ -714,6 +721,7 @@ class dbfuncs {
         $shared_storage_mnt = $data[0]->{'shared_storage_mnt'};
         $keyFile = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pub.pky";
         $nodes = $data[0]->{'nodes'};
+        settype($nodes, "integer");
         $autoscale_check = $data[0]->{'autoscale_check'};
         $autoscale_maxIns = $data[0]->{'autoscale_maxIns'};
         $autoscale_minIns = $data[0]->{'autoscale_minIns'};
@@ -744,9 +752,14 @@ class dbfuncs {
         $text.= "   region = '$default_region'\n";
         $text.= "}\n";
         $this->createDirFile ("{$this->amz_path}/pro_{$id}", "nextflow.config", 'w', $text );
+        $nodeText = "";
+        if ($nodes >1){
+            $nodeText = "-c $nodes";
+        } 
         //start amazon cluster
-        $cmd = "cd {$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} -c $nodes > logAmzStart.txt 2>&1 & echo $! &";
+        $cmd = "cd {$this->amz_path}/pro_{$id} && yes | nextflow cloud create cluster{$id} $nodeText > logAmzStart.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'start_cloud', '');
+        $log_array['start_cloud_cmd'] = $cmd;
         //xxx save pid of nextflow cloud create cluster job
         if (preg_match("/([0-9]+)(.*)/", $log_array['start_cloud'])){
             $this->updateAmazonProStatus($id, "waiting", $ownerID);
@@ -786,6 +799,7 @@ class dbfuncs {
         //check status
         $amzStat = json_decode($this->getAmazonStatus($id,$ownerID));
         $status = $amzStat[0]->{'status'};
+        $node_status = $amzStat[0]->{'node_status'};
         if ($status == "waiting"){
             //check cloud list
             $log_array = $this->readAmzCloudListStart($id);
@@ -826,6 +840,7 @@ class dbfuncs {
                     $cluData=$this->getProfileAmazonbyID($id, $ownerID);
                     $cluDataArr=json_decode($cluData,true);
                     $numNodes = $cluDataArr[0]["nodes"];
+                    settype($numNodes, "integer");
                     $username = $cluDataArr[0]["username"];
                     if ($numNodes >1){
                         $log_array['nodes'] = $numNodes;
@@ -835,12 +850,26 @@ class dbfuncs {
                                 preg_match_all("/[ ]+[^ ]+[ ]+(.*\.com)\n.*/sU",$matchNodes[1], $matchNodesAll);
                                 $log_array['childNodes'] = $matchNodesAll[1];
                                 if (!empty($matchNodesAll[1])){
+                                    $node_statusAr = array();
+                                    $n=0;
                                     foreach ($matchNodesAll[1] as $item):
+                                        $n=$n+1;
                                         $item = trim($item);
                                         $sshNode = $username."@".$item;
-                                        $startClusterDeamonLog = $this->startClusterDeamonSSH($sshNode, $id, $ownerID);
+                                        if ($n == 1){
+                                            $startClusterDeamonLog = $this->clusterDeamonSSH($sshNode, $id, "deleteStart", $ownerID);
+                                        } else{
+                                            $startClusterDeamonLog = $this->clusterDeamonSSH($sshNode, $id, "start", $ownerID);
+                                        }
+                                        if (!empty($startClusterDeamonLog)){
+                                            $check_deamon = $this->clusterDeamonSSH($sshNode, $id, "check", $ownerID);
+                                        }else {
+                                            $check_deamon = json_encode("pidNotExist");
+                                        }
                                         $log_array[$sshNode] = $startClusterDeamonLog;
+                                        $node_statusAr[] = array($sshNode => $check_deamon);
                                     endforeach;
+                                    $this->updateAmazonProNodeStatus($id, json_encode($node_statusAr), $ownerID);
                                 }
                             }
                         }
@@ -1170,6 +1199,10 @@ class dbfuncs {
     }
     public function updateAmazonProStatus($id, $status, $ownerID) {
         $sql = "UPDATE profile_amazon SET status='$status', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
+        return self::runSQL($sql);
+    }
+    public function updateAmazonProNodeStatus($id, $node_status, $ownerID) {
+        $sql = "UPDATE profile_amazon SET node_status='$node_status', date_modified= now(), last_modified_user ='$ownerID'  WHERE id = '$id'";
         return self::runSQL($sql);
     }
     public function updateAmazonProPid($id, $pid, $ownerID) {
@@ -1526,7 +1559,7 @@ class dbfuncs {
 		return self::queryTable($sql);
     }
     public function getAmazonStatus($id,$ownerID) {
-        $sql = "SELECT status FROM profile_amazon WHERE id = '$id'";
+        $sql = "SELECT status, node_status FROM profile_amazon WHERE id = '$id'";
 		return self::queryTable($sql);
     }
     public function getAmazonPid($id,$ownerID) {
@@ -1535,51 +1568,51 @@ class dbfuncs {
     }
     public function sshExeCommand($commandType, $pid, $profileType, $profileId, $project_pipeline_id, $ownerID) {
         if ($profileType == 'cluster'){
-                $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
-                $cluDataArr=json_decode($cluData,true);
-                $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
-            } else if ($profileType == 'amazon'){
-                $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
-                $cluDataArr=json_decode($cluData,true);
-                $connect = $cluDataArr[0]["ssh"];
+            $cluData=$this->getProfileClusterbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["username"]."@".$cluDataArr[0]["hostname"];
+        } else if ($profileType == 'amazon'){
+            $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
+            $cluDataArr=json_decode($cluData,true);
+            $connect = $cluDataArr[0]["ssh"];
+        }
+        $ssh_id = $cluDataArr[0]["ssh_id"];
+        $executor = $cluDataArr[0]['executor'];
+        $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
+			
+//get preCmd to load prerequisites (eg: source /etc/bashrc) (to run qstat qdel)
+        $proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
+        $proPipeCmd = $proPipeAll[0]->{'cmd'};
+        $profileCmd = $cluDataArr[0]["cmd"];
+        $imageCmd = "";
+        $preCmd = $this->getPreCmd($profileCmd, $proPipeCmd, $imageCmd);
+			
+        if ($executor == "lsf" && $commandType == "checkRunPid"){
+        	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bjobs\" 2>&1 &");
+            if (preg_match("/$pid/",$check_run)){
+                return json_encode('running');
+            } else {
+            	return json_encode('done');
             }
-            $ssh_id = $cluDataArr[0]["ssh_id"];
-            $executor = $cluDataArr[0]['executor'];
-            $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
-			
-			//get preCmd to load prerequisites (eg: source /etc/bashrc) (to run qstat qdel)
-			$proPipeAll = json_decode($this->getProjectPipelines($project_pipeline_id,"",$ownerID));
-        	$proPipeCmd = $proPipeAll[0]->{'cmd'};
-			$profileCmd = $cluDataArr[0]["cmd"];
-			$imageCmd = "";
-            $preCmd = $this->getPreCmd($profileCmd, $proPipeCmd, $imageCmd);
-			
-			if ($executor == "lsf" && $commandType == "checkRunPid"){
-            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bjobs\" 2>&1 &");
-				if (preg_match("/$pid/",$check_run)){
-            		return json_encode('running');
-            	} else {
-            		return json_encode('done');
-            	}
-			} else if ($executor == "sge" && $commandType == "checkRunPid"){
-            	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qstat -j $pid\" 2>&1 &");
-				if (preg_match("/job_number:/",$check_run)){
-            		return json_encode('running');
-            	} else {
-					$this->updateRunPid($project_pipeline_id, "0", $ownerID);
-            		return json_encode('done');
-				} 
-			} else if ($executor == "sge" && $commandType == "terminateRun"){
-            	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qdel $pid\" 2>&1 &");
-				return json_encode('terminateCommandExecuted');
-			} else if ($executor == "lsf" && $commandType == "terminateRun"){
-            	$terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bkill $pid\" 2>&1 &");
-				return json_encode('terminateCommandExecuted');
-			} else if ($executor == "local" && $commandType == "terminateRun"){
-                $cmd = "ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && ps -ef |grep nextflow.*/run$project_pipeline_id/ |grep -v grep | awk '{print \\\"kill \\\"\\\$2}' |bash \" 2>&1 &";
-            	$terminate_run = shell_exec($cmd);
-				return json_encode('terminateCommandExecuted');
-			}
+        } else if ($executor == "sge" && $commandType == "checkRunPid"){
+            $check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qstat -j $pid\" 2>&1 &");
+            if (preg_match("/job_number:/",$check_run)){
+                return json_encode('running');
+            } else {
+				$this->updateRunPid($project_pipeline_id, "0", $ownerID);
+                return json_encode('done');
+            } 
+        } else if ($executor == "sge" && $commandType == "terminateRun"){
+            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qdel $pid\" 2>&1 &");
+            return json_encode('terminateCommandExecuted');
+        } else if ($executor == "lsf" && $commandType == "terminateRun"){
+            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bkill $pid\" 2>&1 &");
+            return json_encode('terminateCommandExecuted');
+        } else if ($executor == "local" && $commandType == "terminateRun"){
+            $cmd = "ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && ps -ef |grep nextflow.*/run$project_pipeline_id/ |grep -v grep | awk '{print \\\"kill \\\"\\\$2}' |bash \" 2>&1 &";
+        	$terminate_run = shell_exec($cmd);
+            return json_encode('terminateCommandExecuted');
+        } 
     	
 	}
 	public function terminateRun($pid, $project_pipeline_id, $ownerID) {
@@ -1614,7 +1647,7 @@ class dbfuncs {
             return json_encode($log_array);
     }
     
-    public function startClusterDeamonSSH($connect, $profileId, $ownerID) {
+    public function clusterDeamonSSH($connect, $profileId, $type, $ownerID) {
             $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
             $cluDataArr=json_decode($cluData,true);
             $ssh_id = $cluDataArr[0]["ssh_id"];
@@ -1622,9 +1655,15 @@ class dbfuncs {
             $mnt = trim($mnt);
             $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
             //sudo nextflow node -bg -cluster.join path:/mnt/efs/.cluster/run8
+        if ($type == "start"){
             $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mkdir -p $mnt/.dolphinnext/profile$profileId && chmod 777 $mnt/.dolphinnext/profile$profileId && nextflow node -bg -cluster.join path:$mnt/.cluster/profile$profileId >$mnt/.cluster/profile$profileId/log.txt  \" 2>&1 & echo $! &";
+        } else if ($type == "check"){
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"ps -ef |grep nextflow.* |grep -v grep | awk '{print $2\\\" \\\"$8}'  \" 2>&1 &";
+        } else if ($type == "deleteStart"){
+            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"rm -rf $mnt/.dolphinnext/profile$profileId/* && mkdir -p $mnt/.dolphinnext/profile$profileId && chmod 777 $mnt/.dolphinnext/profile$profileId && nextflow node -bg -cluster.join path:$mnt/.cluster/profile$profileId >$mnt/.cluster/profile$profileId/log.txt  \" 2>&1 & echo $! &";
+        }
             $log_array = $this->runCommand ($cmd, 'startClusterDeamon', '');
-            return json_encode($cmd);
+            return json_encode($log_array);
     }
     
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
@@ -1655,6 +1694,10 @@ class dbfuncs {
             $outdir = $proPipeAll[0]->{'output_dir'};
             $dolphin_path_real = "$outdir/run{$project_pipeline_id}";
             $nextflow_log = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect 'cat $dolphin_path_real/log.txt 2>/dev/null' 2>&1 &");
+            //if workdir not exist, create it
+            if (!file_exists("../{$this->run_path}/run{$project_pipeline_id}")) {
+                mkdir("../{$this->run_path}/run{$project_pipeline_id}", 0755, true);
+            }
             // save $nextflow_log to a file 
             if ($nextflow_log != "" && !empty($nextflow_log)){
                 $this->writeLog($project_pipeline_id,$nextflow_log,'w','nextflow.log');
