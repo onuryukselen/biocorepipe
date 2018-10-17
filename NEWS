@@ -1,3 +1,6 @@
+17.10.2018 Version 0.2.14
+Bug fixed for dynamic autofill feature in the form fields 
+
 17.10.2018 Version 0.2.13
 Nested pipeline executor settings fixed.
 Autofill feature for process executor settings added to nested pipelines.
@@ -9,11 +12,11 @@ Checkboxes of each executor settings dynamicaly checked when user change one par
 Amazon modal multiple node feature updated and commands added for deamon log removal. 
 
 14.10.2018 Version 0.2.11
-Dynamic autofill feature added to from fields in the run page.
+Dynamic autofill feature added to form fields in the run page.
 Amazon autoscale modal updated. 
 
 13.10.2018 Version 0.2.10
-Basic autofill feature added to from fields in the run page.
+Basic autofill feature added to form fields in the run page.
 MinInstance feature added to amazon autoscale. 
 
 10.10.2018 Version 0.2.09
