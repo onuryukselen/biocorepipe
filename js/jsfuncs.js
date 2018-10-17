@@ -67,12 +67,17 @@ function runAmazonCloudCheck(proId) {
     var runAmzCloudCheck = getValues({ p: "runAmazonCloudCheck", profileId: proId });
     return runAmzCloudCheck;
 }
+stopAmz = false;
 retryCount = 0;
 //read CloudCheck log file
 function checkAmazonStatus(proId) {
     var checkAmazonStatusLog = getValues({ p: "checkAmazonStatus", profileId: proId });
     console.log(checkAmazonStatusLog)
-    if (checkAmazonStatusLog.status === "waiting") {
+    if (stopAmz && checkAmazonStatusLog.status !== "terminated") {
+        $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
+        clearInterval(window['interval_amzStatus_' + proId]);
+        checkAmazonTimer(proId, 5500);
+    } else if (checkAmazonStatusLog.status === "waiting") {
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
@@ -128,6 +133,7 @@ function checkAmazonStatus(proId) {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'inline');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
     } else if (checkAmazonStatusLog.status === "terminated") {
+        stopAmz = false;
         clearInterval(window['interval_amzStatus_' + proId]);
         if (checkAmazonStatusLog.logAmzCloudList) {
             var logText = checkAmazonStatusLog.logAmzCloudList;
@@ -243,7 +249,7 @@ $(document).ready(function () {
             async: true,
             success: function (s) {
                 if (s.stop_cloud) {
-                    // check the amazon profiles activity each minute.
+                    stopAmz = true;
                     $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
                     //clear previous interval and set new one(with faster check interval).
                     clearInterval(window['interval_amzStatus_' + proId]);
@@ -509,7 +515,7 @@ if (loginSuccess === true && userProfile !== '') {
     if (userName) {
         $('#userName').text(userName);
     }
-} 
+}
 // google sign-in
 function Google_signIn(googleUser) {
     var id_token = googleUser.getAuthResponse().id_token;
@@ -676,10 +682,10 @@ function refreshCollapseIconDiv() {
             $(textClassMinus).addClass('fa-plus-square-o');
         }
     });
-     $('.collapseIconItem').on('click', function (e) {
+    $('.collapseIconItem').on('click', function (e) {
         var itemClass = $(this).attr("class")
-         console.log(itemClass)
-         console.log(itemClass.match(/fa-minus-square-o/))
+        console.log(itemClass)
+        console.log(itemClass.match(/fa-minus-square-o/))
         if (itemClass.match(/fa-plus-square-o/)) {
             $(this).removeClass('fa-plus-square-o');
             $(this).addClass('fa-minus-square-o');
@@ -688,8 +694,8 @@ function refreshCollapseIconDiv() {
             $(this).addClass('fa-plus-square-o');
         }
     });
-    
-    
+
+
 }
 
 
