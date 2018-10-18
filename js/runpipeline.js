@@ -1605,7 +1605,7 @@ function insertProPipePanel(script, gNum, name, pObj) {
                     }
                     if (autoform) {
                         console.log(autoform)
-                        addProcessPanelAutoform(gNum, name, varName, type, autoform);
+                        addProcessPanelAutoform(prefix + gNum, name, varName, type, autoform);
                     }
                 }
             }
@@ -1636,7 +1636,7 @@ function insertProPipePanel(script, gNum, name, pObj) {
                         varName = panelObj.schema[i].varName;
                         type = panelObj.schema[i].type;
                         var each_condi = condi[k];
-                        addProcessPanelCondi(gNum, name, varName, type, each_condi);
+                        addProcessPanelCondi(prefix + gNum, name, varName, type, each_condi);
                     }
                 }
             }
