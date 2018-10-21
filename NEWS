@@ -1,5 +1,8 @@
+21.10.2018 Version 0.2.16
+Deactivation of process feature is added by using "when" syntax.
+
 17.10.2018 Version 0.2.15
-Bug fixed for dynamic autofill in nested pipelines form fields. 
+Bug fixed for dynamic autofill feature in form fields of nested pipelines.
 
 17.10.2018 Version 0.2.14
 Bug fixed for dynamic autofill feature in the form fields 
