@@ -892,12 +892,16 @@ function IOandScriptForNf(id, currgid, allEdges) {
         bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
 
     }
+    console.log(whenCond)
     if (whenCond) {
         whenText = getWhenText(whenCond, whenInLib, whenOutLib);
-        script_header = script_header + "\n" + whenText + "\n";
-        script_footer = "}" + "\n" + script_footer + "\n";
+        console.log(whenText)
+        if (whenText && whenText !== ""){
+            script_header = script_header + "\n" + whenText + "\n";
+            script_footer = "}" + "\n" + script_footer + "\n";
+        }
     }
-    console.log(whenText)
+    console.log(script_footer)
     body = bodyInput + "\n" + bodyOutput + "\n" + script
     return [body, script_header, script_footer]
 }
