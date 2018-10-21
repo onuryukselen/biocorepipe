@@ -31,8 +31,8 @@ function checkCopyId(edgelist) {
         var secNode = "";
         [firstNode, secNode] = splitEdges(edges[e]);
         if (ccIDList[firstNode]) {
-             if (!trashIdx.includes(e)){
-            trashIdx.push(e)
+            if (!trashIdx.includes(e)) {
+                trashIdx.push(e)
             }
             var ccIDNode = $("#" + firstNode).attr("ccID");
             if (ccIDNode) {
@@ -46,10 +46,9 @@ function checkCopyId(edgelist) {
                     edges.push(ccIDList[firstNode] + "_" + secNode)
                 }
             }
-        }
-        else if (ccIDList[secNode]) {
-            if (!trashIdx.includes(e)){
-            trashIdx.push(e)
+        } else if (ccIDList[secNode]) {
+            if (!trashIdx.includes(e)) {
+                trashIdx.push(e)
             }
             var ccIDNode = $("#" + secNode).attr("ccID");
             if (ccIDNode) {
@@ -63,13 +62,13 @@ function checkCopyId(edgelist) {
                 }
             }
         }
-//        if (!ccIDList[firstNode] && !ccIDList[secNode]) {
-//            edges.push(firstNode + "_" + secNode)
-//        }
+        //        if (!ccIDList[firstNode] && !ccIDList[secNode]) {
+        //            edges.push(firstNode + "_" + secNode)
+        //        }
     }
     //clean array
-    for (var i = trashIdx.length -1; i >= 0; i--)
-    edges.splice(trashIdx[i],1);
+    for (var i = trashIdx.length - 1; i >= 0; i--)
+        edges.splice(trashIdx[i], 1);
 
     //check equality
     if (JSON.stringify(edges) == JSON.stringify(edgelist)) {
@@ -687,9 +686,62 @@ function getPipelineScript(pipeline_id) {
     return [script_pipe_header, script_pipe_footer]
 }
 
+function getWhenCond(script) {
+    var whenCond = null;
+    if (script.match(/when:/)) {
+        if (script.match(/when:(.*)\n(.*)\n/)) {
+            var whenCond = script.match(/when:(.*)\n(.*)\n/)[2];
+            if (whenCond == undefined) {
+                whenCond = null;
+            }
+        }
+    }
+
+    return whenCond
+}
+
+function getWhenText(whenCond, whenInLib, whenOutLib) {
+    var whenText = ""
+    var pairList = [];
+    $.each(whenInLib, function (el) {
+        if (whenOutLib[el]){
+            pairList.push({inChl:whenInLib[el],outChl:whenOutLib[el]})
+        }
+    });
+    if (pairList.length > 0){
+        whenText = "if (!" + $.trim(whenCond) + "){\n";
+        for (var i = 0; i < pairList.length; i++) {
+            var inChn = pairList[i].inChl;
+            var outChn = pairList[i].outChl;
+            for (var k = 0; k < inChn.length; k++) {
+//                whenText += "Channel.from("+inChn[k]+").into{"+outChn.join(";")+"}\n"
+//                whenText += inChn[k]+".into{"+outChn.join(";")+"}\n" //Channel `g_2_reads_g_8` has been used twice 
+                //
+            }
+        
+        }
+        whenText += "}";
+    }
+    return whenText
+}
+
+function addChannelName(whenCond, whenLib, file_type, channelName) {
+    if (whenCond && whenLib[file_type]) {
+        whenLib[file_type].push(channelName)
+    } else if (whenCond && !whenLib[file_type]) {
+        whenLib[file_type] = [];
+        whenLib[file_type].push(channelName)
+    }
+    return whenLib
+}
+
 function IOandScriptForNf(id, currgid, allEdges) {
     var processData = getValues({ p: "getProcessData", "process_id": id });
     script = decodeHtml(processData[0].script);
+    var whenCond = getWhenCond(script);
+    var whenInLib = {};
+    var whenOutLib = {};
+    var whenText = '';
     if (processData[0].script_header !== null) {
         var script_header = decodeHtml(processData[0].script_header);
     } else {
@@ -719,9 +771,9 @@ function IOandScriptForNf(id, currgid, allEdges) {
         }
         Iid = IList[i].id //i-11-0-9-0
         var inputIdSplit = Iid.split("-")
-        var qual = parametersData.filter(function (el) {
-            return el.id == inputIdSplit[3]
-        })[0].qualifier
+        var paramData = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0]
+        var qual = paramData.qualifier
+        var file_type = paramData.file_type
 
         var inputName = document.getElementById(Iid).getAttribute("name");
         var inputClosure = document.getElementById(Iid).getAttribute("closure");
@@ -766,6 +818,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
                         var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName;
                     }
                 }
+                whenInLib = addChannelName(whenCond, whenInLib, file_type, channelName)
                 bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
             }
         }
@@ -780,9 +833,10 @@ function IOandScriptForNf(id, currgid, allEdges) {
         }
         Oid = OList[o].id
         outputIdSplit = Oid.split("-")
-        qual = parametersData.filter(function (el) {
-            return el.id == outputIdSplit[3]
-        })[0].qualifier
+        var paramData = parametersData.filter(function (el) { return el.id == outputIdSplit[3] })[0];
+        var qual = paramData.qualifier;
+        var file_type = paramData.file_type;
+
         outputName = document.getElementById(Oid).getAttribute("name");
         var outputClosure = document.getElementById(Oid).getAttribute("closure");
         var outputOperator = document.getElementById(Oid).getAttribute("operator");
@@ -841,9 +895,15 @@ function IOandScriptForNf(id, currgid, allEdges) {
         } else if (qual !== "set") {
             channelNameAll = channelName;
         }
+        whenOutLib = addChannelName(whenCond, whenOutLib, file_type, channelNameAll)
         bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
 
     }
+    if (whenCond) {
+        whenText = getWhenText(whenCond, whenInLib, whenOutLib);
+        script_footer = script_footer + "\n" + whenText + "\n";
+    }
+    console.log(whenText)
     body = bodyInput + "\n" + bodyOutput + "\n" + script
     return [body, script_header, script_footer]
 }

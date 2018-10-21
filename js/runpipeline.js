@@ -1608,29 +1608,27 @@ function insertProPipePanel(script, gNum, name, pObj) {
 
             }
             if (condi) {
-                console.log(condi)
+                var varN = "";
+                var restN = "";
                 for (var a = 0; a < condi.length; a++) {
-                //if contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
-                $.each(condi[a], function (el) {
-                    for (var k = 0; k < condi[a][el].length; k++) {
-                        var selCond = condi[a][el][k];
-                        if (selCond.match(/\|/) && selCond.match(/\=/)) {
+                    //if contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
+                    $.each(condi[a], function (el) {
+                        for (var k = 0; k < condi[a][el].length; k++) {
+                            var selCond = condi[a][el][k];
+                            if (selCond.match(/\|/) && selCond.match(/\=/)) {
                     [varN, restN] = parseVarPart(selCond)
-                            restN = restN.replace("(", "")
-                            restN = restN.replace(")", "")
-                            var allOpt = restN.split("|")
-                            for (var n = 0; n < allOpt.length; n++) {
-                                var newData = condi[a][el].slice();
-                                newData[k] = varN + "=" + allOpt[n];
-                                condi[a].push(newData)
+                                restN = restN.replace("(", "")
+                                restN = restN.replace(")", "")
+                                var allOpt = restN.split("|")
+                                for (var n = 0; n < allOpt.length; n++) {
+                                    var newData = condi[a][el].slice();
+                                    newData[k] = varN + "=" + allOpt[n];
+                                    condi[a].push(newData)
+                                }
                             }
                         }
-                    }
-                });
+                    });
                 }
-                console.log(condi)
-                
-
                 for (var k = 0; k < condi.length; k++) {
                     for (var i = 0; i < panelObj.schema.length; i++) {
                         varName = panelObj.schema[i].varName;
