@@ -737,11 +737,11 @@ class dbfuncs {
         $text.= "   autoscale {\n";
         $text.= "       enabled = true \n";
         $text.= "       terminateWhenIdle = true\n";
-        if (!empty($autoscale_maxIns)){
-        $text.= "       maxInstances = $autoscale_maxIns\n";
-        }
         if (!empty($autoscale_minIns)){
         $text.= "       minInstances = $autoscale_minIns\n";
+        }
+        if (!empty($autoscale_maxIns)){
+        $text.= "       maxInstances = $autoscale_maxIns\n";
         }
         $text.= "   }\n";
         }
