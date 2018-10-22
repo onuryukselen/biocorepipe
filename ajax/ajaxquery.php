@@ -259,11 +259,6 @@ else if ($p=="removeProjectPipeline"){
     $db -> removeProjectPipelineInputByPipe($id);
     $data = $db -> removeProjectPipeline($id);
 }
-else if ($p=="removeProjectPipelineInputByGnum"){  
-    $g_num = $_REQUEST['g_num'];
-    settype($g_num, 'integer');
-    $data = $db -> removeProjectPipelineInputByGnum($id,$g_num);
-}
 else if ($p=="renameProjectPipelineInputByGnum"){  
     $g_num = $_REQUEST['g_num'];
     $given_name = $_REQUEST['given_name'];
@@ -271,8 +266,6 @@ else if ($p=="renameProjectPipelineInputByGnum"){
     $data = $db -> renameProjectPipelineInputByGnum($id,$given_name,$g_num, $ownerID);
 }
 else if ($p=="removeProjectInput"){   
-    $input_id = $_REQUEST['input_id'];
-    $db -> removeProjectPipelineInputbyInputId($input_id);
     $data = $db -> removeProjectInput($id);
 }
 else if ($p=="removeInput"){   
