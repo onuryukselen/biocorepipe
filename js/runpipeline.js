@@ -2022,45 +2022,6 @@ function scMouseOut() {
     }
 }
 
-//function remove(delID) {
-//    if (delID !== undefined) {
-//        deleteID = delID;
-//    }
-//    if (!binding) {
-//        g = document.getElementById(deleteID).parentElement.id //g-5
-//
-//        //--delete pipeline details
-//        var gNum = g.split('-')[1];
-//        var proClass = $('#' + g).attr('class') //
-//        var proID = $('#' + g).attr('class').split('-')[1] //
-//        if (proClass === 'g-inPro') { // input param is deleted
-//            $('#inputTa-' + gNum).remove();
-//        } else if (proClass === 'g-outPro') { // output param is deleted
-//            $('#outputTa-' + gNum).remove();
-//        } else { //process is deleted
-//            //	              removeProPipeTab(proID)
-//        }
-//        //--delete pipeline details ends
-//
-//        d3.select("#" + g).remove()
-//        delete processList[g]
-//        removeLines(g)
-//    }
-//}
-
-//function removeLines(g) {
-//
-//    allLines = d3.selectAll("line")[0]
-//    for (var line = 0; line < allLines.length; line++) {
-//        from = allLines[line].getAttribute("g_from")
-//        to = allLines[line].getAttribute("g_to")
-//
-//        if (from == g || to == g) {
-//            lineid = allLines[line].id
-//            removeEdge('c--' + lineid)
-//        }
-//    }
-//}
 
 function removeDelCircle(lineid) {
     d3.select("#c--" + lineid).remove()
@@ -2186,22 +2147,6 @@ function IOmouseOut() {
 
 }
 
-//function IOconnect() {
-//    selectedIO = this.id //first click
-//    className = document.getElementById(selectedIO).className.baseVal.split(" ")
-//    cand = searchedType(className[1])
-//    var givenNamePP = document.getElementById(this.id).getAttribute("name")
-//    if (givenNamePP === 'outputparam' && className[0] !== 'connect_to_output') {
-//        //If output parameter already connected , do nothing
-//    } else {
-//        if (binding) {
-//            stopBinding(className, cand, selectedIO)
-//        } else {
-//            startBinding(className, cand, selectedIO)
-//        }
-//
-//    }
-//}
 
 function conToInput() {
     d3.selectAll("circle").filter("." + cand).attr("status", "candidate") //select all available inputs for inputparam circles
@@ -2581,50 +2526,7 @@ function createEdges(first, second, pObj) {
 
 }
 
-//function removeEdge(delID) {
-//    if (delID !== undefined) {
-//        deleteID = delID;
-//    }
-//
-//    d3.select("#" + deleteID).remove() //eg. c--o-inPro-1-9-0_i-10-0-9-1
-//    d3.select("#" + deleteID.split("--")[1]).remove()
-//    edges.splice(edges.indexOf(deleteID.split("--")[1]), 1);
-//    var firstParamId = deleteID.split("--")[1].split("_")[0];
-//    var secondParamId = deleteID.split("--")[1].split("_")[1];
-//    var paramType = firstParamId.split("-")[1] //inPro or outPro
-//    var delsecGnum = secondParamId.split("-")[4] //gNum
-//    var delGnum = firstParamId.split("-")[4] //gNum
-//
-//    //input/output param has still edge/edges
-//    //remove process name from pipeline details table
-//    if (edges.searchFor(firstParamId)) {
-//        if (paramType === 'inPro') {
-//            //$('#inputTa-' + delGnum + '> :last-child').append('<span id=proGName-' + secGnum + '>' + processName + '</span>');
-//            $('#inputTa-' + delGnum + '> :last-child > ' + '#proGName-' + delsecGnum).remove();
-//            if ($('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum)[0]) {
-//                $('#inputTa-' + delGnum + '> :last-child > ' + '#proGcomma-' + delsecGnum).remove();
-//            } else {
-//                $('#inputTa-' + delGnum + '> :last-child > :first-child').remove();
-//            }
-//
-//        }
-//    }
-//
-//    //input/output param has no edge any more
-//    if (!edges.searchFor(firstParamId)) {
-//        d3.selectAll("#" + firstParamId).attr("connect", 'single')
-//        //remove row from pipeline details table
-//        if (paramType === 'inPro') {
-//            $('#inputTa-' + delGnum).remove() //gNum
-//        } else if (paramType === 'outPro') {
-//            $('#outputTa-' + delGnum).remove() //gNum
-//        }
-//    }
-//    //process has no edge any more
-//    if (!edges.searchFor(secondParamId)) {
-//        d3.selectAll("#" + secondParamId).attr("connect", 'single')
-//    }
-//}
+
 
 function delMouseOver() {
     d3.select("#del" + this.id).attr('fill-opacity', 0.8)
@@ -2644,56 +2546,7 @@ function cancel() {
     }
 }
 
-//function rename() {
-//    renameTextID = this.id;
-//    renameText = d3.select("#" + this.id).attr('name');
-//    body = document.body;
-//    bodyW = body.offsetWidth;
-//    bodyH = body.scrollHeight;
-//    $('#renameModal').modal("show");
-//}
 
-//function changeName() {
-//    newName = document.getElementById("mRenName").value
-//    d3.select("#" + renameTextID).attr('name', newName)
-//    newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
-//    d3.select("#" + renameTextID).text(newNameShow)
-//
-//    //update pipeline details table
-//    proType = $('#' + renameTextID).parent().attr('class').split('-')[1];
-//    var gNumP = renameTextID.split('-')[1];
-//    $('span[id="proGName-' + gNumP + '\"]').text(newName);
-//    if (proType === 'inPro') {
-//        $('#input-PName-' + renameTextID.split('-')[1]).text(newName); //id=input-PName-0
-//    } else if (proType === 'outPro') {
-//        $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
-//    }
-//    processList[document.getElementById(renameTextID).parentElement.id] = newName
-//    document.getElementById(renameTextID).parentElement.id
-//}
-
-
-//function getInfo() {
-//    className = document.getElementById(this.id).className.baseVal.split("-");
-//    gNumInfo = this.id.split("-")[1];
-//    infoID = className[1];
-//    $('#addProcessModal').modal("show");
-//}
-
-//function removeElement(delID) {
-//    if (delID !== undefined) {
-//        deleteID = delID;
-//    } else {
-//        deleteID = this.id;
-//    }
-//    body = document.body
-//    bodyW = body.offsetWidth
-//    bodyH = body.offsetHeight
-//
-//    if (!binding) {
-//        $('#confirmD3Modal').modal("show");
-//    }
-//}
 
 
 

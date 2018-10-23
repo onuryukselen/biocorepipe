@@ -1377,10 +1377,6 @@ class dbfuncs {
         $sql = "DELETE FROM project_pipeline_input WHERE project_pipeline_id = '$id'";
         return self::runSQL($sql);
     }
-    public function removeProjectPipelineInputbyInputId($id) {
-        $sql = "DELETE FROM project_pipeline_input WHERE id = '$id'";
-        return self::runSQL($sql);
-    }
     public function removeProjectInput($id) {
         $sql = "DELETE FROM project_input WHERE id = '$id'";
         return self::runSQL($sql);
