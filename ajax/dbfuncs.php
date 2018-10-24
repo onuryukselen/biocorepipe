@@ -366,18 +366,7 @@ class dbfuncs {
     //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
         if ($executor == "local"){
             if ($executor_job == 'ignite'){
-                $amzData=$this->getProfileAmazonbyID($profileId, $ownerID);
-                $amzDataArr=json_decode($amzData,true);
-                $nodes = $amzDataArr[0]['nodes'];
-                settype($nodes, "integer");
-                $mnt = $amzDataArr[0]["shared_storage_mnt"]; // /mnt/efs
-                $mnt = trim($mnt);
-                $joinMnt = ""; 
-                if ($nodes >1){
-                    $joinMnt = " -cluster.join path:$mnt/.dolphinnext/profile$profileId";
-                }
-                //-cluster.join path:/mnt/efs/.dolphinnext/profile9
-                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $joinMnt $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
+                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }else {
                 $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }
@@ -725,7 +714,7 @@ class dbfuncs {
         settype($nodes, "integer");
         $autoscale_check = $data[0]->{'autoscale_check'};
         $autoscale_maxIns = $data[0]->{'autoscale_maxIns'};
-        $autoscale_minIns = $data[0]->{'autoscale_minIns'};
+        $autoscale_minIns = $nodes;
         $text= "cloud { \n";
         $text.= "   userName = '$username'\n";
         $text.= "   imageId = '$image_id'\n";
@@ -850,28 +839,6 @@ class dbfuncs {
                             if (!empty($matchNodes[1])){
                                 preg_match_all("/[ ]+[^ ]+[ ]+(.*\.com)\n.*/sU",$matchNodes[1], $matchNodesAll);
                                 $log_array['childNodes'] = $matchNodesAll[1];
-                                if (!empty($matchNodesAll[1])){
-                                    $node_statusAr = array();
-                                    $n=0;
-                                    foreach ($matchNodesAll[1] as $item):
-                                        $n=$n+1;
-                                        $item = trim($item);
-                                        $sshNode = $username."@".$item;
-                                        if ($n == 1){
-                                            $startClusterDeamonLog = $this->clusterDeamonSSH($sshNode, $id, "deleteStart", $ownerID);
-                                        } else{
-                                            $startClusterDeamonLog = $this->clusterDeamonSSH($sshNode, $id, "start", $ownerID);
-                                        }
-                                        if (!empty($startClusterDeamonLog)){
-                                            $check_deamon = $this->clusterDeamonSSH($sshNode, $id, "check", $ownerID);
-                                        }else {
-                                            $check_deamon = json_encode("pidNotExist");
-                                        }
-                                        $log_array[$sshNode] = $startClusterDeamonLog;
-                                        $node_statusAr[] = array($sshNode => $check_deamon);
-                                    endforeach;
-                                    $this->updateAmazonProNodeStatus($id, json_encode($node_statusAr), $ownerID);
-                                }
                             }
                         }
                     }
@@ -1640,24 +1607,6 @@ class dbfuncs {
             return json_encode($log_array);
     }
     
-    public function clusterDeamonSSH($connect, $profileId, $type, $ownerID) {
-            $cluData=$this->getProfileAmazonbyID($profileId, $ownerID);
-            $cluDataArr=json_decode($cluData,true);
-            $ssh_id = $cluDataArr[0]["ssh_id"];
-            $mnt = $cluDataArr[0]["shared_storage_mnt"]; // /mnt/efs
-            $mnt = trim($mnt);
-            $userpky = "{$this->ssh_path}/{$ownerID}_{$ssh_id}_ssh_pri.pky";
-            //sudo nextflow node -bg -cluster.join path:/mnt/efs/.cluster/run8
-        if ($type == "start"){
-            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"mkdir -p $mnt/.dolphinnext/profile$profileId && chmod 777 $mnt/.dolphinnext/profile$profileId && nextflow node -bg -cluster.join path:$mnt/.cluster/profile$profileId >$mnt/.cluster/profile$profileId/log.txt  \" 2>&1 & echo $! &";
-        } else if ($type == "check"){
-            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"ps -ef |grep nextflow.* |grep -v grep | awk '{print $2\\\" \\\"$8}'  \" 2>&1 &";
-        } else if ($type == "deleteStart"){
-            $cmd = "ssh {$this->ssh_settings}  -i $userpky $connect \"rm -rf $mnt/.dolphinnext/profile$profileId/* && mkdir -p $mnt/.dolphinnext/profile$profileId && chmod 777 $mnt/.dolphinnext/profile$profileId && nextflow node -bg -cluster.join path:$mnt/.cluster/profile$profileId >$mnt/.cluster/profile$profileId/log.txt  \" 2>&1 & echo $! &";
-        }
-            $log_array = $this->runCommand ($cmd, 'startClusterDeamon', '');
-            return json_encode($log_array);
-    }
     
     public function getNextflowLog($project_pipeline_id,$profileType,$profileId,$ownerID) {
         $path= "../{$this->run_path}/run$project_pipeline_id";

@@ -204,14 +204,12 @@ $(document).ready(function () {
             var numNodes = $('#numNodes').val();
             var autoscale_check = $('#autoscale_check').is(":checked").toString();
             var autoscale_maxIns = $('#autoscale_maxIns').val();
-            var autoscale_minIns = $('#autoscale_minIns').val();
             if (numNodes !== '') {
                 data = {
                     "id": proId,
                     "nodes": numNodes,
                     "autoscale_check": autoscale_check,
                     "autoscale_maxIns": autoscale_maxIns,
-                    "autoscale_minIns": autoscale_minIns,
                     "p": "startProAmazon"
                 };
                 $.ajax({
