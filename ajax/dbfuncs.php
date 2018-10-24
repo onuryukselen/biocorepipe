@@ -220,15 +220,16 @@ class dbfuncs {
         return array($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu, $next_clu_opt, $executor_job,$ssh_id);
     }
     function getPreCmd ($profileCmd,$proPipeCmd, $imageCmd){
+            $profile_def = "source /etc/profile && source ~/.bash_profile";
             //combine pre-run cmd
             if (!empty($profileCmd) && !empty($proPipeCmd)){
-                $preCmd = "&& ".$profileCmd." && ".$proPipeCmd;
+                $preCmd = $profile_def." && ".$profileCmd." && ".$proPipeCmd;
             } else if (!empty($profileCmd)){
-                $preCmd = "&& ".$profileCmd;
+                $preCmd = $profile_def." && ".$profileCmd;
             } else if (!empty($proPipeCmd)){
-                $preCmd = "&& ".$proPipeCmd;
+                $preCmd = $profile_def." && ".$proPipeCmd;
             } else {
-                $preCmd ="";
+                $preCmd = $profile_def;
             }
             //combine pre-run cmd with $imageCmd
             if (!empty($preCmd) && !empty($imageCmd)){
@@ -557,7 +558,7 @@ class dbfuncs {
                 if ($matches[2] == " ") {
                     $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID);
             
-                    $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"cd $dolphin_path_real $preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
+                    $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"$preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
                     $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
                     $this->writeLog($project_pipeline_id,$cmd,'a','log.txt');
                     if (!$next_submit_pid) {
