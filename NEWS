@@ -1,3 +1,6 @@
+24.10.2018 Version 0.2.21
+Default command is defined before running nextflow: "source /etc/profile && source ~/.bash_profile"
+
 22.10.2018 Version 0.2.20
 Pipeline modules added to public pipeline page for visualization.
 
