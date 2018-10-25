@@ -219,31 +219,25 @@ class dbfuncs {
         $executor_job = $cluDataArr[0]['executor_job'];
         return array($connect, $next_path, $profileCmd, $executor,$next_time, $next_queue, $next_memory, $next_cpu, $next_clu_opt, $executor_job,$ssh_id);
     }
-    function getPreCmd ($profileCmd,$proPipeCmd, $imageCmd){
-            $profile_def = "source /etc/profile && source ~/.bash_profile";
-            //combine pre-run cmd
-            if (!empty($profileCmd) && !empty($proPipeCmd)){
-                $preCmd = $profile_def." && ".$profileCmd." && ".$proPipeCmd;
-            } else if (!empty($profileCmd)){
-                $preCmd = $profile_def." && ".$profileCmd;
-            } else if (!empty($proPipeCmd)){
-                $preCmd = $profile_def." && ".$proPipeCmd;
-            } else {
-                $preCmd = $profile_def;
-            }
-            //combine pre-run cmd with $imageCmd
-            if (!empty($preCmd) && !empty($imageCmd)){
-                $preCmd = $preCmd." && ".$imageCmd;
-            } else if (!empty($preCmd)){
-                $preCmd = $preCmd;
-            } else if (!empty($imageCmd)){
-                $preCmd = "&& ".$imageCmd;
-            } else {
-                $preCmd ="";
-            }
-    return $preCmd;
+    
+    function getPreCmd ($profileType,$profileCmd,$proPipeCmd, $imageCmd){
+    $profile_def = "";
+    if ($profileType == "amazon"){
+        $profile_def = "source /etc/profile && source ~/.bash_profile";
+    } 
+    //combine pre-run cm
+    $arr = array($profile_def, $profileCmd, $proPipeCmd, $imageCmd);
+    $preCmd="";
+    for ($i=0; $i<count($arr); $i++) {
+        $preCmd .= $arr[$i];
+        if (!empty($arr[$i]) && $i < count($arr)-1){
+            $preCmd .= " && ";
+        }
     }
 
+    return $preCmd;
+    }
+    
     function getNextPathReal($next_path){
         if (!empty($next_path)){
         $next_path_real = "$next_path/nextflow";
@@ -356,7 +350,7 @@ class dbfuncs {
     }
 
     //get all nextflow executor text
-    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs,$next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID) {
+    function getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue, $next_cpu,$next_time,$next_memory,$jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID) {
 		if ($runType == "resumerun"){
 			$runType = "-resume";
 		} else {
@@ -366,7 +360,7 @@ class dbfuncs {
     //for lsf "bsub -q short -n 1  -W 100 -R rusage[mem=32024]";
         if ($executor == "local"){
             if ($executor_job == 'ignite'){
-                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -process.executor ignite $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
+                $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf -w $dolphin_path_real/work -process.executor ignite $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }else {
                 $exec_next_all = "cd $dolphin_path_real && $next_path_real $dolphin_path_real/nextflow.nf $next_inputs $runType $reportOptions > $dolphin_path_real/log.txt ";
             }
@@ -513,7 +507,7 @@ class dbfuncs {
             //get nextflow input parameters
             $next_inputs = $this->getNextInputs($executor, $project_pipeline_id,$ownerID);
             //get cmd before run
-            $preCmd = $this->getPreCmd ($profileCmd,$proPipeCmd, $imageCmd);
+            $preCmd = $this->getPreCmd ($profileType,$profileCmd,$proPipeCmd, $imageCmd);
             //eg. /project/umw_biocore/bin
             $next_path_real = $this->getNextPathReal($next_path);
 
@@ -1545,7 +1539,7 @@ class dbfuncs {
         $proPipeCmd = $proPipeAll[0]->{'cmd'};
         $profileCmd = $cluDataArr[0]["cmd"];
         $imageCmd = "";
-        $preCmd = $this->getPreCmd($profileCmd, $proPipeCmd, $imageCmd);
+        $preCmd = $this->getPreCmd($profileType, $profileCmd, $proPipeCmd, $imageCmd);
 			
         if ($executor == "lsf" && $commandType == "checkRunPid"){
         	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bjobs\" 2>&1 &");
