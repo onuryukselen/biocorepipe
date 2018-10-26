@@ -718,7 +718,7 @@ function getWhenText(whenCond, whenInLib, whenOutLib) {
 
         }
         for (var n = 0; n < dummyOutList.length; n++) {
-                whenText += dummyOutList[n]+" = Channel.create()\n"; 
+                whenText += dummyOutList[n]+" = Channel.empty()\n"; 
         }
         whenText += "} else {";
     }
