@@ -699,6 +699,8 @@ function getWhenCond(script) {
 function getWhenText(whenCond, whenInLib, whenOutLib) {
     var whenText = ""
     var pairList = [];
+    console.log(whenInLib)
+    console.log(whenOutLib)
     $.each(whenInLib, function (el) {
         if (whenOutLib[el]) {
             pairList.push({ inChl: whenInLib[el], outChl: whenOutLib[el] })
@@ -715,16 +717,19 @@ function getWhenText(whenCond, whenInLib, whenOutLib) {
 
         }
         whenText += "} else {";
+    } else{
+        whenText = "if (" + $.trim(whenCond) + "){\n";
     }
     return whenText
 }
 
-function addChannelName(whenCond, whenLib, file_type, channelName) {
-    if (whenCond && whenLib[file_type]) {
-        whenLib[file_type].push(channelName)
-    } else if (whenCond && !whenLib[file_type]) {
-        whenLib[file_type] = [];
-        whenLib[file_type].push(channelName)
+function addChannelName(whenCond, whenLib, file_type, channelName,param_name,qual) {
+    var libName = file_type+"_"+param_name+"_"+qual;
+    if (whenCond && whenLib[libName]) {
+        whenLib[libName].push(channelName)
+    } else if (whenCond && !whenLib[libName]) {
+        whenLib[libName] = [];
+        whenLib[libName].push(channelName)
     }
     return whenLib
 }
@@ -768,6 +773,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
         var paramData = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0]
         var qual = paramData.qualifier
         var file_type = paramData.file_type
+        var param_name = paramData.name
 
         var inputName = document.getElementById(Iid).getAttribute("name");
         var inputClosure = document.getElementById(Iid).getAttribute("closure");
@@ -812,7 +818,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
                         var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName;
                     }
                 }
-                whenInLib = addChannelName(whenCond, whenInLib, file_type, channelName)
+                whenInLib = addChannelName(whenCond, whenInLib, file_type, channelName,param_name,qual)
                 bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
             }
         }
@@ -830,6 +836,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
         var paramData = parametersData.filter(function (el) { return el.id == outputIdSplit[3] })[0];
         var qual = paramData.qualifier;
         var file_type = paramData.file_type;
+        var param_name = paramData.name;
         outputName = document.getElementById(Oid).getAttribute("name");
         var outputClosure = document.getElementById(Oid).getAttribute("closure");
         var outputOperator = document.getElementById(Oid).getAttribute("operator");
@@ -888,7 +895,7 @@ function IOandScriptForNf(id, currgid, allEdges) {
         } else if (qual !== "set") {
             channelNameAll = channelName;
         }
-        whenOutLib = addChannelName(whenCond, whenOutLib, file_type, channelNameAll)
+        whenOutLib = addChannelName(whenCond, whenOutLib, file_type, channelNameAll, param_name,qual)
         bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
 
     }
