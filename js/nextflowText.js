@@ -699,11 +699,12 @@ function getWhenCond(script) {
 function getWhenText(whenCond, whenInLib, whenOutLib) {
     var whenText = ""
     var pairList = [];
-    console.log(whenInLib)
-    console.log(whenOutLib)
-    $.each(whenInLib, function (el) {
-        if (whenOutLib[el]) {
+    var dummyOutList = [];
+    $.each(whenOutLib, function (el) {
+        if (whenInLib[el]) {
             pairList.push({ inChl: whenInLib[el], outChl: whenOutLib[el] })
+        } else {
+            dummyOutList.push(whenOutLib[el])
         }
     });
     if (pairList.length > 0) {
@@ -716,9 +717,10 @@ function getWhenText(whenCond, whenInLib, whenOutLib) {
             }
 
         }
+        for (var n = 0; n < dummyOutList.length; n++) {
+                whenText += dummyOutList[n]+" = Channel.create()\n"; 
+        }
         whenText += "} else {";
-    } else{
-        whenText = "if (" + $.trim(whenCond) + "){\n";
     }
     return whenText
 }
