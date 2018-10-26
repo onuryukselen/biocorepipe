@@ -1,3 +1,6 @@
+26.10.2018 Version 0.2.25
+Deactivation of process feature by using "when" syntax is updated.
+
 25.10.2018 Version 0.2.24
 "&&" Fix in nextflow command prep
 
