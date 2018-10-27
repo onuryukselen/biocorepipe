@@ -105,21 +105,21 @@ else if ($p=="startProAmazon"){
 	$autoscale_check = $_REQUEST['autoscale_check'];
 	$autoscale_maxIns = $_REQUEST['autoscale_maxIns'];
     $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check, $autoscale_maxIns,$autoscale_minIns,$ownerID);
-    $data = $db -> startProAmazon($id,$ownerID);
+    $data = $db -> startProAmazon($id,$ownerID,$username);
 }
 else if ($p=="stopProAmazon"){
-    $data = $db -> stopProAmazon($id,$ownerID);
+    $data = $db -> stopProAmazon($id,$ownerID, $username);
 }
 else if ($p=="checkAmzStopLog"){
-    $data = $db -> checkAmzStopLog($id,$ownerID);
+    $data = $db -> checkAmzStopLog($id,$ownerID,$username);
 }
 else if ($p=="checkAmazonStatus"){
 	$profileId = $_REQUEST['profileId'];
-    $data = $db -> checkAmazonStatus($profileId,$ownerID);
+    $data = $db -> checkAmazonStatus($profileId,$ownerID,$username);
 }
 else if ($p=="runAmazonCloudCheck"){
 	$profileId = $_REQUEST['profileId'];
-    $data = $db -> runAmazonCloudCheck($profileId,$ownerID);
+    $data = $db -> runAmazonCloudCheck($profileId,$ownerID, $username);
 }
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);
