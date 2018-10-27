@@ -2038,12 +2038,16 @@ $(document).ready(function () {
                 $('#confirmRevision').on('show.bs.modal', function (event) {
                     $(this).find('form').trigger('reset');
                     $('#confirmYesNoText').html(infoText);
-                    if (numOfProcessPublic === 0 && numOfProPipePublic === 0) {
+                    if ((numOfProcessPublic === 0 && numOfProPipePublic === 0) || usRole == "admin") {
                         $('#saveOnExist').css('display', 'inline');
+                        if (usRole == "admin" && !(numOfProcessPublic === 0 && numOfProPipePublic === 0)){
+                            $('#saveOnExist').attr('class', 'btn btn-danger');
+                        }
                     }
                 });
                 $('#confirmRevision').on('hide.bs.modal', function (event) {
                     $('#saveOnExist').css('display', 'none');
+                    $('#saveOnExist').attr('class', 'btn btn-warning');
                 });
                 $('#confirmRevision').on('click', '#saveOnExist', function (event) {
                     var proGroId = data[5].value;
