@@ -2191,17 +2191,21 @@ function save() {
             }
             //B.2 allow save on new revision
             else if (warnUserPipe === true) {
-                // ConfirmYesNo process modal 
+                // ConfirmYesNo pipeline modal 
                 $('#confirmRevision').off();
                 $('#confirmRevision').on('show.bs.modal', function (event) {
                     $(this).find('form').trigger('reset');
                     $('#confirmYesNoText').html(warnPipeText);
-                    if (numOfProjectPublic === 0) {
+                    if (numOfProjectPublic === 0 || usRole === "admin") {
                         $('#saveOnExist').css('display', 'inline');
+                        if (usRole == "admin" && !(numOfProjectPublic === 0)){
+                            $('#saveOnExist').attr('class', 'btn btn-danger');
+                        }
                     }
                 });
                 $('#confirmRevision').on('hide.bs.modal', function (event) {
                     $('#saveOnExist').css('display', 'none');
+                    $('#saveOnExist').attr('class', 'btn btn-warning');
                 });
 
                 $('#confirmRevision').on('click', '.cancelRev', function (event) {
