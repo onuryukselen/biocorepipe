@@ -36,8 +36,10 @@ function checkAmzProfiles(timer) {
             $('#manageAmz').css('display', 'inline');
             var countActive = 0;
             for (var k = 0; k < proAmzData.length; k++) {
-                if (proAmzData[k].status === "running" || proAmzData[k].status === "waiting" || proAmzData[k].status === "initiated") {
+                if (proAmzData[k].status === "running" || proAmzData[k].status === "waiting" || proAmzData[k].status === "initiated" || proAmzData[k].status === "retry") {
                     countActive++;
+                    window['last_status_log_' + proAmzData[k].id] = "";
+                    window['last_status_' + proAmzData[k].id] = proAmzData[k].status;
                 }
                 if (timer === "timer") {
                     checkAmazonTimer(proAmzData[k].id, 60000);
@@ -68,16 +70,18 @@ function runAmazonCloudCheck(proId) {
     return runAmzCloudCheck;
 }
 stopAmz = false;
-retryCount = 0;
+retryTimer = 5000;
 //read CloudCheck log file
 function checkAmazonStatus(proId) {
     var checkAmazonStatusLog = getValues({ p: "checkAmazonStatus", profileId: proId });
     console.log(checkAmazonStatusLog)
     if (stopAmz && checkAmazonStatusLog.status !== "terminated") {
+        window['last_status_log_' + proId] = "Waiting for termination..";
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for termination..');
         clearInterval(window['interval_amzStatus_' + proId]);
         checkAmazonTimer(proId, 5500);
     } else if (checkAmazonStatusLog.status === "waiting") {
+        window['last_status_log_' + proId] = "Waiting for reply..";
         $('#status-' + proId).html('<i class="fa fa-hourglass-1"></i> Waiting for reply..');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
@@ -85,6 +89,8 @@ function checkAmazonStatus(proId) {
         clearInterval(window['interval_amzStatus_' + proId]);
         checkAmazonTimer(proId, 20000);
     } else if (checkAmazonStatusLog.status === "initiated") {
+        window['last_status_log_' + proId] = "Initializing..";
+        window['last_status_' + proId] = checkAmazonStatusLog.status;
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
         $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Initializing..');
@@ -94,17 +100,22 @@ function checkAmazonStatus(proId) {
     } else if (checkAmazonStatusLog.status === "retry") { //could not read the log file
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'none');
-        $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> Loading..');
-        if (retryCount > 4) {
-            retryCount = 0;
-            clearInterval(window['interval_amzStatus_' + proId]);
-            checkAmazonTimer(proId, 7500);
-        } else {
-            retryCount += 1;
-            setTimeout(function () { checkAmazonStatus(proId); }, 5000);
+        $('#status-' + proId).html('<i class="fa fa-hourglass-half"></i> ' + window['last_status_log_' + proId]);
+        console.log(retryTimer)
+        clearInterval(window['interval_amzStatus_' + proId]);
+        checkAmazonTimer(proId, retryTimer);
+        if (retryTimer <= 19000) {
+            retryTimer += 1000;
+        }
+        var lastStat = window['last_status_' + proId];
+        if (lastStat === "running" || lastStat === "initiated") {
+            $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
+            $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
         }
 
+
     } else if (checkAmazonStatusLog.status === "running") {
+        window['last_status_' + proId] = checkAmazonStatusLog.status;
         //check if run env. in run page is amazon and status is not running (then activate loadRunOptions()
         var chooseEnv = $('#chooseEnv').find(":selected").val();
         if (chooseEnv) {
@@ -124,6 +135,7 @@ function checkAmazonStatus(proId) {
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStart').css('display', 'none');
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').css('display', 'inline');
         $('#status-' + proId).html('Running <br/>' + sshText);
+        window['last_status_log_' + proId] = 'Running <br/>' + sshText;
         $('#amzTable > thead > #amazon-' + proId + ' > > #amzStop').removeAttr('disabled');
 
     } else if (checkAmazonStatusLog.status === "inactive") {
