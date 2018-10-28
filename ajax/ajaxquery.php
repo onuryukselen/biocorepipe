@@ -9,6 +9,9 @@ $db = new dbfuncs();
 if (!isset($_SESSION) || !is_array($_SESSION)) session_start();
 $ownerID = isset($_SESSION['ownerID']) ? $_SESSION['ownerID'] : "";
 $username = isset($_SESSION['username']) ? $_SESSION['username'] : "";
+if (!empty($username)){
+    $usernameCl = str_replace(".","__",$username);   
+}
 $google_id = isset($_SESSION['google_id']) ? $_SESSION['google_id'] : "";
 session_write_close();
 $id = isset($_REQUEST["id"]) ? $_REQUEST["id"] : "";
@@ -105,21 +108,21 @@ else if ($p=="startProAmazon"){
 	$autoscale_check = $_REQUEST['autoscale_check'];
 	$autoscale_maxIns = $_REQUEST['autoscale_maxIns'];
     $db -> updateProfileAmazonNode($id,$nodes,$autoscale_check, $autoscale_maxIns,$autoscale_minIns,$ownerID);
-    $data = $db -> startProAmazon($id,$ownerID,$username);
+    $data = $db -> startProAmazon($id,$ownerID,$usernameCl);
 }
 else if ($p=="stopProAmazon"){
-    $data = $db -> stopProAmazon($id,$ownerID, $username);
+    $data = $db -> stopProAmazon($id,$ownerID, $usernameCl);
 }
 else if ($p=="checkAmzStopLog"){
-    $data = $db -> checkAmzStopLog($id,$ownerID,$username);
+    $data = $db -> checkAmzStopLog($id,$ownerID,$usernameCl);
 }
 else if ($p=="checkAmazonStatus"){
 	$profileId = $_REQUEST['profileId'];
-    $data = $db -> checkAmazonStatus($profileId,$ownerID,$username);
+    $data = $db -> checkAmazonStatus($profileId,$ownerID,$usernameCl);
 }
 else if ($p=="runAmazonCloudCheck"){
 	$profileId = $_REQUEST['profileId'];
-    $data = $db -> runAmazonCloudCheck($profileId,$ownerID, $username);
+    $data = $db -> runAmazonCloudCheck($profileId,$ownerID, $usernameCl);
 }
 else if ($p=="getAllParameters"){
     $data = $db -> getAllParameters($ownerID);

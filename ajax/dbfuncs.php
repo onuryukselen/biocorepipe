@@ -682,7 +682,7 @@ class dbfuncs {
         return $decrypted_string;
     }
     function startProAmazon($id,$ownerID, $username){
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         $data = json_decode($this->getProfileAmazonbyID($id, $ownerID));
         $amazon_cre_id = $data[0]->{'amazon_cre_id'};
         $amz_data = json_decode($this->getAmzbyID($amazon_cre_id, $ownerID));
@@ -754,7 +754,7 @@ class dbfuncs {
     }
 
     function stopProAmazon($id,$ownerID,$username){
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         //stop amazon cluster
         $cmd = "cd {$this->amz_path}/pro_{$profileName} && yes | nextflow cloud shutdown $profileName > logAmzStop.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'stop_cloud', '');
@@ -762,7 +762,7 @@ class dbfuncs {
     }
 
      function checkAmzStopLog($id,$ownerID,$username){
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         //read logAmzStop.txt
         $logPath ="{$this->amz_path}/pro_{$profileName}/logAmzStop.txt";
         $logAmzStop = $this->readFile($logPath);
@@ -771,7 +771,7 @@ class dbfuncs {
     }
      //read both start and list files
     function readAmzCloudListStart($id,$username){
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         //read logAmzCloudList.txt
         $logPath ="{$this->amz_path}/pro_{$profileName}/logAmzCloudList.txt";
         $logAmzCloudList = $this->readFile($logPath);
@@ -783,7 +783,7 @@ class dbfuncs {
         return $log_array;
     }
     public function checkAmazonStatus($id,$ownerID,$username) {
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         //check status
         $amzStat = json_decode($this->getAmazonStatus($id,$ownerID));
         $status = $amzStat[0]->{'status'};
@@ -889,7 +889,7 @@ class dbfuncs {
 
     //check cloud list
     public function runAmazonCloudCheck($id,$ownerID,$username){
-        $profileName = "{$this->dbhost}_{$username}_{$id}";
+        $profileName = "{$username}_{$id}";
         $cmd = "cd {$this->amz_path}/pro_$profileName && rm -f logAmzCloudList.txt && nextflow cloud list $profileName >> logAmzCloudList.txt 2>&1 & echo $! &";
         $log_array = $this->runCommand ($cmd, 'cloudlist', '');
         return json_encode($log_array);
