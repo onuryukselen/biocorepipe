@@ -122,7 +122,7 @@ function createSVG() {
     cx = 0
     cy = 0
     ior = r / 6
-    rP = r + 20; // r of pipeline circle 
+    rP = r + 24; // r of pipeline circle 
     var dat = [{
         x: 0,
         y: 0
@@ -901,7 +901,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
         .attr('font-size', '1em')
         .attr('name', name)
         .attr('class', 'process')
-        .text(truncateName(name, 'process'))
+        .text(truncateName(name, 'pipelineModule'))
         .style("text-anchor", "middle")
         .on("mouseover", scMouseOver)
         .on("mouseout", scMouseOut)
@@ -1826,7 +1826,15 @@ function changeName() {
     newName = document.getElementById("mRenName").value;
     newName = cleanProcessName(newName);
     d3.select("#" + renameTextID).attr('name', newName)
-    newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
+    //save renamed pipeline circle name
+    var pipeModule = document.getElementById(renameTextID).parentElement;
+    var pipeModulePipeId = pipeModule.className.baseVal;
+    if (pipeModulePipeId.match(/g-p(.*)/) && pipeModule.id.match(/g-(.*)/)) {
+        window["pObj" + pipeModule.id.match(/g-(.*)/)[1]].lastPipeName = newName
+        newNameShow = truncateName(newName, 'pipelineModule');
+    } else{
+        newNameShow = truncateName(newName, d3.select("#" + renameTextID).attr('class'));
+    }
     d3.select("#" + renameTextID).text(newNameShow)
 
     //update pipeline details table
@@ -1838,12 +1846,7 @@ function changeName() {
     } else if (proType === 'outPro') {
         $('#output-PName-' + renameTextID.split('-')[1]).text(newName); //id=output-PName-0
     }
-    //save renamed pipeline circle name
-    var pipeModule = document.getElementById(renameTextID).parentElement;
-    var pipeModulePipeId = pipeModule.className.baseVal;
-    if (pipeModulePipeId.match(/g-p(.*)/) && pipeModule.id.match(/g-(.*)/)) {
-        window["pObj" + pipeModule.id.match(/g-(.*)/)[1]].lastPipeName = newName
-    }
+
 
     processList[document.getElementById(renameTextID).parentElement.id] = newName
     processListNoOutput[document.getElementById(renameTextID).parentElement.id] = newName
@@ -1853,15 +1856,24 @@ function changeName() {
 
 function getInfo() {
     className = document.getElementById(this.id).className.baseVal.split("-");
-    gNumInfo = this.id.split("-")[1];
     infoID = className[1];
+    if (this.id.match(/info-/)){
+        gNumInfo = this.id.replace("info-", "");
+    }else { //for pipeline module windows
+        gNumInfo = this.id.replace("info", "");
+    }
+    console.log(gNumInfo)
     $('#addProcessModal').modal("show");
 }
 
 function getInfoPipe() {
     className = document.getElementById(this.id).className.baseVal.split("-");
-    gNumInfo = this.id.split("-")[1];
     infoID = className[1];
+    if (this.id.match(/info-/)){
+        gNumInfo = this.id.replace("info-", "");
+    }else {
+        gNumInfo = this.id.replace("info", "");
+    }
     $('#selectPipelineModal').modal("show");
 }
 

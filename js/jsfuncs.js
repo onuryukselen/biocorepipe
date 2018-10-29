@@ -652,18 +652,20 @@ function getValues(data, async) {
 
 function truncateName(name, type) {
     if (type === 'inOut') {
-        var letterLimit = 7;
+        var letterLimit = 8;
     } else if (type === 'process') {
-        var letterLimit = 12;
+        var letterLimit = 13;
     } else if (type === 'newTable') {
         var letterLimit = 120;
     } else if (type === 'processTable') {
         var letterLimit = 300;
+    } else if (type === 'pipelineModule') {
+        var letterLimit = 23;
     } else if (type === 'sidebarMenu') {
         return name.substring(0, 20);
     }
     if (name.length > letterLimit)
-        return name.substring(0, letterLimit) + '..';
+        return name.substring(0, letterLimit-1) + '..';
     else
         return name;
 }

@@ -256,6 +256,47 @@
 </div>
 
 
+<!-- selectPipelineModal -->
+<div id="selectPipelineModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <span></span>
+            <div id="revModalHeaderPipe" class="modal-header">
+                <button style="padding-top:6px;" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <span id="mPipeRevSpan" style="margin-right:5px; width:130px; float:right;">
+                <select id="mPipeRev" class="fbtn btn-default form-control mPipeRevChange" prev="-1" name="pipeline_rev_id"></select>
+                    </span>
+                <h4 class="modal-title">Select Pipeline</h4>
+                <div class="col-sm-12" id="creatorInfoPipe" style="display:none; font-size:12px; padding-left:0px; margin-left:0px;"> Created by
+                    <span id="ownUserNamePipe">admin</span> on
+                    <span id="datecreatedPipe">Jan. 26, 2016     04:12</span> • Last edited on
+                    <span id="lasteditedPipe">Feb. 8, 2017 12:15</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="panel-body">
+                    <table id="selectPipeTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Process Name</th>
+                                <th>Rev Id</th>
+                                <th>Rev Comment</th>
+                                <th>Modified on</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectPipeline">Select Revision</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- selectPipelineModal Ends-->
+
+
 <!-- Add Process Modal -->
 <div id="addProcessModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" style="width:1300px;" role="document">
@@ -1242,42 +1283,4 @@
 </div>
 
 
-<!-- selectPipelineModal -->
-<div id="selectPipelineModal" style="overflow-y:scroll;" class="modal fade " tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <span></span>
-            <div id="revModalHeaderPipe" class="modal-header">
-                <button style="padding-top:6px;" type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <span id="mPipeRevSpan" style="margin-right:5px; width:130px; float:right;">
-                <select id="mPipeRev" class="fbtn btn-default form-control mPipeRevChange" prev="-1" name="pipeline_rev_id"></select>
-                    </span>
-                <h4 class="modal-title">Select Pipeline</h4>
-                <div class="col-sm-12" id="creatorInfoPipe" style="display:none; font-size:12px; padding-left:0px; margin-left:0px;"> Created by
-                    <span id="ownUserNamePipe">admin</span> on
-                    <span id="datecreatedPipe">Jan. 26, 2016     04:12</span> • Last edited on
-                    <span id="lasteditedPipe">Feb. 8, 2017 12:15</span>
-                </div>
-            </div>
-            <div class="modal-body">
-                <div class="panel-body">
-                    <table id="selectPipeTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th>Process Name</th>
-                                <th>Rev Id</th>
-                                <th>Rev Comment</th>
-                                <th>Modified on</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="selectPipeline">Select Revision</button>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Add Process Modal Ends-->
+

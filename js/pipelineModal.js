@@ -91,7 +91,6 @@ function cleanProcessModal() {
     $('#addHeader').after(menuRevBackup);
     $('#describeGroup').after(menuGrBackup);
     $('#proGroup').after(allBackup);
-    //    $('#proGroup').after('<hr id = "hrDiv">');
     $('#mParameters').after(inTitleBackup);
     $('#inputTitle').after(inBackup);
     $('#inputGroup').after(outTitleBackup);
@@ -118,7 +117,6 @@ function cleanInfoModal() {
     $('#mName').removeAttr('disabled');
     $('#mVersion').removeAttr('disabled');
     $('#mDescription').removeAttr('disabled');
-    //    $('#modeAce').removeAttr('disabled');
     $('#selectProcess').removeAttr("gNum");
     $('#selectProcess').removeAttr("fProID");
     $('#selectProcess').removeAttr("lastProID");
@@ -131,10 +129,7 @@ function cleanInfoModal() {
     $('#saveprocess').css('display', "inline");
     $('#selectProcess').css('display', "none");
     $('#createRevisionBut').css('display', "none");
-
-
 }
-
 
 function refreshProcessModal(selProId) {
     $(this).find('form').trigger('reset');
@@ -143,23 +138,15 @@ function refreshProcessModal(selProId) {
     editor.setValue(templatesh);
     loadModalProGro();
     loadModalParam();
-
     $('#processmodaltitle').html('Edit/Delete Process');
-    //    $('#deleteProcess').css('display', "inline");
     $('#mProActionsDiv').css('display', "inline");
     $('#mProRevSpan').css('display', "inline");
     $('#proPermGroPubDiv').css('display', "inline");
-
-
     loadModalRevision(selProId);
     loadSelectedProcess(selProId);
-
 }
 
-
-
 function loadModalProGro() {
-    //ajax for Process Group        
     $.ajax({
         type: "GET",
         url: "ajax/ajaxquery.php",
@@ -269,7 +256,6 @@ function loadModalRevision(selProcessId) {
     $('#mProRev').selectize({
         valueField: 'id',
         searchField: ['rev_id', 'rev_comment'],
-        //placeholder: "Add input...",
         options: revisions,
         render: renderRev
     });
@@ -345,8 +331,9 @@ function loadSelectedProcess(selProcessId) {
         $('#mInputs-' + numForm)[0].selectize.setValue(inputs[i].parameter_id, false);
         $('#mInName-' + numForm).val(inputs[i].sname);
         $('#mInName-' + numForm).attr('ppID', inputs[i].id);
+        var closureText = "";
         if (inputs[i].closure !== '' && inputs[i].closure !== null) {
-            var closureText = decodeHtml(inputs[i].closure);
+            closureText = decodeHtml(inputs[i].closure);
         }
         $('#mInClosure-' + numForm).val(closureText);
         if (inputs[i].operator !== '' && inputs[i].operator !== null) {
@@ -360,8 +347,9 @@ function loadSelectedProcess(selProcessId) {
         $('#mOutputs-' + numForm)[0].selectize.setValue(outputs[i].parameter_id, false);
         $('#mOutName-' + numForm).val(outputs[i].sname);
         $('#mOutName-' + numForm).attr('ppID', outputs[i].id);
+        var closureText = "";
         if (outputs[i].closure !== '' && outputs[i].closure !== null) {
-            var closureText = decodeHtml(outputs[i].closure);
+            closureText = decodeHtml(outputs[i].closure);
             $('#mOutClosure-' + numForm).val(closureText);
         }
         if (outputs[i].operator !== '' && outputs[i].operator !== null) {
@@ -1031,7 +1019,11 @@ function disableProModal(selProcessId) {
     $('#createRevision').css('display', "none");
     $('#createRevisionBut').css('display', "none");
     $('#deleteRevision').css('display', "none");
-    $('#selectProcess').css('display', "inline");
+    if (gNumInfo.match(/-/)) { //for pipeline module windows
+        $('#selectProcess').css("display", "none")
+    } else {
+        $('#selectProcess').css('display', "inline");
+    }
 
 };
 //disable when it is selected as everyone
@@ -1090,9 +1082,6 @@ function disableProModalPublic(selProcessId) {
     $('#deleteRevision').css('display', "none");
     $('#createRevision').css('display', "inline");
     $('#createRevisionBut').css('display', "inline");
-    //    $('#advOptProDiv').css('display', "none");
-    //    $('#selectProcess').css('display', "inline");
-
 };
 
 function createRevPipeline(savedList, id, sName) {
@@ -1401,7 +1390,6 @@ function loadSelectedPipeline(pipeline_id) {
         if (Object.keys(pData).length > 0) {
             console.log(pData)
             $('#selectPipeline').attr("pName", pData[0].name);
-
             var nodes = pData[0].nodes
             nodes = JSON.parse(nodes.replace(/'/gi, "\""))
             $.each(nodes, function (el) {
@@ -1428,8 +1416,16 @@ function loadSelectedPipeline(pipeline_id) {
             $('#selectPipeTable').DataTable({
                 destroy: true,
                 "data": pDataTable,
+                "hover":true,
                 "columns": [{
-                    "data": "process_name"
+                "data": "process_name",
+                "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                    if (oData.process_id.match("p")){
+                        $(nTd).text(oData.process_name);
+                    } else {
+                        $(nTd).html("<a data-toggle='modal' data-target='#addProcessModal' data-backdrop='false' href='' pipeMode='true' id='"+oData.process_name+ "@" + oData.process_id + "'>" +'<span class="txtlink">'+oData.process_name+"</span>"  + "</a>");
+                    }
+                }
             }, {
                     "data": "rev_id"
             }, {
@@ -1444,14 +1440,20 @@ function loadSelectedPipeline(pipeline_id) {
 
 $('#selectPipelineModal').on('hidden.bs.modal', function (ev) {
     $('#selectPipeTable').dataTable().fnDestroy();
-
+    $('#mPipeRev')[0].selectize.destroy();
+    $('#selectPipeline').css("display","inline")
 });
 
 $('#selectPipelineModal').on('show.bs.modal', function (ev) {
     var selPipelineId = infoID;
     $('#selectPipeline').attr("fPipeID", selPipelineId);
     $('#selectPipeline').attr("gNum", gNumInfo);
-    var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+    if (gNumInfo.match(/-/)) { //for pipeline module windows
+        var coorProRaw = d3.select("#g" + gNumInfo)[0][0].attributes.transform.value;
+        $('#selectPipeline').css("display","none")
+    } else {
+        var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+    }
     var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
     var xProCoor = coorProRaw.replace(PattCoor, '$1');
     var yProCoor = coorProRaw.replace(PattCoor, '$2');
@@ -1746,13 +1748,22 @@ $(document).ready(function () {
 
             delProMenuID = button.attr('id');
             sMenuProIdFirst = button.attr('id');
+            var pipeMode = button.attr('pipeMode');
             var PattPro = /(.*)@(.*)/; //Map_Tophat2@11
             var selProcessId = button.attr('id').replace(PattPro, '$2');
             loadModalRevision(selProcessId);
             var processOwn = "";
             var proPerms = "";
             [proPerms, processOwn] = loadSelectedProcess(selProcessId);
-            if (usRole === "admin") {
+            console.log(pipeMode)
+            if (pipeMode){
+                $('#permsPro').attr('disabled', "disabled");
+                $('#publishPro').attr('disabled', "disabled");
+                disableProModalPublic(selProcessId);
+                $('#createRevision').css('display', "none");
+                $('#createRevisionBut').css('display', "none");
+                $('#mProActionsDiv').css('display', "none");
+            } else if (usRole === "admin") {
                 $("#permsPro option[value='63']").attr("disabled", false);
             } else if (processOwn === "1" && proPerms === "63" && usRole !== "admin") {
                 $('#permsPro').attr('disabled', "disabled");
@@ -1771,7 +1782,11 @@ $(document).ready(function () {
             var selProcessId = infoID;
             $('#selectProcess').attr("fProID", selProcessId);
             $('#selectProcess').attr("gNum", gNumInfo);
-            var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+            if (gNumInfo.match(/-/)) { //for pipeline module windows
+                var coorProRaw = d3.select("#g" + gNumInfo)[0][0].attributes.transform.value;
+            } else {
+                var coorProRaw = d3.select("#g-" + gNumInfo)[0][0].attributes.transform.value;
+            }
             var PattCoor = /translate\((.*),(.*)\)/; //417.6,299.6
             var xProCoor = coorProRaw.replace(PattCoor, '$1');
             var yProCoor = coorProRaw.replace(PattCoor, '$2');
@@ -2040,7 +2055,7 @@ $(document).ready(function () {
                     $('#confirmYesNoText').html(infoText);
                     if ((numOfProcessPublic === 0 && numOfProPipePublic === 0) || usRole == "admin") {
                         $('#saveOnExist').css('display', 'inline');
-                        if (usRole == "admin" && !(numOfProcessPublic === 0 && numOfProPipePublic === 0)){
+                        if (usRole == "admin" && !(numOfProcessPublic === 0 && numOfProPipePublic === 0)) {
                             $('#saveOnExist').attr('class', 'btn btn-danger');
                         }
                     }
