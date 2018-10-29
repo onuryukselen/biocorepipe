@@ -449,12 +449,21 @@ function getChannelNameAll(channelName, Iid, allEdges) {
             if (channelNameAll === "") {
                 channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
             } else {
-                channelNameAll = channelNameAll + "; " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+                channelNameAll = channelNameAll + ";" + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
             }
 
         }
     }
     return channelNameAll
+}
+function getChannelSetInto(channelNameAll){
+    var text = "";
+    if (channelNameAll.match(/;/)){
+        text = ".into{"+channelNameAll+"}";
+    } else {
+        text = ".set{"+channelNameAll+"}";
+    }
+    return text
 }
 
 //Input parameters and channels with file paths
@@ -468,15 +477,15 @@ function InputParameters(id, currgid, getProPipeInputs, allEdges) {
         inputIdSplit = Iid.split("-")
         ProId = inputIdSplit[1]
         userEntryId = "text-" + inputIdSplit[4];
-
         if (ProId === "inPro" && inputIdSplit[3] !== "inPara") {
             qual = parametersData.filter(function (el) {
                 return el.id == inputIdSplit[3]
             })[0].qualifier
             inputParamName = document.getElementById(userEntryId).getAttribute('name')
-
             for (var e = 0; e < edges.length; e++) {
                 if (edges[e].indexOf(Iid) !== -1) { //if not exist: -1
+                    var secPartTemp="";
+                    var firstPartTemp="";
                     var fNode = "";
                     var sNode = "";
                     [fNode, sNode] = splitEdges(edges[e]);
@@ -488,6 +497,7 @@ function InputParameters(id, currgid, getProPipeInputs, allEdges) {
                     var gNumIn = gTxt.replace(/(.*)-(.*)/, '$2'); //6
                     channelName = gFormat(gTxt) + "_" + genParName; //g_0_genome
                     var channelNameAll = channelNameAll = getChannelNameAll(channelName, Iid, allEdges);
+                    var channelSetInto = getChannelSetInto(channelNameAll);
                     //check if input has glob(*,?{,}) characters
                     var checkRegex = false;
                     if (getProPipeInputs) {
@@ -498,7 +508,6 @@ function InputParameters(id, currgid, getProPipeInputs, allEdges) {
                             checkRegex = /(\{|\*|\?|\})/.test(inputName.name);
                         }
                     }
-
                     //check proId had a mate inputparameter
                     if (qual === "set") {
                         var sNodeProId = inputIdSplit[1];
@@ -507,52 +516,41 @@ function InputParameters(id, currgid, getProPipeInputs, allEdges) {
                             return el.sname == "mate"
                         }).length
                     }
-
                     firstPartTemp = 'if (!params.' + inputParamName + '){params.' + inputParamName + ' = ""} \n'
                     if (qual === "file") {
                         if (checkRegex === false) {
-                            secPartTemp = channelName + " = " + "file(params." + inputParamName + ") \n";
+                            var chanList = channelNameAll.split(";");
+                            for (var e = 0; e < chanList.length; e++) {
+                                secPartTemp += chanList[e] + " = " + "file(params." + inputParamName + ") \n";
+                            }
+                            
                         } else if (checkRegex === true) {
-                            secPartTemp = channelName + " = " + "Channel.fromPath(params." + inputParamName + ") \n";
+                            secPartTemp = "Channel.fromPath(params." + inputParamName + ")"+channelSetInto + "\n";
                         }
-                        firstPart = firstPart + firstPartTemp
-                        secPart = secPart + secPartTemp
-                        break
                         //if mate defined in process use fromFilePairs
                     } else if (qual === "set" && inputParMate > 0) {
-                        //all processes that are connected to
-                        secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t.into { " + channelNameAll + "} \n\n";
-                        firstPart = firstPart + firstPartTemp
-                        secPart = secPart + secPartTemp
-                        break
+                        secPartTemp = "Channel\n\t.fromFilePairs( params." + inputParamName + " , size: (params.mate != \"pair\") ? 1 : 2 )\n\t.ifEmpty { error \"Cannot find any " + genParName + " matching: ${params." + inputParamName + "}\" }\n\t"+ channelSetInto +"\n\n";
                     }
                     //if mate not defined in process use fromPath
                     else if (qual === "set" && inputParMate === 0) {
-                        //all processes that are connected to
                         secPartTemp = channelNameAll + " = " + "Channel.fromPath(params." + inputParamName + ").toSortedList() \n"
-                        firstPart = firstPart + firstPartTemp
-                        secPart = secPart + secPartTemp
-                        break
                     } else if (qual === "val") {
-                        secPartTemp = channelName + " = " + "params." + inputParamName + "\n"
-                        firstPart = firstPart + firstPartTemp
-                        secPart = secPart + secPartTemp
-                        break
+                        secPartTemp = "Channel.value(params." + inputParamName + ")" + channelSetInto + "\n"
                     }
-
+                    firstPart += firstPartTemp
+                    secPart += secPartTemp
+                    break
                 }
             }
         }
     }
     iText.firstPart = firstPart
     iText.secPart = secPart
-
     return iText
 }
 
 function getParamOutdir(outParUserEntry) {
     return '"' + outParUserEntry + '/$filename"';
-    // "paired/$filename"
 }
 
 //if name contains regular expression with curly brackets: {a,b,c} then turn into (a|b|c) format
@@ -572,9 +570,8 @@ function fixCurlyBrackets(outputName) {
     }
 }
 
-//
+//eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
 function getPublishDirRegex(outputName) {
-    //eg. set val(name), file("${params.wdir}/validfastq/*.fastq") then take inside of the file(x)
     if (outputName.match(/file\((.*)\)/)) {
         var outputName = outputName.match(/file\((.*)\)/)[1];
     }
@@ -713,20 +710,19 @@ function getWhenText(whenCond, whenInLib, whenOutLib) {
             var inChn = pairList[i].inChl;
             var outChn = pairList[i].outChl;
             for (var k = 0; k < inChn.length; k++) {
-                whenText += inChn[k]+".into{"+outChn.join(";")+"}\n" 
+                whenText += inChn[k] + ".into{" + outChn.join(";") + "}\n"
             }
-
         }
         for (var n = 0; n < dummyOutList.length; n++) {
-                whenText += dummyOutList[n]+" = Channel.empty()\n"; 
+            whenText += dummyOutList[n] + " = Channel.empty()\n";
         }
         whenText += "} else {";
     }
     return whenText
 }
 
-function addChannelName(whenCond, whenLib, file_type, channelName,param_name,qual) {
-    var libName = file_type+"_"+param_name+"_"+qual;
+function addChannelName(whenCond, whenLib, file_type, channelName, param_name, qual) {
+    var libName = file_type + "_" + param_name + "_" + qual;
     if (whenCond && whenLib[libName]) {
         whenLib[libName].push(channelName)
     } else if (whenCond && !whenLib[libName]) {
@@ -761,7 +757,6 @@ function IOandScriptForNf(id, currgid, allEdges) {
     if (script.search('"""') === -1 && script.search('\'\'\'') === -1) {
         script = '"""\n' + script + '\n"""'
     }
-
     bodyInput = ""
     bodyOutput = ""
     IList = d3.select("#" + currgid).selectAll("circle[kind ='input']")[0]
@@ -776,7 +771,6 @@ function IOandScriptForNf(id, currgid, allEdges) {
         var qual = paramData.qualifier
         var file_type = paramData.file_type
         var param_name = paramData.name
-
         var inputName = document.getElementById(Iid).getAttribute("name");
         var inputClosure = document.getElementById(Iid).getAttribute("closure");
         var inputOperator = document.getElementById(Iid).getAttribute("operator");
@@ -803,24 +797,14 @@ function IOandScriptForNf(id, currgid, allEdges) {
                     var inputIdSplit = fNode.split("-")
                     var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
                     var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
-
-                    if (qualNode === 'set') {
-                        var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(sNode).getAttribute("parentG"));
-                    } else {
-                        var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName;
-                    }
-
+                    var channelName = gFormat(document.getElementById(fNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(sNode).getAttribute("parentG"));
                 } else {
                     var inputIdSplit = sNode.split("-");
                     var genParName = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].name;
                     var qualNode = parametersData.filter(function (el) { return el.id == inputIdSplit[3] })[0].qualifier;
-                    if (qualNode === 'set') {
-                        var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(fNode).getAttribute("parentG"));
-                    } else {
-                        var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName;
-                    }
+                    var channelName = gFormat(document.getElementById(sNode).getAttribute("parentG")) + "_" + genParName + "_" + gFormat(document.getElementById(fNode).getAttribute("parentG"));
                 }
-                whenInLib = addChannelName(whenCond, whenInLib, file_type, channelName,param_name,qual)
+                whenInLib = addChannelName(whenCond, whenInLib, file_type, channelName, param_name, qual)
                 bodyInput = bodyInput + " " + qual + " " + inputName + " from " + channelName + inputOperatorText + "\n";
             }
         }
@@ -857,60 +841,49 @@ function IOandScriptForNf(id, currgid, allEdges) {
             return el.id == outputIdSplit[3]
         })[0].name
         channelName = gFormat(document.getElementById(Oid).getAttribute("parentG")) + "_" + genParName;
-
-        //find all edges emerges from this output
-        if (qual === "set") {
-            var channelNameAll = "";
-            for (var c = 0; c < allEdges.length; c++) {
-                if (allEdges[c].indexOf(Oid) == 0) {
-                    var fNode = "";
-                    var secNode = "";
+        var channelNameAll = "";
+        for (var c = 0; c < allEdges.length; c++) {
+            if (allEdges[c].indexOf(Oid) == 0) {
+                var fNode = "";
+                var secNode = "";
                     [fNode, secNode] = splitEdges(allEdges[c]);
-                    var secProType = secNode.split("-")[1];
-                    if (secProType !== "outPro") {
-                        if (channelNameAll === "") {
-                            channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                        } else {
-                            channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
-                        }
-                    }
-
-                } else if (allEdges[c].indexOf(Oid) > 0) {
-                    var fstNode = "";
-                    var secNode = "";
-                    [fstNode, secNode] = splitEdges(allEdges[c]);
-                    var fstProType = fstNode.split("-")[1];
-                    if (fstProType !== "outPro") {
-                        if (channelNameAll === "") {
-                            channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
-                        } else {
-                            channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
-                        }
+                var secProType = secNode.split("-")[1];
+                if (secProType !== "outPro") {
+                    if (channelNameAll === "") {
+                        channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
+                    } else {
+                        channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(secNode).getAttribute("parentG"));
                     }
                 }
-
+            } else if (allEdges[c].indexOf(Oid) > 0) {
+                var fstNode = "";
+                var secNode = "";
+                    [fstNode, secNode] = splitEdges(allEdges[c]);
+                var fstProType = fstNode.split("-")[1];
+                if (fstProType !== "outPro") {
+                    if (channelNameAll === "") {
+                        channelNameAll = channelNameAll + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
+                    } else {
+                        channelNameAll = channelNameAll + ", " + channelName + "_" + gFormat(document.getElementById(fstNode).getAttribute("parentG"));
+                    }
+                }
             }
-            // if output node is not connected to input node.
-            if (channelNameAll === '') {
-                channelNameAll = channelName;
-            }
-        } else if (qual !== "set") {
+        }
+        // if output node is not connected to input node.
+        if (channelNameAll === '') {
             channelNameAll = channelName;
         }
-        whenOutLib = addChannelName(whenCond, whenOutLib, file_type, channelNameAll, param_name,qual)
+        whenOutLib = addChannelName(whenCond, whenOutLib, file_type, channelNameAll, param_name, qual)
         bodyOutput = bodyOutput + " " + qual + " " + outputName + " into " + channelNameAll + outputOperatorText + "\n"
 
     }
-    console.log(whenCond)
     if (whenCond) {
         whenText = getWhenText(whenCond, whenInLib, whenOutLib);
-        console.log(whenText)
-        if (whenText && whenText !== ""){
+        if (whenText && whenText !== "") {
             script_header = script_header + "\n" + whenText + "\n";
             script_footer = "}" + "\n" + script_footer + "\n";
         }
     }
-    console.log(script_footer)
     body = bodyInput + "\n" + bodyOutput + "\n" + script
     return [body, script_header, script_footer]
 }

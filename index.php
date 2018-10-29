@@ -237,6 +237,15 @@ session_write_close();
             .borderClass {
                 border: 1px solid red;
             }
+            /*        Datatable link hover */
+            .txtlink:hover {
+                text-decoration: underline;
+                color: #397FA7;
+            }
+            .txtlink {
+                color: #397FA7;
+            }
+            
 
         </style>
 

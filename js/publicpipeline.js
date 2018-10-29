@@ -49,7 +49,7 @@ function createSVG() {
     cx = 0
     cy = 0
     ior = r / 6
-    rP = r + 20; // r of pipeline circle 
+    rP = r + 24; // r of pipeline circle 
     var dat = [{
         x: 0,
         y: 0
@@ -273,7 +273,7 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
         .attr('fill-opacity', 0.6)
         .on("mouseover", scMouseOver)
         .on("mouseout", scMouseOut)
-//        .call(drag)
+
     //gnum(written in id): uniqe,
     pObjOrigin.g.append("text").attr("id", "text" + MainGNum + "-" + pObjOrigin.gNum)
         .datum([{
@@ -284,11 +284,10 @@ function addPipeline(piID, x, y, name, pObjOrigin, pObjSub) {
         .attr('font-size', '1em')
         .attr('name', name)
         .attr('class', 'process')
-        .text(truncateName(name, 'process'))
+        .text(truncateName(name, 'pipelineModule'))
         .style("text-anchor", "middle")
         .on("mouseover", scMouseOver)
         .on("mouseout", scMouseOut)
-//        .call(drag)
 
     //get process list of pipeline
     if (pObjSub.sData) {
