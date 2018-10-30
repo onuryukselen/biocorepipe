@@ -234,6 +234,9 @@ class dbfuncs {
         }
         $preCmd .= $arr[$i];
     }
+    if (!empty($preCmd)){
+        $preCmd .= " && ";
+    }
 
     return $preCmd;
     }
@@ -541,7 +544,7 @@ class dbfuncs {
                 if ($matches[2] == " ") {
                     $exec_next_all = $this->getExecNextAll($executor, $dolphin_path_real, $next_path_real, $next_inputs, $next_queue,$next_cpu,$next_time,$next_memory, $jobname, $executor_job, $reportOptions, $next_clu_opt, $runType, $profileId,$ownerID);
             
-                    $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"$preCmd && $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
+                    $cmd="ssh {$this->ssh_settings}  -i $userpky $connect \"$preCmd $exec_next_all\" >> $run_path_real/log.txt 2>&1 & echo $! &";
                     $next_submit_pid= shell_exec($cmd); //"Job <203477> is submitted to queue <long>.\n"
                     $this->writeLog($project_pipeline_id,$cmd,'a','log.txt');
                     if (!$next_submit_pid) {
@@ -1545,14 +1548,14 @@ class dbfuncs {
         $preCmd = $this->getPreCmd($profileType, $profileCmd, $proPipeCmd, $imageCmd);
 			
         if ($executor == "lsf" && $commandType == "checkRunPid"){
-        	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bjobs\" 2>&1 &");
+        	$check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"$preCmd bjobs\" 2>&1 &");
             if (preg_match("/$pid/",$check_run)){
                 return json_encode('running');
             } else {
             	return json_encode('done');
             }
         } else if ($executor == "sge" && $commandType == "checkRunPid"){
-            $check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qstat -j $pid\" 2>&1 &");
+            $check_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"$preCmd qstat -j $pid\" 2>&1 &");
             if (preg_match("/job_number:/",$check_run)){
                 return json_encode('running');
             } else {
@@ -1560,13 +1563,13 @@ class dbfuncs {
                 return json_encode('done');
             } 
         } else if ($executor == "sge" && $commandType == "terminateRun"){
-            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && qdel $pid\" 2>&1 &");
+            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"$preCmd qdel $pid\" 2>&1 &");
             return json_encode('terminateCommandExecuted');
         } else if ($executor == "lsf" && $commandType == "terminateRun"){
-            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && bkill $pid\" 2>&1 &");
+            $terminate_run = shell_exec("ssh {$this->ssh_settings} -i $userpky $connect \"$preCmd bkill $pid\" 2>&1 &");
             return json_encode('terminateCommandExecuted');
         } else if ($executor == "local" && $commandType == "terminateRun"){
-            $cmd = "ssh {$this->ssh_settings} -i $userpky $connect \"cd $preCmd && ps -ef |grep nextflow.*/run$project_pipeline_id/ |grep -v grep | awk '{print \\\"kill \\\"\\\$2}' |bash \" 2>&1 &";
+            $cmd = "ssh {$this->ssh_settings} -i $userpky $connect \"$preCmd ps -ef |grep nextflow.*/run$project_pipeline_id/ |grep -v grep | awk '{print \\\"kill \\\"\\\$2}' |bash \" 2>&1 &";
         	$terminate_run = shell_exec($cmd);
             return json_encode('terminateCommandExecuted');
         } 
