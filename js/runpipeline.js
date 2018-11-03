@@ -789,8 +789,13 @@ function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
             if (autoFillJSON[k].library[autoVal]) {
                 //check if condition is met
                 var conds = autoFillJSON[k].condition
-                var statusCond = checkConds(conds);
-                if (statusCond === true) {
+                var genConds = autoFillJSON[k].genCondition
+                if (conds && !$.isEmptyObject(conds)){
+                    var statusCond = checkConds(conds);
+                    if (statusCond === true) {
+                        return autoFillJSON[k].library[autoVal]
+                    }
+                } else if ($.isEmptyObject(conds) && $.isEmptyObject(genConds)){
                     return autoFillJSON[k].library[autoVal]
                 }
             }
@@ -847,8 +852,10 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
             }
         });
         //bind event handlers
+        console.log(allAutoForm)
         setTimeout(function () {
             $.each(allAutoForm, function (el) {
+
                 var dataGroup = $.extend(true, {}, allAutoForm[el]);
                 dataGroup.type = type;
                 var varNameCond = dataGroup.varNameCond;
@@ -869,6 +876,7 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                     }
                     var parentDiv = $(this).parent().parent();
                     if (selectedVal === selOpt) {
+                        console.log(selectedVal)
                         //if autoval contains "+" operator
                         if (autoVal.match(/\+/)) {
                             var autoValAr = autoVal.split("+");
@@ -880,10 +888,16 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                             //check if dynamic variables (_var) exist in autoVal
                             autoVal = checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum)
                         }
-                        parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
+                        if (autoVal) {
+                            parentDiv.find("#var_" + gNum + "-" + varName).val(autoVal)
+                        }
                     }
                 });
                 $(condDiv).trigger("change")
+                //trigger one more time to effectively change according to last value
+                if (el == allAutoForm.length-1){
+                    $(condDiv).trigger("change")
+                }
             });
         }, 1000);
     }
@@ -1231,6 +1245,16 @@ function parseAutofill(script) {
                 }
                 // parse statements after first line of autofill
                 if (blockStart != null && i > blockStart) {
+                    // global variables
+                    if (!ifBlockStart && !lines[i].match(/.*if *\((.*)\).*/i)){
+                        [varName, defaultVal] = parseVarPart(lines[i]);
+                        if (varName && defaultVal) {
+                            if (varName.match(/^_.*$/)) {
+                                library[varName] = defaultVal
+                            }
+                            autoFill.push({ condition: conds, genCondition: genConds, statement: states, library: library })
+                        }
+                    }
                     //find if condition
                     if (lines[i].match(/.*if *\((.*)\).*/i)) {
                         if (ifBlockStart) {
@@ -1242,7 +1266,7 @@ function parseAutofill(script) {
                         genConds = {};
                         library = {}; //new library object. Will be used for filling strings. 
                         states = {}; //new statement object. It will be filled with following statements until next if condition
-                        var ifBlockStart = i;
+                        ifBlockStart = i;
                         cond = lines[i].match(/.*if *\((.*)\).*/i)[1]
                         if (cond) {
                             var condsplit = cond.split("&&");
@@ -1255,12 +1279,25 @@ function parseAutofill(script) {
                                 }
                             });
                         }
-                        //end of the autofill block: //*
+                        //end of the autofill block: //*or 
                     } else if (lines[i].match(/\/\/\*/i)) {
                         blockStart = null;
+                        ifBlockStart = null;
                         if (conds && states && library && genConds && (!$.isEmptyObject(conds) || !$.isEmptyObject(genConds)) && (!$.isEmptyObject(states) || !$.isEmptyObject(library))) {
                             autoFill.push({ condition: conds, genCondition: genConds, statement: states, library: library })
                         }
+                        //end of if condition with curly brackets 
+                    }else if ($.trim(lines[i]).match(/^\}$/m)) {
+                        if (ifBlockStart) {
+                            ifBlockStart = null;
+                            if (conds && states && library && genConds && (!$.isEmptyObject(conds) || !$.isEmptyObject(genConds)) && (!$.isEmptyObject(states) || !$.isEmptyObject(library))) {
+                                autoFill.push({ condition: conds, genCondition: genConds, statement: states, library: library })
+                            }
+                        }
+                        conds = {};
+                        genConds = {};
+                        library = {};  
+                        states = {};
                         //lines of statements 
                     } else {
 	  					[varName, defaultVal] = parseVarPart(lines[i]);
