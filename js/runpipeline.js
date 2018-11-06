@@ -556,6 +556,7 @@ function parseRegPart(regPart) {
     var title = null;
     var tool = null;
     var opt = null;
+    var allOptCurly = null;
     var multiCol = null;
     var autoform = null;
     var arr = null;
@@ -636,16 +637,22 @@ function parseRegPart(regPart) {
                 }
             }
             // find options
-            var optCheck = regSplit[i].match(/^options:\s*"(.*)"|^options:\s*'(.*)'/i);
+            var optCheck = regSplit[i].match(/^options:\s*"(.*)"|^options:\s*'(.*)'|^options:\s*\{(.*)\}/i);
             if (optCheck) {
                 if (optCheck[1]) {
                     var allOpt = optCheck[1];
                 } else if (optCheck[2]) {
                     var allOpt = optCheck[2];
+                } else if (optCheck[3]) {
+                    var allOpt = null;
+                    var curlyOpt = regSplit[i].match(/^options:\s*(.*)/i);
+                    if (curlyOpt[1]) {
+                        opt = parseBrackets(curlyOpt[1], true);
+                    }
                 }
                 //seperate options by comma
                 if (allOpt) {
-                    var allOpt = allOpt.split(',');
+                    allOpt = allOpt.split(',');
                     if (allOpt.length) {
                         for (var k = 0; k < allOpt.length; k++) {
                             allOpt[k] = $.trim(allOpt[k]);
@@ -653,8 +660,8 @@ function parseRegPart(regPart) {
                             allOpt[k] = allOpt[k].replace(/\'/g, '');
                         }
                     }
+                    opt = allOpt;
                 }
-                opt = allOpt;
             }
         }
     }
@@ -681,6 +688,35 @@ function appendBeforeDiv(button) {
     newDiv.find("input:checkbox").trigger("change");
     $('[data-toggle="tooltip"]').tooltip();
 }
+
+function findDynamicArr(optArr,gNum) {
+    var opt = null;
+    for (var t = 0; t < optArr.length; t++) {
+        if (optArr[t].varNameCond && optArr[t].selOpt && optArr[t].autoVal) {
+            optArr[t].varNameCond = checkDynamicVar(optArr[t].varNameCond, autoFillJSON, null, gNum)
+            if (optArr[t].varNameCond == optArr[t].selOpt) {
+                opt = optArr[t].autoVal;
+                return opt
+            }
+        }
+    }
+    return opt
+}
+
+function findDefaultArr(optArr) {
+    var defaultOpt = null;
+    for (var t = 0; t < optArr.length; t++) {
+        if (!optArr[t].varNameCond && !optArr[t].selOpt && optArr[t].autoVal) {
+           var mergedOpt = optArr[t].autoVal.join("")
+            if (!mergedOpt.match(/=/)) {
+                defaultOpt = optArr[t].autoVal;
+            }
+        }
+    }
+    return defaultOpt
+}
+    
+    
 
 
 //insert form fields into panels of process options 
@@ -758,15 +794,38 @@ function addProcessPanelRow(gNum, name, varName, defaultVal, type, desc, opt, to
         } else if (type === "dropdown") {
             var inputDiv = '<select type="dropdown" class="form-control" id="var_' + gNum + '-' + varName + '" name="var_' + gNum + '-' + varName + '">';
             var optionDiv = "";
+            var defaultOpt = null;
+            var dynamicOpt = null;
             if (opt) {
                 if (opt.length) {
-                    for (var k = 0; k < opt.length; k++) {
-                        if (defaultVal === opt[k]) {
-                            optionDiv += '<option selected>' + opt[k] + ' </option>';
-                        } else {
-                            optionDiv += '<option>' + opt[k] + ' </option>';
+                    console.log(opt)
+                    //check if conditional options are defined.
+                    var condOptCheck = $.isArray(opt[0])
+                    console.log(condOptCheck)
+                    if (condOptCheck) {
+                        //conditional options
+                        var optArr = [];
+                        optArr = createDynFillArr([opt])
+                        //check if dynamic variables (_var) exist in varNameCond
+                        dynamicOpt = findDynamicArr(optArr,gNum)
+                        if (dynamicOpt){
+                            opt = dynamicOpt;
+                        } else{
+                        // check if default option is defined(without =)
+                            opt = findDefaultArr(optArr)
                         }
                     }
+                    console.log(opt)
+                    if (opt) {
+                        for (var k = 0; k < opt.length; k++) {
+                            if (defaultVal === opt[k]) {
+                                optionDiv += '<option selected>' + opt[k] + ' </option>';
+                            } else {
+                                optionDiv += '<option>' + opt[k] + ' </option>';
+                            }
+                        }
+                    }
+
                 }
             }
             processParamDiv += label + inputDiv + optionDiv + '</select>' + descText + '</div>';
@@ -790,24 +849,69 @@ function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
                 //check if condition is met
                 var conds = autoFillJSON[k].condition
                 var genConds = autoFillJSON[k].genCondition
-                if (conds && !$.isEmptyObject(conds)){
+                if (conds && !$.isEmptyObject(conds)) {
                     var statusCond = checkConds(conds);
                     if (statusCond === true) {
                         return autoFillJSON[k].library[autoVal]
                     }
-                } else if ($.isEmptyObject(conds) && $.isEmptyObject(genConds)){
+                } else if ($.isEmptyObject(conds) && $.isEmptyObject(genConds)) {
                     return autoFillJSON[k].library[autoVal]
                 }
             }
         };
-        if (parentDiv.find("#var_" + gNum + "-" + autoVal)) {
-            return parentDiv.find("#var_" + gNum + "-" + autoVal).val()
+        if (parentDiv) {
+            if (parentDiv.find("#var_" + gNum + "-" + autoVal)) {
+                return parentDiv.find("#var_" + gNum + "-" + autoVal).val()
+            }
         }
         return ""
     } else {
         return autoVal
     }
 }
+
+//convert {var1="yes", "filling_text"} or {var1=("yes","no"), _build+"filling_text"} to array format: [{varNameCond: "var1", selOpt: "yes", autoVal: "filling_text"}]
+function createDynFillArr(autoform) {
+    var allAutoForm = [];
+    //find condition dependent varNameCond, selOpt, and autoVal
+    $.each(autoform, function (elem) {
+        var condArr = autoform[elem];
+        for (var n = 0; n < condArr.length; n++) {
+            if (condArr[n].length > 1) {
+                var autoObj = { varNameCond: null, selOpt: null, autoVal: [] };
+                for (var k = 0; k < condArr[n].length; k++) {
+                    // check if condArr has element like "var1=yes" where varName=var1 or "var1=(yes|no)"
+                    if (condArr[n][k].match(/=/)) {
+                        autoObj.varNameCond = condArr[n][k].match(/(.*)=(.*)/)[1]
+                        autoObj.selOpt = condArr[n][k].match(/(.*)=(.*)/)[2]
+                    } else {
+                        autoObj.autoVal.push(condArr[n][k]);
+                    }
+                }
+                allAutoForm.push(autoObj)
+            }
+        }
+    });
+
+    //if selOpt contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
+    $.each(allAutoForm, function (el) {
+        var selOpt = allAutoForm[el].selOpt;
+        if (selOpt) {
+            if (selOpt.match(/\|/)) {
+                selOpt = selOpt.replace("(", "")
+                selOpt = selOpt.replace(")", "")
+                var allOpt = selOpt.split("|")
+                for (var n = 0; n < allOpt.length; n++) {
+                    var newData = $.extend(true, {}, allAutoForm[el]);
+                    newData.selOpt = allOpt[n];
+                    allAutoForm.push(newData)
+                }
+            }
+        }
+    });
+    return allAutoForm
+}
+
 
 // if @autofill exists, then create event binders
 //eg.  @autofill:{var1="yes", "filling_text"}  
@@ -816,46 +920,10 @@ function checkDynamicVar(autoVal, autoFillJSON, parentDiv, gNum) {
 function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
     var allAutoForm = [];
     if (autoform) {
-        //find condition dependent varNameCond, selOpt, and autoVal
-        $.each(autoform, function (elem) {
-            var condArr = autoform[elem];
-            for (var n = 0; n < condArr.length; n++) {
-                if (condArr[n].length == 2) {
-                    var autoObj = { varNameCond: null, selOpt: null, autoVal: null };
-                    for (var k = 0; k < condArr[n].length; k++) {
-                        // check if condArr has element like "var1=yes" where varName=var1 or "var1=(yes|no)"
-                        if (condArr[n][k].match(/=/)) {
-                            autoObj.varNameCond = condArr[n][k].match(/(.*)=(.*)/)[1]
-                            autoObj.selOpt = condArr[n][k].match(/(.*)=(.*)/)[2]
-                        } else {
-                            autoObj.autoVal = condArr[n][k];
-                        }
-                    }
-                    allAutoForm.push(autoObj)
-                }
-            }
-        });
-        //if selOpt contains multiple options: (rRNA|ercc|miRNA|tRNA|piRNA|snRNA|rmsk)
-        $.each(allAutoForm, function (el) {
-            var selOpt = allAutoForm[el].selOpt;
-            if (selOpt) {
-                if (selOpt.match(/\|/)) {
-                    selOpt = selOpt.replace("(", "")
-                    selOpt = selOpt.replace(")", "")
-                    var allOpt = selOpt.split("|")
-                    for (var n = 0; n < allOpt.length; n++) {
-                        var newData = $.extend(true, {}, allAutoForm[el]);
-                        newData.selOpt = allOpt[n];
-                        allAutoForm.push(newData)
-                    }
-                }
-            }
-        });
+        allAutoForm = createDynFillArr(autoform)
         //bind event handlers
-        console.log(allAutoForm)
         setTimeout(function () {
             $.each(allAutoForm, function (el) {
-
                 var dataGroup = $.extend(true, {}, allAutoForm[el]);
                 dataGroup.type = type;
                 var varNameCond = dataGroup.varNameCond;
@@ -864,7 +932,7 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                 //bind change event to dropdown
                 $(condDiv).change(dataGroup, function () {
                     var lastdataGroup = $.extend(true, {}, dataGroup);
-                    var autoVal = lastdataGroup.autoVal;
+                    var autoVal = lastdataGroup.autoVal[0];
                     var varNameCond = lastdataGroup.varNameCond;
                     var selOpt = lastdataGroup.selOpt;
                     var type = lastdataGroup.type;
@@ -876,7 +944,6 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                     }
                     var parentDiv = $(this).parent().parent();
                     if (selectedVal === selOpt) {
-                        console.log(selectedVal)
                         //if autoval contains "+" operator
                         if (autoVal.match(/\+/)) {
                             var autoValAr = autoVal.split("+");
@@ -895,7 +962,7 @@ function addProcessPanelAutoform(gNum, name, varName, type, autoform) {
                 });
                 $(condDiv).trigger("change")
                 //trigger one more time to effectively change according to last value
-                if (el == allAutoForm.length-1){
+                if (el == allAutoForm.length - 1) {
                     $(condDiv).trigger("change")
                 }
             });
@@ -1246,7 +1313,7 @@ function parseAutofill(script) {
                 // parse statements after first line of autofill
                 if (blockStart != null && i > blockStart) {
                     // global variables
-                    if (!ifBlockStart && !lines[i].match(/.*if *\((.*)\).*/i)){
+                    if (!ifBlockStart && !lines[i].match(/.*if *\((.*)\).*/i)) {
                         [varName, defaultVal] = parseVarPart(lines[i]);
                         if (varName && defaultVal) {
                             if (varName.match(/^_.*$/)) {
@@ -1287,7 +1354,7 @@ function parseAutofill(script) {
                             autoFill.push({ condition: conds, genCondition: genConds, statement: states, library: library })
                         }
                         //end of if condition with curly brackets 
-                    }else if ($.trim(lines[i]).match(/^\}$/m)) {
+                    } else if ($.trim(lines[i]).match(/^\}$/m)) {
                         if (ifBlockStart) {
                             ifBlockStart = null;
                             if (conds && states && library && genConds && (!$.isEmptyObject(conds) || !$.isEmptyObject(genConds)) && (!$.isEmptyObject(states) || !$.isEmptyObject(library))) {
@@ -1296,7 +1363,7 @@ function parseAutofill(script) {
                         }
                         conds = {};
                         genConds = {};
-                        library = {};  
+                        library = {};
                         states = {};
                         //lines of statements 
                     } else {
@@ -1641,7 +1708,6 @@ function insertProPipePanel(script, gNum, name, pObj) {
                         addProcessPanelRow(prefix + gNum, name, varName, defaultVal, type, desc, opt, tool, multicol, array, title);
                     }
                     if (autoform) {
-                        console.log(autoform)
                         addProcessPanelAutoform(prefix + gNum, name, varName, type, autoform);
                     }
                 }
